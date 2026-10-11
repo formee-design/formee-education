@@ -1,0 +1,64 @@
+/* Music Library Card — AI Social Media component
+   Figma: FME_AI-Social-Media, "Music Library Card" (instance 12427:415630, internals 9750:258158…).
+   One row of an audio list: 32px outlined play button, title + sub, a 240px two-column meta
+   (uses · mood, right-aligned), then three 36px icon buttons (add / favorite / more).
+   Rows stack inside a bordered list; the last row drops its divider.
+   Distinct from music-track-row.css (the editor's radio-select picker row).
+   Consumed by: prototypes/ai-social-media/trends/trends.html */
+
+.music-library-list{
+  display:flex; flex-direction:column; width:100%; box-sizing:border-box; overflow:hidden;
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-xl);
+}
+.music-library-card{
+  display:flex; align-items:center; gap:var(--spacing-lg); box-sizing:border-box; width:100%;
+  padding:var(--spacing-md); background:var(--color-neutral-0);
+  border-bottom:var(--border-width-1) solid var(--color-neutral-200);
+  font-family:var(--font-family-text);
+}
+.music-library-card:last-child{border-bottom:0;}
+
+/* Music / Track Play Button */
+.music-library-card__play{
+  width:32px; height:32px; flex-shrink:0; box-sizing:border-box; padding:0; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--color-neutral-700); border-radius:var(--radius-full); background:none;
+}
+.music-library-card__play img{display:block;}
+
+.music-library-card__body{
+  flex:1 0 0; min-width:1px; display:flex; align-items:center; gap:var(--spacing-xl);
+  padding-right:var(--spacing-md);
+}
+.music-library-card__title{
+  flex:1 0 0; min-width:1px; display:flex; flex-direction:column; justify-content:center; gap:var(--spacing-2);
+  font-weight:var(--font-weight-medium); white-space:nowrap;
+}
+.music-library-card__name,
+.music-library-card__sub{margin:0; overflow:hidden; text-overflow:ellipsis;}
+.music-library-card__name{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700);}
+.music-library-card__sub{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+
+.music-library-card__meta{display:flex; align-items:center; width:240px; flex-shrink:0;}
+.music-library-card__meta span{
+  flex:1 0 0; min-width:1px; text-align:right; white-space:nowrap;
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-500);
+}
+
+.music-library-card__buttons{display:flex; align-items:center; gap:var(--spacing-sm); flex-shrink:0;}
+/* Actions / Icon Button · Favorite Button · More Button — same 36px outline shell */
+.music-library-card__btn{
+  width:36px; height:36px; box-sizing:border-box; padding:0; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-lg);
+}
+.music-library-card__btn img{width:16px; height:16px; display:block;}
+.music-library-card__btn:hover{background:var(--color-neutral-100);}
+
+/* hover (Trends · row hover, 12427:415810): row fills neutral-100.
+   .is-hover pins the state for static review (trends.html#state=row-hover). */
+.music-library-card:hover,
+.music-library-card.is-hover{background:var(--color-neutral-100);}

@@ -1,0 +1,17 @@
+/* Actions / Text Button — AI Social Media component
+   Figma: FME_AI-Social-Media, "Actions / Text Button" (instance 12427:416891, label 459:17).
+   Borderless text action: 36px tall, 12px side padding, 4px gap (Figma binds the gap to
+   radius/sm), radius-sm, 13/20 SemiBold neutral-700. Used for section "View all →" links.
+   The bordered icon + label look of the same Figma component is still built ad hoc in
+   heading.css (.ai-heading-download-btn) and ai-response-card.css (.chat-cta-chip-btn).
+   Consumed by: prototypes/ai-social-media/home/home.html */
+
+.text-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--spacing-xs);
+  height:36px; box-sizing:border-box; padding:0 var(--spacing-md); flex-shrink:0;
+  border:0; border-radius:var(--radius-sm); background:none; cursor:pointer; text-decoration:none;
+  font-family:var(--font-family-text); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-700); white-space:nowrap;
+}
+.text-btn:hover{background:var(--color-neutral-100);}
+.text-btn:focus-visible{outline:2px solid var(--color-brand-primary); outline-offset:1px;}

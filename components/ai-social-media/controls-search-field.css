@@ -35,3 +35,10 @@
   font-weight:var(--font-weight-medium); color:var(--color-neutral-900);
 }
 .search-field__input::placeholder{ color:var(--color-neutral-500); }
+
+/* Expanded field showing its static "Search" placeholder (Nav / App TopBar instance
+   I12427:415578;3133:55222) — Figma uses Text/xs Medium (12/18/500) here. */
+.search-field__label{
+  flex:1 0 0; min-width:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-500); white-space:nowrap;
+}

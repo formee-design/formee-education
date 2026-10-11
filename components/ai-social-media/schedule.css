@@ -169,3 +169,30 @@
 .sc-side-peek__btn--primary{background:var(--color-neutral-950); color:var(--color-neutral-0);}
 .sc-side-peek__btn--secondary{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); color:var(--color-neutral-700);}
 .sc-side-peek__btn--ghost{background:none; color:var(--color-neutral-700);}
+
+/* ---------- variant: fluid list (Trends "Top performing posts") ----------
+   Figma: Schedule / List Column Head + Row instances 12427:415620–415626. Same row anatomy,
+   but the Post column fills the remaining width, the column head is SemiBold, the list sits
+   in a 12px-radius bordered card, and the last row has no divider. */
+.sc-list--fluid{
+  max-width:none; overflow:hidden; box-sizing:border-box;
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-xl);
+}
+.sc-list--fluid .sc-list-colhead,
+.sc-list--fluid .sc-list-row{min-width:0; justify-content:space-between;}
+.sc-list--fluid .sc-list-colhead{font-weight:var(--font-weight-semibold); line-height:var(--line-height-text-xs); background:var(--color-neutral-0);}
+.sc-list--fluid .sc-col--post{flex:1 0 0; min-width:1px; width:auto;}
+/* Figma counts the row/head dividers inside the 34/84px heights — draw them as inset
+   shadows so they don't add a pixel per row */
+.sc-list--fluid .sc-list-colhead{border-bottom:0; box-shadow:inset 0 -1px 0 0 var(--color-neutral-200);}
+.sc-list--fluid .sc-list-row{border-bottom:0; box-shadow:inset 0 -1px 0 0 var(--color-neutral-150);}
+.sc-list--fluid .sc-list-row:last-child{box-shadow:none;}
+.sc-list--fluid .sc-list-row__text,
+.sc-list--fluid .sc-col--when{display:flex; flex-direction:column; gap:var(--spacing-2); white-space:nowrap;}
+.sc-list-row__thumb--img{background:none; object-fit:cover; display:block;}
+/* fluid list · row hover (Trends · row hover, 12427:415802): neutral-100 fill.
+   Scoped to the fluid variant so the Schedule screen's own list keeps its behaviour.
+   .is-hover pins the state for static review (trends.html#state=row-hover). */
+.sc-list--fluid .sc-list-row:hover,
+.sc-list--fluid .sc-list-row.is-hover{background:var(--color-neutral-100);}

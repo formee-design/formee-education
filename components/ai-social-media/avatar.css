@@ -22,3 +22,5 @@
 .ai-avatar.type-image img{display:block;}
 .ai-avatar.sm.type-image img{width:10px; height:10px;}
 .ai-avatar.md.type-image img{width:16px; height:16px;}
+/* Profile · 32 initials — Figma Text/2xs Bold: 11/16, letter-spacing 0.8 (459:19) */
+.ai-avatar.md{line-height:var(--line-height-text-2xs); letter-spacing:.8px;}

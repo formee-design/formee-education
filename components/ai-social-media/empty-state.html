@@ -58,6 +58,7 @@
       <div class="demo-sidebar-group-items">
         <a href="actions-button.html">Actions / Button</a>
         <a href="../shared/button.html">Button</a>
+        <a href="actions-text-button.html">Actions / Text Button</a>
       </div>
     </div>
     <div class="demo-sidebar-group collapsed" data-group="login">
@@ -80,6 +81,7 @@
         <a href="nav-flow-progress.html">Nav / Flow Progress</a>
         <a href="nav.html">Nav / Navigation</a>
         <a href="topbar-stepper.html">Topbar + Stepper</a>
+        <a href="nav-app-topbar.html">Nav / App TopBar</a>
       </div>
     </div>
     <div class="demo-sidebar-group collapsed" data-group="overlays-menus">
@@ -115,6 +117,8 @@
         <a href="generate-preview-panel.html">Generate Preview Panel</a>
         <a href="selector-card-character.html">Selector / Card / character</a>
         <a href="selector-character-card.html">Selector / Character Card</a>
+        <a href="stats-summary.html">Stats summary</a>
+        <a href="data-card-content-type.html">Data / card / content type</a>
       </div>
     </div>
     <div class="demo-sidebar-group collapsed" data-group="content-editor">
@@ -199,6 +203,14 @@
         <a href="publish-destination-table-row.html">Publish / Destination Table Row</a>
       </div>
     </div>
+    <div class="demo-sidebar-group collapsed" data-group="trends">
+      <button type="button" class="demo-sidebar-group-toggle" onclick="toggleDemoGroup(this)"><span>Trends</span><span class="demo-sidebar-group-caret">▾</span></button>
+      <div class="demo-sidebar-group-items">
+        <a href="trends-section-header.html">Trends / Section Header</a>
+        <a href="trends-hook-card.html">Trends / Hook Card</a>
+        <a href="music-library-card.html">Music Library Card</a>
+      </div>
+    </div>
   </nav>
   <main class="demo-main">
   <h1>empty-state</h1>
@@ -208,6 +220,14 @@
   <div class="row" style="justify-content:center;"><div><p class="state">No characters</p><div class="empty-state"><span class="empty-state__glyph"><img src="icons/nav-characters.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No characters yet</p><p class="empty-state__body">Create your first character to see it here.</p></div><button type="button" class="actions-btn actions-btn--primary"><img src="icons/plus-16-white.svg" alt="">New character</button></div></div></div>
   <div class="row" style="justify-content:center;"><div><p class="state">No content</p><div class="empty-state"><span class="empty-state__glyph"><img src="icons/nav-library.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No contents yet</p><p class="empty-state__body">Create your first piece of content to see it here.</p></div><button type="button" class="actions-btn actions-btn--primary"><img src="icons/plus-16-white.svg" alt="">New Content</button></div></div></div>
   <div class="row" style="justify-content:center;"><div><p class="state">No results</p><div class="empty-state"><span class="empty-state__glyph"><img src="icons/ui-search.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No results for “fishing tips”</p><p class="empty-state__body">Try a different keyword, or clear the filters to see everything.</p></div><button type="button" class="actions-btn actions-btn--secondary">Clear filters</button></div></div></div>
+  <div class="row" style="justify-content:center;"><div><p class="state">No trends (Trends · empty, 12074:483792) — no button</p><div class="empty-state"><span class="empty-state__glyph"><img src="icons/data-trending-up.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No trends yet</p><p class="empty-state__body">We’re scanning trending posts in your industry. Check back soon.</p></div></div></div></div>
+  <h2 style="margin-top:var(--spacing-3xl)">Section empty (12229:194031)</h2>
+  <p class="demo-note" style="margin-bottom:var(--spacing-lg)">Compact in-section version for one empty section of a populated page: <code>.empty-state-panel</code> + <code>.empty-state--section</code>.</p>
+  <div class="empty-state-panel" style="max-width:1000px"><div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="icons/trending-up-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No top posts yet.</p><p class="empty-state__body">Top posts will show up here after the next scan.</p></div></div></div>
+  <div style="height:var(--spacing-lg)"></div>
+  <div class="empty-state-panel" style="max-width:1000px"><div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="icons/nav-audio-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No trending audio yet.</p><p class="empty-state__body">Sounds used in trending posts will show up here.</p></div></div></div>
+  <div style="height:var(--spacing-lg)"></div>
+  <div class="empty-state-panel" style="max-width:1000px"><div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No content yet.</p><p class="empty-state__body">Posts you create will show up here.</p></div></div></div>
   </main>
 </div>
 <script src="../demo-nav.js"></script>

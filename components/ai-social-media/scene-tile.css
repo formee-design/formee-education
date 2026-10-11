@@ -135,3 +135,12 @@
 }
 .scene-tile.selected .scene-tile-line{background:var(--color-neutral-0);}
 .scene-tile[data-type="video"] .scene-tile-line{font-size:12px; line-height:18px;}
+
+/* play button · glass (Selector / Video Card in the Trends "Viral right now" carousel)
+   Figma: Video / Play button (instance I12427:415592;8386:120068) — white 68%→46% gradient,
+   9px backdrop blur, 0 2 8 shadow, fully opaque. Figma glass rgba values, no token equivalent. */
+.scene-tile-play-btn--glass{
+  background:linear-gradient(to bottom, rgba(255,255,255,.68), rgba(255,255,255,.46));
+  -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); opacity:1;
+  box-shadow:0 2px 8px 0 rgba(15,23,41,.18); border:0; padding:0; cursor:pointer;
+}

@@ -24,3 +24,28 @@
   margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
   font-weight:var(--font-weight-regular); color:var(--color-neutral-500);
 }
+
+/* ---------- variant: No trends (Trends · empty, 12427:415901 → 12074:483792) ----------
+   Same anatomy as the three variants above, without a button — glyph uses
+   icons/data-trending-up.svg at 48 (1.6 → 3.2 stroke, matching Figma). No extra CSS needed. */
+
+/* ---------- section empty (Trends · section empty, 12427:415947 → 12229:194031) ----------
+   The compact in-section version: a neutral-100 panel (radius-xl, 56px top/bottom) holding a
+   36px neutral-200 glyph (9px padding around an 18px icon) over a 13/20 Medium title and a
+   13/20 Regular line, gap 2. Use where one section of a populated page has no data yet. */
+.empty-state-panel{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:100%; box-sizing:border-box; padding:var(--spacing-6xl) 0; overflow:hidden;
+  background:var(--color-neutral-100); border-radius:var(--radius-xl);
+}
+.empty-state--section{width:auto;}
+.empty-state--section .empty-state__glyph{
+  width:auto; height:auto; padding:9px; /* 토큰 없음: Figma 9 */
+  background:var(--color-neutral-200);
+}
+.empty-state--section .empty-state__glyph img{width:18px; height:18px;}
+.empty-state--section .empty-state__text{gap:var(--spacing-2); white-space:nowrap;}
+.empty-state--section .empty-state__title{
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium);
+}
+.empty-state--section .empty-state__body{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}

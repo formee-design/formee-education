@@ -164,3 +164,18 @@
 .nav.collapsed .nav-items, .sidebar.collapsed .nav-items{padding:0 8px;}
 .nav.collapsed .nav-item, .sidebar.collapsed .nav-item{justify-content:center; padding:4px;}
 .nav.collapsed .nav-fill, .sidebar.collapsed .nav-fill{display:none;}
+
+/* ============================================================================
+   Product-name brand + filled workspace switcher
+   Figma: "Nav / Navigation" instance in "Trends · default" (12427:415576) — the account
+   block shows the product name ("Pulse", 20/24 Bold, no sub line) and the workspace input
+   holds a chosen value (neutral-900 text, 24px chevron).
+   ============================================================================ */
+.brand-name--product{font-size:var(--font-size-display-xs); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold);}
+.acct--filled{height:36px; padding-top:0; padding-bottom:0; gap:var(--spacing-md); color:var(--color-neutral-900);}
+.acct--filled .chevron{width:24px; height:24px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+.acct--filled .chevron img{width:24px; height:24px; display:block;}
+/* Section heading at the Figma component's own 26px height (Container 2101:54694:
+   label 8px from the top, 14px line, 4px below). The base rule above renders 30px —
+   kept as-is so existing screens don't shift; opt in per screen with this modifier. */
+.nav-sec-head--fit{padding:8px 8px 4px;}

@@ -1,0 +1,63 @@
+/* Stats summary — AI Social Media component
+   Figma: FME_AI-Social-Media, "Stats summary" (instance 12427:415587, stat cell 11530:112357).
+   A bordered strip of equal-width stat cells separated by 36px dividers. Each cell: a 40px
+   icon tile + value over label; the value row can carry a green delta pill.
+   Icon tile border: Figma's design-context export flattens it to #4f6de6, but the rendered
+   tile (11530:112358) is a diagonal sweep — brand-primary at the top-right, brand-accent at
+   the bottom-left, fading to white at the other two corners (sampled from the Figma render).
+   Reproduced as a conic gradient in the border box (padding-box / border-box trick).
+   Consumed by: prototypes/ai-social-media/trends/trends.html */
+
+.stats-summary{
+  display:flex; align-items:center; box-sizing:border-box; width:100%;
+  padding:var(--spacing-lg) 0; overflow:hidden;
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-lg); font-family:var(--font-family-text);
+}
+.stats-summary__stat{
+  flex:1 0 0; min-width:1px; display:flex; align-items:center; gap:var(--spacing-md);
+  padding:0 var(--spacing-2xl); overflow:hidden; background:var(--color-neutral-0);
+}
+.stats-summary__icon{
+  width:40px; height:40px; flex-shrink:0; box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center; border-radius:var(--radius-lg);
+  border:var(--border-width-1) solid transparent;
+  background:
+    linear-gradient(var(--color-neutral-0), var(--color-neutral-0)) padding-box,
+    conic-gradient(from 45deg, var(--color-brand-primary) 0deg, var(--color-neutral-0) 90deg,
+      var(--color-brand-accent) 180deg, var(--color-neutral-0) 270deg, var(--color-brand-primary) 360deg) border-box;
+}
+.stats-summary__icon img{width:20px; height:20px; display:block;}
+.stats-summary__text{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); white-space:nowrap;}
+.stats-summary__value-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+.stats-summary__value{
+  margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);
+}
+/* 13px label on an 18px line (Figma) — text-sm size with the text-xs line-height */
+.stats-summary__label{
+  margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-xs);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-500);
+}
+.stats-summary__delta{
+  display:inline-flex; padding:var(--spacing-2) var(--spacing-sm); border-radius:var(--radius-full);
+  background:var(--color-badge-green-bg); color:var(--color-badge-green-text);
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold);
+}
+.stats-summary__divider{width:var(--border-width-1); height:36px; flex-shrink:0; background:var(--color-neutral-200);}
+
+/* ---------- variant: glass + caption (Home hero, instance 12427:416877) ----------
+   Sits on the hero banner's gradient: 55% white with a 12px backdrop blur, a 90%-white
+   hairline and a soft blue-tinted shadow (Figma's own rgba recipe — no token equivalent).
+   Each stat adds a third line in neutral-450. The first divider in the Figma instance is
+   neutral-300 (the rest neutral-200) — .stats-summary__divider--strong reproduces it. */
+.stats-summary--glass{
+  background:rgba(255,255,255,.55); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  border-color:rgba(255,255,255,.9); box-shadow:0 8px 24px 0 rgba(79,110,229,.08);
+}
+.stats-summary--glass .stats-summary__stat{background:none;}
+.stats-summary__caption{
+  margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-xs);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-450);
+}
+.stats-summary__divider--strong{background:var(--color-neutral-300);}

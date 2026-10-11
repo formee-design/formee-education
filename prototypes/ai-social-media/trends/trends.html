@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Trends — AI Social Media</title>
+<!-- Figma: FME_AI-Social-Media "Trends · default" (N8AXYZVtz82rgHcCRHKzEl, node 12427:415575), 1920 × 2360.
+     All UI pieces are the shared components in components/ai-social-media/ — this file only lays them out. -->
+<!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<!-- Google's default DM Sans subsets leave out "→" (U+2192); fetch that one glyph so "Use in new content →" renders in DM Sans like Figma -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/selector-video-card.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/preview-top-row.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/scene-tile.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-misc.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-hook-card.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/schedule.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/post-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/music-library-card.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    /* Figma renders DM Sans at optical size 14 ("opsz" 14) on every text layer */
+    font-optical-sizing:none; font-variation-settings:"opsz" 14;
+  }
+  button{font:inherit;}
+
+  /* ── frame: Nav / Navigation (262) + right-col (1658) ── */
+  .trends-frame{display:flex; align-items:stretch;}
+  /* 1920 × 1162 frame scaled to the window (same as the other prototypes); Main Content scrolls inside */
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* ── Main Content: 28 / 28 / 60 padding, header ↔ body 20 (Figma 12427:415579) ── */
+  .trends-main{
+    display:flex; flex-direction:column; gap:var(--spacing-xl);
+    padding:28px 28px 60px; /* 토큰 없음: Figma 28 / 60 */
+    background:var(--color-neutral-75);
+  }
+
+  /* page header (12427:415580) — title block bottom-aligned with the capture meta */
+  .page-header{display:flex; align-items:flex-end; justify-content:space-between;}
+  .page-header__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); overflow:hidden; white-space:nowrap;}
+  .page-header__title{
+    margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm);
+    font-weight:var(--font-weight-display-sm); letter-spacing:-0.1px; /* 토큰 없음: Figma Display/sm -0.1 */
+  }
+  .page-header__sub,
+  .page-header__meta{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .page-header__meta{text-align:right; white-space:nowrap;}
+
+  /* body sections, 40 apart (12427:415586) */
+  .trends-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  .trends-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .trends-section--stack{gap:var(--spacing-2xl);} /* hook patterns ↔ hashtags */
+
+  /* Viral right now — carousel (12427:415590) */
+  .carousel{position:relative; height:486px; overflow:hidden;}
+  .carousel__track{display:flex; align-items:flex-start; gap:var(--spacing-xl); transition:transform .3s ease;}
+  .carousel__fade{
+    position:absolute; top:0; right:0; width:120px; height:380px; pointer-events:none;
+    background:linear-gradient(to right, rgba(247,250,255,0), var(--color-neutral-75)); /* Figma fade: neutral-75 at 0% → 100% */
+  }
+  .carousel .controls-carousel-arrow{position:absolute; top:174px; right:var(--spacing-sm);}
+  .carousel .controls-carousel-arrow[hidden]{display:none;}
+
+  /* Hook patterns grid — 2 × 793, 16 gap */
+  .hook-grid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--spacing-lg);}
+  /* Hashtags */
+  .tag-row{display:flex; flex-wrap:wrap; gap:var(--spacing-sm);}
+
+  /* ── states (#state=…) — Figma "Trends · row hover" / "· hook hover" / "empty states" ── */
+  [hidden]{display:none !important;}
+  /* Trends · empty (12427:415889): 1920 × 1162 frame, the empty block fills the rest of Main Content */
+  body.state-empty .trends-main{flex:1 0 0;}
+  .trends-empty{flex:1 0 0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+</style>
+</head>
+<body>
+<div class="trends-frame frame">
+
+  <!-- ══ Nav / Navigation (12427:415576) — components/ai-social-media/nav.css ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../home/home.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+
+    <!-- ══ Nav / App TopBar (12427:415578) — nav-app-topbar.css ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">Trends</div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="trends-main">
+      <div class="page-header">
+        <div class="page-header__title-block">
+          <h1 class="page-header__title">What's working in AU education</h1>
+          <p class="page-header__sub">Insights from trending posts in your industry.</p>
+        </div>
+        <p class="page-header__meta" id="captureMeta">Captured 5 May · TikTok<br>Updated weekly</p>
+      </div>
+
+      <!-- Trends · empty — empty-state.css, "No trends" variant (12074:483792) -->
+      <div class="trends-empty" id="trendsEmpty" hidden>
+        <div class="empty-state">
+          <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span>
+          <div class="empty-state__text">
+            <p class="empty-state__title">No trends yet</p>
+            <p class="empty-state__body">We’re scanning trending posts in your industry. Check back soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="trends-body" id="trendsBody">
+
+        <!-- Stats summary (12427:415587) — stats-summary.css -->
+        <div class="stats-summary">
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-scan-square-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">60</p><p class="stats-summary__label">Posts scanned</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">261K</p><p class="stats-summary__label">Avg views per post</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-duration-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">93s</p><p class="stats-summary__label">Avg duration</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-trending-up-20.svg" alt=""></div>
+            <div class="stats-summary__text">
+              <div class="stats-summary__value-row"><p class="stats-summary__value">84</p><span class="stats-summary__delta">↑ 600%</span></div>
+              <p class="stats-summary__label">Posting velocity</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viral right now (12427:415588) -->
+        <section class="trends-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left">
+              <div class="trends-section-header__title-row">
+                <h2 class="trends-section-header__title">Viral right now</h2>
+                <span class="trends-section-header__badge">General</span>
+              </div>
+              <p class="trends-section-header__desc">Trending formats and content patterns across platforms.</p>
+            </div>
+            <p class="trends-section-header__meta">Web scan · 29 June</p>
+          </div>
+
+          <div class="carousel">
+            <div class="carousel__track" id="carouselTrack"></div>
+            <div class="carousel__fade" id="carouselFade"></div>
+            <button type="button" class="controls-carousel-arrow" id="carouselNext" aria-label="Next">
+              <img src="../../../components/ai-social-media/icons/chevron-right.svg" alt="">
+            </button>
+          </div>
+        </section>
+
+        <!-- Hook patterns + Hashtags (12427:415600) -->
+        <section class="trends-section trends-section--stack">
+          <div class="trends-section">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Hook patterns</h2></div></div>
+            </div>
+            <div class="hook-grid" id="hookGrid"></div>
+          </div>
+          <div class="trends-section">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Hashtags</h2></div></div>
+            </div>
+            <div class="tag-row" id="tagRow"></div>
+          </div>
+        </section>
+
+        <!-- Top performing posts (12427:415617) — schedule.css list, fluid variant -->
+        <section class="trends-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top performing posts</h2></div></div>
+          </div>
+          <!-- section empty — empty-state.css, section variant (12229:194031) -->
+          <div class="empty-state-panel" id="postsEmpty" hidden>
+            <div class="empty-state empty-state--section">
+              <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span>
+              <div class="empty-state__text"><p class="empty-state__title">No top posts yet.</p><p class="empty-state__body">Top posts will show up here after the next scan.</p></div>
+            </div>
+          </div>
+          <div class="sc-list sc-list--fluid" id="postsTable">
+            <div class="sc-list-colhead">
+              <span class="sc-col--post">Post</span>
+              <span class="sc-col--when">Views · posted</span>
+              <span class="sc-col--platforms">Platform</span>
+            </div>
+            <div id="postRows"></div>
+          </div>
+        </section>
+
+        <!-- Trending audio (12427:415627) — music-library-card.css -->
+        <section class="trends-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left">
+              <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Trending audio</h2></div>
+              <p class="trends-section-header__desc">Similar tracks from your Audio library are available when the original isn’t licensed.</p>
+            </div>
+          </div>
+          <div class="empty-state-panel" id="audioEmpty" hidden>
+            <div class="empty-state empty-state--section">
+              <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-audio-18.svg" alt=""></span>
+              <div class="empty-state__text"><p class="empty-state__title">No trending audio yet.</p><p class="empty-state__body">Sounds used in trending posts will show up here.</p></div>
+            </div>
+          </div>
+          <div class="music-library-list" id="audioList"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const ICON = '../../../components/ai-social-media/icons/';
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ── Viral right now — Selector / Video Card (trend variant) ×6 ──
+const viral = [
+  { img: 'viral-1.png', ratio: '9:16', video: true,  title: 'Main Character Energy', desc: 'Creators showcase their daily lives with a cinematic flair, often set to dramatic music.' },
+  { img: 'viral-2.png', ratio: '4:5',  video: false, title: 'Silent Reels with Text Overlays', desc: 'Videos that convey messages or stories solely through text overlays on a static or minimal background.' },
+  { img: 'viral-3.png', ratio: '1:1',  video: false, title: 'Photo Dump Reels', desc: 'Compiling a series of casual, unfiltered photos into a single Reel, often set to trending music.' },
+  { img: 'viral-4.png', ratio: '9:16', video: true,  title: 'Everything Hallelujah', desc: 'Short clips highlighting small, joyful moments set to Justin Bieber’s ‘Everything Hallelujah.’' },
+  { img: 'viral-5.png', ratio: '4:5',  video: false, title: 'Main Character Edits', desc: 'Videos where creators edit themselves into iconic movie scenes, portraying themselves as the protagonist.' },
+  { img: 'viral-6.png', ratio: '1:1',  video: false, title: 'Carousels with Music', desc: 'Traditional photo carousels enhanced with background music to increase engagement.' },
+];
+document.getElementById('carouselTrack').innerHTML = viral.map((v) => `
+  <div class="selector-video-card selector-video-card--trend">
+    <div class="selector-video-card-frame">
+      <img class="selector-video-card-thumb" src="assets/${v.img}" alt="">
+      <div class="selector-video-card-preview">
+        <div class="preview-top-row">
+          <span class="preview-top-row-format-badge preview-top-row-format-badge--glass"><span class="preview-top-row-format-badge-icon"><span></span></span><span class="preview-top-row-format-badge-label">${v.ratio}</span></span>
+        </div>
+        ${v.video ? `<div class="scene-tile-scrubber">
+          <div class="scene-tile-scrubber-row">
+            <span class="scene-tile-scrubber-time">0:03 / 0:08</span>
+            <div class="scene-tile-scrubber-controls"><img class="volume" src="${ICON}audio-volume-off.svg" alt=""><img class="maximize-sm" src="${ICON}maximize.svg" alt=""></div>
+          </div>
+          <div class="scene-tile-scrubber-bar"><div class="scene-tile-scrubber-bar-fill"></div></div>
+        </div>` : ''}
+      </div>
+      ${v.video ? `<button type="button" class="scene-tile-play-btn scene-tile-play-btn--glass" aria-label="Play"><img class="play" src="${ICON}video-play-glyph.svg" alt=""></button>` : ''}
+    </div>
+    <div class="selector-video-card-meta">
+      <span class="selector-video-card-title">${esc(v.title)}</span>
+      <p class="selector-video-card-desc">${esc(v.desc)}</p>
+      <a class="selector-video-card-link" href="../new-content-generation/v4/new-content-to-generate.html">Use in new content →</a>
+    </div>
+  </div>`).join('');
+
+// carousel: one card (304 + 20 gap) per click until the last card is fully in view
+(() => {
+  const track = document.getElementById('carouselTrack');
+  const next = document.getElementById('carouselNext');
+  const fade = document.getElementById('carouselFade');
+  const step = 324;
+  let x = 0;
+  next.addEventListener('click', () => {
+    const max = track.scrollWidth - track.parentElement.clientWidth;
+    x = Math.min(x + step, max);
+    track.style.transform = `translateX(${-x}px)`;
+    if (x >= max) { next.hidden = true; fade.hidden = true; }
+  });
+})();
+
+// ── Hook patterns — Trends / Hook Card ×4 ──
+const hooks = [
+  ['Question hook — "Should you study abroad in 2026?"', '7 posts', '"People who studied abroad, do you feel like this?? #studyabroad #americanabroad #budgettravel"'],
+  ['Number-led hook — "3 things I wish I knew about studying abroad"', '4 posts', '"please tell me y\'all had to watch those videos from 1970 #nurse #healthcare #fyp"'],
+  ['Money / outcome hook — "How I went from $0 to a $90k offer"', '2 posts', '"I miss my study abroad 🥲 #studytok #studyabroad #exchange #university"'],
+  ['Scarcity hook — "Last 48h to apply for January intake"', '2 posts', '"important to note that this is all my own money! #studyabroad #college #london"'],
+];
+document.getElementById('hookGrid').innerHTML = hooks.map(([title, count, quote]) => `
+  <div class="trends-hook-card">
+    <div class="trends-hook-card__title-row">
+      <p class="trends-hook-card__title">${esc(title)}</p>
+      <span class="feedback-status-chip feedback-status-chip--secondary">${count}</span>
+    </div>
+    <div class="trends-hook-card__quote"><p>${esc(quote)}</p></div>
+    <a class="trends-hook-card__link" href="../new-content-generation/v4/new-content-to-generate.html">Use in new content →</a>
+  </div>`).join('');
+
+// ── Hashtags — Feedback / Status Chip (Secondary) ×6 ──
+document.getElementById('tagRow').innerHTML =
+  ['#nursingstudent · 18', '#studyabroad · 17', '#nursingschool · 15', '#australia · 11', '#fyp · 6', '#college · 5']
+    .map((t) => `<span class="feedback-status-chip feedback-status-chip--secondary">${t}</span>`).join('');
+
+// ── Top performing posts — Schedule / List Row ×6 ──
+const P = { ig: 'social-instagram', tt: 'social-tiktok', yt: 'social-youtube', meta: 'social-meta', li: 'social-linkedin' };
+const posts = [
+  ['viral-1.png', 'This New Lip Tint Is Everything', 'Reel · Formee Express', '2.5M views', 'Aug 26, 2026', ['ig', 'tt', 'yt']],
+  ['viral-2.png', 'Study in the UK — Applications Open', 'Image · Formee Express', '2.3M views', 'Aug 24, 2026', ['ig', 'meta']],
+  ['viral-3.png', 'UK Applications — January Intake', 'Carousel · Formee Express', '1.3M views', 'Aug 21, 2026', ['ig', 'li']],
+  ['viral-4.png', 'A Day on Campus in the UK', 'Reel · Formee Express', '1.1M views', 'Aug 26, 2026', ['ig', 'tt', 'yt']],
+  ['post-5.png',  'Your Visa Checklist, Step by Step', 'Image · Formee Express', '938K views', 'Aug 24, 2026', ['ig', 'meta']],
+  ['viral-6.png', 'Free 1:1 Counselling, Book Anytime', 'Carousel · Formee Express', '922K views', 'Aug 21, 2026', ['ig', 'li']],
+];
+document.getElementById('postRows').innerHTML = posts.map(([img, title, sub, views, date, platforms]) => `
+  <div class="sc-list-row">
+    <div class="sc-col--post sc-list-row__post">
+      <img class="sc-list-row__thumb sc-list-row__thumb--img" src="assets/${img}" alt="">
+      <div class="sc-list-row__text"><span class="sc-list-row__title">${esc(title)}</span><span class="sc-list-row__sub">${esc(sub)}</span></div>
+    </div>
+    <div class="sc-col--when"><span class="sc-list-row__when-main">${views}</span><span class="sc-list-row__sub">${date}</span></div>
+    <div class="sc-col--platforms"><div class="post-status-chip">${platforms.map((p) => `<img src="${ICON}${P[p]}.svg" alt="">`).join('')}</div></div>
+  </div>`).join('');
+
+// ── Trending audio — Music Library Card ×4 ──
+const audio = [
+  ['original sound', '4 creators · original audio', '7 uses', 'Upbeat'],
+  ['Everything Hallelujah', 'Justin Bieber', '2 uses', 'Joyful'],
+  ['nhạc nền – Old Songs Old Memories', '1 creator · original audio', '1 use', 'Nostalgic'],
+  ['Photo dump beat (sped up)', '1 creator · original audio', '1 use', 'Hype'],
+];
+document.getElementById('audioList').innerHTML = audio.map(([name, sub, uses, mood]) => `
+  <div class="music-library-card">
+    <button type="button" class="music-library-card__play" aria-label="Play ${esc(name)}"><img src="${ICON}audio-row-play-triangle.svg" alt=""></button>
+    <div class="music-library-card__body">
+      <div class="music-library-card__title"><p class="music-library-card__name">${esc(name)}</p><p class="music-library-card__sub">${esc(sub)}</p></div>
+      <div class="music-library-card__meta"><span>${uses}</span><span>${mood}</span></div>
+    </div>
+    <div class="music-library-card__buttons">
+      <button type="button" class="music-library-card__btn" aria-label="Add"><img src="${ICON}plus-16-grey.svg" alt=""></button>
+      <button type="button" class="music-library-card__btn" aria-label="Favorite"><img src="${ICON}favorite-star-16.svg" alt=""></button>
+      <button type="button" class="music-library-card__btn" aria-label="More"><img src="${ICON}ui-ellipsis.svg" alt=""></button>
+    </div>
+  </div>`).join('');
+
+// ── states: #state=row-hover | hook-hover | empty | section-empty (default: none) ──
+// Pins the Figma state frames for review; live :hover works on every row/card regardless.
+function applyState() {
+  const state = new URLSearchParams(location.hash.slice(1)).get('state') || '';
+  document.querySelectorAll('.is-hover').forEach((el) => el.classList.remove('is-hover'));
+  if (state === 'row-hover') {
+    document.querySelectorAll('#postRows .sc-list-row')[1].classList.add('is-hover');   // 12427:415802
+    document.querySelectorAll('#audioList .music-library-card')[0].classList.add('is-hover'); // 12427:415810
+  }
+  if (state === 'hook-hover') document.querySelectorAll('.trends-hook-card')[0].classList.add('is-hover'); // 12427:415843
+  const empty = state === 'empty';
+  const sectionEmpty = state === 'section-empty';
+  document.body.classList.toggle('state-empty', empty);
+  document.getElementById('trendsBody').hidden = empty;
+  document.getElementById('trendsEmpty').hidden = !empty;
+  document.getElementById('captureMeta').hidden = empty;   // Figma hides capture-meta when empty
+  document.getElementById('postsTable').hidden = sectionEmpty;
+  document.getElementById('postsEmpty').hidden = !sectionEmpty;
+  document.getElementById('audioList').hidden = sectionEmpty;
+  document.getElementById('audioEmpty').hidden = !sectionEmpty;
+}
+applyState();
+window.addEventListener('hashchange', applyState);
+
+// 1920×1162 프레임을 창 크기에 맞춰 축소 — 다른 화면(schedule 등)의 fitFrameToViewport()와 같은 방식.
+// 프레임 안의 Main Content는 각자 스크롤하므로 내용은 잘리지 않고 전체 크기만 줄어든다.
+function fitFrameToViewport() {
+  const M = 40, frame = document.querySelector('.frame');
+  const scale = Math.min(1, (window.innerWidth - M * 2) / 1920, (window.innerHeight - M * 2) / 1162);
+  frame.style.transform = 'scale(' + scale + ')';
+  document.body.style.width = Math.round(1920 * scale) + 'px';
+  document.body.style.height = Math.round(1162 * scale) + 'px';
+}
+window.addEventListener('resize', fitFrameToViewport);
+fitFrameToViewport();
+</script>
+</body>
+</html>

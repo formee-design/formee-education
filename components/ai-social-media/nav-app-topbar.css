@@ -1,0 +1,30 @@
+/* Nav / App TopBar — AI Social Media component
+   Figma: FME_AI-Social-Media, "Nav / App TopBar" (instance 12427:415578).
+   56px white bar with a bottom rule: breadcrumb (Nav / Stepper/Nav/Breadcrumb) · spacer ·
+   Controls / Search Field (Expanded, controls-search-field.css) · Actions / Notification
+   Button + Avatar (Profile, 32 — avatar.css).
+   Consumed by: prototypes/ai-social-media/trends/trends.html */
+
+.app-topbar{
+  display:flex; align-items:center; gap:var(--spacing-2xl); box-sizing:border-box;
+  height:56px; width:100%; padding:0 var(--spacing-2xl); flex-shrink:0;
+  background:var(--color-neutral-0); border-bottom:var(--border-width-1) solid var(--color-neutral-300);
+  font-family:var(--font-family-text);
+}
+.app-topbar__crumb{
+  display:flex; align-items:center; gap:var(--spacing-sm); height:22px; overflow:hidden;
+  font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); white-space:nowrap;
+}
+.app-topbar__spacer{flex:1 0 0; min-width:1px; height:1px;}
+.app-topbar__actions{display:flex; align-items:center; gap:var(--spacing-md); flex-shrink:0;}
+
+/* Actions / Notification Button */
+.app-topbar__bell{
+  position:relative; width:36px; height:36px; flex-shrink:0; padding:0; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  border:0; border-radius:var(--radius-lg); background:none;
+}
+.app-topbar__bell:hover{background:var(--color-neutral-100);}
+.app-topbar__bell > img{width:20px; height:20px; display:block;}
+.app-topbar__bell > .app-topbar__bell-dot{position:absolute; left:19px; top:8px; width:8px; height:8px;}

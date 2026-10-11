@@ -108,3 +108,8 @@
   color:var(--color-brand-primary-dark); cursor:pointer; white-space:nowrap;
 }
 .actions-poster-cta--focused{ background:var(--color-brand-primary-mid); }
+
+/* Secondary at Figma's own 38px height — Figma draws the 1px stroke inside the 9/14 padding
+   (Home hero "View schedule", 12427:416876). The base .actions-btn--secondary renders 40px;
+   kept as-is so existing screens don't shift — opt in with this modifier. */
+.actions-btn--secondary.actions-btn--fit{padding:8px 13px;}

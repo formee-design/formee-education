@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home — AI Social Media</title>
+<!-- Figma: FME_AI-Social-Media "home · states" (N8AXYZVtz82rgHcCRHKzEl, section 12427:416859)
+     Dashboard · default (12427:416860), · quick create hover (12427:417019), · row hover (12427:417178) — 1920 × 1070.
+     UI pieces are the shared components in components/ai-social-media/; this file lays them out.
+     The hero banner, Recent content table and Top content list are plain Figma frames (not
+     components), so their styles live here. -->
+<!-- Font: DM Sans at optical size 14, as in Figma -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<!-- Google's default DM Sans subsets leave out "→" (U+2192) — fetch that glyph so "View all →" renders in DM Sans -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/data-card-content-type.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-text-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    font-optical-sizing:none; font-variation-settings:"opsz" 14; /* Figma "opsz" 14 */
+  }
+  button{font:inherit;}
+  p{margin:0;}
+
+  .home-frame{display:flex; align-items:stretch;}
+  /* 1920 × 1162 frame scaled to the window (same as the other prototypes); Main Content scrolls inside */
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* Main Content (12427:416864): 28 / 28 / 60, hero ↔ body 20 */
+  .home-main{
+    display:flex; flex-direction:column; gap:var(--spacing-xl);
+    padding:28px 28px 60px; /* 토큰 없음: Figma 28 / 60 */
+    background:var(--color-neutral-75);
+  }
+
+  /* ── hero banner (12427:416865) — frame, not a component ──
+     Figma fill: 3-stop gradient (pink 27% → #efeffb → #e4edfd) with two blurred glow ellipses;
+     these exact rgba/hex values have no tokens.css equivalents. */
+  .hero{
+    position:relative; overflow:hidden; display:flex; flex-direction:column; gap:var(--spacing-2xl);
+    padding:28px; /* 토큰 없음: Figma 28 */
+    border:var(--border-width-1) solid rgba(255,255,255,.8); border-radius:var(--radius-xl);
+    background:linear-gradient(to right, rgba(248,238,246,.27), #efeffb 50%, #e4edfd);
+  }
+  .hero__glow{position:absolute; pointer-events:none;}
+  .hero__glow img{position:absolute; display:block; max-width:none;}
+  .hero__glow--primary{left:1041px; top:-141px; width:520px; height:320px;}
+  .hero__glow--primary img{inset:-37.5% -23.08%; width:calc(100% + 46.16%); height:calc(100% + 75%);}
+  .hero__glow--accent{left:-81px; top:77px; width:420px; height:260px;}
+  .hero__glow--accent img{inset:-46.15% -28.57%; width:calc(100% + 57.14%); height:calc(100% + 92.3%);}
+  .hero > :not(.hero__glow){position:relative;}
+  .hero__header{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-lg);}
+  .hero__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); white-space:nowrap;}
+  .hero__meta{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .hero__title{
+    margin:0; font-size:var(--font-size-display-md); line-height:var(--line-height-display-md);
+    font-weight:var(--font-weight-bold); letter-spacing:-0.2px; /* 토큰 없음: Figma Display/md -0.2 */
+  }
+  .hero__actions{display:flex; align-items:center; gap:var(--spacing-sm);}
+
+  /* body (12427:416878): quick create ↔ recent row 40 */
+  .home-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  .home-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .quick-row{display:flex; align-items:flex-start; gap:var(--spacing-lg);}
+  .split-row{display:flex; align-items:flex-start; gap:var(--spacing-2xl);}
+  .split-row > .home-section{flex:1 0 0; min-width:1px;}
+  .header-row{display:flex; align-items:baseline; gap:var(--spacing-md); height:48px;}
+  .header-row > .trends-section-header{flex:1 0 0; min-width:1px;}
+  .header-row--spread{justify-content:space-between;}
+  .header-row--spread > .trends-section-header{flex:none; width:auto;}
+
+  /* shared list card (Recent content 12427:416892 / Top content 12427:416966) */
+  .list-card{
+    display:flex; flex-direction:column; overflow:hidden;
+    background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+    border-radius:var(--radius-xl); box-shadow:var(--shadow-md);
+  }
+  .cell-text{display:flex; flex-direction:column; gap:var(--spacing-2); min-width:0; white-space:nowrap;}
+  .cell-main{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); overflow:hidden; text-overflow:ellipsis;}
+  .cell-sub{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+  .cell-big{font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+
+  /* Recent content table */
+  .recent-head,
+  .recent-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl);}
+  .recent-head{
+    padding-top:10px; padding-bottom:10px; /* 토큰 없음: Figma 10 */
+    border-bottom:var(--border-width-1) solid var(--color-neutral-150);
+    font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);
+  }
+  .recent-row{border-bottom:var(--border-width-1) solid var(--color-neutral-150); transition:background-color .12s ease;}
+  .recent-row:last-child{border-bottom:0;}
+  .recent-row:hover,
+  .recent-row.is-hover{background:var(--color-neutral-100);} /* Figma row hover 12427:417235 */
+  .col-content{flex:1 0 0; min-width:1px; display:flex; align-items:center; gap:var(--spacing-md); overflow:hidden;}
+  .col-type, .col-updated{width:120px; flex-shrink:0;}
+  .col-status{width:88px; flex-shrink:0; display:flex;}
+  .thumb{display:block; object-fit:cover; flex-shrink:0; border-radius:var(--radius-lg);}
+  .thumb--48{width:48px; height:48px;}
+  .thumb--56{width:56px; height:56px;}
+  /* type-chip — Figma frame using its badge/gray variables (#f2f3f5 / #5d6675), which differ
+     from tokens.css --color-badge-gray-* (#efefef / #7c7f8d); kept as Figma's values. */
+  .type-chip{
+    display:inline-flex; align-items:center; gap:var(--spacing-xs); overflow:hidden;
+    padding:var(--spacing-xs) 10px var(--spacing-xs) var(--spacing-sm); /* 토큰 없음: Figma 10 */
+    border-radius:var(--radius-full); background:#f2f3f5; color:#5d6675;
+    font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); white-space:nowrap;
+  }
+  .type-chip img{width:14px; height:14px; display:block;}
+
+  /* Top content list */
+  .top-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:var(--spacing-lg) var(--spacing-lg) var(--spacing-lg) var(--spacing-xl); border-bottom:var(--border-width-1) solid var(--color-neutral-150);}
+  .top-row:last-child{border-bottom:0;}
+  .top-rank{width:12px; flex-shrink:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .top-title{flex:1 0 0; min-width:1px;}
+  .top-leads{width:112px; flex-shrink:0; display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); white-space:nowrap;}
+  .top-leads--chip{gap:var(--spacing-xs);}
+  .top-delta{width:92px; flex-shrink:0; display:flex; flex-direction:column; gap:var(--spacing-2); white-space:nowrap;}
+  .top-delta__value{display:flex; align-items:center; gap:var(--spacing-2); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-badge-green-text);}
+  .top-delta__value img{width:14px; height:14px; display:block;}
+  /* ── states — Figma "empty states" (12427:417337) ── */
+  [hidden]{display:none !important;}
+  /* top content empty (12427:417378): the panel stretches to the Recent content table's height */
+  body.state-top-empty .split-row{align-items:stretch;}
+  body.state-top-empty #topEmpty{flex:1 0 auto;}
+  .top-cpl{width:64px; flex-shrink:0; display:flex; flex-direction:column; gap:var(--spacing-2); white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="home-frame frame">
+
+  <!-- ══ Nav / Navigation (12427:416861) ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item" href="../trends/trends.html"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+    <!-- ══ Nav / App TopBar (12427:416863) ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">Home</div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="home-main">
+
+      <!-- hero banner (12427:416865) -->
+      <section class="hero">
+        <div class="hero__glow hero__glow--primary"><img src="assets/glow-primary.svg" alt=""></div>
+        <div class="hero__glow hero__glow--accent"><img src="assets/glow-accent.svg" alt=""></div>
+        <div class="hero__header">
+          <div class="hero__title-block">
+            <p class="hero__meta">Monday, October 5, 2026</p>
+            <h1 class="hero__title" id="heroTitle">Welcome back, demo</h1>
+            <p class="hero__meta" id="heroSub">30 items in your library</p>
+          </div>
+          <div class="hero__actions">
+            <!-- Actions / Button · Primary (actions-button.css). The design-context export names the
+                 icon slot "AI Improve", but the rendered frame shows a plus — the plus is used here. -->
+            <a class="actions-btn actions-btn--primary" href="../new-content-generation/v4/new-content-to-generate.html" style="text-decoration:none">
+              <img src="../../../components/ai-social-media/icons/plus-16-white.svg" alt="">
+              Create new content
+            </a>
+            <a class="actions-btn actions-btn--secondary actions-btn--fit" href="../schedule/schedule.html" style="text-decoration:none">View schedule</a>
+          </div>
+        </div>
+
+        <!-- Stats summary · glass + caption (12427:416877) -->
+        <div class="stats-summary stats-summary--glass">
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-library-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" data-empty="0">30</p><p class="stats-summary__label">Library items</p><p class="stats-summary__caption">In this brand</p></div>
+          </div>
+          <div class="stats-summary__divider stats-summary__divider--strong"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-spinner-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">0</p><p class="stats-summary__label">In progress</p><p class="stats-summary__caption">All caught up</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-trending-up-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" data-empty="0">3,962</p><p class="stats-summary__label">Forecast leads</p><p class="stats-summary__caption">Recent campaigns</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-billing-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" data-empty="$0.00">$0.14</p><p class="stats-summary__label">Compute spend</p><p class="stats-summary__caption">This month</p></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="home-body">
+
+        <!-- Quick create (12427:416880) -->
+        <section class="home-section">
+          <div class="trends-section-header trends-section-header--lg">
+            <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Quick create</h2></div></div>
+          </div>
+          <div class="quick-row" id="quickRow"></div>
+        </section>
+
+        <div class="split-row">
+          <!-- Recent content (12427:416888) -->
+          <section class="home-section">
+            <div class="header-row">
+              <div class="trends-section-header trends-section-header--lg">
+                <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Recent content</h2></div></div>
+              </div>
+              <a class="text-btn" id="viewAll" href="../brand-characters/brand-setup-kit-character-library.html#view=library">View all →</a>
+            </div>
+            <!-- empty — empty-state.css, Size=Compact (12229:194030) -->
+            <div class="empty-state-panel" id="recentEmpty" hidden>
+              <div class="empty-state empty-state--section">
+                <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
+                <div class="empty-state__text"><p class="empty-state__title">No content yet.</p><p class="empty-state__body">Posts you create will show up here.</p></div>
+              </div>
+            </div>
+            <div class="list-card" id="recentList">
+              <div class="recent-head">
+                <span class="col-content">Content</span>
+                <span class="col-type">Type</span>
+                <span class="col-updated">Last updated</span>
+                <span class="col-status">Status</span>
+              </div>
+              <div id="recentRows" style="display:contents"></div>
+            </div>
+          </section>
+
+          <!-- Top content (12427:416962) — Figma uses the default 20/28 header here -->
+          <section class="home-section" id="topSection">
+            <div class="header-row header-row--spread">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top content</h2></div></div>
+              </div>
+              <a class="text-btn" href="#">View analytics →</a>
+            </div>
+            <div class="empty-state-panel" id="topEmpty" hidden>
+              <div class="empty-state empty-state--section">
+                <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span>
+                <div class="empty-state__text"><p class="empty-state__title">No performance data yet.</p><p class="empty-state__body">Top posts will show up here once they go live.</p></div>
+              </div>
+            </div>
+            <div class="list-card" id="topRows"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const ICON = '../../../components/ai-social-media/icons/';
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// Quick create — Data / card / content type ×4
+const quick = [
+  ['content-reel-24-dark.svg', 'Video', '9:16 video, 5–15 sec', '../new-content-generation/v4/new-content-to-generate.html'],
+  ['content-carousel-24-dark.svg', 'Carousel', '2–5 slides', '../new-content-generation/v4/new-content-to-generate.html'],
+  ['content-image-24-dark.svg', 'Image', 'Feed or story', '../new-content-generation/v4/new-content-to-generate.html'],
+  ['nav-library-24-dark.svg', 'Library', 'Open library', '../brand-characters/brand-setup-kit-character-library.html#view=library'],
+];
+document.getElementById('quickRow').innerHTML = quick.map(([icon, title, hint, href]) => `
+  <a class="content-type-card" href="${href}">
+    <span class="content-type-card__icon"><img src="${ICON}${icon}" alt=""></span>
+    <span class="content-type-card__text"><p class="content-type-card__title">${title}</p><p class="content-type-card__hint">${hint}</p></span>
+    <img class="content-type-card__chevron" src="${ICON}chevron-right-20-grey.svg" alt="">
+  </a>`).join('');
+
+// Recent content — 4 rows (type-chip + Feedback / Status Chip)
+const TYPE = { image: ['content-image-14.svg', 'Image'], video: ['content-reel-14.svg', 'Video'], carousel: ['content-carousel-14.svg', 'Carousel'] };
+const STATUS = { published: ['green', 'Published'], scheduled: ['blue', 'Scheduled'], draft: ['secondary', 'Draft'], failed: ['error', 'Failed'] };
+const recent = [
+  ['../trends/assets/viral-2.png', 'Study in the UK — Applications Open', 'image', '9/7/2026', '10:24 AM', 'published'],
+  ['../trends/assets/viral-3.png', 'UK Applications — January Intake', 'video', '9/2/2026', '3:12 PM', 'scheduled'],
+  ['../trends/assets/viral-4.png', 'A Day on Campus in the UK', 'carousel', '9/2/2026', '1:05 PM', 'draft'],
+  ['assets/recent-4.png', 'First Week in Toronto', 'image', '9/1/2026', '6:44 PM', 'failed'],
+];
+document.getElementById('recentRows').innerHTML = recent.map(([img, title, type, date, time, status]) => `
+  <div class="recent-row">
+    <div class="col-content"><img class="thumb thumb--48" src="${img}" alt=""><div class="cell-text"><span class="cell-main">${esc(title)}</span><span class="cell-sub">Formee Express</span></div></div>
+    <div class="col-type"><span class="type-chip"><img src="${ICON}${TYPE[type][0]}" alt="">${TYPE[type][1]}</span></div>
+    <div class="col-updated cell-text"><span class="cell-main">${date}</span><span class="cell-sub">${time}</span></div>
+    <div class="col-status"><span class="feedback-status-chip feedback-status-chip--${STATUS[status][0]}">${STATUS[status][1]}</span></div>
+  </div>`).join('');
+
+// Top content — 3 ranked rows
+const topContent = [
+  ['assets/top-1.png', 'Meet Your Future Classmates', '1,062', '12%', '$264', true],
+  ['../trends/assets/post-5.png', 'Your Visa Checklist, Step by Step', '1,008', '8%', '$3', false],
+  ['../trends/assets/viral-6.png', 'Free 1:1 Counselling, Book Anytime', '968', '5%', '$3', false],
+];
+document.getElementById('topRows').innerHTML = topContent.map(([img, title, leads, delta, cpl, isTop], i) => `
+  <div class="top-row">
+    <span class="top-rank">${i + 1}</span>
+    <img class="thumb thumb--56" src="${img}" alt="">
+    <div class="top-title cell-text"><span class="cell-main">${esc(title)}</span><span class="cell-sub">Formee Express</span></div>
+    <div class="top-leads${isTop ? ' top-leads--chip' : ''}">${isTop ? '<span class="feedback-status-chip feedback-status-chip--green">Top</span>' : ''}<span class="cell-big">${leads}</span><span class="cell-sub">forecast leads</span></div>
+    <div class="top-delta"><span class="top-delta__value"><img src="${ICON}arrow-up-14-green.svg" alt="">${delta}</span><span class="cell-sub">vs. last period</span></div>
+    <div class="top-cpl"><span class="cell-big">${cpl}</span><span class="cell-sub">CPL</span></div>
+  </div>`).join('');
+
+// states: #state=quick-hover | row-hover | empty | top-empty
+// Pins the Figma state frames for review; live :hover works regardless.
+const heroValues = [...document.querySelectorAll('.stats-summary__value[data-empty]')].map((el) => [el, el.textContent]);
+function applyState() {
+  const state = new URLSearchParams(location.hash.slice(1)).get('state') || '';
+  document.querySelectorAll('.is-hover').forEach((el) => el.classList.remove('is-hover'));
+  // Dashboard · empty (12427:417338): new account — greeting, zeroed stats, both lists empty, no "View all"
+  const empty = state === 'empty';
+  const topEmpty = empty || state === 'top-empty';
+  document.getElementById('heroTitle').textContent = empty ? 'Welcome, demo' : 'Welcome back, demo';
+  document.getElementById('heroSub').textContent = empty ? '0 items in your library' : '30 items in your library';
+  heroValues.forEach(([el, value]) => { el.textContent = empty ? el.dataset.empty : value; });
+  document.getElementById('recentList').hidden = empty;
+  document.getElementById('recentEmpty').hidden = !empty;
+  document.getElementById('viewAll').hidden = empty;
+  // Dashboard · top content empty (12427:417378)
+  document.getElementById('topRows').hidden = topEmpty;
+  document.getElementById('topEmpty').hidden = !topEmpty;
+  document.body.classList.toggle('state-top-empty', state === 'top-empty');
+  if (state === 'quick-hover') document.querySelectorAll('.content-type-card')[0].classList.add('is-hover'); // 12427:417042
+  if (state === 'row-hover') document.querySelectorAll('.recent-row')[1].classList.add('is-hover');         // 12427:417235
+}
+applyState();
+window.addEventListener('hashchange', applyState);
+
+// 1920×1162 프레임을 창 크기에 맞춰 축소 — 다른 화면(schedule 등)의 fitFrameToViewport()와 같은 방식.
+// 프레임 안의 Main Content는 각자 스크롤하므로 내용은 잘리지 않고 전체 크기만 줄어든다.
+function fitFrameToViewport() {
+  const M = 40, frame = document.querySelector('.frame');
+  const scale = Math.min(1, (window.innerWidth - M * 2) / 1920, (window.innerHeight - M * 2) / 1162);
+  frame.style.transform = 'scale(' + scale + ')';
+  document.body.style.width = Math.round(1920 * scale) + 'px';
+  document.body.style.height = Math.round(1162 * scale) + 'px';
+}
+window.addEventListener('resize', fitFrameToViewport);
+fitFrameToViewport();
+</script>
+</body>
+</html>

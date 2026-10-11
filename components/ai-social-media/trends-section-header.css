@@ -1,0 +1,37 @@
+/* Trends / Section Header — AI Social Media component
+   Figma: FME_AI-Social-Media, "Trends / Section Header" (11667:181974).
+   A 48px-tall row, bottom-aligned: left = title (+ optional badge) over an optional
+   description, right = optional meta text. Each of badge / description / meta is a
+   Figma boolean, so drop the element to hide it.
+   Consumed by: prototypes/ai-social-media/trends/trends.html */
+
+.trends-section-header{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  width:100%; height:48px; box-sizing:border-box;
+  font-family:var(--font-family-text);
+}
+.trends-section-header__left{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); overflow:hidden;}
+.trends-section-header__title-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+/* Display/xs — Figma uses Bold here (tokens' display-xs weight is semibold) */
+.trends-section-header__title{
+  margin:0; font-size:var(--font-size-display-xs); line-height:var(--line-height-display-xs);
+  font-weight:var(--font-weight-bold); color:var(--color-neutral-900); white-space:nowrap;
+}
+.trends-section-header__badge{
+  display:inline-flex; padding:var(--spacing-2) var(--spacing-sm); border-radius:var(--radius-full);
+  background:var(--color-brand-primary-light); color:var(--color-brand-primary);
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold);
+  white-space:nowrap;
+}
+.trends-section-header__desc,
+.trends-section-header__meta{
+  margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-500); white-space:nowrap;
+}
+
+/* size L — Display/sm title (22/30 Bold, -0.1 tracking). Home's "Quick create" and
+   "Recent content" instances (12427:416881 / 416890) use this larger title. */
+.trends-section-header--lg .trends-section-header__title{
+  font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm);
+  letter-spacing:-0.1px; /* 토큰 없음: Figma Display/sm -0.1 */
+}

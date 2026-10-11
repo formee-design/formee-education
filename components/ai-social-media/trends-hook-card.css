@@ -1,0 +1,42 @@
+/* Trends / Hook Card — AI Social Media component
+   Figma: FME_AI-Social-Media, "Trends / Hook Card" (instance 12427:415604, internals 11670:181994).
+   Title + post-count chip (the real Feedback / Status Chip, Secondary — feedback-status-chip.css),
+   a left-ruled quote, and a "Use in new content →" text link.
+   Token gaps: Figma's spacing/10 (gap, quote indent) and spacing/18 (vertical padding) have
+   no tokens.css equivalent yet — kept as raw values, flagged for a token decision.
+   Consumed by: prototypes/ai-social-media/trends/trends.html */
+
+.trends-hook-card{
+  display:flex; flex-direction:column; align-items:flex-start; box-sizing:border-box;
+  gap:10px; /* 토큰 없음: Figma spacing/10 */
+  padding:18px var(--spacing-xl); /* 토큰 없음: Figma spacing/18 */
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-xl); font-family:var(--font-family-text);
+}
+.trends-hook-card__title-row{display:flex; align-items:center; justify-content:space-between; width:100%; overflow:hidden;}
+.trends-hook-card__title{
+  margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); white-space:nowrap;
+}
+.trends-hook-card__quote{
+  display:flex; width:100%; box-sizing:border-box; overflow:hidden;
+  padding-left:10px; /* 토큰 없음: Figma 10 */
+  border-left:2px solid var(--color-neutral-200);
+}
+.trends-hook-card__quote p{
+  flex:1 0 0; min-width:1px; margin:0;
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-500);
+}
+.trends-hook-card__link{
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-semibold); color:var(--color-brand-primary);
+  text-decoration:none; white-space:nowrap;
+}
+.trends-hook-card__link:hover{text-decoration:underline;}
+
+/* state = Hover (Figma 12287:242461): neutral-100 fill, neutral-500 border.
+   .is-hover pins the state for static review (trends.html#state=hook-hover). */
+.trends-hook-card{transition:background-color .12s ease, border-color .12s ease;}
+.trends-hook-card:hover,
+.trends-hook-card.is-hover{background:var(--color-neutral-100); border-color:var(--color-neutral-500);}

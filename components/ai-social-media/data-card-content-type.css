@@ -1,0 +1,39 @@
+/* Data / card / content type — AI Social Media component
+   Figma: FME_AI-Social-Media, "Data / card / content type" (instance 12427:416883, internals
+   12164:195372…; Hover state 12427:417042 → 12186:194459…).
+   A quick-create tile: 48px icon tile (neutral-100, 12px padding around a 24px glyph,
+   radius 10) · title over a one-line hint · trailing chevron. Cards share a row with flex:1.
+   Hover swaps the fills — card goes neutral-100 with a neutral-500 border, the icon tile
+   goes white.  .is-hover pins the state for static review.
+   Consumed by: prototypes/ai-social-media/home/home.html (Quick create) */
+
+.content-type-card{
+  flex:1 0 0; min-width:1px; display:flex; align-items:center; gap:var(--spacing-lg);
+  box-sizing:border-box;
+  /* Figma draws the 1px stroke inside the 20px padding (card = 88px tall) */
+  padding:calc(var(--spacing-xl) - var(--border-width-1));
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-md);
+  font-family:var(--font-family-text); text-decoration:none; color:inherit; cursor:pointer;
+  transition:background-color .12s ease, border-color .12s ease;
+}
+.content-type-card__icon{
+  display:flex; flex-shrink:0; padding:var(--spacing-md); overflow:hidden;
+  background:var(--color-neutral-100); border-radius:var(--radius-md-lg);
+}
+.content-type-card__icon img{width:24px; height:24px; display:block;}
+.content-type-card__text{flex:1 0 0; min-width:1px; align-self:stretch; display:flex; flex-direction:column; justify-content:center; gap:var(--spacing-2);}
+.content-type-card__title{
+  margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); white-space:nowrap;
+}
+.content-type-card__hint{
+  margin:0; font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-500); white-space:nowrap;
+}
+.content-type-card__chevron{width:20px; height:20px; flex-shrink:0; display:block;}
+
+.content-type-card:hover,
+.content-type-card.is-hover{background:var(--color-neutral-100); border-color:var(--color-neutral-500);}
+.content-type-card:hover .content-type-card__icon,
+.content-type-card.is-hover .content-type-card__icon{background:var(--color-neutral-0);}
