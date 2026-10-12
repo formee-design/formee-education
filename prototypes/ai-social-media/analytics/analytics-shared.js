@@ -284,7 +284,7 @@ function buildFilter({ container, label, options, onSelect, closeToDefault = tru
   container.replaceWith(wrap);
 }
 
-// ── Custom date range — each Input (date) opens a Date Picker (Time=Without time, date-picker.css) under it;
+// ── Custom date range — each Input (date) opens a Date Picker (Time=Without time, View=Days|Month, date-picker.css) under it;
 //    Save writes the day into the field, Apply re-runs the page with the new range ──
 let openPicker = null;
 function closeDatePicker() {
@@ -301,10 +301,17 @@ function openDatePicker({ field, value, min, max, onSave }) {
   closeDatePicker();
   let view = new Date(value.getFullYear(), value.getMonth(), 1);
   let picked = value;
+  let mode = 'days'; // View=Days | View=Month — the "September 2026" Title Trigger opens the month grid
   const same = (a, b) => diffDays(a, b) === 0;
   const el = document.createElement('div');
   el.className = 'date-picker date-picker-popover';
-  function draw() {
+  const nav = (dir, label) => `<button class="date-picker-nav-btn" type="button" data-nav="${dir}"><img src="${ICON}chevron-${dir < 0 ? 'left' : 'right'}.svg" alt="${label}"></button>`;
+  const actions = `
+      <div class="date-picker-actions">
+        <button class="date-picker-cancel-btn" type="button" data-act="cancel">Cancel</button>
+        <button class="date-picker-save-btn" type="button" data-act="save">Save</button>
+      </div>`;
+  function drawDays() {
     const lead = (view.getDay() + 6) % 7; // Monday-first, like the Figma weekday row
     const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
     const gridStart = addDays(view, -lead);
@@ -316,24 +323,45 @@ function openDatePicker({ field, value, min, max, onSave }) {
     };
     el.innerHTML = `
       <div class="date-picker-header">
-        <button class="date-picker-nav-btn" type="button" data-nav="-1"><img src="${ICON}chevron-left.svg" alt="Previous month"></button>
-        <span class="date-picker-month-label">${view.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
-        <button class="date-picker-nav-btn" type="button" data-nav="1"><img src="${ICON}chevron-right.svg" alt="Next month"></button>
+        ${nav(-1, 'Previous month')}
+        <span class="date-picker-title"><button class="date-picker-title-trigger" type="button" data-open="month">${view.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</button></span>
+        ${nav(1, 'Next month')}
       </div>
       <div class="date-picker-grid">
         <div class="date-picker-week">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((w) => `<span class="date-picker-weekday-label">${w}</span>`).join('')}</div>
         ${Array.from({ length: weeks }, (_, w) => `<div class="date-picker-week">${Array.from({ length: 7 }, (_, i) => cell(addDays(gridStart, w * 7 + i))).join('')}</div>`).join('')}
-      </div>
-      <div class="date-picker-actions">
-        <button class="date-picker-cancel-btn" type="button" data-act="cancel">Cancel</button>
-        <button class="date-picker-save-btn" type="button" data-act="save">Save</button>
-      </div>`;
+      </div>${actions}`;
   }
+  // View=Month — "2026" between the arrows (they step a year), 4 × 3 month grid; the month on screen is selected,
+  // this month is outlined, months wholly outside min / max are disabled; picking one returns to the calendar
+  function drawMonths() {
+    const y = view.getFullYear();
+    const cell = (m) => {
+      const first = new Date(y, m, 1), last = new Date(y, m + 1, 0);
+      const off = (min && last < min) || (max && first > max);
+      const cls = off ? 'disabled' : m === view.getMonth() ? 'selected' : (y === TODAY.getFullYear() && m === TODAY.getMonth()) ? 'today' : '';
+      return `<span class="date-picker-day-cell date-picker-day-cell--wide ${cls}" data-month="${m}">${first.toLocaleDateString('en-US', { month: 'short' })}</span>`;
+    };
+    el.innerHTML = `
+      <div class="date-picker-header">
+        ${nav(-1, 'Previous year')}
+        <span class="date-picker-month-label">${y}</span>
+        ${nav(1, 'Next year')}
+      </div>
+      <div class="date-picker-panel-grid">
+        ${[0, 1, 2, 3].map((r) => `<div class="date-picker-panel-row">${[0, 1, 2].map((c) => cell(r * 3 + c)).join('')}</div>`).join('')}
+      </div>${actions}`;
+  }
+  const draw = () => (mode === 'days' ? drawDays() : drawMonths());
   el.addEventListener('click', (e) => {
-    const nav = e.target.closest('[data-nav]');
+    const navBtn = e.target.closest('[data-nav]');
+    const open = e.target.closest('[data-open="month"]');
     const day = e.target.closest('.date-picker-day-cell[data-date]');
+    const mon = e.target.closest('.date-picker-day-cell[data-month]');
     const act = e.target.closest('[data-act]');
-    if (nav) { view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.nav), 1); draw(); }
+    if (navBtn) { const step = Number(navBtn.dataset.nav) * (mode === 'days' ? 1 : 12); view = new Date(view.getFullYear(), view.getMonth() + step, 1); draw(); }
+    else if (open) { mode = 'month'; draw(); }
+    else if (mon && !mon.classList.contains('disabled')) { view = new Date(view.getFullYear(), Number(mon.dataset.month), 1); mode = 'days'; draw(); }
     else if (day && !day.classList.contains('disabled')) { picked = parseISO(day.dataset.date); draw(); }
     else if (act) { if (act.dataset.act === 'save') onSave(picked); closeDatePicker(); }
   });

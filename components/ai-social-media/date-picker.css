@@ -7,6 +7,12 @@
        · Time=With time    — month nav header, weekday row, day grid, divider, Time row (3 selects), Cancel/Save actions.
        · Time=Without time — same minus the divider + Time row (date only; e.g. Analytics custom date range).
      Both use the same classes — Without time simply leaves .date-picker-divider / .date-picker-time-row out.
+   - property View (Without time only — With time stays View=Days, unchanged):
+       · View=Days  — header title "June 2025" is a Date Picker / Title Trigger (12633:11740): hover → neutral-100 fill,
+                      click → View=Month (.date-picker-title-trigger)
+       · View=Month — header "2025" (arrows step a year), 12-month grid (.date-picker-panel-grid, 4 rows × 3);
+                      picking a month goes back to View=Days
+     Panel cells are Day Cells stretched to the row (.date-picker-day-cell--wide, 64 tall so the popover keeps its height).
 
    Save button is a *solid* neutral-900 fill with the same inset highlight/lowlight
    sheen as .image-scene-card-use-btn, but not the two-stop dark gradient — kept as
@@ -46,6 +52,20 @@
 .date-picker-nav-btn{width:28px; height:28px; border:none; background:none; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .date-picker-nav-btn img{width:20px; height:20px; display:block;}
 .date-picker-month-label{font-family:var(--font-family-text); font-size:20px; font-weight:600; line-height:28px; color:var(--color-neutral-900);}
+
+/* Date Picker / Title Trigger (12633:11740) — View=Days header "June 2025": State=Default | Hover (neutral-100 fill) */
+.date-picker-title{display:flex; align-items:center;}
+.date-picker-title-trigger{
+  display:flex; align-items:center; gap:var(--spacing-xs); border:none; background:none; cursor:pointer;
+  padding:0 var(--spacing-sm); border-radius:var(--radius-sm);
+  font-family:var(--font-family-text); font-size:20px; font-weight:600; line-height:28px; color:var(--color-neutral-900);
+}
+.date-picker-title-trigger:hover, .date-picker-title-trigger--hover{background:var(--color-neutral-100);}
+
+/* View=Month / View=Year — 4 rows × 3 wide Day Cells */
+.date-picker-panel-grid{display:flex; flex-direction:column; gap:8px; width:100%;}
+.date-picker-panel-row{display:flex; gap:8px; width:100%;}
+.date-picker-day-cell--wide{flex:1 0 0; width:auto; height:64px;}
 
 .date-picker-grid{display:flex; flex-direction:column; gap:8px; align-items:flex-start; width:100%;}
 .date-picker-week{display:flex; gap:8px; align-items:center; width:100%;}

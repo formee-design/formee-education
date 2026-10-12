@@ -305,11 +305,11 @@
   </div>
 
   <div class="demo-row">
-    <span class="demo-label">Date Picker (without time) — Time=Without time</span>
+    <span class="demo-label">Date Picker (without time) — Time=Without time, View=Days (hover / click "June 2025" → View=Month)</span>
     <div class="date-picker" style="width:376px;">
       <div class="date-picker-header">
         <button class="date-picker-nav-btn" type="button"><img src="icons/chevron-left.svg" alt="Previous month"></button>
-        <span class="date-picker-month-label">June 2025</span>
+        <span class="date-picker-title"><button class="date-picker-title-trigger" type="button" data-open="month">June 2025</button></span>
         <button class="date-picker-nav-btn" type="button"><img src="icons/chevron-right.svg" alt="Next month"></button>
       </div>
       <div class="date-picker-grid">
@@ -372,6 +372,33 @@
         <button class="date-picker-cancel-btn" type="button">Cancel</button>
         <button class="date-picker-save-btn" type="button">Save</button>
       </div>
+    </div>
+  </div>
+  <div class="demo-row">
+    <span class="demo-label">Date Picker — Time=Without time, View=Month (arrows step a year; pick a month → back to Days)</span>
+    <div class="date-picker" style="width:376px;">
+      <div class="date-picker-header">
+        <button class="date-picker-nav-btn" type="button"><img src="icons/chevron-left.svg" alt="Previous"></button>
+        <span class="date-picker-month-label">2025</span>
+        <button class="date-picker-nav-btn" type="button"><img src="icons/chevron-right.svg" alt="Next"></button>
+      </div>
+      <div class="date-picker-panel-grid">
+        <div class="date-picker-panel-row"><span class="date-picker-day-cell date-picker-day-cell--wide">Jan</span><span class="date-picker-day-cell date-picker-day-cell--wide">Feb</span><span class="date-picker-day-cell date-picker-day-cell--wide">Mar</span></div>
+        <div class="date-picker-panel-row"><span class="date-picker-day-cell date-picker-day-cell--wide">Apr</span><span class="date-picker-day-cell date-picker-day-cell--wide">May</span><span class="date-picker-day-cell date-picker-day-cell--wide selected">Jun</span></div>
+        <div class="date-picker-panel-row"><span class="date-picker-day-cell date-picker-day-cell--wide">Jul</span><span class="date-picker-day-cell date-picker-day-cell--wide">Aug</span><span class="date-picker-day-cell date-picker-day-cell--wide">Sep</span></div>
+        <div class="date-picker-panel-row"><span class="date-picker-day-cell date-picker-day-cell--wide">Oct</span><span class="date-picker-day-cell date-picker-day-cell--wide">Nov</span><span class="date-picker-day-cell date-picker-day-cell--wide">Dec</span></div>
+      </div>
+      <div class="date-picker-actions">
+        <button class="date-picker-cancel-btn" type="button">Cancel</button>
+        <button class="date-picker-save-btn" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+  <div class="demo-row">
+    <span class="demo-label">Title Trigger — State=Default / State=Hover</span>
+    <div class="demo-grid">
+      <button class="date-picker-title-trigger" type="button">June 2025</button>
+      <button class="date-picker-title-trigger date-picker-title-trigger--hover" type="button">June 2025</button>
     </div>
   </div>
   </main>
