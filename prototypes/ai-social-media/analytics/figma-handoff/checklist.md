@@ -80,3 +80,41 @@ Figma `N8AXYZVtz82rgHcCRHKzEl` · 화면은 섹션 **new** `12616:521591` · 새
 - 넣어주신 Date Picker 원본 3개는 90 days 프레임과 겹쳐서 04줄 오른쪽(x 8400, y 7600)으로 옮김. A2-1·A2-2는 복제본 사용
 - 사용자 확인 대기(👍): 전체 화면 검토
 - 2026-10-12 사용자 피드백 반영: 꼭 필요한 컴포넌트만 남김. Period Row · Chart Legend Item · Bar Segment · HBar Fill · Donut Legend Row · Insight Banner · Empty Panel · Line Chart Marker 8개 삭제(화면의 인스턴스 340개는 일반 프레임으로 바꿈, 안쪽의 Segmented Control · Input(Date) · Button · empty-state · 툴팁은 기존 컴포넌트 인스턴스 그대로). 남은 신규 컴포넌트: Perf Table Head · Perf Row · Series Dot · Top Post Row · Posts Table Head · Posts Row · rednote placeholder. 토큰 검사 0건 유지
+
+## 재구성 — 실제 핸드오프 파일 형식 (2026-10-12)
+레퍼런스: Trends_to be_261008 (`12427:415571`), Dashboard_to_be_1008 (`12427:416857`)
+
+new 섹션 구성
+| 하위 섹션 | 그룹(흰 섹션) | 프레임 |
+|---|---|---|
+| 00_Overview | — | 핸드오프 노트 카드(보는 순서 · 진입 경로 · 데이터 원칙 · 기간 · 동작 · 빈 상태 · 컴포넌트 · 토큰 예외) |
+| 01_Analytics | analytics · states | A1, H1 hover, A7, A8, A9, A10, A11 |
+| | period · states | A2, A2-1, A2-2, 90 days, All time |
+| | empty states | A3, A4 |
+| | deep links (from Home) | A5, A6 |
+| 02_Post Performance | post performance · states | P1, P2, D1, D2, D3, P7, P11 |
+| | paid · Meta Ads | P3, P4, P4-1, P8 |
+| | empty states · no results | P5, P6, P9, P10 |
+| 03_Edge cases | data edges | E1, E2, E3 |
+| 04_Drill-down → Post Performance | drill-down | Analytics 복제본(클릭 지점 빨간 테두리) → 도착 화면 복제본, 화살표 6개 |
+
+- 하위 섹션마다 검은 Notes(화면 규칙), 프레임마다 검은 Notes(케이스 · URL · 동작), 빨간 테두리 = 상호작용 지점 — 레퍼런스와 같은 방식
+- Component 섹션은 new 섹션 아래로 옮김. 넣어주신 Date Picker 원본 3개는 Component 섹션(썸네일 아래)으로 옮김
+
+이번에 새로 찾아 추가한 케이스
+| # | 프레임 | Figma ID | 진입 |
+|---|---|---|---|
+| H1 | Analytics · hover states | 12729:262221 | 막대 조각 · Mix 행 · 성과 표 행 호버 |
+| D1 | Post Performance · drill-down — platform | 12726:260435 | `posts.html?period=30d&platform=TikTok` |
+| D2 | Post Performance · drill-down — content type | 12726:261543 | `posts.html?period=30d&type=Video` |
+| D3 | Post Performance · drill-down — platform + type | 12726:262651 | `posts.html?period=30d&platform=Instagram&type=Video` |
+| E1 | Analytics · custom 7 days | 12724:259949 | `analytics.html?period=custom&from=2026-10-06&to=2026-10-12` (일 단위 막대, 0건 플랫폼, Best —) |
+| E2 | Top Organic — platform with no posts | 12729:262134 | E1 + Platform = REDnote |
+| E3 | Published Mix — Type with a 0% type | 12729:262177 | `analytics.html?period=custom&from=2026-10-10&to=2026-10-12` → Type |
+- Perf Row 컴포넌트에 'Show best chip' / 'Show no-best dash' 옵션 추가 (Best가 없는 그룹용)
+
+HTML에 정의가 없어 그리지 못한 것 (디자인 결정 필요)
+1. Loading 상태 (Analytics · Post Performance) — Trends/Home 핸드오프에는 loading 프레임이 있음
+2. Error / 데이터 불러오기 실패 상태
+3. 플랫폼 계정 미연결 상태 (지금 HTML은 모든 플랫폼이 연결된 것으로 가정)
+4. Analytics의 Top Paid Content · Meta Ads Performance 연결 후 화면 (Post Performance만 `ads=connected` 미리보기가 있음)
