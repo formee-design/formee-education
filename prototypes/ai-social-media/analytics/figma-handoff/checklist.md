@@ -17,19 +17,19 @@ Figma `N8AXYZVtz82rgHcCRHKzEl` · 화면은 섹션 **new** `12616:521591` · 새
 |---|---|---|---|
 | S5 | Stats summary — Show 5th item + Value/Label/Icon/Sublabel 5 (기존 `11530:112377` 수정) | 11530:112377 (Show 5th item 추가, 모든 칸 FILL) | ✅ |
 | TB | Nav / App TopBar — 2단 경로 지원 확인 | 수정 불필요 — Breadcrumb 속성 Parent › Current 사용 | ✅ |
-| C1 | Analytics / Period Row | 12687:252373 | ✅ |
-| C2 | Analytics / Chart Legend Item | 12681:252147 | ✅ |
-| C3 | Analytics / Bar Segment | 12681:252158 | ✅ |
-| C4 | Analytics / HBar Row | 12683:252142 (HBar Fill로 변경: 인스턴스 안쪽 크기는 못 바꿔서 채움만 컴포넌트, 행은 화면에서 조립) | ✅ |
-| C5 | Analytics / Donut Legend Row | 12683:252191 | ✅ |
+| C1 | Analytics / Period Row | 삭제 — 기간 행는 기존 인스턴스 + 프레임으로 구성 | ➖ |
+| C2 | Analytics / Chart Legend Item | 삭제 — 범례는 기존 인스턴스 + 프레임으로 구성 | ➖ |
+| C3 | Analytics / Bar Segment | 삭제 — 막대 조각는 기존 인스턴스 + 프레임으로 구성 | ➖ |
+| C4 | Analytics / HBar Row | 삭제 — 가로 막대 채움는 기존 인스턴스 + 프레임으로 구성 | ➖ |
+| C5 | Analytics / Donut Legend Row | 삭제 — 도넛 범례 행는 기존 인스턴스 + 프레임으로 구성 | ➖ |
 | C6 | Analytics / Perf Table Head | 12684:252150 | ✅ |
 | C7 | Analytics / Perf Row | 12684:252323 (+ Analytics / Series Dot 12684:252149) | ✅ |
-| C8 | Analytics / Insight Banner | 12681:252159 | ✅ |
+| C8 | Analytics / Insight Banner | 삭제 — insight 배너는 기존 인스턴스 + 프레임으로 구성 | ➖ |
 | C9 | Analytics / Top Post Row | 12683:252228 | ✅ |
 | C10 | Analytics / Posts Table Head | 12687:252209 | ✅ |
 | C11 | Analytics / Posts Row | 12687:252294 | ✅ |
-| C12 | Analytics / Empty Panel | 12681:252163 | ✅ |
-| C13 | Analytics / Line Chart Marker | 12683:252229 | ✅ |
+| C12 | Analytics / Empty Panel | 삭제 — 섹션 빈 상태 패널는 기존 인스턴스 + 프레임으로 구성 | ➖ |
+| C13 | Analytics / Line Chart Marker | 삭제 — 차트 호버 표시는 기존 인스턴스 + 프레임으로 구성 | ➖ |
 | C14 | icon / social / rednote (placeholder) | 12681:252130 | ✅ |
 
 ## 2·3단계 · 화면 (★ = 인덱스 케이스)
@@ -79,3 +79,4 @@ Figma `N8AXYZVtz82rgHcCRHKzEl` · 화면은 섹션 **new** `12616:521591` · 새
 - new 섹션이 길어져 Component 섹션을 그 아래로 옮겼고, 상위 섹션 Analytics_to be도 늘림
 - 넣어주신 Date Picker 원본 3개는 90 days 프레임과 겹쳐서 04줄 오른쪽(x 8400, y 7600)으로 옮김. A2-1·A2-2는 복제본 사용
 - 사용자 확인 대기(👍): 전체 화면 검토
+- 2026-10-12 사용자 피드백 반영: 꼭 필요한 컴포넌트만 남김. Period Row · Chart Legend Item · Bar Segment · HBar Fill · Donut Legend Row · Insight Banner · Empty Panel · Line Chart Marker 8개 삭제(화면의 인스턴스 340개는 일반 프레임으로 바꿈, 안쪽의 Segmented Control · Input(Date) · Button · empty-state · 툴팁은 기존 컴포넌트 인스턴스 그대로). 남은 신규 컴포넌트: Perf Table Head · Perf Row · Series Dot · Top Post Row · Posts Table Head · Posts Row · rednote placeholder. 토큰 검사 0건 유지

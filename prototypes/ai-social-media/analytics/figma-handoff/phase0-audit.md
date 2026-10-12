@@ -77,6 +77,8 @@ HTML이 쓰는 색 변수 18개가 모두 Figma 변수 "AI Social Media / Colors
 | Nav / App TopBar | 2단 경로 "Analytics › Post Performance" | 기존 Breadcrumb 속성으로 되면 그대로 쓰고, 안 되면 Breadcrumb 2단 옵션 추가 |
 
 ### 2-3. 새로 만들 컴포넌트 (Component 섹션 `12617:521623`)
+
+> 2026-10-12 수정: 사용자 요청으로 **꼭 필요한 것만** 남겼다. 남은 것 = C6 · C7(+ Series Dot) · C9 · C10 · C11 · C14. C1 · C2 · C3 · C4 · C5 · C8 · C12 · C13은 삭제하고 화면에서는 기존 컴포넌트 인스턴스(Segmented Control, Input Type=Date, Actions / Button, empty-state, 툴팁) + 프레임으로 구성했다. 판단 기준: 기존 컴포넌트 조합으로 되거나 도형·텍스트뿐인 것은 만들지 않는다. 열 구성과 상태가 있는 표 행처럼 기존 컴포넌트로 대체할 수 없는 반복 패턴만 만든다.
 이름은 HTML 클래스와 맞추고 앞에 `Analytics /`를 붙인다.
 
 | # | 컴포넌트 | 변형 / 속성 | 쓰는 곳 |
