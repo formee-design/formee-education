@@ -362,7 +362,12 @@ const emptyState = (title, body) => `
     <span class="empty-state__glyph"><img src="${ICON}nav-library-18.svg" alt=""></span>
     <div class="empty-state__text"><p class="empty-state__title">${title}</p><p class="empty-state__body">${body}</p></div>
   </div>`;
-const formatMetric = (metric, v) => (v === null || v === undefined ? '—' : metric === 'cpl' ? formatMoney(v) : formatCount(v));
+// "organic Carousel posts on REDnote" — the active view / type / platform filters as one phrase for empty states
+function postsPhrase() {
+  const noun = state.type ? `${state.type.replace(/ Post$/, '')} posts` : 'posts'; // "Multi-Image Post" → "Multi-Image posts"
+  return [state.view === 'all' ? null : state.view, noun, state.platform && `on ${state.platform}`].filter(Boolean).join(' ');
+}
+const formatMetric =(metric, v) => (v === null || v === undefined ? '—' : metric === 'cpl' ? formatMoney(v) : formatCount(v));
 
 // ── Performance Over Time — daily metric = each post's total spread over the 14 days after it went live
 //    (front-loaded), so the line moves with what was published; summed into days / weeks / months by period ──
@@ -513,10 +518,14 @@ function renderList(posts) {
   empty.hidden = hasPosts;
   document.getElementById('sortFilterWrap').hidden = !hasPosts; // nothing to sort
   if (!hasPosts) {
-    const where = [state.type, state.platform && `on ${state.platform}`].filter(Boolean).join(' ');
+    // e.g. "No organic Carousel posts on REDnote published Sep 15 – Sep 21." — the Published filter names its week / month
+    const what = postsPhrase();
+    const unit = PERIODS[state.period].unit;
     empty.innerHTML = DATA_STATE === 'empty'
       ? emptyState('No published posts yet.', 'Posts you publish will be listed here with their views, likes and comments.')
-      : emptyState(`No ${state.view === 'all' ? '' : `${state.view} `}posts${where ? ` ${where}` : ''} in this date range.`, 'Try another date range or clear a filter.');
+      : state.bucket !== null
+        ? emptyState(`No ${what} published ${rangeLabel(range)}.`, `Try another ${unit} or clear a filter.`)
+        : emptyState(`No ${what} in this date range.`, state.view !== 'all' || state.platform || state.type ? 'Try another date range or clear a filter.' : 'Try a longer date range.');
     return;
   }
 
@@ -568,8 +577,8 @@ function renderStats(posts) {
     { icon: 'layer-eye.svg', value: formatCount(s.views), label: 'Views' },
     ...(paidStats
       ? [{ icon: 'stat-billing-20.svg', value: formatMoney(spend), label: 'Spend' },
-        { icon: 'stat-trending-up-20.svg', value: leads, label: 'Leads' },
-        { icon: 'stat-billing-20.svg', value: leads ? formatMoney(spend / leads) : '—', label: 'CPL' }]
+        { icon: 'circle-user-round.svg', value: leads, label: 'Leads' },
+        { icon: 'pagebar-target.svg', value: leads ? formatMoney(spend / leads) : '—', label: 'CPL' }]
       : [{ icon: 'stat-heart-20.svg', value: formatCount(s.likes), label: 'Likes' },
         { icon: 'chat.svg', value: formatCount(s.comments), label: 'Comments' },
         { icon: 'stat-trending-up-20.svg', value: s.posts ? formatPct(engagementOf(s)) : '—', label: 'Engagement' }]),
@@ -600,12 +609,13 @@ function render() {
   const nonMeta = state.view === 'paid' && ADS_CONNECTED && state.platform && !META_ADS_PLATFORMS.includes(state.platform);
   document.getElementById('pendingBadge').hidden = !pending;
   document.getElementById('postsStats').hidden = pending || nonMeta;
-  document.getElementById('metricTabs').hidden = pending;
+  document.getElementById('metricTabs').hidden = pending || nonMeta; // no chart → no metric tabs
   document.getElementById('chartCard').hidden = pending || nonMeta;
   document.getElementById('postsSection').hidden = pending || nonMeta;
   const chartEmpty = document.getElementById('chartEmpty');
   chartEmpty.hidden = !(pending || nonMeta);
   document.getElementById('chartNoData').hidden = true;
+  if (pending || nonMeta) document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)}`; // no chart → no "click the chart" hint
   if (pending) {
     chartEmpty.innerHTML = emptyState('Paid results will appear once Meta Ads is connected.', 'Boosted posts and ads will be listed here with spend, leads and CPL over time.');
     return;
@@ -623,9 +633,13 @@ function render() {
   chartNoData.hidden = !noData;
   if (noData) {
     document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)}`; // no chart → no "click the chart" hint
+    // filters set → name them (same wording as the Posts list); no filters → the range itself is empty
+    const filtered = state.view !== 'all' || state.platform || state.type;
     chartNoData.innerHTML = DATA_STATE === 'empty'
       ? emptyState('Nothing to chart yet.', 'Publish your first post and its views, likes and comments will be tracked here.')
-      : emptyState('No posts in this date range.', 'Try a longer date range or clear a filter.');
+      : filtered
+        ? emptyState(`No ${postsPhrase()} in this date range.`, 'Try another date range or clear a filter.')
+        : emptyState('No posts in this date range.', 'Try a longer date range.');
     const listed = filteredPosts({ withBucket: true });
     renderStats(listed);
     renderList(listed);

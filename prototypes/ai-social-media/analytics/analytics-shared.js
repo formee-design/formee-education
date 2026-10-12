@@ -181,6 +181,11 @@ const POST_TITLES = [
   'Meet Our Counsellors', 'Top 5 UK Unis for Business', 'Dorm Room Tour — Manchester', 'A Month in London: Real Costs',
   'Alumni Story: Seoul to Edinburgh', 'Open Day Highlights', 'Part-time Jobs for Students', 'Foundation vs Year 1 Entry',
   'Accommodation Q&A', 'Weekend Trips from London',
+  'How to Write a Personal Statement', 'First Week in Halls', 'Budgeting on a Student Loan', 'Graduate Visa Explained',
+  'Study Spots Around King\'s Cross', 'Choosing Your Course', 'Ask a Current Student', 'Visa Interview Tips',
+  'A Rainy Day in Edinburgh', 'Freshers\' Fair Highlights', 'Exam Season Survival Guide', 'Working While You Study',
+  'Life in Glasgow', 'Commuting in London', 'Society Night Out', 'Library Tour — Oxford',
+  'Packing List: Winter Edition', 'Masters vs PhD', 'Our Counselling Team', 'Offer Day Reactions',
 ];
 const POST_THUMBS = ['viral-4.png', 'viral-2.png', 'viral-3.png', 'viral-6.png', 'viral-5.png', 'viral-1.png', 'post-5.png'];
 
@@ -215,7 +220,7 @@ function buildPosts(periodKey, { adsConnected = false } = {}) {
   });
   // titles go out by views, so the posts people actually see in Top lists get the distinct ones
   posts.sort((a, b) => b.views - a.views).forEach((post, i) => {
-    post.title = POST_TITLES[i % POST_TITLES.length] + (i >= POST_TITLES.length ? ` · Part ${Math.floor(i / POST_TITLES.length) + 1}` : '');
+    post.title = POST_TITLES[i % POST_TITLES.length]; // placeholder — real titles come from the generated content
     post.img = POST_THUMBS[i % POST_THUMBS.length];
   });
   posts.sort((a, b) => b.date - a.date || b.views - a.views);
