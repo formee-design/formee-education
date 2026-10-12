@@ -3,8 +3,10 @@
    - .date-picker-day-cell: 7 states — default / disabled (prev/next month) / today
      (outlined) / selected (filled brand) / holiday, holiday-today, holiday-selected
      (each = the base state + a 4px dot under the number)
-   - .date-picker: the full "Date Picker (with time)" popover — month nav header,
-     weekday row, day grid, divider, Time row (3 selects), Cancel/Save actions.
+   - .date-picker: the full popover — Figma component set "Date Picker" (12624:11616), property Time:
+       · Time=With time    — month nav header, weekday row, day grid, divider, Time row (3 selects), Cancel/Save actions.
+       · Time=Without time — same minus the divider + Time row (date only; e.g. Analytics custom date range).
+     Both use the same classes — Without time simply leaves .date-picker-divider / .date-picker-time-row out.
 
    Save button is a *solid* neutral-900 fill with the same inset highlight/lowlight
    sheen as .image-scene-card-use-btn, but not the two-stop dark gradient — kept as

@@ -13,7 +13,11 @@
        - Period selector — every section re-renders for 30 days / 90 days / All time / Custom; "Custom" reveals the date range
          inline, and its tiny sample can show a 0% type in Published Mix.
        - Top Paid Content stays in its "Integration Pending" empty state until Meta Ads is connected.
-       - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it. -->
+       - Custom: clicking either date opens the Date Picker (Time=Without time); Apply re-runs every section for that range
+         (DD/MM/YYYY; no future dates). URL keeps ?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD.
+       - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it.
+       - Drill-down to Post Performance (posts.html): "View all →" on Top Paid / Top Organic, and every segment of
+         Published Posts Over Time (platform + week). Data + helpers shared via analytics-shared.js. -->
 <!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +40,7 @@
 <link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/controls-misc.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/schedule.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/date-picker.css">
 <style>
   *{box-sizing:border-box;}
   body{
@@ -73,7 +78,10 @@
   .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
   .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-sm); margin-left:var(--spacing-sm);}
   .period-selector__to{font-size:var(--font-size-text-sm); color:var(--color-neutral-500);}
-  .input-field--date{width:150px;}
+  .input-field--date{width:150px; cursor:pointer;}
+  /* custom range — Date Picker (Time=Without time) opens under the clicked field */
+  .date-field{position:relative; display:flex;}
+  .date-picker-popover{position:absolute; top:calc(100% + 8px); left:0; z-index:40; width:376px;}
 
   /* body sections, 40 apart (12586:485587) */
   .analytics-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
@@ -83,7 +91,6 @@
 
   /* generic card shell (neutral/0 bg, neutral/400 border, radius-xl — repeated across every card on this screen) */
   .analytics-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-xl);}
-  .analytics-card--center{display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px;}
 
   /* chart card shell — shared by Published Posts by Platform and (formerly) Meta Ads spend */
   .chart-card{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl); width:100%;}
@@ -95,6 +102,14 @@
   .hbar-row__track{display:block; flex:1 0 0; min-width:0; background:var(--color-neutral-100); border-radius:var(--radius-sm); height:16px; overflow:hidden;}
   .hbar-row__fill{display:block; height:100%; background:var(--color-brand-primary); border-radius:var(--radius-sm);}
   .hbar-row__value{width:32px; flex-shrink:0; text-align:right; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  /* clickable Mix rows (bars + donut legend) → Post Performance */
+  .mix-link{text-decoration:none; cursor:pointer;}
+  .mix-link:hover .hbar-row__label,
+  .mix-link:hover .legend__label{color:var(--color-brand-primary);}
+  .mix-link:hover .hbar-row__fill{background:var(--color-brand-primary-dark);}
+  .donut-slice{cursor:pointer;}
+  .donut-slice:hover path,
+  .donut-slice:hover circle{opacity:.8;}
   .hbar-total{padding-top:var(--spacing-lg); border-top:1px solid var(--color-neutral-150); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700); width:100%;}
   .hbar-total strong{color:var(--color-neutral-900); font-weight:var(--font-weight-semibold);}
 
@@ -112,7 +127,8 @@
   .stack-chart{display:flex; align-items:flex-end; gap:var(--spacing-md); height:200px; width:100%; border-bottom:1px solid var(--color-neutral-150);}
   .stack-chart__col{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-sm); flex:1 0 0; min-width:0; height:100%; justify-content:flex-end;}
   .stack-chart__stack{display:flex; flex-direction:column-reverse; width:100%; max-width:56px; border-radius:var(--radius-sm) var(--radius-sm) 0 0; overflow:hidden;}
-  .stack-chart__seg{width:100%;}
+  .stack-chart__seg{display:block; width:100%; cursor:pointer;}
+  .stack-chart__seg:hover{box-shadow:inset 0 0 0 2px var(--color-neutral-0);}
   .stack-chart__total{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
   .stack-chart__label{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap;}
   .platform-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-sm) var(--spacing-lg);}
@@ -125,6 +141,9 @@
   .perf-col--name{flex:1 0 0; min-width:1px;}
   .perf-col--num{width:120px; text-align:right;}
   .perf-col--best{width:220px; padding-left:var(--spacing-2xl);}
+  .perf-col--link{width:110px; text-align:right;}
+  .perf-link{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700); text-decoration:none; white-space:nowrap;}
+  .perf-link:hover{color:var(--color-brand-primary);}
   .perf-row{cursor:pointer;}
   .perf-row:hover{background:var(--color-neutral-50);}
   .perf-row__name{display:flex; align-items:center; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
@@ -190,6 +209,10 @@
   /* Top Paid Content / Top Organic Posts — both cards stretch to the row height */
   .analytics-row--stretch{align-items:stretch;}
   .top-posts-card{flex:1 0 auto;}
+
+  /* empty states — page-level card (#state=empty) and in-section panels (no posts in the range) */
+  .analytics-empty{display:flex; justify-content:center; padding:var(--spacing-6xl) var(--spacing-2xl);}
+  .analytics-empty .actions-btn{text-decoration:none;}
 
   [hidden]{display:none !important;}
 
@@ -275,16 +298,16 @@
               <div class="segment-chip" data-period="all">All time</div>
               <div class="segment-chip" data-period="custom">Custom</div>
               <div class="period-selector__extra" id="customRange" hidden>
-                <div class="input-field input-field--date input-field--sm">
-                  <span class="input-field__text">11/09/2026</span>
+                <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customFrom" aria-label="Start date">
+                  <span class="input-field__text"></span>
                   <span class="input-field__icon input-field__icon--18"><img src="../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
-                </div>
+                </div></span>
                 <span class="period-selector__to">to</span>
-                <div class="input-field input-field--date input-field--sm">
-                  <span class="input-field__text">11/10/2026</span>
+                <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customTo" aria-label="End date">
+                  <span class="input-field__text"></span>
                   <span class="input-field__icon input-field__icon--18"><img src="../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
-                </div>
-                <button type="button" class="actions-btn actions-btn--blue">Apply</button>
+                </div></span>
+                <button type="button" class="actions-btn actions-btn--blue" id="customApply">Apply</button>
               </div>
             </div>
           </div>
@@ -294,41 +317,54 @@
         <div class="stats-summary">
           <div class="stats-summary__stat">
             <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-library-20.svg" alt=""></div>
-            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiPublished"></p><p class="stats-summary__label">Published Posts</p></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiPublished"></p><p class="stats-summary__label">Published Posts</p><p class="stats-summary__caption" id="kpiPublishedSub"></p></div>
           </div>
-          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__divider stats-summary__divider--strong"></div>
           <div class="stats-summary__stat">
             <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-spinner-20.svg" alt=""></div>
-            <div class="stats-summary__text"><p class="stats-summary__value">0</p><p class="stats-summary__label">In progress</p><p class="stats-summary__sub">—</p></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiInProgress">0</p><p class="stats-summary__label">In progress</p><p class="stats-summary__caption">—</p></div>
           </div>
           <div class="stats-summary__divider"></div>
           <div class="stats-summary__stat">
             <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-circle-alert-20.svg" alt=""></div>
-            <div class="stats-summary__text"><p class="stats-summary__value">1</p><p class="stats-summary__label">Failed renders</p><p class="stats-summary__sub">auto-retried</p></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiFailed">1</p><p class="stats-summary__label">Failed renders</p><p class="stats-summary__caption" id="kpiFailedSub">auto-retried</p></div>
           </div>
           <div class="stats-summary__divider"></div>
           <div class="stats-summary__stat">
             <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-billing-20.svg" alt=""></div>
-            <div class="stats-summary__text"><p class="stats-summary__value">$5.98</p><p class="stats-summary__label">Compute spend</p><p class="stats-summary__sub">actual cost</p></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiSpend">$5.98</p><p class="stats-summary__label">Compute spend</p><p class="stats-summary__caption">actual cost</p></div>
           </div>
         </div>
       </div>
 
       <div class="analytics-body">
 
+        <!-- #state=empty — new account: nothing published yet (and Meta Ads not connected). One page-level
+             empty-state (No content variant, empty-state.css) stands in for every data section; Meta Ads stays below. -->
+        <div class="analytics-card analytics-empty" id="emptyAccount" hidden>
+          <div class="empty-state">
+            <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span>
+            <div class="empty-state__text"><p class="empty-state__title">No published posts yet</p><p class="empty-state__body">Publish your first post to see how your content performs.</p></div>
+            <a class="actions-btn actions-btn--primary" href="../new-content-generation/v4/new-content-to-generate.html"><img src="../../../components/ai-social-media/icons/plus-16-white.svg" alt="">New Content</a>
+          </div>
+        </div>
+
         <!-- Publishing — what we posted: trend over time (left) | composition with Platform/Type tabs (right) -->
-        <div class="analytics-row analytics-row--stretch">
+        <div class="analytics-row analytics-row--stretch" id="publishingRow">
 
           <section class="analytics-section">
             <div class="trends-section-header">
               <div class="trends-section-header__left">
                 <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Published Posts Over Time</h2></div>
-                <p class="trends-section-header__desc">When and where your posts were published.</p>
+                <p class="trends-section-header__desc">When and where your posts were published. Click a bar to see those posts.</p>
               </div>
             </div>
-            <div class="analytics-card chart-card publish-card">
+            <div class="analytics-card chart-card publish-card" id="overTimeCard">
               <div class="stack-chart" id="publishedOverTime"></div>
               <div class="platform-legend" id="platformLegend"></div>
+            </div>
+            <div class="empty-state-panel publish-card" id="overTimeEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No posts published in this date range.</p><p class="empty-state__body">Try a longer date range.</p></div></div>
             </div>
           </section>
 
@@ -337,7 +373,7 @@
               <div class="trends-section-header">
                 <div class="trends-section-header__left">
                   <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Published Mix</h2></div>
-                  <p class="trends-section-header__desc">Share of published posts by platform or content type.</p>
+                  <p class="trends-section-header__desc">Share of published posts by platform or content type. Click one to see its posts.</p>
                 </div>
               </div>
               <div class="controls-segmented-control card-tabs" id="mixTabs" role="tablist">
@@ -345,7 +381,10 @@
                 <button type="button" class="controls-segment-chip" data-tab="type" role="tab">Type</button>
               </div>
             </div>
-            <div class="analytics-card publish-card mix-card">
+            <div class="empty-state-panel publish-card" id="mixEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">Nothing to break down in this date range.</p><p class="empty-state__body">Try a longer date range.</p></div></div>
+            </div>
+            <div class="analytics-card publish-card mix-card" id="mixCard">
               <div class="chart-card mix-pane" id="mixPlatform" aria-hidden="false">
                 <div class="hbar-list" id="mixPlatformBars"></div>
                 <p class="hbar-total">Total Published Posts: <strong id="mixPlatformTotal"></strong></p>
@@ -362,7 +401,7 @@
 
         <!-- Content Performance — how it landed: one table, grouped by platform or content type; expand a row for the other dimension.
              Only the metrics every connected platform's API returns: posts, views, likes, comments (engagement = (likes + comments) ÷ views). -->
-        <section class="analytics-section">
+        <section class="analytics-section" id="perfSection">
           <div class="section-header-row">
             <div class="trends-section-header">
               <div class="trends-section-header__left">
@@ -375,7 +414,10 @@
               <button type="button" class="controls-segment-chip" data-tab="type" role="tab">By content type</button>
             </div>
           </div>
-          <div class="sc-list sc-list--fluid perf-table">
+          <div class="empty-state-panel " id="perfEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No performance data for this date range.</p><p class="empty-state__body">Views, likes and comments show up once posts in this range are live.</p></div></div>
+            </div>
+          <div class="sc-list sc-list--fluid perf-table" id="perfTable">
             <div class="sc-list-colhead">
               <span class="perf-col--name" id="perfNameHead">Platform</span>
               <span class="perf-col--num">Posts</span>
@@ -384,6 +426,7 @@
               <span class="perf-col--num">Avg comments</span>
               <span class="perf-col--num" title="(likes + comments) ÷ views">Engagement</span>
               <span class="perf-col--best" id="perfBestHead">Best format</span>
+              <span class="perf-col--link"></span>
             </div>
             <div id="perfRows"></div>
           </div>
@@ -392,7 +435,7 @@
 
         <!-- row · top posts — Paid (left) | Organic (right), 50/50. A post with any ad spend in the date range counts as Paid,
              otherwise Organic. Deep links: ?period=30d#top-paid / #top-organic (e.g. from Home's "View analytics →"). -->
-        <div class="analytics-row analytics-row--stretch">
+        <div class="analytics-row analytics-row--stretch" id="topRow">
 
           <!-- Top Paid Content — actual ad results (spend, leads, CPL); needs the Meta Ads integration, so empty until then -->
           <section class="analytics-section" id="top-paid">
@@ -403,8 +446,9 @@
                   <p class="trends-section-header__desc">Your best-performing posts with ad spend in this date range.</p>
                 </div>
               </div>
+              <a class="text-btn" id="viewAllPaid" href="posts.html?view=paid">View all →</a>
             </div>
-            <div class="analytics-card analytics-card--center top-posts-card" id="topPaidList">
+            <div class="empty-state-panel top-posts-card" id="topPaidList">
               <div class="empty-state empty-state--section">
                 <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
                 <div class="empty-state__text"><p class="empty-state__title">Paid results will appear once Meta Ads is connected.</p><p class="empty-state__body">Boosted posts and ads will be ranked here by spend, leads and CPL.</p></div>
@@ -418,12 +462,16 @@
               <div class="trends-section-header">
                 <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Organic Posts</h2></div><p class="trends-section-header__desc">Your best-performing posts with no ad spend in this date range.</p></div>
               </div>
-              <div class="filter-row">
+              <div class="filter-row" id="organicControls">
                 <div class="filter-dropdown" id="postsPlatformFilterWrap"></div>
                 <div class="filter-dropdown" id="postsRankFilterWrap"></div>
+                <a class="text-btn" id="viewAllOrganic" href="posts.html?view=organic">View all →</a>
               </div>
             </div>
             <div class="analytics-card forecast-list top-posts-card" id="topPostsList"></div>
+            <div class="empty-state-panel top-posts-card" id="organicEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No organic posts in this date range.</p><p class="empty-state__body">Your best posts without ad spend will be ranked here.</p></div></div>
+            </div>
           </section>
         </div>
 
@@ -432,7 +480,7 @@
           <div class="trends-section-header">
             <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Performance</h2><span class="trends-section-header__badge">Integration Pending</span></div></div>
           </div>
-          <div class="analytics-card analytics-card--center" style="min-height:134px;">
+          <div class="empty-state-panel">
             <div class="empty-state empty-state--section">
               <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
               <div class="empty-state__text"><p class="empty-state__title">Meta Ads Analytics is Coming Soon</p><p class="empty-state__body">We're working on bringing Meta Ads performance data to Pulse. Analytics will be available once the integration is complete.</p></div>
@@ -450,122 +498,25 @@
   <span>Home</span>
 </a>
 
+<script src="analytics-shared.js"></script>
 <script>
-const ICON = '../../../components/ai-social-media/icons/';
-
-// ══ One placeholder dataset (platform × content type) drives the KPI, Publishing charts and Content Performance,
-//    so every total on the page agrees. Only metrics every connected platform's API returns: posts, views, likes, comments.
-// Platform series use the brand blue ramp, darkest → lightest in display order (stacks build up from the darkest).
-const PLATFORMS = [
-  { name: 'Instagram', color: 'var(--color-brand-primary-dark)' },
-  { name: 'TikTok', color: 'var(--color-brand-primary)' },
-  { name: 'Facebook', color: 'var(--color-brand-link)' },
-  { name: 'REDnote', color: 'var(--color-brand-primary-mid)' },
-  { name: 'LinkedIn', color: 'var(--color-brand-primary-pale)' },
-];
-// Content types per platform (2026-10-12):
-//   Instagram / TikTok / REDnote: Video · Image · Carousel
-//   Facebook / LinkedIn:          Video · Image · Multi-Image Post
-const TYPES = [
-  { name: 'Video', color: 'var(--color-brand-primary)' },
-  { name: 'Image', color: 'var(--color-brand-primary-mid)' },
-  { name: 'Carousel', color: 'var(--color-brand-primary-pale)' },
-  { name: 'Multi-Image Post', color: 'var(--color-brand-primary-light)' },
-];
-// Published posts in the last 30 days, per platform × type
-const BASE_POSTS = {
-  Instagram: { Video: 9, Image: 4, Carousel: 5 },
-  TikTok: { Video: 18, Image: 2, Carousel: 4 },
-  Facebook: { Video: 5, Image: 2, 'Multi-Image Post': 1 },
-  REDnote: { Video: 1, Image: 2, Carousel: 1 },
-  LinkedIn: { Video: 3, Image: 5, 'Multi-Image Post': 4 },
-};
-// Per-post averages: platform baseline × format multiplier (placeholder)
-const PLATFORM_BASE = {
-  TikTok: { views: 52000, likeRate: 0.068, commentRate: 0.0018 },
-  Instagram: { views: 31000, likeRate: 0.075, commentRate: 0.0030 },
-  Facebook: { views: 9800, likeRate: 0.032, commentRate: 0.0021 },
-  LinkedIn: { views: 4200, likeRate: 0.048, commentRate: 0.0046 },
-  REDnote: { views: 7600, likeRate: 0.081, commentRate: 0.0052 },
-};
-const TYPE_MULT = {
-  Video: { views: 1.3, eng: 1.0 },
-  Image: { views: 0.55, eng: 0.95 },
-  Carousel: { views: 0.8, eng: 1.25 },
-  'Multi-Image Post': { views: 0.75, eng: 1.15 },
-};
-const ENG_TWEAK = { TikTok: { Carousel: 0.8 }, Instagram: { Video: 1.3 }, REDnote: { Image: 1.35 } };
-
-// Global date range → post-count scale and chart buckets (placeholder)
-const PERIODS = {
-  '30d': { factor: 1, buckets: ['Sep 14', 'Sep 21', 'Sep 28', 'Oct 5', 'Oct 12'] },
-  '90d': { factor: 2.7, buckets: ['Jul 13', 'Jul 20', 'Jul 27', 'Aug 3', 'Aug 10', 'Aug 17', 'Aug 24', 'Aug 31', 'Sep 7', 'Sep 14', 'Sep 21', 'Sep 28', 'Oct 5'] },
-  all: { factor: 6.4, buckets: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'] },
-  custom: { factor: 0.15, buckets: ['Nov 9', 'Nov 10'] },
-};
 const pageState = { period: '30d', mixTab: 'platform', perfTab: 'platform', expanded: new Set() };
-
-function buildCells(periodKey) {
-  const { factor } = PERIODS[periodKey];
-  const cells = [];
-  for (const p of PLATFORMS) {
-    const base = PLATFORM_BASE[p.name];
-    for (const t of TYPES) {
-      const basePosts = BASE_POSTS[p.name][t.name];
-      if (basePosts === undefined) continue; // format doesn't exist on this platform
-      const posts = Math.round(basePosts * factor);
-      const avgViews = base.views * TYPE_MULT[t.name].views;
-      const eng = TYPE_MULT[t.name].eng * ((ENG_TWEAK[p.name] || {})[t.name] || 1);
-      cells.push({
-        platform: p.name, type: t.name, posts,
-        views: posts * avgViews,
-        likes: posts * avgViews * base.likeRate * eng,
-        comments: posts * avgViews * base.commentRate * eng,
-      });
-    }
-  }
-  return cells;
-}
-
-function sumCells(list) {
-  return list.reduce((a, c) => ({
-    posts: a.posts + c.posts, views: a.views + c.views, likes: a.likes + c.likes, comments: a.comments + c.comments,
-  }), { posts: 0, views: 0, likes: 0, comments: 0 });
-}
-const engagementOf = (s) => (s.views ? (s.likes + s.comments) / s.views : 0);
-
-// split an integer across buckets with fixed pseudo-random weights (largest remainder keeps the exact total)
-function splitAcross(total, n, seed) {
-  const w = Array.from({ length: n }, (_, i) => 0.6 + 0.8 * Math.abs(Math.sin(seed * 12.9898 + i * 78.233)));
-  const sum = w.reduce((a, b) => a + b, 0);
-  const raw = w.map((x) => (x / sum) * total);
-  const out = raw.map(Math.floor);
-  let rest = total - out.reduce((a, b) => a + b, 0);
-  raw.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]).slice(0, rest).forEach(([, i]) => { out[i] += 1; });
-  return out;
-}
-
-function formatCount(n) {
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1).replace(/\.0$/, '')}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(1).replace(/\.0$/, '')}K`;
-  return String(Math.round(n));
-}
-const formatPct = (r) => `${(r * 100).toFixed(1)}%`;
+readCustomRange(new URLSearchParams(location.search)); // ?period=custom&from=2026-09-11&to=2026-10-11
 
 // ── Published Posts Over Time — stacked by platform ──
 function renderOverTime(cells) {
   const { buckets } = PERIODS[pageState.period];
-  const perPlatform = PLATFORMS.map((p, i) => ({
-    ...p, series: splitAcross(sumCells(cells.filter((c) => c.platform === p.name)).posts, buckets.length, i + 1),
-  }));
+  const perPlatform = platformSeries(cells, pageState.period);
   const totals = buckets.map((_, b) => perPlatform.reduce((s, p) => s + p.series[b], 0));
   const max = Math.max(1, ...totals);
   const CHART_H = 200 - 18 - 8 - 18 - 8; // column height minus label + total rows and their gaps
+  // each segment opens Post Performance filtered to that platform + bucket (e.g. Instagram · week of Sep 14)
+  const segHref = (platform, b) => `posts.html?${new URLSearchParams({ ...periodParams(pageState.period), platform, bucket: b })}`;
   document.getElementById('publishedOverTime').innerHTML = buckets.map((label, b) => `
     <div class="stack-chart__col">
       <span class="stack-chart__total">${totals[b]}</span>
       <div class="stack-chart__stack" style="height:${(totals[b] / max) * CHART_H}px">
-        ${perPlatform.filter((p) => p.series[b] > 0).map((p) => `<span class="stack-chart__seg" title="${p.name}: ${p.series[b]}" style="flex:${p.series[b]} 0 0; background:${p.color}"></span>`).join('')}
+        ${perPlatform.filter((p) => p.series[b] > 0).map((p) => `<a class="stack-chart__seg" href="${segHref(p.name, b)}" title="${p.name} · ${rangeLabel(bucketRange(pageState.period, b))}: ${p.series[b]} posts — view posts" style="flex:${p.series[b]} 0 0; background:${p.color}"></a>`).join('')}
       </div>
       <span class="stack-chart__label">${label}</span>
     </div>`).join('');
@@ -578,12 +529,14 @@ function renderMix(cells) {
   const total = sumCells(cells).posts;
   const byPlatform = PLATFORMS.map((p) => ({ ...p, count: sumCells(cells.filter((c) => c.platform === p.name)).posts }));
   const max = Math.max(1, ...byPlatform.map((p) => p.count));
+  // every bar / slice / legend row opens Post Performance filtered to that platform or type
+  const mixHref = (key, name) => `posts.html?${new URLSearchParams({ ...periodParams(pageState.period), [key]: name })}`;
   document.getElementById('mixPlatformBars').innerHTML = byPlatform.map((p) => `
-    <div class="hbar-row">
+    <a class="hbar-row mix-link" href="${mixHref('platform', p.name)}" title="View ${p.name} posts">
       <span class="hbar-row__label">${p.name}</span>
       <span class="hbar-row__track"><span class="hbar-row__fill" style="width:${(p.count / max) * 100}%"></span></span>
       <span class="hbar-row__value">${p.count}</span>
-    </div>`).join('');
+    </a>`).join('');
   document.getElementById('mixPlatformTotal').textContent = total;
 
   const segments = TYPES.map((t) => {
@@ -596,19 +549,25 @@ function renderMix(cells) {
   let angle = -Math.PI / 2;
   document.getElementById('donutSvg').innerHTML = segments.filter((s) => s.count > 0).map((s) => {
     const frac = s.count / total;
-    if (frac > 0.9999) return `<circle cx="${CX}" cy="${CX}" r="${R}" fill="none" stroke="${s.color}" stroke-width="${SW}" />`;
+    const href = mixHref('type', s.name);
+    if (frac > 0.9999) return `<a href="${href}" class="donut-slice"><title>View ${s.name} posts</title><circle cx="${CX}" cy="${CX}" r="${R}" fill="none" stroke="${s.color}" stroke-width="${SW}" /></a>`;
     const end = angle + frac * 2 * Math.PI;
     const [x1, y1, x2, y2] = [CX + R * Math.cos(angle), CX + R * Math.sin(angle), CX + R * Math.cos(end), CX + R * Math.sin(end)];
     angle = end;
-    return `<path d="M ${x1} ${y1} A ${R} ${R} 0 ${frac > 0.5 ? 1 : 0} 1 ${x2} ${y2}" fill="none" stroke="${s.color}" stroke-width="${SW}" />`;
+    return `<a href="${href}" class="donut-slice"><title>View ${s.name} posts</title><path d="M ${x1} ${y1} A ${R} ${R} 0 ${frac > 0.5 ? 1 : 0} 1 ${x2} ${y2}" fill="none" stroke="${s.color}" stroke-width="${SW}" /></a>`;
   }).join('');
   document.getElementById('donutTotal').textContent = total;
-  document.getElementById('donutLegend').innerHTML = segments.map((s) => `
-    <div class="legend__row${s.count === 0 ? ' legend__row--zero' : ''}">
-      <span class="legend__dot" style="background:${s.count === 0 ? 'var(--color-neutral-200)' : s.color}"></span>
+  document.getElementById('donutLegend').innerHTML = segments.map((s) => (s.count === 0 ? `
+    <div class="legend__row legend__row--zero">
+      <span class="legend__dot" style="background:var(--color-neutral-200)"></span>
       <span class="legend__label">${s.name}</span>
       <span class="legend__value">${s.count} · ${s.pct}%</span>
-    </div>`).join('');
+    </div>` : `
+    <a class="legend__row mix-link" href="${mixHref('type', s.name)}" title="View ${s.name} posts">
+      <span class="legend__dot" style="background:${s.color}"></span>
+      <span class="legend__label">${s.name}</span>
+      <span class="legend__value">${s.count} · ${s.pct}%</span>
+    </a>`)).join('');
 }
 
 // ── Content Performance — grouped by platform or by type; expanding a group shows the other dimension inside it,
@@ -638,23 +597,31 @@ function renderPerformance(cells) {
     if (!groupCells.length) return '';
     const total = sumCells(groupCells);
     const groupEng = engagementOf(total);
+    // children keep the fixed TYPES / PLATFORMS order (Video · Image · Carousel · Multi-Image Post); the Best chip marks the best one
     const children = groupCells.filter((c) => c.posts > 0).map((c) => ({
       name: c[childKey], stats: c, index: groupEng ? engagementOf(c) / groupEng - 1 : 0,
-    })).sort((a, b) => b.index - a.index);
-    const top = children.length > 1 ? children[0] : null;
+    }));
+    const top = children.length > 1 ? children.reduce((a, b) => (b.index > a.index ? b : a)) : null;
+    const postsHref = (child) => {
+      const q = new URLSearchParams({ ...periodParams(pageState.period), [groupKey]: g.name });
+      if (child) q.set(childKey, child);
+      return `posts.html?${q}`;
+    };
     if (top && total.posts >= 3 && (!best || top.index > best.index)) best = { group: g.name, ...top };
     const open = pageState.expanded.has(g.name);
     const head = `
       <div class="sc-list-row perf-row" data-group="${g.name}" aria-expanded="${open}" role="button" tabindex="0">
         <span class="perf-col--name perf-row__name"><img class="perf-row__chevron" src="${ICON}chevron-right.svg" alt=""><span class="perf-row__dot" style="background:${g.color}"></span>${g.name}</span>
         ${metricCells(total)}
-        <span class="perf-col--best">${top ? `<span class="feedback-status-chip feedback-status-chip--green">★ ${top.name}</span>` : '<span class="perf-cell perf-index--down">—</span>'}</span>
+        <span class="perf-col--best">${top ? `<span class="feedback-status-chip feedback-status-chip--green">${top.name}</span>` : '<span class="perf-cell perf-index--down">—</span>'}</span>
+        <span class="perf-col--link"><a class="perf-link" href="${postsHref()}">View posts →</a></span>
       </div>`;
     const sub = open ? children.map((ch) => `
       <div class="sc-list-row perf-sub">
         <span class="perf-col--name perf-row__name"><span class="perf-row__dot" style="background:${childColor(ch.name)}"></span>${ch.name}</span>
         ${metricCells(ch.stats)}
         <span class="perf-col--best"><span class="perf-index ${ch.index >= 0 ? 'perf-index--up' : 'perf-index--down'}">${ch.index >= 0 ? '+' : ''}${Math.round(ch.index * 100)}% vs ${g.name} avg</span></span>
+        <span class="perf-col--link"><a class="perf-link" href="${postsHref(ch.name)}">View posts →</a></span>
       </div>`).join('') : '';
     return head + sub;
   }).join('');
@@ -670,10 +637,30 @@ function renderPerformance(cells) {
 
 function renderPage() {
   const cells = buildCells(pageState.period);
-  document.getElementById('kpiPublished').textContent = sumCells(cells).posts;
+  const total = sumCells(cells).posts;
+  document.getElementById('kpiPublished').textContent = total;
+  document.getElementById('kpiPublishedSub').textContent = rangeLabel(periodRange(pageState.period));
+  // no posts in the range (#state=range-empty, or a custom range with nothing in it) → each section's empty panel
+  const none = total === 0;
+  const swap = (cardId, emptyId) => { document.getElementById(cardId).hidden = none; document.getElementById(emptyId).hidden = !none; };
+  swap('overTimeCard', 'overTimeEmpty');
+  swap('mixCard', 'mixEmpty');
+  swap('perfTable', 'perfEmpty');
+  document.getElementById('mixTabs').hidden = none;
+  document.getElementById('perfTabs').hidden = none;
+  if (none) { document.getElementById('perfInsight').hidden = true; return; }
   renderOverTime(cells);
   renderMix(cells);
   renderPerformance(cells);
+}
+
+// #state=empty — new account: zeroed stats, one page-level empty state, data sections hidden (Meta Ads stays)
+if (DATA_STATE === 'empty') {
+  document.getElementById('kpiFailed').textContent = '0';
+  document.getElementById('kpiFailedSub').textContent = 'none';
+  document.getElementById('kpiSpend').textContent = '$0.00';
+  document.getElementById('emptyAccount').hidden = false;
+  ['publishingRow', 'perfSection', 'topRow'].forEach((id) => { document.getElementById(id).hidden = true; });
 }
 
 function bindTabs(id, key) {
@@ -699,6 +686,7 @@ function togglePerfRow(row) {
   renderPerformance(buildCells(pageState.period));
 }
 document.getElementById('perfRows').addEventListener('click', (e) => {
+  if (e.target.closest('.perf-link')) return; // "View posts →" navigates instead of expanding
   const row = e.target.closest('.perf-row');
   if (row) togglePerfRow(row);
 });
@@ -706,55 +694,6 @@ document.getElementById('perfRows').addEventListener('keydown', (e) => {
   const row = e.target.closest('.perf-row');
   if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); togglePerfRow(row); }
 });
-
-// ── Filter / Select — Controls/Filter/Select (Inactive/Active) + its open option list (Menu/Item, context-menu--option-list) ──
-// inactiveLabel: text for the Inactive pill when the default is selected (e.g. "Rank by: Views").
-function buildFilter({ container, label, options, onSelect, closeToDefault = true, defaultValue = 'All', inactiveLabel = label }) {
-  let value = null; // null = default (Inactive pill)
-  const wrap = document.createElement('div');
-  wrap.className = 'filter-dropdown';
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  const list = document.createElement('div');
-  list.className = 'context-menu context-menu--option-list';
-  list.hidden = true;
-  list.innerHTML = options.map((o) => `
-    <button type="button" class="menu-option" data-value="${o.value}">
-      <span class="menu-option-text"><span class="menu-option-label-row"><span class="menu-option-label">${o.value}</span></span></span>
-    </button>`).join('');
-
-  function renderBtn() {
-    if (value === null) {
-      btn.className = 'filter-select';
-      btn.innerHTML = `<span class="filter-select__label">${inactiveLabel}</span><img class="filter-select__caret" src="${ICON}caret-down-filled.svg" alt="">`;
-    } else {
-      btn.className = 'filter-select filter-select--active';
-      btn.innerHTML = `<img class="filter-select__close" src="${ICON}controls/button-x.svg" alt=""><span class="filter-select__label">${label}</span><span class="filter-select__divider"></span><span class="filter-select__value">${value}</span>`;
-    }
-  }
-  renderBtn();
-
-  btn.addEventListener('click', (e) => {
-    if (e.target.closest('.filter-select__close')) {
-      value = null; renderBtn(); onSelect(null); return;
-    }
-    list.hidden = !list.hidden;
-  });
-  list.addEventListener('click', (e) => {
-    const opt = e.target.closest('.menu-option');
-    if (!opt) return;
-    const v = opt.dataset.value;
-    value = (closeToDefault && v === defaultValue) ? null : v;
-    renderBtn();
-    list.hidden = true;
-    onSelect(value);
-  });
-  document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) list.hidden = true; });
-
-  wrap.appendChild(btn);
-  wrap.appendChild(list);
-  container.replaceWith(wrap);
-}
 
 // ── Top Organic Posts — posts with no ad spend in the date range, top 3 by the selected Rank by metric (placeholder data) ──
 // Common metrics only (views, likes, comments); Engagement Rate is derived from them, same as Content Performance.
@@ -764,47 +703,45 @@ const RANK_METRICS = [
   { value: 'Comments', key: 'comments' },
   { value: 'Engagement Rate', key: 'engagement' },
 ];
-const TOP_POSTS = [
-  { title: 'A Day on Campus in the UK', platform: 'TikTok', type: 'Video', img: 'viral-4.png', views: 1240000, likes: 86400, comments: 2310 },
-  { title: 'Study in the UK — Applications Open', platform: 'Instagram', type: 'Image', img: 'viral-2.png', views: 642000, likes: 51800, comments: 1840 },
-  { title: 'UK Applications — January Intake', platform: 'Facebook', type: 'Image', img: 'viral-3.png', views: 318000, likes: 12400, comments: 960 },
-  { title: 'Free 1:1 Counselling, Book Anytime', platform: 'LinkedIn', type: 'Multi-Image Post', img: 'viral-6.png', views: 84300, likes: 3920, comments: 412 },
-  { title: 'Main Character Edits — Campus Tour', platform: 'Instagram', type: 'Video', img: 'viral-5.png', views: 1060000, likes: 72300, comments: 3480 },
-  { title: 'Scholarship Deadlines This Month', platform: 'LinkedIn', type: 'Image', img: 'viral-1.png', views: 41200, likes: 2650, comments: 188 },
-  { title: 'Campus Café Guide — Week 1', platform: 'REDnote', type: 'Image', img: 'post-5.png', views: 58400, likes: 6120, comments: 342 },
-].map((p) => ({ ...p, engagement: (p.likes + p.comments) / p.views }));
-
 const topPostsState = { platform: 'All Platforms', rank: 'Views' };
 
+// "View all →" opens Post Performance with the same date range / platform / ranking, so its list starts with these 3
+function updateViewAllLinks() {
+  const q = new URLSearchParams(periodParams(pageState.period));
+  document.getElementById('viewAllPaid').href = `posts.html?view=paid&${q}`;
+  if (topPostsState.platform !== 'All Platforms') q.set('platform', topPostsState.platform);
+  if (topPostsState.rank !== 'Views') q.set('sort', topPostsState.rank);
+  document.getElementById('viewAllOrganic').href = `posts.html?view=organic&${q}`;
+}
+
 function renderTopPosts() {
+  updateViewAllLinks();
   const card = document.getElementById('topPostsList');
   const metric = RANK_METRICS.find((m) => m.value === topPostsState.rank).key;
-  const factor = PERIODS[pageState.period].factor;
-  const posts = TOP_POSTS
+  // the same posts Post Performance lists (shared dataset), organic only
+  const organic = buildPosts(pageState.period).filter((p) => !p.paid);
+  const posts = organic
     .filter((p) => topPostsState.platform === 'All Platforms' || p.platform === topPostsState.platform)
     .sort((a, b) => b[metric] - a[metric])
     .slice(0, 3);
 
+  // nothing organic in the range → hide the filters / View all too; nothing on one platform → keep them so it can be cleared
+  document.getElementById('organicControls').hidden = organic.length === 0;
+  const empty = document.getElementById('organicEmpty');
+  card.hidden = posts.length === 0;
+  empty.hidden = posts.length > 0;
   if (posts.length === 0) {
-    card.classList.remove('forecast-list');
-    card.classList.add('analytics-card--center');
-    card.innerHTML = `
-      <div class="empty-state empty-state--section">
-        <span class="empty-state__glyph"><img src="${ICON}nav-library-18.svg" alt=""></span>
-        <div class="empty-state__text"><p class="empty-state__title">No published posts on ${topPostsState.platform} yet.</p><p class="empty-state__body">Posts will show up here once they're published in this date range.</p></div>
-      </div>`;
+    empty.querySelector('.empty-state__title').textContent = organic.length ? `No organic posts on ${topPostsState.platform} in this date range.` : 'No organic posts in this date range.';
     return;
   }
-  card.classList.add('forecast-list');
-  card.classList.remove('analytics-card--center');
   card.innerHTML = posts.map((p, i) => `
     <div class="forecast-row">
       <span class="forecast-row__rank">${i + 1}</span>
-      <img class="forecast-row__thumb" src="../trends/assets/${p.img}" alt="">
+      <img class="forecast-row__thumb" src="${THUMB}${p.img}" alt="">
       <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
-      <div class="post-metric"><p class="post-metric__value">${formatCount(p.views * factor)}</p><p class="post-metric__label">Views</p></div>
-      <div class="post-metric"><p class="post-metric__value">${formatCount(p.likes * factor)}</p><p class="post-metric__label">Likes</p></div>
-      <div class="post-metric"><p class="post-metric__value">${formatCount(p.comments * factor)}</p><p class="post-metric__label">Comments</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.views)}</p><p class="post-metric__label">Views</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.likes)}</p><p class="post-metric__label">Likes</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.comments)}</p><p class="post-metric__label">Comments</p></div>
     </div>`).join('');
 }
 
@@ -840,7 +777,18 @@ document.querySelectorAll('#periodSelector .segment-chip').forEach((chip) => {
     pageState.period = chip.dataset.period;
     renderPage();
     renderTopPosts();
+    syncPeriodUrl();
   });
+});
+// keep ?period (and the custom dates) in the URL so a reload / shared link opens the same range
+function syncPeriodUrl() {
+  history.replaceState(null, '', `?${new URLSearchParams(periodParams(pageState.period))}${location.hash}`);
+}
+bindCustomRange({
+  fromField: document.getElementById('customFrom'),
+  toField: document.getElementById('customTo'),
+  applyBtn: document.getElementById('customApply'),
+  onApply() { renderPage(); renderTopPosts(); syncPeriodUrl(); },
 });
 // Deep link (e.g. Home's "View analytics →" on its Paid / Organic tab): ?period=30d|90d|all|custom preselects the date range;
 // #top-paid / #top-organic scrolls to that list and rings its card
@@ -857,15 +805,6 @@ if (ARRIVAL_TARGETS[location.hash]) {
   });
 }
 
-// 1920×1162 프레임을 창 크기에 맞춰 축소 — 다른 화면과 같은 방식.
-function fitFrameToViewport() {
-  const M = 40, frame = document.querySelector('.frame');
-  const scale = Math.min(1, (window.innerWidth - M * 2) / 1920, (window.innerHeight - M * 2) / 1162);
-  frame.style.transform = 'scale(' + scale + ')';
-  document.body.style.width = Math.round(1920 * scale) + 'px';
-  document.body.style.height = Math.round(1162 * scale) + 'px';
-}
-window.addEventListener('resize', fitFrameToViewport);
 fitFrameToViewport();
 </script>
 </body>
