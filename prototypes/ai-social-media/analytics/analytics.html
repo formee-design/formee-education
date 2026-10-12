@@ -152,6 +152,9 @@
   .perf-row__chevron{width:16px; height:16px; transition:transform .15s ease;}
   .perf-row[aria-expanded="true"] .perf-row__chevron{transform:rotate(90deg);}
   .perf-row__dot{width:8px; height:8px; border-radius:var(--radius-full); flex-shrink:0;}
+  /* platform rows: Figma icon / social / * (32 artboard drawn at 20) instead of the colour dot */
+  .perf-row__icon{width:20px; height:20px; flex-shrink:0; display:block;}
+  .perf-row__mark{width:20px; display:flex; justify-content:center; flex-shrink:0;}
   .perf-cell{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
   .perf-cell--strong{font-weight:var(--font-weight-semibold);}
   .perf-sub{background:var(--color-neutral-50); cursor:default;}
@@ -576,6 +579,12 @@ function renderMix(cells) {
 
 // ── Content Performance — grouped by platform or by type; expanding a group shows the other dimension inside it,
 //    each child indexed against its group's own engagement (so platforms are only compared with themselves) ──
+// platform → its social icon (icons/social-*.svg = Figma icon / social / *); types and REDnote (icon to come) keep the dot
+const SOCIAL_ICON = { Instagram: 'social-instagram.svg', TikTok: 'social-tiktok.svg', Facebook: 'social-facebook.svg', LinkedIn: 'social-linkedin.svg' };
+const rowMark = (name, color) => (SOCIAL_ICON[name]
+  ? `<img class="perf-row__icon" src="${ICON}${SOCIAL_ICON[name]}" alt="">`
+  : `<span class="perf-row__mark"><span class="perf-row__dot" style="background:${color}"></span></span>`); // dot in a 20px slot so names line up with the icons
+
 function renderPerformance(cells) {
   const byPlatform = pageState.perfTab === 'platform';
   const groups = byPlatform ? PLATFORMS : TYPES;
@@ -615,14 +624,14 @@ function renderPerformance(cells) {
     const open = pageState.expanded.has(g.name);
     const head = `
       <div class="sc-list-row perf-row" data-group="${g.name}" aria-expanded="${open}" role="button" tabindex="0">
-        <span class="perf-col--name perf-row__name"><img class="perf-row__chevron" src="${ICON}chevron-right.svg" alt=""><span class="perf-row__dot" style="background:${g.color}"></span>${g.name}</span>
+        <span class="perf-col--name perf-row__name"><img class="perf-row__chevron" src="${ICON}chevron-right.svg" alt="">${rowMark(g.name, g.color)}${g.name}</span>
         ${metricCells(total)}
         <span class="perf-col--best">${top ? `<span class="feedback-status-chip feedback-status-chip--green">${top.name}</span>` : '<span class="perf-cell perf-index--down">—</span>'}</span>
         <span class="perf-col--link"><a class="perf-link" href="${postsHref()}">View posts →</a></span>
       </div>`;
     const sub = open ? children.map((ch) => `
       <div class="sc-list-row perf-sub">
-        <span class="perf-col--name perf-row__name"><span class="perf-row__dot" style="background:${childColor(ch.name)}"></span>${ch.name}</span>
+        <span class="perf-col--name perf-row__name">${rowMark(ch.name, childColor(ch.name))}${ch.name}</span>
         ${metricCells(ch.stats)}
         <span class="perf-col--best"><span class="perf-index ${ch.index >= 0 ? 'perf-index--up' : 'perf-index--down'}">${ch.index >= 0 ? '+' : ''}${Math.round(ch.index * 100)}% vs ${g.name} avg</span></span>
         <span class="perf-col--link"><a class="perf-link" href="${postsHref(ch.name)}">View posts →</a></span>
