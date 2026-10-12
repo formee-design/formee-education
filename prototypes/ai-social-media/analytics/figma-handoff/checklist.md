@@ -118,3 +118,26 @@ HTML에 정의가 없어 그리지 못한 것 (디자인 결정 필요)
 2. Error / 데이터 불러오기 실패 상태
 3. 플랫폼 계정 미연결 상태 (지금 HTML은 모든 플랫폼이 연결된 것으로 가정)
 4. Analytics의 Top Paid Content · Meta Ads Performance 연결 후 화면 (Post Performance만 `ads=connected` 미리보기가 있음)
+
+## 다음 작업 (TODO) — Figma `00_Overview` 맨 위 'Notes · 다음 작업'과 같은 내용
+[디자인 결정 필요 · HTML에 정의 없음]
+1. 로딩 상태 (Analytics · Post Performance) — Trends / Home 핸드오프의 loading 프레임 참고
+2. 에러 / 데이터 불러오기 실패 상태
+3. 플랫폼 계정 미연결 상태 (지금은 모든 플랫폼 연결 가정)
+4. Meta Ads 연결 후 Analytics 화면 — Top Paid Content · Meta Ads Performance
+5. CPL 선 그래프에서 리드가 없는 날: 이어서 그릴지 / 끊어서 그릴지
+
+[그릴 화면]
+6. E4 Analytics · 글이 0인 날·주가 있는 기간 (빈 막대 칸, 합계 '0')
+7. E5 Post Performance · 데이터가 드문 기간 (0 구간이 있는 선 그래프 + CPL 빈 날, 툴팁 '0 views')
+
+[확인 · 교체]
+8. REDnote 로고 아이콘 교체 (icon / social / rednote placeholder)
+9. Likes 아이콘 — 라이브러리에 외곽선 하트가 없어 채워진 하트 사용 중
+
+→ 결정되면 HTML(analytics.html · posts.html)에 먼저 반영 → Figma 케이스 추가 → 이 체크리스트 업데이트
+
+참고 — 업로드가 없는 날의 현재 HTML 동작 (03_Edge cases 'Notes · 업로드가 없는 날')
+- Published Posts Over Time(막대): 0인 날·주는 막대 없이 합계 '0'과 날짜만, 클릭할 조각 없음
+- Performance Over Time(선 · Views/Likes/Comments): 0 기준선까지 내려감, 툴팁 'Oct 3 · 0 views'
+- Performance Over Time(CPL): 리드가 없는 날은 점 없음, 앞뒤 점이 이어짐, 툴팁 안 뜸
