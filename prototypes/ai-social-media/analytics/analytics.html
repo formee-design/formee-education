@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Analytics — AI Social Media</title>
+<!-- Figma: FME_AI-Social-Media "Analytics · default" (N8AXYZVtz82rgHcCRHKzEl, node 12586:485574), 1920 × 1385.
+     All UI pieces are the shared components in components/ai-social-media/ — this file only lays them out.
+     Sections after the Figma frame: Publishing (Published Posts Over Time | Published Mix with Platform/Type tabs),
+     Content Performance (one table, By platform / By content type, expandable rows), Top Paid Content | Top Organic Posts,
+     Meta Ads Performance (coming soon, last). Metrics are limited to what every connected platform API returns:
+     posts, views, likes, comments (engagement = (likes + comments) ÷ views). All numbers are placeholder data.
+     Live states:
+       - Period selector — every section re-renders for 30 days / 90 days / All time / Custom; "Custom" reveals the date range
+         inline, and its tiny sample can show a 0% type in Published Mix.
+       - Top Paid Content stays in its "Integration Pending" empty state until Meta Ads is connected.
+       - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it. -->
+<!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/segment-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-filter-select.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-menu.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/input.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-text-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-misc.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/schedule.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    font-optical-sizing:none; font-variation-settings:"opsz" 14;
+  }
+  button{font:inherit;}
+
+  /* ── frame: Nav / Navigation (262) + right-col (1658) — same 1920×1162 fit-to-viewport as the other prototypes ── */
+  .analytics-frame{display:flex; align-items:stretch;}
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* ── Main Content: 28/28/60 padding, header ↔ body 20 gap (Figma 12586:485578) ── */
+  .analytics-main{
+    display:flex; flex-direction:column; gap:var(--spacing-xl);
+    padding:28px 28px 60px;
+    background:var(--color-neutral-75);
+  }
+
+  /* header (12586:485579) — title-block + period selector, 24 gap down to Stats summary */
+  .analytics-header{display:flex; flex-direction:column; gap:var(--spacing-2xl);}
+  .analytics-header__row{display:flex; align-items:center; width:100%;}
+  .analytics-header__col{display:flex; flex-direction:column; gap:var(--spacing-lg); flex:1 0 0; min-width:0;}
+  .page-header__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); overflow:hidden; white-space:nowrap;}
+  .page-header__title{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); letter-spacing:-0.1px;}
+  .page-header__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+
+  /* period selector track (12586:485585) — neutral/100 track, padding 4, radius-xl; Segment Chip instances inside */
+  .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
+  .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-sm); margin-left:var(--spacing-sm);}
+  .period-selector__to{font-size:var(--font-size-text-sm); color:var(--color-neutral-500);}
+  .input-field--date{width:150px;}
+
+  /* body sections, 40 apart (12586:485587) */
+  .analytics-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  .analytics-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .analytics-row{display:flex; align-items:flex-start; gap:var(--spacing-2xl);}
+  .analytics-row > .analytics-section{flex:1 0 0; min-width:0;}
+
+  /* generic card shell (neutral/0 bg, neutral/400 border, radius-xl — repeated across every card on this screen) */
+  .analytics-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-xl);}
+  .analytics-card--center{display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px;}
+
+  /* chart card shell — shared by Published Posts by Platform and (formerly) Meta Ads spend */
+  .chart-card{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl); width:100%;}
+
+  /* Published Posts by Platform — horizontal bar chart (replaces Meta Ads spend); reuses .chart-card / .analytics-card, same tokens as the vertical bar chart */
+  .hbar-list{display:flex; flex-direction:column; gap:var(--spacing-lg); width:100%;}
+  .hbar-row{display:flex; align-items:center; gap:var(--spacing-lg);}
+  .hbar-row__label{width:80px; flex-shrink:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-700);}
+  .hbar-row__track{display:block; flex:1 0 0; min-width:0; background:var(--color-neutral-100); border-radius:var(--radius-sm); height:16px; overflow:hidden;}
+  .hbar-row__fill{display:block; height:100%; background:var(--color-brand-primary); border-radius:var(--radius-sm);}
+  .hbar-row__value{width:32px; flex-shrink:0; text-align:right; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .hbar-total{padding-top:var(--spacing-lg); border-top:1px solid var(--color-neutral-150); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700); width:100%;}
+  .hbar-total strong{color:var(--color-neutral-900); font-weight:var(--font-weight-semibold);}
+
+  /* Publishing row — both cards fill the row height; Published Mix card swaps its body by tab */
+  .publish-card{flex:1 0 auto;}
+  .publish-card > .chart-card{height:100%;}
+  /* Published Mix: both tab panes share one grid cell, so the card keeps the taller pane's height on either tab */
+  .mix-card{display:grid;}
+  .mix-card > .mix-pane{grid-area:1 / 1;}
+  .mix-card > .mix-pane[aria-hidden="true"]{visibility:hidden;}
+  .mix-card > .chart-card .hbar-total{margin-top:auto;}
+  .card-tabs{flex-shrink:0;}
+
+  /* Published Posts Over Time — stacked columns per period bucket, one segment per platform */
+  .stack-chart{display:flex; align-items:flex-end; gap:var(--spacing-md); height:200px; width:100%; border-bottom:1px solid var(--color-neutral-150);}
+  .stack-chart__col{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-sm); flex:1 0 0; min-width:0; height:100%; justify-content:flex-end;}
+  .stack-chart__stack{display:flex; flex-direction:column-reverse; width:100%; max-width:56px; border-radius:var(--radius-sm) var(--radius-sm) 0 0; overflow:hidden;}
+  .stack-chart__seg{width:100%;}
+  .stack-chart__total{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+  .stack-chart__label{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap;}
+  .platform-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-sm) var(--spacing-lg);}
+  .platform-legend__item{display:flex; align-items:center; gap:6px; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-700);}
+  .platform-legend__dot{width:8px; height:8px; border-radius:var(--radius-full);}
+
+  /* Content Performance table — Schedule / List Row (schedule.css .sc-list--fluid) with page-specific columns */
+  .perf-table .sc-list-colhead,
+  .perf-table .sc-list-row{padding-left:20px; padding-right:20px;}
+  .perf-col--name{flex:1 0 0; min-width:1px;}
+  .perf-col--num{width:120px; text-align:right;}
+  .perf-col--best{width:220px; padding-left:var(--spacing-2xl);}
+  .perf-row{cursor:pointer;}
+  .perf-row:hover{background:var(--color-neutral-50);}
+  .perf-row__name{display:flex; align-items:center; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .perf-row__chevron{width:16px; height:16px; transition:transform .15s ease;}
+  .perf-row[aria-expanded="true"] .perf-row__chevron{transform:rotate(90deg);}
+  .perf-row__dot{width:8px; height:8px; border-radius:var(--radius-full); flex-shrink:0;}
+  .perf-cell{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+  .perf-cell--strong{font-weight:var(--font-weight-semibold);}
+  .perf-sub{background:var(--color-neutral-50); cursor:default;}
+  .perf-sub .perf-row__name{padding-left:32px; font-weight:var(--font-weight-regular); color:var(--color-neutral-700);}
+  .perf-sub .perf-cell{color:var(--color-neutral-700);}
+  .perf-index{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold);}
+  .perf-index--up{color:var(--color-badge-green-text);}
+  .perf-index--down{color:var(--color-neutral-500);}
+  .perf-insight{
+    display:flex; align-items:center; gap:var(--spacing-sm); margin:0;
+    padding:var(--spacing-md) var(--spacing-lg); border-radius:var(--radius-lg);
+    background:var(--color-brand-primary-light); color:var(--color-neutral-900);
+    font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  }
+  .perf-insight img{width:16px; height:16px; flex-shrink:0;}
+
+  /* Content mix card (12586:485620) — donut + legend, 40/40/24/24 padding, 40 gap */
+  .content-mix-card{display:flex; align-items:center; justify-content:center; gap:40px; padding:24px 40px; width:100%;}
+  .donut-wrap{position:relative; width:180px; height:180px; flex-shrink:0;}
+  .donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .donut-center__total{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+  .donut-center__label{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+  .legend{display:flex; flex-direction:column; gap:var(--spacing-md); width:280px;}
+  .legend__row{display:flex; align-items:center; gap:var(--spacing-sm);}
+  .legend__dot{width:10px; height:10px; border-radius:var(--radius-full); flex-shrink:0;}
+  .legend__label{flex:1 0 0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700);}
+  .legend__value{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .legend__row--zero .legend__label,
+  .legend__row--zero .legend__value{color:var(--color-neutral-500); font-weight:var(--font-weight-regular);}
+
+  /* filter dropdown wrapper — Controls/Filter/Select + its open option list (Menu/Item), both from controls-filter-select.css / controls-menu.css */
+  .filter-dropdown{position:relative;}
+  .filter-dropdown .context-menu--option-list{position:absolute; top:calc(100% + 4px); right:0; z-index:20; width:220px;}
+  .filter-dropdown .context-menu--option-list .menu-option{width:100%;}
+  .filter-dropdown .context-menu--option-list[hidden]{display:none;}
+  .filter-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+
+  /* section header rows with controls on the right (title + filters / tabs) */
+  .section-header-row{display:flex; align-items:flex-end; justify-content:space-between; width:100%;}
+
+  /* Top posts list — row anatomy from the Figma Top forecast performers list (12586:485653) */
+  .forecast-list{display:flex; flex-direction:column; width:100%; overflow:hidden;}
+  .forecast-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:16px 16px 16px 20px; border-bottom:1px solid var(--color-neutral-150);}
+  .forecast-row:last-child{border-bottom:none;}
+  .forecast-row__rank{width:12px; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .forecast-row__thumb{width:56px; height:56px; border-radius:8px; object-fit:cover; flex-shrink:0;}
+  .forecast-row__title{display:flex; flex-direction:column; gap:2px; flex:1 0 0; min-width:0;}
+  .forecast-row__name{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .forecast-row__sub{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+  /* landing highlight when arriving via #top-paid / #top-organic */
+  @keyframes arrival-ring{0%,60%{box-shadow:0 0 0 3px var(--color-brand-primary-mid);} 100%{box-shadow:0 0 0 3px transparent;}}
+  .is-arrival{animation:arrival-ring 1.8s ease-out;}
+  .post-metric{display:flex; flex-direction:column; gap:2px; width:64px;}
+  .post-metric__value{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .post-metric__label{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+
+  /* Top Paid Content / Top Organic Posts — both cards stretch to the row height */
+  .analytics-row--stretch{align-items:stretch;}
+  .top-posts-card{flex:1 0 auto;}
+
+  [hidden]{display:none !important;}
+
+  .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
+  .home-fab:hover{background:rgba(15,23,41,1);}
+  .home-fab svg{width:14px; height:14px; flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="analytics-frame frame">
+
+  <!-- ══ Nav / Navigation — components/ai-social-media/nav.css ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../home/home.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item" href="../trends/trends.html"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+
+    <!-- ══ Nav / App TopBar — nav-app-topbar.css ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">Analytics</div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="analytics-main">
+
+      <!-- header (12586:485579) -->
+      <div class="analytics-header">
+        <div class="analytics-header__row">
+          <div class="analytics-header__col">
+            <div class="page-header__title-block">
+              <h1 class="page-header__title">Analytics</h1>
+              <p class="page-header__sub">Render performance and content mix. Live TikTok metrics land with the platform analytics integration; Instagram follows.</p>
+            </div>
+
+            <!-- period selector (12586:485585) — Segment Chip ×4 in a neutral/100 track -->
+            <div class="period-selector" id="periodSelector">
+              <div class="segment-chip segment-chip--active" data-period="30d">30 days</div>
+              <div class="segment-chip" data-period="90d">90 days</div>
+              <div class="segment-chip" data-period="all">All time</div>
+              <div class="segment-chip" data-period="custom">Custom</div>
+              <div class="period-selector__extra" id="customRange" hidden>
+                <div class="input-field input-field--date input-field--sm">
+                  <span class="input-field__text">11/09/2026</span>
+                  <span class="input-field__icon input-field__icon--18"><img src="../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+                </div>
+                <span class="period-selector__to">to</span>
+                <div class="input-field input-field--date input-field--sm">
+                  <span class="input-field__text">11/10/2026</span>
+                  <span class="input-field__icon input-field__icon--18"><img src="../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+                </div>
+                <button type="button" class="actions-btn actions-btn--blue">Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats summary (12586:485586) — stats-summary.css -->
+        <div class="stats-summary">
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-library-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiPublished"></p><p class="stats-summary__label">Published Posts</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-spinner-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">0</p><p class="stats-summary__label">In progress</p><p class="stats-summary__sub">—</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-circle-alert-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">1</p><p class="stats-summary__label">Failed renders</p><p class="stats-summary__sub">auto-retried</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-billing-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">$5.98</p><p class="stats-summary__label">Compute spend</p><p class="stats-summary__sub">actual cost</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-body">
+
+        <!-- Publishing — what we posted: trend over time (left) | composition with Platform/Type tabs (right) -->
+        <div class="analytics-row analytics-row--stretch">
+
+          <section class="analytics-section">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Published Posts Over Time</h2></div>
+                <p class="trends-section-header__desc">When and where your posts were published.</p>
+              </div>
+            </div>
+            <div class="analytics-card chart-card publish-card">
+              <div class="stack-chart" id="publishedOverTime"></div>
+              <div class="platform-legend" id="platformLegend"></div>
+            </div>
+          </section>
+
+          <section class="analytics-section">
+            <div class="section-header-row">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left">
+                  <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Published Mix</h2></div>
+                  <p class="trends-section-header__desc">Share of published posts by platform or content type.</p>
+                </div>
+              </div>
+              <div class="controls-segmented-control card-tabs" id="mixTabs" role="tablist">
+                <button type="button" class="controls-segment-chip controls-segment-chip--selected" data-tab="platform" role="tab">Platform</button>
+                <button type="button" class="controls-segment-chip" data-tab="type" role="tab">Type</button>
+              </div>
+            </div>
+            <div class="analytics-card publish-card mix-card">
+              <div class="chart-card mix-pane" id="mixPlatform" aria-hidden="false">
+                <div class="hbar-list" id="mixPlatformBars"></div>
+                <p class="hbar-total">Total Published Posts: <strong id="mixPlatformTotal"></strong></p>
+              </div>
+              <div class="content-mix-card mix-pane" id="mixType" aria-hidden="true">
+                <div class="donut-wrap"><svg id="donutSvg" viewBox="0 0 180 180" width="180" height="180"></svg>
+                  <div class="donut-center"><p class="donut-center__total" id="donutTotal"></p><p class="donut-center__label">Published Posts</p></div>
+                </div>
+                <div class="legend" id="donutLegend"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Content Performance — how it landed: one table, grouped by platform or content type; expand a row for the other dimension.
+             Only the metrics every connected platform's API returns: posts, views, likes, comments (engagement = (likes + comments) ÷ views). -->
+        <section class="analytics-section">
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Content Performance</h2></div>
+                <p class="trends-section-header__desc">Average results per post. Expand a row to see what worked best inside it.</p>
+              </div>
+            </div>
+            <div class="controls-segmented-control card-tabs" id="perfTabs" role="tablist">
+              <button type="button" class="controls-segment-chip controls-segment-chip--selected" data-tab="platform" role="tab">By platform</button>
+              <button type="button" class="controls-segment-chip" data-tab="type" role="tab">By content type</button>
+            </div>
+          </div>
+          <div class="sc-list sc-list--fluid perf-table">
+            <div class="sc-list-colhead">
+              <span class="perf-col--name" id="perfNameHead">Platform</span>
+              <span class="perf-col--num">Posts</span>
+              <span class="perf-col--num">Avg views</span>
+              <span class="perf-col--num">Avg likes</span>
+              <span class="perf-col--num">Avg comments</span>
+              <span class="perf-col--num" title="(likes + comments) ÷ views">Engagement</span>
+              <span class="perf-col--best" id="perfBestHead">Best format</span>
+            </div>
+            <div id="perfRows"></div>
+          </div>
+          <p class="perf-insight" id="perfInsight"></p>
+        </section>
+
+        <!-- row · top posts — Paid (left) | Organic (right), 50/50. A post with any ad spend in the date range counts as Paid,
+             otherwise Organic. Deep links: ?period=30d#top-paid / #top-organic (e.g. from Home's "View analytics →"). -->
+        <div class="analytics-row analytics-row--stretch">
+
+          <!-- Top Paid Content — actual ad results (spend, leads, CPL); needs the Meta Ads integration, so empty until then -->
+          <section class="analytics-section" id="top-paid">
+            <div class="section-header-row">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left">
+                  <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Paid Content</h2><span class="trends-section-header__badge">Integration Pending</span></div>
+                  <p class="trends-section-header__desc">Your best-performing posts with ad spend in this date range.</p>
+                </div>
+              </div>
+            </div>
+            <div class="analytics-card analytics-card--center top-posts-card" id="topPaidList">
+              <div class="empty-state empty-state--section">
+                <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
+                <div class="empty-state__text"><p class="empty-state__title">Paid results will appear once Meta Ads is connected.</p><p class="empty-state__body">Boosted posts and ads will be ranked here by spend, leads and CPL.</p></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Top Organic Posts — posts with no ad spend in the date range; placeholder data for the initial UI -->
+          <section class="analytics-section" id="top-organic">
+            <div class="section-header-row">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Organic Posts</h2></div><p class="trends-section-header__desc">Your best-performing posts with no ad spend in this date range.</p></div>
+              </div>
+              <div class="filter-row">
+                <div class="filter-dropdown" id="postsPlatformFilterWrap"></div>
+                <div class="filter-dropdown" id="postsRankFilterWrap"></div>
+              </div>
+            </div>
+            <div class="analytics-card forecast-list top-posts-card" id="topPostsList"></div>
+          </section>
+        </div>
+
+        <!-- Meta Ads Performance — Coming Soon; kept last so it doesn't interrupt the organic performance flow -->
+        <section class="analytics-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Performance</h2><span class="trends-section-header__badge">Integration Pending</span></div></div>
+          </div>
+          <div class="analytics-card analytics-card--center" style="min-height:134px;">
+            <div class="empty-state empty-state--section">
+              <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
+              <div class="empty-state__text"><p class="empty-state__title">Meta Ads Analytics is Coming Soon</p><p class="empty-state__body">We're working on bringing Meta Ads performance data to Pulse. Analytics will be available once the integration is complete.</p></div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<a class="home-fab" href="../../../index.html" title="Back to all screens">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M2 7.2 8 2l6 5.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.3 6.2V13a.8.8 0 0 0 .8.8h3V10h1.8v3.8h3a.8.8 0 0 0 .8-.8V6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Home</span>
+</a>
+
+<script>
+const ICON = '../../../components/ai-social-media/icons/';
+
+// ══ One placeholder dataset (platform × content type) drives the KPI, Publishing charts and Content Performance,
+//    so every total on the page agrees. Only metrics every connected platform's API returns: posts, views, likes, comments.
+// Platform series use the brand blue ramp, darkest → lightest in display order (stacks build up from the darkest).
+const PLATFORMS = [
+  { name: 'Instagram', color: 'var(--color-brand-primary-dark)' },
+  { name: 'TikTok', color: 'var(--color-brand-primary)' },
+  { name: 'Facebook', color: 'var(--color-brand-link)' },
+  { name: 'REDnote', color: 'var(--color-brand-primary-mid)' },
+  { name: 'LinkedIn', color: 'var(--color-brand-primary-pale)' },
+];
+// Content types per platform (2026-10-12):
+//   Instagram / TikTok / REDnote: Video · Image · Carousel
+//   Facebook / LinkedIn:          Video · Image · Multi-Image Post
+const TYPES = [
+  { name: 'Video', color: 'var(--color-brand-primary)' },
+  { name: 'Image', color: 'var(--color-brand-primary-mid)' },
+  { name: 'Carousel', color: 'var(--color-brand-primary-pale)' },
+  { name: 'Multi-Image Post', color: 'var(--color-brand-primary-light)' },
+];
+// Published posts in the last 30 days, per platform × type
+const BASE_POSTS = {
+  Instagram: { Video: 9, Image: 4, Carousel: 5 },
+  TikTok: { Video: 18, Image: 2, Carousel: 4 },
+  Facebook: { Video: 5, Image: 2, 'Multi-Image Post': 1 },
+  REDnote: { Video: 1, Image: 2, Carousel: 1 },
+  LinkedIn: { Video: 3, Image: 5, 'Multi-Image Post': 4 },
+};
+// Per-post averages: platform baseline × format multiplier (placeholder)
+const PLATFORM_BASE = {
+  TikTok: { views: 52000, likeRate: 0.068, commentRate: 0.0018 },
+  Instagram: { views: 31000, likeRate: 0.075, commentRate: 0.0030 },
+  Facebook: { views: 9800, likeRate: 0.032, commentRate: 0.0021 },
+  LinkedIn: { views: 4200, likeRate: 0.048, commentRate: 0.0046 },
+  REDnote: { views: 7600, likeRate: 0.081, commentRate: 0.0052 },
+};
+const TYPE_MULT = {
+  Video: { views: 1.3, eng: 1.0 },
+  Image: { views: 0.55, eng: 0.95 },
+  Carousel: { views: 0.8, eng: 1.25 },
+  'Multi-Image Post': { views: 0.75, eng: 1.15 },
+};
+const ENG_TWEAK = { TikTok: { Carousel: 0.8 }, Instagram: { Video: 1.3 }, REDnote: { Image: 1.35 } };
+
+// Global date range → post-count scale and chart buckets (placeholder)
+const PERIODS = {
+  '30d': { factor: 1, buckets: ['Sep 14', 'Sep 21', 'Sep 28', 'Oct 5', 'Oct 12'] },
+  '90d': { factor: 2.7, buckets: ['Jul 13', 'Jul 20', 'Jul 27', 'Aug 3', 'Aug 10', 'Aug 17', 'Aug 24', 'Aug 31', 'Sep 7', 'Sep 14', 'Sep 21', 'Sep 28', 'Oct 5'] },
+  all: { factor: 6.4, buckets: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'] },
+  custom: { factor: 0.15, buckets: ['Nov 9', 'Nov 10'] },
+};
+const pageState = { period: '30d', mixTab: 'platform', perfTab: 'platform', expanded: new Set() };
+
+function buildCells(periodKey) {
+  const { factor } = PERIODS[periodKey];
+  const cells = [];
+  for (const p of PLATFORMS) {
+    const base = PLATFORM_BASE[p.name];
+    for (const t of TYPES) {
+      const basePosts = BASE_POSTS[p.name][t.name];
+      if (basePosts === undefined) continue; // format doesn't exist on this platform
+      const posts = Math.round(basePosts * factor);
+      const avgViews = base.views * TYPE_MULT[t.name].views;
+      const eng = TYPE_MULT[t.name].eng * ((ENG_TWEAK[p.name] || {})[t.name] || 1);
+      cells.push({
+        platform: p.name, type: t.name, posts,
+        views: posts * avgViews,
+        likes: posts * avgViews * base.likeRate * eng,
+        comments: posts * avgViews * base.commentRate * eng,
+      });
+    }
+  }
+  return cells;
+}
+
+function sumCells(list) {
+  return list.reduce((a, c) => ({
+    posts: a.posts + c.posts, views: a.views + c.views, likes: a.likes + c.likes, comments: a.comments + c.comments,
+  }), { posts: 0, views: 0, likes: 0, comments: 0 });
+}
+const engagementOf = (s) => (s.views ? (s.likes + s.comments) / s.views : 0);
+
+// split an integer across buckets with fixed pseudo-random weights (largest remainder keeps the exact total)
+function splitAcross(total, n, seed) {
+  const w = Array.from({ length: n }, (_, i) => 0.6 + 0.8 * Math.abs(Math.sin(seed * 12.9898 + i * 78.233)));
+  const sum = w.reduce((a, b) => a + b, 0);
+  const raw = w.map((x) => (x / sum) * total);
+  const out = raw.map(Math.floor);
+  let rest = total - out.reduce((a, b) => a + b, 0);
+  raw.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]).slice(0, rest).forEach(([, i]) => { out[i] += 1; });
+  return out;
+}
+
+function formatCount(n) {
+  if (n >= 1e6) return `${(n / 1e6).toFixed(1).replace(/\.0$/, '')}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(1).replace(/\.0$/, '')}K`;
+  return String(Math.round(n));
+}
+const formatPct = (r) => `${(r * 100).toFixed(1)}%`;
+
+// ── Published Posts Over Time — stacked by platform ──
+function renderOverTime(cells) {
+  const { buckets } = PERIODS[pageState.period];
+  const perPlatform = PLATFORMS.map((p, i) => ({
+    ...p, series: splitAcross(sumCells(cells.filter((c) => c.platform === p.name)).posts, buckets.length, i + 1),
+  }));
+  const totals = buckets.map((_, b) => perPlatform.reduce((s, p) => s + p.series[b], 0));
+  const max = Math.max(1, ...totals);
+  const CHART_H = 200 - 18 - 8 - 18 - 8; // column height minus label + total rows and their gaps
+  document.getElementById('publishedOverTime').innerHTML = buckets.map((label, b) => `
+    <div class="stack-chart__col">
+      <span class="stack-chart__total">${totals[b]}</span>
+      <div class="stack-chart__stack" style="height:${(totals[b] / max) * CHART_H}px">
+        ${perPlatform.filter((p) => p.series[b] > 0).map((p) => `<span class="stack-chart__seg" title="${p.name}: ${p.series[b]}" style="flex:${p.series[b]} 0 0; background:${p.color}"></span>`).join('')}
+      </div>
+      <span class="stack-chart__label">${label}</span>
+    </div>`).join('');
+  document.getElementById('platformLegend').innerHTML = PLATFORMS.map((p) => `
+    <span class="platform-legend__item"><span class="platform-legend__dot" style="background:${p.color}"></span>${p.name}</span>`).join('');
+}
+
+// ── Published Mix — Platform tab (horizontal bars) / Type tab (donut) ──
+function renderMix(cells) {
+  const total = sumCells(cells).posts;
+  const byPlatform = PLATFORMS.map((p) => ({ ...p, count: sumCells(cells.filter((c) => c.platform === p.name)).posts }));
+  const max = Math.max(1, ...byPlatform.map((p) => p.count));
+  document.getElementById('mixPlatformBars').innerHTML = byPlatform.map((p) => `
+    <div class="hbar-row">
+      <span class="hbar-row__label">${p.name}</span>
+      <span class="hbar-row__track"><span class="hbar-row__fill" style="width:${(p.count / max) * 100}%"></span></span>
+      <span class="hbar-row__value">${p.count}</span>
+    </div>`).join('');
+  document.getElementById('mixPlatformTotal').textContent = total;
+
+  const segments = TYPES.map((t) => {
+    const count = sumCells(cells.filter((c) => c.type === t.name)).posts;
+    return { ...t, count, pct: total ? Math.round((count / total) * 100) : 0 };
+  });
+  // Each slice is its own arc path from 12 o'clock clockwise. (Dashed circles left a notch where the dash wrapped
+  // across the circle's start point.) innerRadius 0.68 of a 90px outer radius → 28.8px stroke on a 75.6px centerline.
+  const CX = 90, R = 75.6, SW = 28.8;
+  let angle = -Math.PI / 2;
+  document.getElementById('donutSvg').innerHTML = segments.filter((s) => s.count > 0).map((s) => {
+    const frac = s.count / total;
+    if (frac > 0.9999) return `<circle cx="${CX}" cy="${CX}" r="${R}" fill="none" stroke="${s.color}" stroke-width="${SW}" />`;
+    const end = angle + frac * 2 * Math.PI;
+    const [x1, y1, x2, y2] = [CX + R * Math.cos(angle), CX + R * Math.sin(angle), CX + R * Math.cos(end), CX + R * Math.sin(end)];
+    angle = end;
+    return `<path d="M ${x1} ${y1} A ${R} ${R} 0 ${frac > 0.5 ? 1 : 0} 1 ${x2} ${y2}" fill="none" stroke="${s.color}" stroke-width="${SW}" />`;
+  }).join('');
+  document.getElementById('donutTotal').textContent = total;
+  document.getElementById('donutLegend').innerHTML = segments.map((s) => `
+    <div class="legend__row${s.count === 0 ? ' legend__row--zero' : ''}">
+      <span class="legend__dot" style="background:${s.count === 0 ? 'var(--color-neutral-200)' : s.color}"></span>
+      <span class="legend__label">${s.name}</span>
+      <span class="legend__value">${s.count} · ${s.pct}%</span>
+    </div>`).join('');
+}
+
+// ── Content Performance — grouped by platform or by type; expanding a group shows the other dimension inside it,
+//    each child indexed against its group's own engagement (so platforms are only compared with themselves) ──
+function renderPerformance(cells) {
+  const byPlatform = pageState.perfTab === 'platform';
+  const groups = byPlatform ? PLATFORMS : TYPES;
+  const groupKey = byPlatform ? 'platform' : 'type';
+  const childKey = byPlatform ? 'type' : 'platform';
+  const childColor = (name) => (byPlatform ? TYPES : PLATFORMS).find((x) => x.name === name).color;
+  document.getElementById('perfNameHead').textContent = byPlatform ? 'Platform' : 'Content type';
+  document.getElementById('perfBestHead').textContent = byPlatform ? 'Best format' : 'Best platform';
+
+  const metricCells = (s) => {
+    const n = s.posts || 1;
+    return `
+      <span class="perf-col--num perf-cell perf-cell--strong">${s.posts}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatCount(s.views / n) : '—'}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatCount(s.likes / n) : '—'}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatCount(s.comments / n) : '—'}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatPct(engagementOf(s)) : '—'}</span>`;
+  };
+
+  let best = null; // strongest child vs its own group, for the insight line
+  const rows = groups.map((g) => {
+    const groupCells = cells.filter((c) => c[groupKey] === g.name);
+    if (!groupCells.length) return '';
+    const total = sumCells(groupCells);
+    const groupEng = engagementOf(total);
+    const children = groupCells.filter((c) => c.posts > 0).map((c) => ({
+      name: c[childKey], stats: c, index: groupEng ? engagementOf(c) / groupEng - 1 : 0,
+    })).sort((a, b) => b.index - a.index);
+    const top = children.length > 1 ? children[0] : null;
+    if (top && total.posts >= 3 && (!best || top.index > best.index)) best = { group: g.name, ...top };
+    const open = pageState.expanded.has(g.name);
+    const head = `
+      <div class="sc-list-row perf-row" data-group="${g.name}" aria-expanded="${open}" role="button" tabindex="0">
+        <span class="perf-col--name perf-row__name"><img class="perf-row__chevron" src="${ICON}chevron-right.svg" alt=""><span class="perf-row__dot" style="background:${g.color}"></span>${g.name}</span>
+        ${metricCells(total)}
+        <span class="perf-col--best">${top ? `<span class="feedback-status-chip feedback-status-chip--green">★ ${top.name}</span>` : '<span class="perf-cell perf-index--down">—</span>'}</span>
+      </div>`;
+    const sub = open ? children.map((ch) => `
+      <div class="sc-list-row perf-sub">
+        <span class="perf-col--name perf-row__name"><span class="perf-row__dot" style="background:${childColor(ch.name)}"></span>${ch.name}</span>
+        ${metricCells(ch.stats)}
+        <span class="perf-col--best"><span class="perf-index ${ch.index >= 0 ? 'perf-index--up' : 'perf-index--down'}">${ch.index >= 0 ? '+' : ''}${Math.round(ch.index * 100)}% vs ${g.name} avg</span></span>
+      </div>`).join('') : '';
+    return head + sub;
+  }).join('');
+  document.getElementById('perfRows').innerHTML = rows;
+
+  const insight = document.getElementById('perfInsight');
+  insight.hidden = !best;
+  if (best) {
+    const what = byPlatform ? `${best.name.toLowerCase()}s on ${best.group}` : `${best.group.toLowerCase()}s on ${best.name}`;
+    insight.innerHTML = `<img src="${ICON}ai-sparkle-outline-color.svg" alt="">Pulse insight: ${what} earned ${Math.round(best.index * 100)}% more engagement than ${byPlatform ? `${best.group}'s` : `the ${best.group.toLowerCase()}`} average this period.`;
+  }
+}
+
+function renderPage() {
+  const cells = buildCells(pageState.period);
+  document.getElementById('kpiPublished').textContent = sumCells(cells).posts;
+  renderOverTime(cells);
+  renderMix(cells);
+  renderPerformance(cells);
+}
+
+function bindTabs(id, key) {
+  document.getElementById(id).addEventListener('click', (e) => {
+    const chip = e.target.closest('.controls-segment-chip');
+    if (!chip) return;
+    document.querySelectorAll(`#${id} .controls-segment-chip`).forEach((c) => c.classList.toggle('controls-segment-chip--selected', c === chip));
+    pageState[key] = chip.dataset.tab;
+    if (key === 'perfTab') pageState.expanded.clear();
+    if (key === 'mixTab') {
+      document.getElementById('mixPlatform').setAttribute('aria-hidden', String(chip.dataset.tab !== 'platform'));
+      document.getElementById('mixType').setAttribute('aria-hidden', String(chip.dataset.tab !== 'type'));
+    }
+    renderPage();
+  });
+}
+bindTabs('mixTabs', 'mixTab');
+bindTabs('perfTabs', 'perfTab');
+
+function togglePerfRow(row) {
+  const name = row.dataset.group;
+  if (pageState.expanded.has(name)) pageState.expanded.delete(name); else pageState.expanded.add(name);
+  renderPerformance(buildCells(pageState.period));
+}
+document.getElementById('perfRows').addEventListener('click', (e) => {
+  const row = e.target.closest('.perf-row');
+  if (row) togglePerfRow(row);
+});
+document.getElementById('perfRows').addEventListener('keydown', (e) => {
+  const row = e.target.closest('.perf-row');
+  if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); togglePerfRow(row); }
+});
+
+// ── Filter / Select — Controls/Filter/Select (Inactive/Active) + its open option list (Menu/Item, context-menu--option-list) ──
+// inactiveLabel: text for the Inactive pill when the default is selected (e.g. "Rank by: Views").
+function buildFilter({ container, label, options, onSelect, closeToDefault = true, defaultValue = 'All', inactiveLabel = label }) {
+  let value = null; // null = default (Inactive pill)
+  const wrap = document.createElement('div');
+  wrap.className = 'filter-dropdown';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  const list = document.createElement('div');
+  list.className = 'context-menu context-menu--option-list';
+  list.hidden = true;
+  list.innerHTML = options.map((o) => `
+    <button type="button" class="menu-option" data-value="${o.value}">
+      <span class="menu-option-text"><span class="menu-option-label-row"><span class="menu-option-label">${o.value}</span></span></span>
+    </button>`).join('');
+
+  function renderBtn() {
+    if (value === null) {
+      btn.className = 'filter-select';
+      btn.innerHTML = `<span class="filter-select__label">${inactiveLabel}</span><img class="filter-select__caret" src="${ICON}caret-down-filled.svg" alt="">`;
+    } else {
+      btn.className = 'filter-select filter-select--active';
+      btn.innerHTML = `<img class="filter-select__close" src="${ICON}controls/button-x.svg" alt=""><span class="filter-select__label">${label}</span><span class="filter-select__divider"></span><span class="filter-select__value">${value}</span>`;
+    }
+  }
+  renderBtn();
+
+  btn.addEventListener('click', (e) => {
+    if (e.target.closest('.filter-select__close')) {
+      value = null; renderBtn(); onSelect(null); return;
+    }
+    list.hidden = !list.hidden;
+  });
+  list.addEventListener('click', (e) => {
+    const opt = e.target.closest('.menu-option');
+    if (!opt) return;
+    const v = opt.dataset.value;
+    value = (closeToDefault && v === defaultValue) ? null : v;
+    renderBtn();
+    list.hidden = true;
+    onSelect(value);
+  });
+  document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) list.hidden = true; });
+
+  wrap.appendChild(btn);
+  wrap.appendChild(list);
+  container.replaceWith(wrap);
+}
+
+// ── Top Organic Posts — posts with no ad spend in the date range, top 3 by the selected Rank by metric (placeholder data) ──
+// Common metrics only (views, likes, comments); Engagement Rate is derived from them, same as Content Performance.
+const RANK_METRICS = [
+  { value: 'Views', key: 'views' },
+  { value: 'Likes', key: 'likes' },
+  { value: 'Comments', key: 'comments' },
+  { value: 'Engagement Rate', key: 'engagement' },
+];
+const TOP_POSTS = [
+  { title: 'A Day on Campus in the UK', platform: 'TikTok', type: 'Video', img: 'viral-4.png', views: 1240000, likes: 86400, comments: 2310 },
+  { title: 'Study in the UK — Applications Open', platform: 'Instagram', type: 'Image', img: 'viral-2.png', views: 642000, likes: 51800, comments: 1840 },
+  { title: 'UK Applications — January Intake', platform: 'Facebook', type: 'Image', img: 'viral-3.png', views: 318000, likes: 12400, comments: 960 },
+  { title: 'Free 1:1 Counselling, Book Anytime', platform: 'LinkedIn', type: 'Multi-Image Post', img: 'viral-6.png', views: 84300, likes: 3920, comments: 412 },
+  { title: 'Main Character Edits — Campus Tour', platform: 'Instagram', type: 'Video', img: 'viral-5.png', views: 1060000, likes: 72300, comments: 3480 },
+  { title: 'Scholarship Deadlines This Month', platform: 'LinkedIn', type: 'Image', img: 'viral-1.png', views: 41200, likes: 2650, comments: 188 },
+  { title: 'Campus Café Guide — Week 1', platform: 'REDnote', type: 'Image', img: 'post-5.png', views: 58400, likes: 6120, comments: 342 },
+].map((p) => ({ ...p, engagement: (p.likes + p.comments) / p.views }));
+
+const topPostsState = { platform: 'All Platforms', rank: 'Views' };
+
+function renderTopPosts() {
+  const card = document.getElementById('topPostsList');
+  const metric = RANK_METRICS.find((m) => m.value === topPostsState.rank).key;
+  const factor = PERIODS[pageState.period].factor;
+  const posts = TOP_POSTS
+    .filter((p) => topPostsState.platform === 'All Platforms' || p.platform === topPostsState.platform)
+    .sort((a, b) => b[metric] - a[metric])
+    .slice(0, 3);
+
+  if (posts.length === 0) {
+    card.classList.remove('forecast-list');
+    card.classList.add('analytics-card--center');
+    card.innerHTML = `
+      <div class="empty-state empty-state--section">
+        <span class="empty-state__glyph"><img src="${ICON}nav-library-18.svg" alt=""></span>
+        <div class="empty-state__text"><p class="empty-state__title">No published posts on ${topPostsState.platform} yet.</p><p class="empty-state__body">Posts will show up here once they're published in this date range.</p></div>
+      </div>`;
+    return;
+  }
+  card.classList.add('forecast-list');
+  card.classList.remove('analytics-card--center');
+  card.innerHTML = posts.map((p, i) => `
+    <div class="forecast-row">
+      <span class="forecast-row__rank">${i + 1}</span>
+      <img class="forecast-row__thumb" src="../trends/assets/${p.img}" alt="">
+      <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.views * factor)}</p><p class="post-metric__label">Views</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.likes * factor)}</p><p class="post-metric__label">Likes</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.comments * factor)}</p><p class="post-metric__label">Comments</p></div>
+    </div>`).join('');
+}
+
+buildFilter({
+  container: document.getElementById('postsRankFilterWrap'),
+  label: 'Rank by',
+  inactiveLabel: 'Rank by: Views',
+  defaultValue: 'Views',
+  options: RANK_METRICS.map((m) => ({ value: m.value })),
+  onSelect(value) {
+    topPostsState.rank = value || 'Views';
+    renderTopPosts();
+  },
+});
+
+buildFilter({
+  container: document.getElementById('postsPlatformFilterWrap'),
+  label: 'Platform',
+  defaultValue: 'All Platforms',
+  options: ['All Platforms', ...PLATFORMS.map((p) => p.name)].map((value) => ({ value })),
+  onSelect(value) {
+    topPostsState.platform = value || 'All Platforms';
+    renderTopPosts();
+  },
+});
+
+// ── Period selector — real Segment Chip toggle; "Custom" reveals the date-range row inline; drives every section ──
+document.querySelectorAll('#periodSelector .segment-chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#periodSelector .segment-chip').forEach((c) => c.classList.remove('segment-chip--active'));
+    chip.classList.add('segment-chip--active');
+    document.getElementById('customRange').hidden = chip.dataset.period !== 'custom';
+    pageState.period = chip.dataset.period;
+    renderPage();
+    renderTopPosts();
+  });
+});
+// Deep link (e.g. Home's "View analytics →" on its Paid / Organic tab): ?period=30d|90d|all|custom preselects the date range;
+// #top-paid / #top-organic scrolls to that list and rings its card
+const linkedPeriod = new URLSearchParams(location.search).get('period');
+const linkedChip = linkedPeriod && document.querySelector(`#periodSelector .segment-chip[data-period="${linkedPeriod}"]`);
+if (linkedChip) linkedChip.click(); else { renderPage(); renderTopPosts(); }
+const ARRIVAL_TARGETS = { '#top-paid': 'topPaidList', '#top-organic': 'topPostsList' };
+if (ARRIVAL_TARGETS[location.hash]) {
+  window.addEventListener('load', () => {
+    const section = document.querySelector(location.hash);
+    const main = document.querySelector('.analytics-main');
+    main.scrollTop = section.offsetTop - main.offsetTop - 28;
+    document.getElementById(ARRIVAL_TARGETS[location.hash]).classList.add('is-arrival');
+  });
+}
+
+// 1920×1162 프레임을 창 크기에 맞춰 축소 — 다른 화면과 같은 방식.
+function fitFrameToViewport() {
+  const M = 40, frame = document.querySelector('.frame');
+  const scale = Math.min(1, (window.innerWidth - M * 2) / 1920, (window.innerHeight - M * 2) / 1162);
+  frame.style.transform = 'scale(' + scale + ')';
+  document.body.style.width = Math.round(1920 * scale) + 'px';
+  document.body.style.height = Math.round(1162 * scale) + 'px';
+}
+window.addEventListener('resize', fitFrameToViewport);
+fitFrameToViewport();
+</script>
+</body>
+</html>
