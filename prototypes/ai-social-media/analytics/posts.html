@@ -71,9 +71,11 @@
   .page-header__title{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); letter-spacing:-0.1px;}
   .page-header__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
   .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
-  .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-sm); margin-left:var(--spacing-sm);}
+  /* Custom: the date range sits next to the track, not inside it (Figma 12595:252769 — row gap 12, inputs 240, Primary Apply) */
+  .period-row{display:flex; align-items:center; gap:var(--spacing-md);}
+  .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-md);}
   .period-selector__to{font-size:var(--font-size-text-sm); color:var(--color-neutral-500);}
-  .input-field--date{width:150px; cursor:pointer;}
+  .input-field--date{width:240px; cursor:pointer;}
   .date-field{position:relative; display:flex;}
   .date-picker-popover{position:absolute; top:calc(100% + 8px); left:0; z-index:40; width:376px;}
 
@@ -205,11 +207,13 @@
             <p class="page-header__sub">Every published post, and how its views, likes and comments moved over time.</p>
           </div>
           <!-- period selector — same Segment Chip track as Analytics -->
-          <div class="period-selector" id="periodSelector">
-            <div class="segment-chip" data-period="30d">30 days</div>
-            <div class="segment-chip" data-period="90d">90 days</div>
-            <div class="segment-chip" data-period="all">All time</div>
-            <div class="segment-chip" data-period="custom">Custom</div>
+          <div class="period-row">
+            <div class="period-selector" id="periodSelector">
+              <div class="segment-chip" data-period="30d">30 days</div>
+              <div class="segment-chip" data-period="90d">90 days</div>
+              <div class="segment-chip" data-period="all">All time</div>
+              <div class="segment-chip" data-period="custom">Custom</div>
+            </div>
             <div class="period-selector__extra" id="customRange" hidden>
               <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customFrom" aria-label="Start date">
                 <span class="input-field__text"></span>
@@ -220,7 +224,7 @@
                 <span class="input-field__text"></span>
                 <span class="input-field__icon input-field__icon--18"><img src="../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
               </div></span>
-              <button type="button" class="actions-btn actions-btn--blue" id="customApply">Apply</button>
+              <button type="button" class="actions-btn actions-btn--primary" id="customApply">Apply</button>
             </div>
           </div>
         </div>
