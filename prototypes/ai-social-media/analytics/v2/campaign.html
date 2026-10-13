@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Promoted Content — AI Social Media</title>
+<!-- Promoted content detail (v2) — one ad, opened from a post title in Analytics › Meta Ads Performance or Promoted
+     Content. Pulse sets ads up per content (no multi-ad campaigns), so this is one post's ad: the post is the subject,
+     its Meta campaign name is metadata. Laid out like Post Performance: 1. header (post title, delivery, dates, objective,
+     budget, Meta campaign),
+     2. its row from the Meta Ads table (same columns as Analytics / Promoted Content — one row, no sort menus),
+     3. Performance Over Time (daily area line chart: Spend / Results / Cost per result), 4. Promoted content (the post).
+     No metrics beyond the table's (no CTR / CPM). ?id=c01 … c13 (c12 = the In Draft campaign → draft state: no chart,
+     post card marked not published). MOCK data until the Meta API is wired (getMetaCampaign() in analytics-shared.js). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-filter-select.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-menu.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/actions-text-button.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-misc.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/schedule.css">
+<link rel="stylesheet" href="../../../../components/shared/checkbox.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/switch.css">
+<link rel="stylesheet" href="../../../../components/shared/modal.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-toggles.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/input.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/editor-panel-chrome.css">
+<link rel="stylesheet" href="analytics-shared.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    font-optical-sizing:none; font-variation-settings:"opsz" 14;
+  }
+  button{font:inherit;}
+
+  /* ── frame — same 1920×1162 fit-to-viewport shell as analytics.html ── */
+  .analytics-frame{display:flex; align-items:stretch;}
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* breadcrumb — Analytics (link, neutral/500) › Post Performance */
+  .crumb-link{color:var(--color-neutral-500); text-decoration:none; font-weight:var(--font-weight-medium);}
+  .crumb-link:hover{color:var(--color-neutral-700);}
+  .crumb-sep{width:16px; height:16px; opacity:.6;}
+
+  /* main + header — same spacing as analytics.html */
+  .analytics-main{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:28px 28px 60px; background:var(--color-neutral-75);}
+  .analytics-header{display:flex; flex-direction:column; gap:var(--spacing-2xl);}
+  .analytics-header__col{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .page-header__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); overflow:hidden; white-space:nowrap;}
+  .page-header__title{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); letter-spacing:-0.1px;}
+  .page-header__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+
+  .analytics-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .analytics-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-xl);}
+  .section-header-row{display:flex; align-items:flex-end; justify-content:space-between; width:100%;}
+
+  .filter-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+  .filter-dropdown{position:relative;}
+  .filter-dropdown .context-menu--option-list{position:absolute; top:calc(100% + 4px); left:0; z-index:20; width:220px;}
+  .filter-dropdown--right .context-menu--option-list{left:auto; right:0;}
+  .filter-dropdown .context-menu--option-list .menu-option{width:100%;}
+  .filter-dropdown .context-menu--option-list[hidden]{display:none;}
+
+
+
+  [hidden]{display:none !important;}
+
+  .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
+  .home-fab:hover{background:rgba(15,23,41,1);}
+  .home-fab svg{width:14px; height:14px; flex-shrink:0;}
+
+  .analytics-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  /* Campaign — header meta line (delivery · dates · objective · budget), stats, chart card, ads list */
+  .campaign-meta{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-sm) var(--spacing-md); margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .campaign-meta__sep{width:1px; height:12px; background:var(--color-neutral-300);}
+  .title-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+  .title-row__action{margin-left:auto;}
+  .lifetime-caption{margin:0 0 calc(-1 * var(--spacing-md)); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}
+  .page-header__title-block{overflow:visible;}
+  .line-card{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl);}
+  .chart-head{display:flex; flex-direction:column; gap:var(--spacing-2);}
+  .chart-head__value{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+  .chart-head__label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  /* Promoted content card — the post: thumbnail · title · platform · type · Meta campaign · link to Library */
+  .promo-card{display:flex; align-items:center; gap:var(--spacing-xl); padding:var(--spacing-xl);}
+  .promo-card__thumb{width:96px; height:96px; border-radius:var(--radius-lg); object-fit:cover; flex-shrink:0;}
+  .promo-card__text{display:flex; flex-direction:column; gap:var(--spacing-xs); flex:1 0 0; min-width:0;}
+  .promo-card__title{margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .promo-card__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+</style>
+</head>
+<body>
+<div class="analytics-frame frame">
+
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../../home/home.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../../schedule/schedule.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item" href="../../trends/trends.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item active" href="analytics.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../../voice-library/voice-library.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">
+        <a class="crumb-link" href="analytics.html" id="crumbAnalytics">Analytics</a>
+        <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
+        <a class="crumb-link" href="campaigns.html" id="crumbCampaigns">Promoted Content</a>
+        <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
+        <span id="crumbName"></span>
+      </div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="analytics-main">
+
+      <div class="analytics-header">
+        <div class="page-header__title-block">
+          <div class="title-row"><h1 class="page-header__title" id="campaignName"></h1><span class="trends-section-header__badge" id="sourceBadge" title="Mock data for the initial UI — not from the Meta API yet">Sample data</span><button type="button" class="text-btn export-btn title-row__action" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button></div>
+          <p class="campaign-meta" id="campaignMeta"></p>
+        </div>
+        <!-- 2. This ad's row from the Meta Ads table — same columns and look as Analytics / Promoted Content -->
+        <p class="lifetime-caption">Lifetime totals</p>
+        <div class="analytics-card ads-card">
+          <div class="sc-list sc-list--fluid ads-table" id="adsTable">
+            <div class="sc-list-colhead" id="adsHead"></div>
+            <div id="adsRows"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-body">
+
+        <!-- 3. Performance Over Time — daily, over the campaign's run (start → today, or → end once it's over) -->
+        <section class="analytics-section">
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Performance Over Time</h2></div>
+                <p class="trends-section-header__desc" id="chartDesc"></p>
+              </div>
+            </div>
+            <div class="controls-segmented-control" id="metricTabs" role="tablist">
+              <button type="button" class="controls-segment-chip controls-segment-chip--selected" data-metric="spend" role="tab">Spend</button>
+              <button type="button" class="controls-segment-chip" data-metric="results" role="tab">Results</button>
+              <button type="button" class="controls-segment-chip" data-metric="cpr" role="tab">Cost per result</button>
+            </div>
+          </div>
+          <div class="analytics-card line-card" id="chartCard">
+            <div class="chart-head-row"><div class="chart-head"><p class="chart-head__value" id="chartTotal"></p><p class="chart-head__label" id="chartTotalLabel"></p></div><div id="chartUnit"></div></div>
+            <div class="line-chart" id="campaignChart"></div>
+          </div>
+          <div class="empty-state-panel" id="chartEmpty" hidden>
+            <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title" id="chartEmptyTitle"></p><p class="empty-state__body" id="chartEmptyBody"></p></div></div>
+          </div>
+        </section>
+
+        <!-- 4. Promoted content — the one Pulse post this ad promotes -->
+        <section class="analytics-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left">
+              <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Promoted content</h2></div>
+              <p class="trends-section-header__desc">The post this ad promotes.</p>
+            </div>
+          </div>
+          <div class="analytics-card promo-card" id="promoCard"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<a class="home-fab" href="../../../../index.html" title="Back to all screens">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M2 7.2 8 2l6 5.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.3 6.2V13a.8.8 0 0 0 .8.8h3V10h1.8v3.8h3a.8.8 0 0 0 .8-.8V6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Home</span>
+</a>
+
+
+<script src="analytics-shared.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+readCustomRange(params);
+const fromPeriod = params.get('period');
+if (PERIODS[fromPeriod]) {
+  const q = new URLSearchParams(periodParams(fromPeriod));
+  document.getElementById('crumbAnalytics').href = `analytics.html?${q}`;
+  document.getElementById('crumbCampaigns').href = `campaigns.html?${q}`;
+}
+const ICONS = (n) => `${ICON}${n}`;
+const DASH = '—';
+const fmtRange = (a, b) => (a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`);
+const deliveryChip = (d) => `<span class="ads-delivery${d === 'Active' ? ' ads-delivery--active' : d === 'In Draft' ? ' ads-delivery--draft' : ''}"><span class="ads-delivery__dot"></span>${d}</span>`;
+let model = null, metric = 'spend', unit = null; // unit null = daily (or the finest the run allows)
+
+function renderChart() {
+  const { campaign: c, daily } = model;
+  const { start, end, last } = campaignRange(c);
+  const draft = c.spent === null, notStarted = !draft && last < start;
+  document.getElementById('chartCard').hidden = draft || notStarted || !daily.length;
+  document.getElementById('chartEmpty').hidden = !(draft || notStarted || !daily.length);
+  document.getElementById('metricTabs').hidden = draft || !daily.length;
+  if (draft || !daily.length) {
+    document.getElementById('chartDesc').textContent = `Scheduled ${fmtRange(start, end)}`;
+    document.getElementById('chartEmptyTitle').textContent = draft ? 'This campaign is still a draft.' : 'No delivery yet.';
+    document.getElementById('chartEmptyBody').textContent = "Daily spend, results and cost per result will chart here once it's published and starts delivering.";
+    return;
+  }
+  const live = end > TODAY;
+  // Daily / Weekly / Monthly over the ad's run — same slicing as the Analytics charts
+  const units = unitsFor(start, last);
+  const perK = c.resultType === 'Reach' ? 1000 : 1; // Meta prices Reach per 1,000 people reached
+  const u = units.includes(unit) ? unit : units[0];
+  buildUnitSelect(document.getElementById('chartUnit'), { units, value: u, onChange(v) { unit = v; renderChart(); } });
+  const buckets = unitBuckets(start, last, u).map((bk) => {
+    const days = daily.filter((d) => d.date >= bk.start && d.date <= bk.end);
+    const spend = days.reduce((a, d) => a + d.spend, 0), results = days.reduce((a, d) => a + d.results, 0);
+    return { ...bk, spend, results, cpr: results ? (spend / results) * perK : null };
+  });
+  document.getElementById('chartDesc').textContent = `${UNIT_LABEL[u]}, ${fmtRange(start, last)}${live ? ' (live — ends ' + fmtDay(end) + ')' : ''}`;
+  const values = buckets.map((bk) => bk[metric]);
+  const totalSpend = daily.reduce((a, d) => a + d.spend, 0), totalRes = daily.reduce((a, d) => a + d.results, 0);
+  const total = metric === 'spend' ? formatUSD(totalSpend) : metric === 'results' ? fmtInt(totalRes) : (totalRes ? formatUSD((totalSpend / totalRes) * perK) : DASH);
+  document.getElementById('chartTotal').textContent = total;
+  document.getElementById('chartTotalLabel').textContent = metric === 'spend' ? 'Total spend' : metric === 'results' ? `Total results · ${c.resultType}` : `Average cost per result · ${c.costType}`;
+  const fmtV = (v) => (v === null ? 'no results' : metric === 'results' ? `${fmtInt(v)} results` : formatUSD(v));
+  drawAreaChart(document.getElementById('campaignChart'), {
+    values, labels: buckets.map((bk) => bk.label), height: 260,
+    format: metric === 'results' ? formatCount : (v) => (metric === 'cpr' && v < 10 ? `$${v.toFixed(v ? 2 : 0)}` : formatUSDShort(v)),
+    tip: (i) => `${u === 'day' ? fmtDate(buckets[i].start) : rangeLabel(buckets[i])} · ${fmtV(values[i])}`,
+  });
+}
+
+function renderPromo() {
+  const c = model.campaign, p = c.content;
+  document.getElementById('promoCard').innerHTML = `
+    <img class="promo-card__thumb" src="${THUMB}${p.img}" alt="">
+    <div class="promo-card__text">
+      <p class="promo-card__title">${p.title}</p>
+      <p class="promo-card__sub">${p.platform} · ${p.type}${c.spent === null ? ' · not published yet' : ''}</p>
+      <p class="promo-card__sub">Meta campaign · ${c.name}</p>
+    </div>
+    <a class="text-btn" href="../../brand-characters/brand-setup-kit-character-library.html#view=library">Open in Library →</a>`;
+}
+
+document.getElementById('metricTabs').addEventListener('click', (e) => {
+  const chip = e.target.closest('.controls-segment-chip');
+  if (!chip) return;
+  metric = chip.dataset.metric;
+  document.querySelectorAll('#metricTabs .controls-segment-chip').forEach((b) => b.classList.toggle('controls-segment-chip--selected', b === chip));
+  renderChart();
+});
+
+fitFrameToViewport();
+getMetaCampaign(params.get('id')).then((m) => {
+  model = m;
+  const c = m.campaign, { start, end } = campaignRange(c);
+  document.title = `${c.content.title} — Promoted Content`;
+  document.getElementById('crumbName').textContent = c.content.title;
+  document.getElementById('campaignName').textContent = c.content.title;
+  document.getElementById('sourceBadge').hidden = m.source !== 'mock';
+  document.getElementById('campaignMeta').innerHTML = [
+    deliveryChip(c.delivery),
+    fmtRange(start, end),
+    c.resultType || 'Website Applications',
+    c.budget === null ? c.budgetType : `${formatUSD(c.budget)} ${c.budgetType.toLowerCase()} budget`,
+    `Meta campaign · ${c.name}`,
+  ].join('<span class="campaign-meta__sep"></span>');
+  mountAdsTable({ table: document.getElementById('adsTable'), head: document.getElementById('adsHead'), rows: document.getElementById('adsRows'), only: c.id });
+  renderChart();
+  renderPromo();
+  // Export — this ad's row + its daily delivery (start → today). A draft has nothing to export yet.
+  const exportBtn = document.getElementById('adsExport');
+  exportBtn.disabled = c.spent === null;
+  exportBtn.title = c.spent === null ? 'Nothing to export yet — this ad hasn\'t been published.' : '';
+  exportBtn.addEventListener('click', () => {
+    const { last } = campaignRange(c);
+    openExportModal({
+      title: 'Export ad data – daily breakdown',
+      intro: `This file contains this ad's totals and its daily spend, results and cost per result from ${fmtDMYlong(start)} to ${fmtDMYlong(last)}.`,
+      notices: ['The Off / On column isn\'t included in the file — the ad\'s status is in the Delivery column.'],
+      defaultName: `Formee Express, ${c.content.title}, ${fmtDMYlong(start)}–${fmtDMYlong(last)}`,
+      build: () => ({ text: `${adsCSV([c])}\n\n${toCSV(['Date', 'Amount spent (USD)', 'Results', 'Cost per result (USD)'], m.daily.map((d) => [fmtISO(d.date), d.spend.toFixed(2), d.results, d.cpr === null ? '' : d.cpr.toFixed(2)]))}` }),
+    });
+  });
+});
+</script>
+</body>
+</html>

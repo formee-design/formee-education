@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Post Performance — AI Social Media</title>
+<!-- Post Performance — the one drill-down page under Analytics (no Figma frame yet; laid out from the Analytics
+     components so it can be moved into Figma as-is). Reached from Analytics:
+       - "View all →" on Top Paid Content   → ?view=paid
+       - "View all →" on Top Organic Posts  → ?view=organic (+ platform / sort carried over)
+       - a segment of Published Posts Over Time → ?platform=Instagram&bucket=0 (that platform's posts in that week)
+       - a bar / slice of Published Mix → ?platform= or ?type=
+       - "View posts →" on a Content Performance row → ?platform= (&type= for a sub-row), or the reverse on By content type
+     Sections: filter bar (All posts / Organic / Paid · Platform · Content type · Published week/month — re-selectable),
+     Stats summary (totals for the listed posts),
+     Performance Over Time (line chart; Views / Likes / Comments, + CPL on Paid), Posts (sortable list).
+     Same placeholder dataset as Analytics (analytics-shared.js), so every count matches.
+     URL state: ?period=30d|90d|all|custom &view=all|organic|paid &platform= &type= &bucket= &sort=
+       v2: Meta Ads is connected by default (Paid posts with spend / leads / CPL); &ads=disconnected shows the old
+       "Integration Pending" state.
+       Without it, Paid stays in its "Integration Pending" empty state, same as Analytics. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/segment-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-filter-select.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-menu.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/input.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/actions-text-button.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-misc.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/schedule.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/date-picker.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/editor-panel-chrome.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    font-optical-sizing:none; font-variation-settings:"opsz" 14;
+  }
+  button{font:inherit;}
+
+  /* ── frame — same 1920×1162 fit-to-viewport shell as analytics.html ── */
+  .analytics-frame{display:flex; align-items:stretch;}
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* breadcrumb — Analytics (link, neutral/500) › Post Performance */
+  .crumb-link{color:var(--color-neutral-500); text-decoration:none; font-weight:var(--font-weight-medium);}
+  .crumb-link:hover{color:var(--color-neutral-700);}
+  .crumb-sep{width:16px; height:16px; opacity:.6;}
+
+  /* main + header — same spacing as analytics.html */
+  .analytics-main{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:28px 28px 60px; background:var(--color-neutral-75);}
+  .analytics-header{display:flex; flex-direction:column; gap:var(--spacing-2xl);}
+  .analytics-header__col{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .page-header__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); overflow:hidden; white-space:nowrap;}
+  .page-header__title{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); letter-spacing:-0.1px;}
+  .page-header__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
+  /* Custom: the date range sits next to the track, not inside it (Figma 12595:252769 — row gap 12, inputs 240, Primary Apply) */
+  .period-row{display:flex; align-items:center; gap:var(--spacing-md);}
+  .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-md);}
+  .period-selector__to{font-size:var(--font-size-text-sm); color:var(--color-neutral-500);}
+  .input-field--date{width:240px; cursor:pointer;}
+  .date-field{position:relative; display:flex;}
+  .date-picker-popover{position:absolute; top:calc(100% + 8px); left:0; z-index:40; width:376px;}
+
+  .analytics-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  .analytics-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .analytics-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-xl);}
+  .section-header-row{display:flex; align-items:flex-end; justify-content:space-between; width:100%;}
+
+  /* filter bar — view tabs + filter pills */
+  .filter-bar{display:flex; align-items:center; gap:var(--spacing-lg);}
+  .filter-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+  .filter-dropdown{position:relative;}
+  .filter-dropdown .context-menu--option-list{position:absolute; top:calc(100% + 4px); left:0; z-index:20; width:220px;}
+  .filter-dropdown--right .context-menu--option-list{left:auto; right:0;}
+  .filter-dropdown .context-menu--option-list .menu-option{width:100%;}
+  .filter-dropdown .context-menu--option-list[hidden]{display:none;}
+
+  /* Performance Over Time — line chart card */
+  .line-card{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl);}
+  .line-card__head{display:flex; flex-direction:column; gap:2px;}
+  .line-card__value{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+  .line-card__label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .line-chart{position:relative; width:100%;}
+  .line-chart svg{display:block; width:100%; overflow:visible;}
+  .line-chart__grid{stroke:var(--color-neutral-150); stroke-width:1;}
+  .line-chart__axis{font-family:var(--font-family-text); font-size:var(--font-size-text-xs); fill:var(--color-neutral-500);}
+  .line-chart__band{fill:var(--color-brand-primary-light);}
+  .line-chart__band-label{font-family:var(--font-family-text); font-size:var(--font-size-text-xs); font-weight:var(--font-weight-semibold); fill:var(--color-brand-primary);}
+  .line-chart__area{fill:var(--color-brand-primary-light); opacity:.6;}
+  .line-chart__line{fill:none; stroke:var(--color-brand-primary); stroke-width:2; stroke-linejoin:round; stroke-linecap:round;}
+  .line-chart__guide{stroke:var(--color-neutral-400); stroke-width:1; stroke-dasharray:3 3;}
+  .line-chart__dot{fill:var(--color-neutral-0); stroke:var(--color-brand-primary); stroke-width:2;}
+  .line-chart__hover[hidden]{display:none;}
+  #lineHit{cursor:pointer;}
+  .line-chart .editor-tooltip{position:absolute; top:0; transform:translate(-50%, calc(-100% - 8px)); pointer-events:none;}
+  .line-chart .editor-tooltip[hidden]{display:none;}
+
+  /* Posts list — Schedule / List Row (schedule.css .sc-list--fluid) with page-specific columns */
+  .posts-table .sc-list-colhead,
+  .posts-table .sc-list-row{padding-left:20px; padding-right:20px;}
+  .posts-col--post{flex:1 0 0; min-width:1px;}
+  .posts-col--date{width:140px;}
+  .posts-col--status{width:110px;}
+  .posts-col--num{width:110px; text-align:right;}
+  .posts-row__post{display:flex; align-items:center; gap:var(--spacing-md); min-width:0;}
+  .posts-row__thumb{width:40px; height:40px; border-radius:var(--radius-md); object-fit:cover; flex-shrink:0;}
+  .posts-row__text{display:flex; flex-direction:column; min-width:0;}
+  .posts-row__text .sc-list-row__title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .posts-cell{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+  .posts-cell--muted{color:var(--color-neutral-500);}
+  .posts-more{display:flex; justify-content:center; padding:var(--spacing-md) 0;}
+
+  [hidden]{display:none !important;}
+
+  .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
+  .home-fab:hover{background:rgba(15,23,41,1);}
+  .home-fab svg{width:14px; height:14px; flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="analytics-frame frame">
+
+  <!-- ══ Nav / Navigation — components/ai-social-media/nav.css ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../../home/home.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../../schedule/schedule.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item" href="../../trends/trends.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item active" href="analytics.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../../voice-library/voice-library.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+
+    <!-- ══ Nav / App TopBar — breadcrumb Analytics › Post Performance ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">
+        <a class="crumb-link" href="analytics.html" id="crumbAnalytics">Analytics</a>
+        <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
+        <span>Post Performance</span>
+      </div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="analytics-main">
+
+      <div class="analytics-header">
+        <div class="analytics-header__col">
+          <div class="page-header__title-block">
+            <h1 class="page-header__title">Post Performance</h1>
+            <p class="page-header__sub">Every published post, and how its views, likes and comments moved over time.</p>
+          </div>
+          <!-- period selector — same Segment Chip track as Analytics -->
+          <div class="period-row">
+            <div class="period-selector" id="periodSelector">
+              <div class="segment-chip" data-period="30d">30 days</div>
+              <div class="segment-chip" data-period="90d">90 days</div>
+              <div class="segment-chip" data-period="all">All time</div>
+              <div class="segment-chip" data-period="custom">Custom</div>
+            </div>
+            <div class="period-selector__extra" id="customRange" hidden>
+              <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customFrom" aria-label="Start date">
+                <span class="input-field__text"></span>
+                <span class="input-field__icon input-field__icon--18"><img src="../../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+              </div></span>
+              <span class="period-selector__to">to</span>
+              <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customTo" aria-label="End date">
+                <span class="input-field__text"></span>
+                <span class="input-field__icon input-field__icon--18"><img src="../../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+              </div></span>
+              <button type="button" class="actions-btn actions-btn--primary" id="customApply">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- filter bar — All posts / Organic / Paid · Platform · Content type · Published (week from the Analytics bar) -->
+        <div class="filter-bar">
+          <div class="controls-segmented-control" id="viewTabs" role="tablist">
+            <button type="button" class="controls-segment-chip" data-view="all" role="tab">All posts</button>
+            <button type="button" class="controls-segment-chip" data-view="organic" role="tab">Organic</button>
+            <button type="button" class="controls-segment-chip" data-view="paid" role="tab">Paid</button>
+          </div>
+          <div class="filter-row">
+            <div class="filter-dropdown" id="platformFilterWrap"></div>
+            <div class="filter-dropdown" id="typeFilterWrap"></div>
+            <div id="bucketFilterHolder"><div class="filter-dropdown" id="bucketFilterWrap"></div></div>
+          </div>
+        </div>
+
+        <!-- Stats summary — totals for the posts in the list (same filters, incl. the Published week) -->
+        <div class="stats-summary" id="postsStats"></div>
+      </div>
+
+      <div class="analytics-body">
+
+        <!-- Performance Over Time — line chart of the selected metric; the week picked on Analytics is shaded -->
+        <section class="analytics-section">
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Performance Over Time</h2><span class="trends-section-header__badge" id="pendingBadge" hidden>Integration Pending</span></div>
+                <p class="trends-section-header__desc" id="chartDesc"></p>
+              </div>
+            </div>
+            <div class="controls-segmented-control" id="metricTabs" role="tablist">
+              <button type="button" class="controls-segment-chip" data-metric="views" role="tab">Views</button>
+              <button type="button" class="controls-segment-chip" data-metric="likes" role="tab">Likes</button>
+              <button type="button" class="controls-segment-chip" data-metric="comments" role="tab">Comments</button>
+              <button type="button" class="controls-segment-chip" data-metric="cpl" role="tab" title="Cost per lead — Meta Ads">CPL</button>
+            </div>
+          </div>
+          <div class="analytics-card line-card" id="chartCard">
+            <div class="line-card__head"><p class="line-card__value" id="chartTotal"></p><p class="line-card__label" id="chartTotalLabel"></p></div>
+            <div class="line-chart" id="lineChart">
+              <svg id="lineSvg" height="260"></svg>
+              <div class="editor-tooltip" id="lineTip" hidden></div>
+            </div>
+          </div>
+          <div class="empty-state-panel" id="chartEmpty" hidden></div>
+          <!-- no posts for these filters / range (or #state=empty / range-empty) — Trends-style section empty panel -->
+          <div class="empty-state-panel" id="chartNoData" hidden></div>
+        </section>
+
+        <!-- Posts — same filters, plus the Published week when arriving from a bar on Analytics -->
+        <section class="analytics-section" id="postsSection">
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Posts</h2></div>
+                <p class="trends-section-header__desc" id="postsDesc"></p>
+              </div>
+            </div>
+            <div class="filter-dropdown filter-dropdown--right" id="sortFilterWrap"></div>
+          </div>
+          <div class="analytics-card">
+            <div class="sc-list sc-list--fluid posts-table" id="postsTable">
+              <div class="sc-list-colhead" id="postsHead"></div>
+              <div id="postsRows"></div>
+            </div>
+            <div class="posts-more" id="postsMore" hidden><button type="button" class="text-btn" id="postsMoreBtn"></button></div>
+          </div>
+          <div class="empty-state-panel" id="postsEmpty" hidden></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<a class="home-fab" href="../../../../index.html" title="Back to all screens">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M2 7.2 8 2l6 5.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.3 6.2V13a.8.8 0 0 0 .8.8h3V10h1.8v3.8h3a.8.8 0 0 0 .8-.8V6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Home</span>
+</a>
+
+<script src="analytics-shared.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+readCustomRange(params); // ?period=custom&from=…&to=… carried over from Analytics
+const ADS_CONNECTED = params.get('ads') !== 'disconnected' && DATA_STATE !== 'empty'; // v2: connected unless told otherwise
+const PAGE_SIZE = 20;
+const SORTS = [
+  { value: 'Views', key: 'views' },
+  { value: 'Likes', key: 'likes' },
+  { value: 'Comments', key: 'comments' },
+  { value: 'Engagement Rate', key: 'engagement' },
+  { value: 'Newest', key: 'date' },
+  ...(ADS_CONNECTED ? [{ value: 'Leads', key: 'leads' }, { value: 'Lowest CPL', key: 'cpl', asc: true }, { value: 'Spend', key: 'spend' }] : []),
+];
+const METRIC_LABEL = { views: 'views', likes: 'likes', comments: 'comments', cpl: 'CPL' };
+const pick = (v, ok) => (ok(v) ? v : null);
+
+const state = {
+  period: pick(params.get('period'), (v) => PERIODS[v]) || '30d',
+  view: pick(params.get('view'), (v) => ['all', 'organic', 'paid'].includes(v)) || 'all',
+  platform: pick(params.get('platform'), (v) => PLATFORMS.some((p) => p.name === v)),
+  type: pick(params.get('type'), (v) => TYPES.some((t) => t.name === v)),
+  bucket: params.has('bucket') ? Number(params.get('bucket')) : null,
+  sort: pick(params.get('sort'), (v) => SORTS.some((s) => s.value === v)) || 'Views',
+  metric: 'views',
+  shown: PAGE_SIZE,
+};
+if (state.bucket !== null && !(state.bucket >= 0 && state.bucket < PERIODS[state.period].ends.length)) state.bucket = null;
+
+function syncUrl() {
+  const q = new URLSearchParams(periodParams(state.period));
+  if (state.view !== 'all') q.set('view', state.view);
+  if (state.platform) q.set('platform', state.platform);
+  if (state.type) q.set('type', state.type);
+  if (state.bucket !== null) q.set('bucket', state.bucket);
+  if (state.sort !== 'Views') q.set('sort', state.sort);
+  if (params.get('ads') === 'disconnected') q.set('ads', 'disconnected');
+  history.replaceState(null, '', `?${q}${location.hash}`); // hash keeps #state=empty / range-empty
+  document.getElementById('crumbAnalytics').href = `analytics.html?${new URLSearchParams(periodParams(state.period))}`;
+}
+
+function filteredPosts({ withBucket }) {
+  return buildPosts(state.period, { adsConnected: ADS_CONNECTED }).filter((p) =>
+    (state.view === 'all' || (state.view === 'paid') === p.paid)
+    && (!state.platform || p.platform === state.platform)
+    && (!state.type || p.type === state.type)
+    && (!withBucket || state.bucket === null || p.bucket === state.bucket));
+}
+
+const emptyState = (title, body) => `
+  <div class="empty-state empty-state--section">
+    <span class="empty-state__glyph"><img src="${ICON}nav-library-18.svg" alt=""></span>
+    <div class="empty-state__text"><p class="empty-state__title">${title}</p><p class="empty-state__body">${body}</p></div>
+  </div>`;
+const formatMetric = (metric, v) => (v === null || v === undefined ? '—' : metric === 'cpl' ? formatMoney(v) : formatCount(v));
+
+// ── Performance Over Time — daily metric = each post's total spread over the 14 days after it went live
+//    (front-loaded), so the line moves with what was published; summed into days / weeks / months by period ──
+function chartPoints(posts) {
+  const P = PERIODS[state.period];
+  const range = periodRange(state.period);
+  const days = diffDays(range.start, range.end) + 1;
+  const keys = state.metric === 'cpl' ? ['spend', 'leads'] : [state.metric];
+  const daily = {};
+  keys.forEach((k) => {
+    const arr = new Array(days).fill(0);
+    posts.forEach((p) => {
+      if (p[k] === undefined) return;
+      const d0 = diffDays(range.start, p.date);
+      const w = Array.from({ length: Math.min(14, days - d0) }, (_, i) => Math.pow(0.62, i));
+      const sw = w.reduce((a, b) => a + b, 0);
+      // leads land less evenly than spend, so CPL moves day to day
+      w.forEach((x, i) => { arr[d0 + i] += ((p[k] * x) / sw) * (k === 'leads' ? 0.6 + 0.8 * rand(p.id * 13 + i) : 1); });
+    });
+    daily[k] = arr;
+  });
+  const spans = P.chartUnit === 'day'
+    ? Array.from({ length: days }, (_, i) => ({ start: addDays(range.start, i), end: addDays(range.start, i) }))
+    : P.ends.map((_, b) => bucketRange(state.period, b));
+  return spans.map((s) => {
+    const a = diffDays(range.start, s.start), b = diffDays(range.start, s.end);
+    const sum = (k) => daily[k].slice(a, b + 1).reduce((x, y) => x + y, 0);
+    const value = state.metric === 'cpl' ? (sum('leads') ? sum('spend') / sum('leads') : null) : sum(state.metric);
+    return { ...s, value, label: P.chartUnit === 'month' ? fmtMonth(s.end) : fmtDay(s.end) };
+  });
+}
+
+function niceMax(v) {
+  if (v <= 0) return 1;
+  const step = Math.pow(10, Math.floor(Math.log10(v / 4)));
+  const nice = [1, 2, 2.5, 5, 10].map((m) => m * step).find((s) => s * 4 >= v);
+  return nice * 4;
+}
+
+let chartModel = null; // last drawn points + geometry, for the hover tooltip
+function renderChart(posts) {
+  const pts = chartPoints(posts);
+  const svg = document.getElementById('lineSvg');
+  const W = document.getElementById('lineChart').clientWidth, H = 260;
+  const M = { l: 56, r: 16, t: 24, b: 28 };
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const max = niceMax(Math.max(0, ...pts.map((p) => p.value || 0)));
+  const x = (i) => M.l + (pts.length === 1 ? iw / 2 : (i * iw) / (pts.length - 1));
+  const y = (v) => M.t + ih * (1 - v / max);
+  const step = pts.length > 1 ? iw / (pts.length - 1) : iw;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const grid = [0, 1, 2, 3, 4].map((g) => {
+    const v = (max / 4) * g;
+    return `<line class="line-chart__grid" x1="${M.l}" x2="${W - M.r}" y1="${y(v)}" y2="${y(v)}"/>
+      <text class="line-chart__axis" x="${M.l - 10}" y="${y(v) + 4}" text-anchor="end">${state.metric === 'cpl' ? `$${Math.round(v)}` : formatCount(v)}</text>`;
+  }).join('');
+  // x labels: every point for weeks / months; for days, the bucket ends (same dates as the Analytics bars)
+  const bucketEnds = new Set(PERIODS[state.period].ends.map((d) => d.getTime()));
+  const xLabels = pts.map((p, i) => (PERIODS[state.period].chartUnit !== 'day' || bucketEnds.has(p.end.getTime())
+    ? `<text class="line-chart__axis" x="${x(i)}" y="${H - 6}" text-anchor="middle">${p.label}</text>` : '')).join('');
+
+  let band = '';
+  if (state.bucket !== null) {
+    const r = bucketRange(state.period, state.bucket);
+    const idx = pts.map((p, i) => (p.start >= r.start && p.end <= r.end ? i : -1)).filter((i) => i >= 0);
+    if (idx.length) {
+      const x0 = Math.max(M.l, x(idx[0]) - step / 2), x1 = Math.min(W - M.r, x(idx[idx.length - 1]) + step / 2);
+      band = `<rect class="line-chart__band" x="${x0}" y="${M.t}" width="${x1 - x0}" height="${ih}"/>
+        <text class="line-chart__band-label" x="${(x0 + x1) / 2}" y="${M.t - 8}" text-anchor="middle">${rangeLabel(r)}</text>`;
+    }
+  }
+
+  const drawn = pts.map((p, i) => ({ i, v: p.value })).filter((p) => p.v !== null);
+  const line = drawn.map((p, k) => `${k ? 'L' : 'M'} ${x(p.i)} ${y(p.v)}`).join(' ');
+  const area = drawn.length ? `${line} L ${x(drawn[drawn.length - 1].i)} ${y(0)} L ${x(drawn[0].i)} ${y(0)} Z` : '';
+  svg.innerHTML = `${band}${grid}${xLabels}
+    <path class="line-chart__area" d="${area}"/><path class="line-chart__line" d="${line}"/>
+    <g class="line-chart__hover" id="lineHover" hidden><line class="line-chart__guide" id="lineGuide" y1="${M.t}" y2="${M.t + ih}"/><circle class="line-chart__dot" id="lineDot" r="4"/></g>
+    <rect id="lineHit" x="${M.l}" y="${M.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
+  chartModel = { pts, x, y, M, iw, W };
+}
+
+// hover: nearest point → guide + dot + Editor tooltip (frame is CSS-scaled, so map client px back to viewBox px)
+const lineChart = document.getElementById('lineChart');
+lineChart.addEventListener('mousemove', (e) => {
+  if (!chartModel || e.target.id !== 'lineHit') return;
+  const { pts, x, y, W } = chartModel;
+  const rect = document.getElementById('lineSvg').getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (W / rect.width);
+  let i = 0;
+  pts.forEach((_, k) => { if (Math.abs(x(k) - px) < Math.abs(x(i) - px)) i = k; });
+  const p = pts[i];
+  const hover = document.getElementById('lineHover');
+  const tip = document.getElementById('lineTip');
+  if (p.value === null) { hover.setAttribute('hidden', ''); tip.hidden = true; return; }
+  hover.removeAttribute('hidden');
+  document.getElementById('lineGuide').setAttribute('x1', x(i));
+  document.getElementById('lineGuide').setAttribute('x2', x(i));
+  document.getElementById('lineDot').setAttribute('cx', x(i));
+  document.getElementById('lineDot').setAttribute('cy', y(p.value));
+  tip.hidden = false;
+  tip.textContent = `${rangeLabel(p)} · ${formatMetric(state.metric, p.value)} ${METRIC_LABEL[state.metric]}`;
+  tip.style.left = `${x(i)}px`;
+  tip.style.top = `${y(p.value)}px`;
+});
+// click: filter the list to the week / month / day under the cursor (click it again to clear)
+lineChart.addEventListener('click', (e) => {
+  if (!chartModel || e.target.id !== 'lineHit') return;
+  const { pts, x, W } = chartModel;
+  const rect = document.getElementById('lineSvg').getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (W / rect.width);
+  let i = 0;
+  pts.forEach((_, k) => { if (Math.abs(x(k) - px) < Math.abs(x(i) - px)) i = k; });
+  const b = PERIODS[state.period].ends.findIndex((_, k) => { const r = bucketRange(state.period, k); return pts[i].start >= r.start && pts[i].start <= r.end; });
+  if (b < 0) return;
+  state.bucket = state.bucket === b ? null : b; state.shown = PAGE_SIZE;
+  rebuildBucketFilter(); render();
+});
+lineChart.addEventListener('mouseleave', () => {
+  document.getElementById('lineHover')?.setAttribute('hidden', '');
+  document.getElementById('lineTip').hidden = true;
+});
+
+// ── Posts list ──
+function renderList(posts) {
+  const sort = SORTS.find((s) => s.value === state.sort);
+  posts.sort((a, b) => (sort.key === 'date' ? b.date - a.date
+    : sort.asc ? (a[sort.key] ?? Infinity) - (b[sort.key] ?? Infinity)
+      : (b[sort.key] ?? -1) - (a[sort.key] ?? -1)));
+  const range = state.bucket !== null ? bucketRange(state.period, state.bucket) : periodRange(state.period);
+  document.getElementById('postsDesc').textContent = `${posts.length} post${posts.length === 1 ? '' : 's'} published ${rangeLabel(range)}`;
+
+  const paidCols = ADS_CONNECTED && state.view !== 'organic';
+  document.getElementById('postsHead').innerHTML = `
+    <span class="posts-col--post">Post</span>
+    <span class="posts-col--date">Published</span>
+    <span class="posts-col--status">Paid / Organic</span>
+    <span class="posts-col--num">Views</span>
+    <span class="posts-col--num">Likes</span>
+    <span class="posts-col--num">Comments</span>
+    <span class="posts-col--num" title="(likes + comments) ÷ views">Engagement</span>
+    ${paidCols ? '<span class="posts-col--num">Spend</span><span class="posts-col--num" title="Cost per lead — Meta Ads">CPL</span>' : ''}`;
+
+  const empty = document.getElementById('postsEmpty');
+  const hasPosts = posts.length > 0;
+  document.getElementById('postsTable').parentElement.hidden = !hasPosts;
+  empty.hidden = hasPosts;
+  document.getElementById('sortFilterWrap').hidden = !hasPosts; // nothing to sort
+  if (!hasPosts) {
+    const where = [state.type, state.platform && `on ${state.platform}`].filter(Boolean).join(' ');
+    empty.innerHTML = DATA_STATE === 'empty'
+      ? emptyState('No published posts yet.', 'Posts you publish will be listed here with their views, likes and comments.')
+      : emptyState(`No ${state.view === 'all' ? '' : `${state.view} `}posts${where ? ` ${where}` : ''} in this date range.`, 'Try another date range or clear a filter.');
+    return;
+  }
+
+  document.getElementById('postsRows').innerHTML = posts.slice(0, state.shown).map((p) => `
+    <div class="sc-list-row">
+      <span class="posts-col--post posts-row__post">
+        <img class="posts-row__thumb" src="${THUMB}${p.img}" alt="">
+        <span class="posts-row__text"><span class="sc-list-row__title">${p.title}</span><span class="sc-list-row__sub">${p.platform} · ${p.type}</span></span>
+      </span>
+      <span class="posts-col--date posts-cell">${fmtDate(p.date)}</span>
+      <span class="posts-col--status">${p.paid ? '<span class="feedback-status-chip feedback-status-chip--blue">Paid</span>' : '<span class="feedback-status-chip feedback-status-chip--secondary">Organic</span>'}</span>
+      <span class="posts-col--num posts-cell">${formatCount(p.views)}</span>
+      <span class="posts-col--num posts-cell">${formatCount(p.likes)}</span>
+      <span class="posts-col--num posts-cell">${formatCount(p.comments)}</span>
+      <span class="posts-col--num posts-cell">${formatPct(p.engagement)}</span>
+      ${paidCols ? `<span class="posts-col--num posts-cell${p.paid ? '' : ' posts-cell--muted'}">${p.paid ? formatMoney(p.spend) : '—'}</span><span class="posts-col--num posts-cell${p.paid ? '' : ' posts-cell--muted'}">${p.paid ? formatMoney(p.cpl) : '—'}</span>` : ''}
+    </div>`).join('');
+  const rest = posts.length - state.shown;
+  document.getElementById('postsMore').hidden = rest <= 0;
+  document.getElementById('postsMoreBtn').textContent = `Show ${Math.min(PAGE_SIZE, rest)} more`;
+}
+
+// "Published" filter — Controls/Filter/Select whose options are the period's weeks / months / days (the same buckets
+// as the Analytics bars). Preset when arriving from a bar or clicking the chart; × clears it, and it can be picked again.
+const bucketOptionLabel = (b) => (PERIODS[state.period].unit === 'month'
+  ? PERIODS[state.period].ends[b].toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  : rangeLabel(bucketRange(state.period, b)));
+function rebuildBucketFilter() {
+  const holder = document.getElementById('bucketFilterHolder');
+  holder.innerHTML = '<div class="filter-dropdown" id="bucketFilterWrap"></div>';
+  const labels = PERIODS[state.period].ends.map((_, b) => bucketOptionLabel(b));
+  buildFilter({
+    container: document.getElementById('bucketFilterWrap'),
+    label: 'Published', inactiveLabel: 'Published: All', defaultValue: 'All',
+    initialValue: state.bucket === null ? null : labels[state.bucket],
+    options: ['All', ...labels].map((value) => ({ value })),
+    onSelect(value) { state.bucket = value ? labels.indexOf(value) : null; state.shown = PAGE_SIZE; render(); },
+  });
+}
+
+// ── Stats summary — totals for the listed posts (Stats summary component, same strip as Analytics) ──
+function renderStats(posts) {
+  const s = sumCells(posts);
+  const paidStats = ADS_CONNECTED && state.view === 'paid';
+  const spend = posts.reduce((a, p) => a + (p.spend || 0), 0);
+  const leads = posts.reduce((a, p) => a + (p.leads || 0), 0);
+  const stats = [
+    { icon: 'stat-library-20.svg', value: s.posts, label: 'Posts' },
+    { icon: 'layer-eye.svg', value: formatCount(s.views), label: 'Views' },
+    ...(paidStats
+      ? [{ icon: 'stat-billing-20.svg', value: formatMoney(spend), label: 'Spend' },
+        { icon: 'stat-trending-up-20.svg', value: leads, label: 'Leads' },
+        { icon: 'stat-billing-20.svg', value: leads ? formatMoney(spend / leads) : '—', label: 'CPL' }]
+      : [{ icon: 'stat-heart-20.svg', value: formatCount(s.likes), label: 'Likes' },
+        { icon: 'chat.svg', value: formatCount(s.comments), label: 'Comments' },
+        { icon: 'stat-trending-up-20.svg', value: s.posts ? formatPct(engagementOf(s)) : '—', label: 'Engagement' }]),
+  ];
+  document.getElementById('postsStats').innerHTML = stats.map((st, i) => `
+    ${i ? `<div class="stats-summary__divider${i === 1 ? ' stats-summary__divider--strong' : ''}"></div>` : ''}
+    <div class="stats-summary__stat">
+      <div class="stats-summary__icon"><img src="${ICON}${st.icon}" alt=""></div>
+      <div class="stats-summary__text"><p class="stats-summary__value">${st.value}</p><p class="stats-summary__label">${st.label}</p></div>
+    </div>`).join('');
+}
+
+function render() {
+  syncUrl();
+  document.querySelectorAll('#periodSelector .segment-chip').forEach((c) => c.classList.toggle('segment-chip--active', c.dataset.period === state.period));
+  document.getElementById('customRange').hidden = state.period !== 'custom';
+  document.querySelectorAll('#viewTabs .controls-segment-chip').forEach((c) => c.classList.toggle('controls-segment-chip--selected', c.dataset.view === state.view));
+  // CPL exists only for Paid (Meta Ads)
+  if (state.metric === 'cpl' && state.view !== 'paid') state.metric = 'views';
+  document.querySelector('#metricTabs [data-metric="cpl"]').hidden = state.view !== 'paid';
+  document.querySelectorAll('#metricTabs .controls-segment-chip').forEach((c) => c.classList.toggle('controls-segment-chip--selected', c.dataset.metric === state.metric));
+
+  const range = periodRange(state.period);
+  const scope = [state.view === 'all' ? 'All posts' : state.view === 'paid' ? 'Paid posts' : 'Organic posts', state.platform, state.type].filter(Boolean).join(' · ');
+  document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)} · Click the chart to filter posts by ${PERIODS[state.period].unit}.`;
+
+  const pending = state.view === 'paid' && !ADS_CONNECTED;
+  const nonMeta = state.view === 'paid' && ADS_CONNECTED && state.platform && !META_ADS_PLATFORMS.includes(state.platform);
+  document.getElementById('pendingBadge').hidden = !pending;
+  document.getElementById('postsStats').hidden = pending || nonMeta;
+  document.getElementById('metricTabs').hidden = pending;
+  document.getElementById('chartCard').hidden = pending || nonMeta;
+  document.getElementById('postsSection').hidden = pending || nonMeta;
+  const chartEmpty = document.getElementById('chartEmpty');
+  chartEmpty.hidden = !(pending || nonMeta);
+  document.getElementById('chartNoData').hidden = true;
+  if (pending) {
+    chartEmpty.innerHTML = emptyState('Paid results will appear once Meta Ads is connected.', 'Boosted posts and ads will be listed here with spend, leads and CPL over time.');
+    return;
+  }
+  if (nonMeta) {
+    chartEmpty.innerHTML = emptyState(`No paid data for ${state.platform}.`, 'Paid results come from Meta Ads, which covers Instagram and Facebook.');
+    return;
+  }
+
+  const chartPosts = filteredPosts({ withBucket: false });
+  const noData = chartPosts.length === 0;
+  document.getElementById('chartCard').hidden = noData;
+  document.getElementById('metricTabs').hidden = noData;
+  const chartNoData = document.getElementById('chartNoData');
+  chartNoData.hidden = !noData;
+  if (noData) {
+    document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)}`; // no chart → no "click the chart" hint
+    chartNoData.innerHTML = DATA_STATE === 'empty'
+      ? emptyState('Nothing to chart yet.', 'Publish your first post and its views, likes and comments will be tracked here.')
+      : emptyState('No posts in this date range.', 'Try a longer date range or clear a filter.');
+    const listed = filteredPosts({ withBucket: true });
+    renderStats(listed);
+    renderList(listed);
+    return;
+  }
+  const total = state.metric === 'cpl'
+    ? (() => { const s = chartPosts.reduce((a, p) => ({ spend: a.spend + (p.spend || 0), leads: a.leads + (p.leads || 0) }), { spend: 0, leads: 0 }); return s.leads ? s.spend / s.leads : null; })()
+    : chartPosts.reduce((a, p) => a + p[state.metric], 0);
+  document.getElementById('chartTotal').textContent = formatMetric(state.metric, total);
+  document.getElementById('chartTotalLabel').textContent = state.metric === 'cpl' ? `Average CPL · ${rangeLabel(range)}` : `Total ${METRIC_LABEL[state.metric]} · ${rangeLabel(range)}`;
+  renderChart(chartPosts);
+  const listed = filteredPosts({ withBucket: true });
+  renderStats(listed);
+  renderList(listed);
+}
+
+// ── controls ──
+document.querySelectorAll('#periodSelector .segment-chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    if (state.period === chip.dataset.period) return;
+    state.period = chip.dataset.period; state.bucket = null; state.shown = PAGE_SIZE;
+    rebuildBucketFilter(); render();
+  });
+});
+document.getElementById('viewTabs').addEventListener('click', (e) => {
+  const chip = e.target.closest('.controls-segment-chip');
+  if (!chip) return;
+  state.view = chip.dataset.view; state.shown = PAGE_SIZE; render();
+});
+document.getElementById('metricTabs').addEventListener('click', (e) => {
+  const chip = e.target.closest('.controls-segment-chip');
+  if (!chip) return;
+  state.metric = chip.dataset.metric; render();
+});
+document.getElementById('postsMoreBtn').addEventListener('click', () => { state.shown += PAGE_SIZE; render(); });
+
+buildFilter({
+  container: document.getElementById('platformFilterWrap'),
+  label: 'Platform', defaultValue: 'All Platforms', initialValue: state.platform,
+  options: ['All Platforms', ...PLATFORMS.map((p) => p.name)].map((value) => ({ value })),
+  onSelect(value) { state.platform = value; state.shown = PAGE_SIZE; render(); },
+});
+buildFilter({
+  container: document.getElementById('typeFilterWrap'),
+  label: 'Content type', defaultValue: 'All Types', initialValue: state.type,
+  options: ['All Types', ...TYPES.map((t) => t.name)].map((value) => ({ value })),
+  onSelect(value) { state.type = value; state.shown = PAGE_SIZE; render(); },
+});
+buildFilter({
+  container: document.getElementById('sortFilterWrap'),
+  label: 'Sort by', inactiveLabel: 'Sort by: Views', defaultValue: 'Views', initialValue: state.sort,
+  options: SORTS.map((s) => ({ value: s.value })),
+  onSelect(value) { state.sort = value || 'Views'; render(); },
+});
+document.getElementById('sortFilterWrap').classList.add('filter-dropdown--right');
+
+bindCustomRange({
+  fromField: document.getElementById('customFrom'),
+  toField: document.getElementById('customTo'),
+  applyBtn: document.getElementById('customApply'),
+  onApply() { state.bucket = null; state.shown = PAGE_SIZE; rebuildBucketFilter(); render(); },
+});
+
+fitFrameToViewport();
+rebuildBucketFilter();
+render();
+</script>
+</body>
+</html>

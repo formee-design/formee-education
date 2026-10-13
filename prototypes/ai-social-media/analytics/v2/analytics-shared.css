@@ -1,0 +1,98 @@
+/* Analytics v2 — shared styles for the Meta Ads campaign table (Analytics · Meta Ads Performance and
+   Promoted Content). Built from Schedule / List Row (schedule.css), shared/checkbox.css, switch.css and the
+   Controls / Context Menu (controls-menu.css) — this file only adds the table's columns and its sort menu. */
+
+/* Meta Ads Performance — Schedule / List Row table, Ads Manager column set; numbers right-aligned, scrolls sideways if narrow */
+.ads-table{max-width:none;}
+.ads-table .sc-list-colhead, .ads-table .sc-list-row{min-width:1480px; padding-left:var(--spacing-lg); padding-right:var(--spacing-lg); gap:var(--spacing-md);}
+.ads-table .sc-list-row{align-items:flex-start;}
+.ads-table .sc-list-row:hover{background:var(--color-neutral-50);}
+.ads-col--check{width:20px; display:flex; align-items:center; min-height:20px;}
+.ads-col--toggle{width:56px; white-space:nowrap;}
+.ads-col--name{flex:1 0 0; min-width:220px;}
+.ads-col--delivery{width:96px;}
+.ads-col--num{width:116px; display:flex; flex-direction:column; align-items:flex-end; text-align:right;}
+.ads-col--wide{width:150px;}
+.ads-col--ends{width:104px; text-align:right;}
+.ads-table .field-switch{display:block; margin-top:0; pointer-events:none;} /* display only — campaigns can't be switched from Pulse */
+.ads-campaign{border:0; background:none; padding:0; cursor:pointer; text-align:left; font:inherit; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-900); text-decoration:none;} /* black title, underline only on hover */
+.ads-campaign:hover{text-decoration:underline;}
+.ads-campaign--static, .ads-campaign--static:hover{color:var(--color-neutral-900); cursor:default; text-decoration:none;} /* the detail page's own row */
+/* Promoted content cell — post thumbnail + title (link to the ad detail) over "platform · type · Meta campaign" */
+.ads-content{display:flex; align-items:flex-start; gap:var(--spacing-sm); min-width:0;}
+.ads-content__thumb{width:36px; height:36px; border-radius:var(--radius-md); object-fit:cover; flex-shrink:0;}
+.ads-content__text{display:flex; flex-direction:column; min-width:0;}
+.ads-content__text .ads-campaign{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+.ads-delivery{display:inline-flex; align-items:center; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+.ads-delivery__dot{width:8px; height:8px; border-radius:var(--radius-full); background:var(--color-neutral-400); flex-shrink:0;}
+.ads-delivery--active .ads-delivery__dot{background:var(--color-badge-green-text);}
+.ads-delivery--draft .ads-delivery__dot{background:none; border:1.5px solid var(--color-badge-green-text); box-sizing:border-box;}
+.ads-cell{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900); white-space:nowrap;}
+.ads-cell--muted{color:var(--color-neutral-500);}
+.ads-sub{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+
+/* scroll window — Analytics keeps the 5-row height and scrolls the rest; the column head stays put */
+.ads-card{overflow:hidden;}
+.ads-table--window{overflow:auto;}
+.ads-table .sc-list-colhead{position:sticky; top:0; z-index:1; background:var(--color-neutral-0);}
+
+/* column head — label (+ current sort arrow) and a caret that opens the column's Sort menu (Ads Manager style) */
+.ads-head{display:inline-flex; align-items:center; gap:var(--spacing-xs); max-width:100%; border:0; background:none; padding:0; cursor:pointer; font:inherit; color:inherit; white-space:nowrap;}
+.ads-head:hover, .ads-head[aria-expanded="true"]{color:var(--color-neutral-900);}
+.ads-head--active{color:var(--color-neutral-900); font-weight:var(--font-weight-semibold);}
+.ads-head__sort{width:14px; height:14px;}
+.ads-head__caret{width:12px; height:12px; opacity:.6;}
+.ads-col--num .ads-head, .ads-col--ends .ads-head{justify-content:flex-end;}
+
+/* Sort menu — Controls / Context Menu (Actions type) with Menu / Item rows; lives on .frame so the scrolling table
+   doesn't clip it */
+.ads-menu{position:absolute; z-index:60; width:max-content; min-width:200px;}
+.ads-menu__title{margin:0; padding:var(--spacing-xs) var(--spacing-sm); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}
+.ads-menu .menu-item:hover{background:var(--color-neutral-75);}
+.ads-menu__label{display:flex; align-items:center; gap:var(--spacing-sm);}
+.ads-menu__check{visibility:hidden;}
+.menu-item--selected .ads-menu__check{visibility:visible;}
+
+/* Area line chart — drawAreaChart() (Meta Ads Spend, Campaign · Performance Over Time): brand-primary line, light-blue
+   gradient fill, no point labels; hover shows the point in the Editor tooltip (editor-panel-chrome.css) */
+.line-chart{position:relative; width:100%;}
+.line-chart svg{display:block; width:100%; overflow:visible;}
+.line-chart__grid{stroke:var(--color-neutral-150); stroke-width:1;}
+.line-chart__axis{font-family:var(--font-family-text); font-size:var(--font-size-text-xs); fill:var(--color-neutral-500);}
+.line-chart__grad-top{stop-color:var(--color-brand-primary); stop-opacity:.18;}
+.line-chart__grad-bottom{stop-color:var(--color-brand-primary); stop-opacity:0;}
+.line-chart__line{fill:none; stroke:var(--color-brand-primary); stroke-width:2; stroke-linejoin:round; stroke-linecap:round;}
+.line-chart__point{fill:var(--color-neutral-0); stroke:var(--color-brand-primary); stroke-width:2;}
+.line-chart__guide{stroke:var(--color-neutral-400); stroke-width:1; stroke-dasharray:3 3;}
+.line-chart__hover[hidden]{display:none;}
+.line-chart .editor-tooltip{position:absolute; top:0; transform:translate(-50%, calc(-100% - 10px)); pointer-events:none;}
+.line-chart .editor-tooltip[hidden]{display:none;}
+
+/* Export — the trigger (Actions / Text Button + download icon, beside "View all →") */
+.export-btn img{width:16px; height:16px; display:block;}
+.export-btn:disabled{color:var(--color-neutral-400); cursor:not-allowed; background:none;}
+.export-btn:disabled img{opacity:.5;}
+
+/* Export modal — shared Modal (modal--form) on .frame, laid out like Ads Manager's export dialog */
+.export-overlay{position:absolute;}
+.export-modal{max-width:560px; gap:var(--spacing-xl);}
+.export-modal__head{gap:var(--spacing-xs);}
+.export-modal .modal__close img{width:20px; height:20px; display:block;}
+.export-notice{display:flex; align-items:flex-start; gap:var(--spacing-sm); padding:var(--spacing-md) var(--spacing-lg); border:1px solid var(--color-neutral-200); border-left:3px solid var(--color-neutral-300); border-radius:var(--radius-md); background:var(--color-neutral-0);}
+.export-notice img{width:18px; height:18px; flex-shrink:0; margin-top:1px;}
+.export-notice p{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-800);}
+.export-field{display:flex; flex-direction:column; gap:var(--spacing-sm);}
+.export-field__label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.export-name{gap:var(--spacing-sm);}
+.export-name input{flex:1 0 0; min-width:0; border:0; outline:none; background:none; padding:0; font:inherit; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-900);}
+.export-name__clear{display:flex; border:0; background:none; padding:0; cursor:pointer;}
+.export-name__clear img{width:18px; height:18px; display:block;}
+.export-radio{display:flex; align-items:center; gap:var(--spacing-md); cursor:pointer; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-900);}
+.export-modal__footer{justify-content:flex-end;}
+
+/* toast after Export (bottom-centre of the frame) */
+.export-toast{position:absolute; left:50%; bottom:var(--spacing-4xl); transform:translateX(-50%); z-index:120; padding:var(--spacing-md) var(--spacing-lg); border-radius:var(--radius-lg); background:var(--color-neutral-900); color:var(--color-neutral-0); font-family:var(--font-family-text); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); box-shadow:var(--shadow-modal);}
+
+/* chart card head — total + label on the left, the unit select (Daily / Weekly / Monthly) on the right */
+.chart-head-row{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-md);}
+.unit-select .context-menu--option-list{width:160px;}

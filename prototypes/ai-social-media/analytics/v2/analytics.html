@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Analytics — AI Social Media</title>
+<!-- Figma: FME_AI-Social-Media "Analytics · default" (N8AXYZVtz82rgHcCRHKzEl, node 12586:485574), 1920 × 1385.
+     All UI pieces are the shared components in components/ai-social-media/ — this file only lays them out.
+     v2 (2026-10-13): first row is Meta Ads Spend (left — area line chart of weekly spend + period total, "now live") |
+     Published Posts (right — Published Posts Over Time and Published Mix merged: one stacked chart, split by Platform or
+     Type, legend = mix). Section order: Ads + Publishing (Meta Ads Spend | Published Posts), Meta Ads Performance
+     (one row per post promoted from Pulse — sample data until the Meta API is wired), Top Paid Content | Top Organic Posts. Content Performance (one table, By platform / By content type,
+     expandable rows) is DEFERRED — hidden in the markup as a record, not in the dev scope. Metrics are limited to what every connected platform API returns:
+     posts, views, likes, comments (engagement = (likes + comments) ÷ views). All numbers are placeholder data.
+     Live states:
+       - Period selector — every section re-renders for 30 days / 90 days / All time / Custom; "Custom" reveals the date range
+         inline; a short range can show a 0-post type in the Published Posts legend.
+       - Top Paid Content stays in its "Integration Pending" empty state until Meta Ads is connected.
+       - Custom: clicking either date opens the Date Picker (Time=Without time); Apply re-runs every section for that range
+         (DD/MM/YYYY; no future dates). URL keeps ?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD.
+       - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it.
+       - Drill-down to Post Performance (posts.html): "View all →" on Top Paid / Top Organic, and every segment of
+         Published Posts Over Time (platform + week). Data + helpers shared via analytics-shared.js. -->
+<!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/segment-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-filter-select.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-menu.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/input.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/actions-text-button.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-misc.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/schedule.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/date-picker.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/editor-panel-chrome.css">
+<link rel="stylesheet" href="../../../../components/shared/checkbox.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/switch.css">
+<link rel="stylesheet" href="../../../../components/shared/modal.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-toggles.css">
+<link rel="stylesheet" href="analytics-shared.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    font-optical-sizing:none; font-variation-settings:"opsz" 14;
+  }
+  button{font:inherit;}
+
+  /* ── frame: Nav / Navigation (262) + right-col (1658) — same 1920×1162 fit-to-viewport as the other prototypes ── */
+  .analytics-frame{display:flex; align-items:stretch;}
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* ── Main Content: 28/28/60 padding, header ↔ body 20 gap (Figma 12586:485578) ── */
+  .analytics-main{
+    display:flex; flex-direction:column; gap:var(--spacing-xl);
+    padding:28px 28px 60px;
+    background:var(--color-neutral-75);
+  }
+
+  /* header (12586:485579) — title-block + period selector, 24 gap down to Stats summary */
+  .analytics-header{display:flex; flex-direction:column; gap:var(--spacing-2xl);}
+  .analytics-header__row{display:flex; align-items:center; width:100%;}
+  .analytics-header__col{display:flex; flex-direction:column; gap:var(--spacing-lg); flex:1 0 0; min-width:0;}
+  .page-header__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); overflow:hidden; white-space:nowrap;}
+  .page-header__title{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); letter-spacing:-0.1px;}
+  .page-header__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+
+  /* period selector track (12586:485585) — neutral/100 track, padding 4, radius-xl; Segment Chip instances inside */
+  .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
+  /* Custom: the date range sits next to the track, not inside it (Figma 12595:252769 — row gap 12, inputs 240, Primary Apply) */
+  .period-row{display:flex; align-items:center; gap:var(--spacing-md);}
+  /* sticky period bar — page background so content slides under it; a hairline appears once it's stuck */
+  .period-bar{position:sticky; top:-28px; z-index:30; margin:calc(-1 * var(--spacing-md)) -28px calc(-1 * var(--spacing-xs)); padding:var(--spacing-sm) 28px; background:var(--color-neutral-75);}
+  .period-bar.is-stuck{border-bottom:1px solid var(--color-neutral-200);}
+  .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-md);}
+  .period-selector__to{font-size:var(--font-size-text-sm); color:var(--color-neutral-500);}
+  .input-field--date{width:240px; cursor:pointer;}
+  /* custom range — Date Picker (Time=Without time) opens under the clicked field */
+  .date-field{position:relative; display:flex;}
+  .date-picker-popover{position:absolute; top:calc(100% + 8px); left:0; z-index:40; width:376px;}
+
+  /* body sections, 40 apart (12586:485587) */
+  .analytics-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  .analytics-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .analytics-row{display:flex; align-items:flex-start; gap:var(--spacing-2xl);}
+  .analytics-row > .analytics-section{flex:1 0 0; min-width:0;}
+
+  /* generic card shell (neutral/0 bg, neutral/400 border, radius-xl — repeated across every card on this screen) */
+  .analytics-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-xl);}
+
+  /* chart card shell — shared by Published Posts by Platform and (formerly) Meta Ads spend */
+  .chart-card{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl); width:100%;}
+
+
+  /* Publishing row — both cards fill the row height; Published Mix card swaps its body by tab */
+  .publish-card{flex:1 0 auto;}
+  .publish-card > .chart-card{height:100%;}
+  .card-tabs{flex-shrink:0;}
+
+  /* Published Posts Over Time — stacked columns per period bucket, one segment per platform */
+  .stack-chart{display:flex; align-items:flex-end; gap:var(--spacing-md); height:200px; width:100%; border-bottom:1px solid var(--color-neutral-150);}
+  .stack-chart__col{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-sm); flex:1 0 0; min-width:0; height:100%; justify-content:flex-end;}
+  .stack-chart__stack{display:flex; flex-direction:column-reverse; width:100%; max-width:56px; border-radius:var(--radius-sm) var(--radius-sm) 0 0; overflow:hidden;}
+  .stack-chart__seg{display:block; width:100%; cursor:pointer;}
+  .stack-chart--dense{gap:var(--spacing-2);} /* daily bars — tighter columns, every Nth label */
+  .stack-chart--dense .stack-chart__label{overflow:visible; height:var(--line-height-text-xs);} /* label row keeps its height even when a column skips its label, so every bar starts on the same baseline */
+  /* one bar thickness for every dense view (30 / 90 days daily, All time weekly) — 6px = what 90 daily columns fit in the card */
+  .stack-chart--dense .stack-chart__stack{width:6px; max-width:6px; border-radius:0;} /* square tops — a 4px radius on a 6px bar reads as a pill */
+  .stack-chart__seg:hover{box-shadow:inset 0 0 0 2px var(--color-neutral-0);}
+  .stack-chart__total{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+  .stack-chart__label{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap;}
+  .platform-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-sm) var(--spacing-lg);}
+  .platform-legend__item{display:flex; align-items:center; gap:6px; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-700);}
+  .platform-legend__dot{width:8px; height:8px; border-radius:var(--radius-full);}
+  /* legend = the mix: "Instagram 18" (share % only in the bar tooltip), each item opens its posts; a 0-post item greys out */
+  .platform-legend__item--link{text-decoration:none; cursor:pointer;}
+  .platform-legend__item--link:hover{color:var(--color-brand-primary);}
+  .platform-legend__value{font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .platform-legend__item--zero, .platform-legend__item--zero .platform-legend__value{color:var(--color-neutral-500); font-weight:var(--font-weight-regular);}
+  /* chart cards open with the period total (Meta Ads Spend · Published Posts) */
+  .chart-head{display:flex; flex-direction:column; gap:var(--spacing-2);}
+  .chart-head__value{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+  .chart-head__label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+
+  /* Content Performance table — Schedule / List Row (schedule.css .sc-list--fluid) with page-specific columns */
+  .perf-table .sc-list-colhead,
+  .perf-table .sc-list-row{padding-left:20px; padding-right:20px;}
+  .perf-col--name{flex:1 0 0; min-width:1px;}
+  .perf-col--num{width:120px; text-align:right;}
+  .perf-col--best{width:220px; padding-left:var(--spacing-2xl);}
+  .perf-col--link{width:110px; text-align:right;}
+  .perf-link{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700); text-decoration:none; white-space:nowrap;}
+  .perf-link:hover{color:var(--color-brand-primary);}
+  .perf-row{cursor:pointer;}
+  .perf-row:hover{background:var(--color-neutral-50);}
+  .perf-row__name{display:flex; align-items:center; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .perf-row__chevron{width:16px; height:16px; transition:transform .15s ease;}
+  .perf-row[aria-expanded="true"] .perf-row__chevron{transform:rotate(90deg);}
+  .perf-row__dot{width:8px; height:8px; border-radius:var(--radius-full); flex-shrink:0;}
+  /* platform rows: Figma icon / social / * (32 artboard drawn at 20) instead of the colour dot */
+  .perf-row__icon{width:20px; height:20px; flex-shrink:0; display:block;}
+  .perf-row__mark{width:20px; display:flex; justify-content:center; flex-shrink:0;}
+  .perf-cell{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+  .perf-cell--strong{font-weight:var(--font-weight-semibold);}
+  .perf-sub{background:var(--color-neutral-50); cursor:default;}
+  .perf-sub .perf-row__name{padding-left:32px; font-weight:var(--font-weight-regular); color:var(--color-neutral-700);}
+  .perf-sub .perf-cell{color:var(--color-neutral-700);}
+  .perf-index{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold);}
+  .perf-index--up{color:var(--color-badge-green-text);}
+  .perf-index--down{color:var(--color-neutral-500);}
+  .perf-insight{
+    display:flex; align-items:center; gap:var(--spacing-sm); margin:0;
+    padding:var(--spacing-md) var(--spacing-lg); border-radius:var(--radius-lg);
+    background:var(--color-brand-primary-light); color:var(--color-neutral-900);
+    font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  }
+  .perf-insight img{width:16px; height:16px; flex-shrink:0;}
+
+
+  /* filter dropdown wrapper — Controls/Filter/Select + its open option list (Menu/Item), both from controls-filter-select.css / controls-menu.css */
+  .filter-dropdown{position:relative;}
+  .filter-dropdown .context-menu--option-list{position:absolute; top:calc(100% + 4px); right:0; z-index:20; width:220px;}
+  .filter-dropdown .context-menu--option-list .menu-option{width:100%;}
+  .filter-dropdown .context-menu--option-list[hidden]{display:none;}
+  .filter-row{display:flex; align-items:center; gap:var(--spacing-sm);}
+
+  /* section header rows with controls on the right (title + filters / tabs) */
+  .section-header-row{display:flex; align-items:flex-end; justify-content:space-between; width:100%;}
+
+  /* Top posts list — row anatomy from the Figma Top forecast performers list (12586:485653) */
+  .forecast-list{display:flex; flex-direction:column; width:100%; overflow:hidden;}
+  .forecast-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:16px 16px 16px 20px; border-bottom:1px solid var(--color-neutral-150);}
+  .forecast-row:last-child{border-bottom:none;}
+  .forecast-row__rank{width:12px; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .forecast-row__thumb{width:56px; height:56px; border-radius:8px; object-fit:cover; flex-shrink:0;}
+  .forecast-row__title{display:flex; flex-direction:column; gap:2px; flex:1 0 0; min-width:0;}
+  .forecast-row__name{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .forecast-row__sub{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+  /* landing highlight when arriving via #top-paid / #top-organic */
+  @keyframes arrival-ring{0%,60%{box-shadow:0 0 0 3px var(--color-brand-primary-mid);} 100%{box-shadow:0 0 0 3px transparent;}}
+  .is-arrival{animation:arrival-ring 1.8s ease-out;}
+  .post-metric{display:flex; flex-direction:column; gap:2px; width:64px;}
+  .post-metric__value{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .post-metric__label{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+
+  /* Top Paid Content / Top Organic Posts — both cards stretch to the row height */
+  .analytics-row--stretch{align-items:stretch;}
+  .top-posts-card{flex:1 0 auto;}
+
+  /* empty states — page-level card (#state=empty) and in-section panels (no posts in the range) */
+  .analytics-empty{display:flex; justify-content:center; padding:var(--spacing-6xl) var(--spacing-2xl);}
+  .analytics-empty .actions-btn{text-decoration:none;}
+
+  .filter-dropdown--right .context-menu--option-list{left:auto; right:0;}
+
+  /* Top Paid Content — Home "Top content" row metrics (leads + Top chip · Δ vs last period · CPL) on the .forecast-row anatomy */
+  .paid-metric{flex-shrink:0; display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); white-space:nowrap;}
+  .paid-metric--leads{width:112px;}
+  .paid-metric--leads.has-chip{gap:var(--spacing-xs);}
+  .paid-metric--delta{width:92px;}
+  .paid-metric--cpl{width:64px;}
+  .paid-metric__value{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .paid-metric__label{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+  .paid-delta{display:flex; align-items:center; gap:var(--spacing-2); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-badge-green-text);}
+  .paid-delta img{width:14px; height:14px; display:block;}
+
+  [hidden]{display:none !important;}
+
+  .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
+  .home-fab:hover{background:rgba(15,23,41,1);}
+  .home-fab svg{width:14px; height:14px; flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="analytics-frame frame">
+
+  <!-- ══ Nav / Navigation — components/ai-social-media/nav.css ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../../home/home.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../../schedule/schedule.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item" href="../../trends/trends.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../../voice-library/voice-library.html"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+
+    <!-- ══ Nav / App TopBar — nav-app-topbar.css ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">Analytics</div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="analytics-main">
+
+      <!-- header (12586:485579) -->
+      <div class="analytics-header">
+        <div class="analytics-header__row">
+          <div class="analytics-header__col">
+            <div class="page-header__title-block">
+              <h1 class="page-header__title">Analytics</h1>
+              <p class="page-header__sub">Render performance and content mix. Live TikTok metrics land with the platform analytics integration; Instagram follows.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- period bar — sticks to the top while the page scrolls, so the date range is always one click away -->
+      <div class="period-bar" id="periodBar">
+        <!-- period selector (12586:485585) — Segment Chip ×4 in a neutral/100 track -->
+        <div class="period-row">
+          <div class="period-selector" id="periodSelector">
+            <div class="segment-chip segment-chip--active" data-period="30d">30 days</div>
+            <div class="segment-chip" data-period="90d">90 days</div>
+            <div class="segment-chip" data-period="all">All time</div>
+            <div class="segment-chip" data-period="custom">Custom</div>
+          </div>
+          <div class="period-selector__extra" id="customRange" hidden>
+            <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customFrom" aria-label="Start date">
+              <span class="input-field__text"></span>
+              <span class="input-field__icon input-field__icon--18"><img src="../../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+            </div></span>
+            <span class="period-selector__to">to</span>
+            <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customTo" aria-label="End date">
+              <span class="input-field__text"></span>
+              <span class="input-field__icon input-field__icon--18"><img src="../../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+            </div></span>
+            <button type="button" class="actions-btn actions-btn--primary" id="customApply">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-header analytics-header--stats">
+        <!-- Stats summary (12586:485586) — stats-summary.css -->
+        <div class="stats-summary">
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../../components/ai-social-media/icons/stat-library-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiPublished"></p><p class="stats-summary__label">Published Posts</p><p class="stats-summary__caption" id="kpiPublishedSub"></p></div>
+          </div>
+          <div class="stats-summary__divider stats-summary__divider--strong"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../../components/ai-social-media/icons/stat-spinner-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiInProgress">0</p><p class="stats-summary__label">In progress</p><p class="stats-summary__caption">—</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../../components/ai-social-media/icons/stat-circle-alert-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiFailed">1</p><p class="stats-summary__label">Failed renders</p><p class="stats-summary__caption" id="kpiFailedSub">auto-retried</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../../components/ai-social-media/icons/stat-billing-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiSpend">$5.98</p><p class="stats-summary__label">Compute spend</p><p class="stats-summary__caption">actual cost</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-body">
+
+        <!-- #state=empty — new account: nothing published yet (and Meta Ads not connected). One page-level
+             empty-state (No content variant, empty-state.css) stands in for every data section; Meta Ads stays below. -->
+        <div class="analytics-card analytics-empty" id="emptyAccount" hidden>
+          <div class="empty-state">
+            <span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span>
+            <div class="empty-state__text"><p class="empty-state__title">No published posts yet</p><p class="empty-state__body">Publish your first post to see how your content performs.</p></div>
+            <a class="actions-btn actions-btn--primary" href="../../new-content-generation/v4/new-content-to-generate.html"><img src="../../../../components/ai-social-media/icons/plus-16-white.svg" alt="">New Content</a>
+          </div>
+        </div>
+
+        <!-- Ads + Publishing — Meta Ads Spend (left) | Published Posts (right). Published Posts merges the old
+             "Over Time" and "Mix" cards: one stacked chart split by Platform or Type; the legend carries each share. -->
+        <div class="analytics-row analytics-row--stretch" id="publishingRow">
+
+          <!-- Meta Ads Spend — now live: spend from the brand's connected Meta ad account, per week (per month on All time) -->
+          <section class="analytics-section" id="spendSection">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Spend</h2></div>
+                <p class="trends-section-header__desc" id="spendDesc">Weekly ad spend for your connected Meta ad account.</p>
+              </div>
+            </div>
+            <div class="analytics-card chart-card publish-card" id="spendCard">
+              <div class="chart-head-row"><div class="chart-head"><p class="chart-head__value" id="spendTotal"></p><p class="chart-head__label" id="spendTotalLabel"></p></div><div id="spendUnit"></div></div>
+              <div class="line-chart" id="spendChart"></div>
+            </div>
+            <div class="empty-state-panel publish-card" id="spendEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No ad spend in this date range.</p><p class="empty-state__body">Spend from your connected Meta ad account will show up here.</p></div></div>
+            </div>
+          </section>
+
+          <!-- Published Posts — when and where posts went out; Platform | Type switches what the stacks are split by -->
+          <section class="analytics-section">
+            <div class="section-header-row">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left">
+                  <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Published Posts</h2></div>
+                  <p class="trends-section-header__desc">Track published posts over time by platform or content type.</p>
+                </div>
+              </div>
+              <div class="controls-segmented-control card-tabs" id="mixTabs" role="tablist">
+                <button type="button" class="controls-segment-chip controls-segment-chip--selected" data-tab="platform" role="tab">Platform</button>
+                <button type="button" class="controls-segment-chip" data-tab="type" role="tab">Type</button>
+              </div>
+            </div>
+            <div class="analytics-card chart-card publish-card" id="overTimeCard">
+              <div class="chart-head-row"><div class="chart-head"><p class="chart-head__value" id="publishedTotal"></p><p class="chart-head__label" id="publishedTotalLabel"></p></div><div id="pubUnit"></div></div>
+              <div class="stack-chart" id="publishedOverTime"></div>
+              <div class="platform-legend" id="platformLegend"></div>
+            </div>
+            <div class="empty-state-panel publish-card" id="overTimeEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No posts published in this date range.</p><p class="empty-state__body">Try a longer date range.</p></div></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Meta Ads Performance — read-only ads table (reference: Meta Ads Manager campaign list, minus Actions and
+             everything after Ends). Only ads made in Pulse come in, one per promoted post (no multi-ad campaigns), so the
+             first column is the post — its Meta campaign name is the sub-line. Columns: checkbox · on/off · Promoted content · Delivery · Results · Cost per result · Budget ·
+             Amount spent · Impressions · Reach · Ends. All ads in a 5-row scroll window, a Sort menu per column, status
+             filter; View all → campaigns.html (Promoted Content). MOCK data until the Meta API is wired — see getMetaCampaigns() in
+             analytics-shared.js. Checkbox / toggle are visual only; the post title opens campaign.html. -->
+        <section class="analytics-section" id="adsSection">
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Performance</h2><span class="trends-section-header__badge" id="adsSourceBadge" title="Mock data for the initial UI — not from the Meta API yet">Sample data</span></div>
+                <p class="trends-section-header__desc">Lifetime totals for the posts you promoted on Meta from Pulse — not limited by the date range above.</p>
+              </div>
+            </div>
+            <div class="filter-row" id="adsControls">
+              <div class="filter-dropdown filter-dropdown--right" id="adsStatusFilterWrap"></div>
+              <button type="button" class="text-btn export-btn" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button>
+              <a class="text-btn" id="viewAllCampaigns" href="campaigns.html">View all →</a>
+            </div>
+          </div>
+          <div class="analytics-card ads-card" id="adsCard">
+            <div class="sc-list sc-list--fluid ads-table ads-table--window" id="adsTable">
+              <div class="sc-list-colhead" id="adsHead"></div>
+              <div id="adsRows"></div>
+            </div>
+          </div>
+          <div class="empty-state-panel" id="adsEmpty" hidden>
+            <div class="empty-state empty-state--section">
+              <span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
+              <div class="empty-state__text"><p class="empty-state__title" id="adsEmptyTitle"></p><p class="empty-state__body" id="adsEmptyBody"></p></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- row · top posts — Paid (left) | Organic (right), 50/50. A post with any ad spend in the date range counts as Paid,
+             otherwise Organic. Deep links: ?period=30d#top-paid / #top-organic (e.g. from Home's "View analytics →"). -->
+        <div class="analytics-row analytics-row--stretch" id="topRow">
+
+          <!-- Top Paid Content — v2: Meta Ads is connected, so this lists the top 3 posts with ad spend, ranked by leads.
+               Row anatomy = Home "Top content" (12427:416962): rank · thumb · title · leads (+Top chip) · Δ vs last period · CPL.
+               Actual results only (leads, not Home's "forecast leads"). -->
+          <section class="analytics-section" id="top-paid">
+            <div class="section-header-row">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left">
+                  <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Paid Content</h2></div>
+                  <p class="trends-section-header__desc">Your best-performing posts with ad spend in this date range.</p>
+                </div>
+              </div>
+              <a class="text-btn" id="viewAllPaid" href="posts.html?view=paid">View all →</a>
+            </div>
+            <div class="analytics-card forecast-list top-posts-card" id="topPaidList"></div>
+            <div class="empty-state-panel top-posts-card" id="paidEmpty" hidden>
+              <div class="empty-state empty-state--section">
+                <span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span>
+                <div class="empty-state__text"><p class="empty-state__title" id="paidEmptyTitle"></p><p class="empty-state__body" id="paidEmptyBody"></p></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Top Organic Posts — posts with no ad spend in the date range; placeholder data for the initial UI -->
+          <section class="analytics-section" id="top-organic">
+            <div class="section-header-row">
+              <div class="trends-section-header">
+                <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Organic Posts</h2></div><p class="trends-section-header__desc">Your best-performing posts with no ad spend in this date range.</p></div>
+              </div>
+              <div class="filter-row" id="organicControls">
+                <div class="filter-dropdown" id="postsPlatformFilterWrap"></div>
+                <div class="filter-dropdown" id="postsRankFilterWrap"></div>
+                <a class="text-btn" id="viewAllOrganic" href="posts.html?view=organic">View all →</a>
+              </div>
+            </div>
+            <div class="analytics-card forecast-list top-posts-card" id="topPostsList"></div>
+            <div class="empty-state-panel top-posts-card" id="organicEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No organic posts in this date range.</p><p class="empty-state__body">Your best posts without ad spend will be ranked here.</p></div></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ⏸ DEFERRED (2026-10-13) — Content Performance is out of v2's dev scope (deadline). Kept here, hidden, as the
+             record of the agreed design: remove the `hidden` attribute below to bring it back. Fully live in v1 (../analytics.html).
+             Content Performance (v2: last section) — how it landed: one table, grouped by platform or content type; expand a row for the other dimension.
+             Only the metrics every connected platform's API returns: posts, views, likes, comments (engagement = (likes + comments) ÷ views). -->
+        <section class="analytics-section" id="perfSection" hidden data-deferred="2026-10-13">
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Content Performance</h2></div>
+                <p class="trends-section-header__desc">Average results per post. Expand a row to see what worked best inside it.</p>
+              </div>
+            </div>
+            <div class="controls-segmented-control card-tabs" id="perfTabs" role="tablist">
+              <button type="button" class="controls-segment-chip controls-segment-chip--selected" data-tab="platform" role="tab">By platform</button>
+              <button type="button" class="controls-segment-chip" data-tab="type" role="tab">By content type</button>
+            </div>
+          </div>
+          <div class="empty-state-panel " id="perfEmpty" hidden>
+              <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No performance data for this date range.</p><p class="empty-state__body">Views, likes and comments show up once posts in this range are live.</p></div></div>
+            </div>
+          <div class="sc-list sc-list--fluid perf-table" id="perfTable">
+            <div class="sc-list-colhead">
+              <span class="perf-col--name" id="perfNameHead">Platform</span>
+              <span class="perf-col--num">Posts</span>
+              <span class="perf-col--num">Avg views</span>
+              <span class="perf-col--num">Avg likes</span>
+              <span class="perf-col--num">Avg comments</span>
+              <span class="perf-col--num" title="(likes + comments) ÷ views">Engagement</span>
+              <span class="perf-col--best" id="perfBestHead">Best format</span>
+              <span class="perf-col--link"></span>
+            </div>
+            <div id="perfRows"></div>
+          </div>
+          <p class="perf-insight" id="perfInsight"></p>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<a class="home-fab" href="../../../../index.html" title="Back to all screens">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M2 7.2 8 2l6 5.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.3 6.2V13a.8.8 0 0 0 .8.8h3V10h1.8v3.8h3a.8.8 0 0 0 .8-.8V6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Home</span>
+</a>
+
+<script src="analytics-shared.js"></script>
+<script>
+const pageState = { period: '30d', mixTab: 'platform', perfTab: 'platform', expanded: new Set(), spendUnit: null, pubUnit: null }; // unit null = the period's own
+readCustomRange(new URLSearchParams(location.search)); // ?period=custom&from=2026-09-11&to=2026-10-11
+
+// ── Published Posts — stacked over time, split by Platform or Type (pageState.mixTab); the legend is the mix ──
+function renderPublished() {
+  const period = pageState.period;
+  const range = periodRange(period);
+  const units = unitsFor(range.start, range.end);
+  const native = PERIODS[period].unit;
+  const unit = units.includes(pageState.pubUnit) ? pageState.pubUnit : (units.includes(native) ? native : units[0]);
+  buildUnitSelect(document.getElementById('pubUnit'), { units, value: unit, onChange(u) { pageState.pubUnit = u; renderPublished(); } });
+  const buckets = unitBuckets(range.start, range.end, unit);
+  const dim = pageState.mixTab; // 'platform' | 'type'
+  const groups = dim === 'platform' ? PLATFORMS : TYPES;
+  const posts = buildPosts(period);
+  const inB = (p, k) => p.date >= buckets[k].start && p.date <= buckets[k].end;
+  const series = groups.map((g) => ({ ...g, series: buckets.map((_, k) => posts.filter((p) => inB(p, k) && p[dim] === g.name).length) }));
+  const totals = buckets.map((_, k) => series.reduce((s2, g) => s2 + g.series[k], 0));
+  const total = posts.length, max = Math.max(1, ...totals), n = buckets.length;
+  const CHART_H = 200 - 18 - 8 - 18 - 8; // column height minus label + total rows and their gaps
+  const href = (extra) => `posts.html?${new URLSearchParams({ ...periodParams(period), ...extra })}`;
+  // a bar opens its posts: on the period's own unit via the bucket filter, otherwise as that exact date range
+  const segHref = (k, extra) => (unit === native ? href({ ...extra, bucket: k })
+    : `posts.html?${new URLSearchParams({ period: 'custom', from: fmtISO(buckets[k].start), to: fmtISO(buckets[k].end), ...extra })}`);
+  const every = n > 16 ? Math.ceil(n / 8) : 1; // dense days: thin the labels, drop the per-bar totals
+  const chart = document.getElementById('publishedOverTime');
+  chart.classList.toggle('stack-chart--dense', n > 16);
+  document.getElementById('publishedTotal').textContent = total;
+  document.getElementById('publishedTotalLabel').textContent = `Published posts · ${rangeLabel(range)} · ${UNIT_LABEL[unit].toLowerCase()}`;
+  chart.innerHTML = buckets.map((bk, k) => `
+    <div class="stack-chart__col">
+      <span class="stack-chart__total">${n > 16 ? '' : totals[k]}</span>
+      <div class="stack-chart__stack" style="height:${(totals[k] / max) * CHART_H}px">
+        ${series.filter((g) => g.series[k] > 0).map((g) => `<a class="stack-chart__seg" href="${segHref(k, { [dim]: g.name })}" title="${g.name} · ${rangeLabel(bk)}: ${g.series[k]} posts (${Math.round((g.series[k] / totals[k]) * 100)}%) — view posts" style="flex:${g.series[k]} 0 0; background:${g.color}"></a>`).join('')}
+      </div>
+      <span class="stack-chart__label">${k % every === 0 ? bk.label : ''}</span>
+    </div>`).join('');
+  document.getElementById('platformLegend').innerHTML = series.map((g) => {
+    const count = g.series.reduce((a2, c) => a2 + c, 0);
+    const inner = `<span class="platform-legend__dot" style="background:${count ? g.color : 'var(--color-neutral-200)'}"></span>${g.name} <span class="platform-legend__value">${count}</span>`;
+    return count ? `<a class="platform-legend__item platform-legend__item--link" href="${href({ [dim]: g.name })}" title="View ${g.name} posts">${inner}</a>`
+      : `<span class="platform-legend__item platform-legend__item--zero">${inner}</span>`;
+  }).join('');
+}
+
+// ── Meta Ads Spend — one bar per bucket (week; month on All time; day on short custom ranges) + the period total ──
+function renderSpend() {
+  const period = pageState.period;
+  const range = periodRange(period);
+  const units = unitsFor(range.start, range.end);
+  const native = PERIODS[period].unit;
+  const unit = units.includes(pageState.spendUnit) ? pageState.spendUnit : (units.includes(native) ? native : units[0]);
+  const buckets = unitBuckets(range.start, range.end, unit);
+  const spend = spendForBuckets(buckets);
+  const total = spend.reduce((a2, v) => a2 + v, 0);
+  const none = total === 0;
+  document.getElementById('spendCard').hidden = none;
+  document.getElementById('spendEmpty').hidden = !none;
+  document.getElementById('spendDesc').textContent = 'Ad spend for your connected Meta ad account.';
+  if (none) return;
+  buildUnitSelect(document.getElementById('spendUnit'), { units, value: unit, onChange(u) { pageState.spendUnit = u; renderSpend(); } });
+  document.getElementById('spendTotal').textContent = formatUSD(total);
+  document.getElementById('spendTotalLabel').textContent = `Total spend · ${rangeLabel(range)} · ${UNIT_LABEL[unit].toLowerCase()}`;
+  // height = Published chart + its legend (200 + 16 + 18), so both cards end level
+  drawAreaChart(document.getElementById('spendChart'), {
+    values: spend, labels: buckets.map((bk) => bk.label), height: 234, format: formatUSDShort,
+    tip: (i) => `${rangeLabel(buckets[i])} · ${formatUSD(spend[i])}`,
+  });
+}
+
+// ── Meta Ads Performance — the shared campaign table (analytics-shared.js), all campaigns in a 5-row scroll window ──
+const adsTable = mountAdsTable({
+  table: document.getElementById('adsTable'), head: document.getElementById('adsHead'), rows: document.getElementById('adsRows'),
+  windowRows: 5,
+  linkParams: () => new URLSearchParams(periodParams(pageState.period)).toString(),
+  onRender({ source, count, status }) {
+    const none = source === 'none';
+    document.getElementById('adsSourceBadge').hidden = source !== 'mock';
+    document.getElementById('adsControls').hidden = none;
+    document.getElementById('adsCard').hidden = none || count === 0;
+    document.getElementById('adsEmpty').hidden = !(none || count === 0);
+    document.getElementById('adsEmptyTitle').textContent = none ? 'No Meta ad account connected.' : `No ${status.toLowerCase()} ads.`;
+    document.getElementById('adsEmptyBody').textContent = none ? 'Connect a Meta ad account to see how your promoted posts perform.' : 'Try another status.';
+  },
+});
+buildFilter({
+  container: document.getElementById('adsStatusFilterWrap'),
+  label: 'Status', inactiveLabel: 'Status: All', defaultValue: 'All',
+  options: ADS_STATUSES.map((value) => ({ value })),
+  onSelect(value) { adsTable.setStatus(value || 'All'); },
+});
+document.getElementById('adsStatusFilterWrap').classList.add('filter-dropdown--right');
+document.getElementById('adsExport').addEventListener('click', () => openAdsExport(adsTable)); // checked rows, else the current view
+
+// ── Content Performance — grouped by platform or by type; expanding a group shows the other dimension inside it,
+//    each child indexed against its group's own engagement (so platforms are only compared with themselves) ──
+// platform → its social icon (icons/social-*.svg = Figma icon / social / *)
+const SOCIAL_ICON = { Instagram: 'social-instagram.svg', TikTok: 'social-tiktok.svg', Facebook: 'social-facebook.svg', LinkedIn: 'social-linkedin.svg' };
+// content types are text only; platforms get their icon (REDnote keeps a dot in a 20px slot until its icon lands)
+const rowMark = (name, color) => (SOCIAL_ICON[name] ? `<img class="perf-row__icon" src="${ICON}${SOCIAL_ICON[name]}" alt="">`
+  : PLATFORMS.some((p) => p.name === name) ? `<span class="perf-row__mark"><span class="perf-row__dot" style="background:${color}"></span></span>` : '');
+
+function renderPerformance(cells) {
+  const byPlatform = pageState.perfTab === 'platform';
+  const groups = byPlatform ? PLATFORMS : TYPES;
+  const groupKey = byPlatform ? 'platform' : 'type';
+  const childKey = byPlatform ? 'type' : 'platform';
+  const childColor = (name) => (byPlatform ? TYPES : PLATFORMS).find((x) => x.name === name).color;
+  document.getElementById('perfNameHead').textContent = byPlatform ? 'Platform' : 'Content type';
+  document.getElementById('perfBestHead').textContent = byPlatform ? 'Best format' : 'Best platform';
+
+  const metricCells = (s) => {
+    const n = s.posts || 1;
+    return `
+      <span class="perf-col--num perf-cell perf-cell--strong">${s.posts}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatCount(s.views / n) : '—'}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatCount(s.likes / n) : '—'}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatCount(s.comments / n) : '—'}</span>
+      <span class="perf-col--num perf-cell">${s.posts ? formatPct(engagementOf(s)) : '—'}</span>`;
+  };
+
+  let best = null; // strongest child vs its own group, for the insight line
+  const rows = groups.map((g) => {
+    const groupCells = cells.filter((c) => c[groupKey] === g.name);
+    if (!groupCells.length) return '';
+    const total = sumCells(groupCells);
+    const groupEng = engagementOf(total);
+    // children keep the fixed TYPES / PLATFORMS order (Video · Image · Carousel · Multi-Image Post); the Best chip marks the best one
+    const children = groupCells.filter((c) => c.posts > 0).map((c) => ({
+      name: c[childKey], stats: c, index: groupEng ? engagementOf(c) / groupEng - 1 : 0,
+    }));
+    const top = children.length > 1 ? children.reduce((a, b) => (b.index > a.index ? b : a)) : null;
+    const postsHref = (child) => {
+      const q = new URLSearchParams({ ...periodParams(pageState.period), [groupKey]: g.name });
+      if (child) q.set(childKey, child);
+      return `posts.html?${q}`;
+    };
+    if (top && total.posts >= 3 && (!best || top.index > best.index)) best = { group: g.name, ...top };
+    const open = pageState.expanded.has(g.name);
+    const head = `
+      <div class="sc-list-row perf-row" data-group="${g.name}" aria-expanded="${open}" role="button" tabindex="0">
+        <span class="perf-col--name perf-row__name"><img class="perf-row__chevron" src="${ICON}chevron-right.svg" alt="">${rowMark(g.name, g.color)}${g.name}</span>
+        ${metricCells(total)}
+        <span class="perf-col--best">${top ? `<span class="feedback-status-chip feedback-status-chip--green">${top.name}</span>` : '<span class="perf-cell perf-index--down">—</span>'}</span>
+        <span class="perf-col--link"><a class="perf-link" href="${postsHref()}">View posts →</a></span>
+      </div>`;
+    const sub = open ? children.map((ch) => `
+      <div class="sc-list-row perf-sub">
+        <span class="perf-col--name perf-row__name">${rowMark(ch.name, childColor(ch.name))}${ch.name}</span>
+        ${metricCells(ch.stats)}
+        <span class="perf-col--best"><span class="perf-index ${ch.index >= 0 ? 'perf-index--up' : 'perf-index--down'}">${ch.index >= 0 ? '+' : ''}${Math.round(ch.index * 100)}% vs ${g.name} avg</span></span>
+        <span class="perf-col--link"><a class="perf-link" href="${postsHref(ch.name)}">View posts →</a></span>
+      </div>`).join('') : '';
+    return head + sub;
+  }).join('');
+  document.getElementById('perfRows').innerHTML = rows;
+
+  const insight = document.getElementById('perfInsight');
+  insight.hidden = !best;
+  if (best) {
+    const what = byPlatform ? `${best.name.toLowerCase()}s on ${best.group}` : `${best.group.toLowerCase()}s on ${best.name}`;
+    insight.innerHTML = `<img src="${ICON}ai-sparkle-outline-color.svg" alt="">Pulse insight: ${what} earned ${Math.round(best.index * 100)}% more engagement than ${byPlatform ? `${best.group}'s` : `the ${best.group.toLowerCase()}`} average this period.`;
+  }
+}
+
+function renderPage() {
+  const cells = buildCells(pageState.period);
+  const total = sumCells(cells).posts;
+  document.getElementById('kpiPublished').textContent = total;
+  document.getElementById('kpiPublishedSub').textContent = rangeLabel(periodRange(pageState.period));
+  // no posts in the range (#state=range-empty, or a custom range with nothing in it) → each section's empty panel
+  const none = total === 0;
+  const swap = (cardId, emptyId) => { document.getElementById(cardId).hidden = none; document.getElementById(emptyId).hidden = !none; };
+  swap('overTimeCard', 'overTimeEmpty');
+  renderSpend(); // spend has its own empty panel — ads can run in a range with no new posts
+  swap('perfTable', 'perfEmpty');
+  document.getElementById('mixTabs').hidden = none;
+  document.getElementById('perfTabs').hidden = none;
+  if (none) { document.getElementById('perfInsight').hidden = true; return; }
+  renderPublished();
+  renderPerformance(cells);
+}
+
+// #state=empty — new account: zeroed stats, one page-level empty state, data sections hidden (Meta Ads stays)
+if (DATA_STATE === 'empty') {
+  document.getElementById('kpiFailed').textContent = '0';
+  document.getElementById('kpiFailedSub').textContent = 'none';
+  document.getElementById('kpiSpend').textContent = '$0.00';
+  document.getElementById('emptyAccount').hidden = false;
+  ['publishingRow', 'perfSection', 'topRow'].forEach((id) => { document.getElementById(id).hidden = true; });
+}
+
+function bindTabs(id, key) {
+  document.getElementById(id).addEventListener('click', (e) => {
+    const chip = e.target.closest('.controls-segment-chip');
+    if (!chip) return;
+    document.querySelectorAll(`#${id} .controls-segment-chip`).forEach((c) => c.classList.toggle('controls-segment-chip--selected', c === chip));
+    pageState[key] = chip.dataset.tab;
+    if (key === 'perfTab') pageState.expanded.clear();
+    renderPage();
+  });
+}
+bindTabs('mixTabs', 'mixTab');
+bindTabs('perfTabs', 'perfTab');
+
+function togglePerfRow(row) {
+  const name = row.dataset.group;
+  if (pageState.expanded.has(name)) pageState.expanded.delete(name); else pageState.expanded.add(name);
+  renderPerformance(buildCells(pageState.period));
+}
+document.getElementById('perfRows').addEventListener('click', (e) => {
+  if (e.target.closest('.perf-link')) return; // "View posts →" navigates instead of expanding
+  const row = e.target.closest('.perf-row');
+  if (row) togglePerfRow(row);
+});
+document.getElementById('perfRows').addEventListener('keydown', (e) => {
+  const row = e.target.closest('.perf-row');
+  if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); togglePerfRow(row); }
+});
+
+// ── Top Organic Posts — posts with no ad spend in the date range, top 3 by the selected Rank by metric (placeholder data) ──
+// Common metrics only (views, likes, comments); Engagement Rate is derived from them, same as Content Performance.
+const RANK_METRICS = [
+  { value: 'Views', key: 'views' },
+  { value: 'Likes', key: 'likes' },
+  { value: 'Comments', key: 'comments' },
+  { value: 'Engagement Rate', key: 'engagement' },
+];
+const topPostsState = { platform: 'All Platforms', rank: 'Views' };
+
+// "View all →" opens Post Performance with the same date range / platform / ranking, so its list starts with these 3
+function updateViewAllLinks() {
+  const q = new URLSearchParams(periodParams(pageState.period));
+  document.getElementById('viewAllCampaigns').href = `campaigns.html?${q}`; // full list; the period only feeds the breadcrumb back
+  document.getElementById('viewAllPaid').href = `posts.html?view=paid&sort=Leads&${q}`; // same ranking as the 3 rows here
+  if (topPostsState.platform !== 'All Platforms') q.set('platform', topPostsState.platform);
+  if (topPostsState.rank !== 'Views') q.set('sort', topPostsState.rank);
+  document.getElementById('viewAllOrganic').href = `posts.html?view=organic&${q}`;
+}
+
+// ── Top Paid Content — top 3 posts with ad spend in the range, by leads (Meta Ads covers Instagram / Facebook) ──
+function renderTopPaid() {
+  const card = document.getElementById('topPaidList'), empty = document.getElementById('paidEmpty');
+  const paid = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => p.paid)
+    .sort((a, b) => b.leads - a.leads).slice(0, 3);
+  card.hidden = paid.length === 0; empty.hidden = paid.length > 0;
+  document.getElementById('viewAllPaid').hidden = paid.length === 0;
+  if (!paid.length) {
+    const notConnected = DATA_STATE === 'empty';
+    document.getElementById('paidEmptyTitle').textContent = notConnected ? 'Paid results will appear once Meta Ads is connected.' : 'No paid posts in this date range.';
+    document.getElementById('paidEmptyBody').textContent = notConnected ? 'Boosted posts and ads will be ranked here by leads and CPL.' : 'Posts with ad spend will be ranked here by leads.';
+    return;
+  }
+  // change vs the previous period of the same length (placeholder, always a gain for the top 3)
+  const delta = (p) => Math.round(3 + 12 * rand(p.leads * 1.31 + p.spend));
+  card.innerHTML = paid.map((p, i) => `
+    <div class="forecast-row">
+      <span class="forecast-row__rank">${i + 1}</span>
+      <img class="forecast-row__thumb" src="${THUMB}${p.img}" alt="">
+      <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
+      <div class="paid-metric paid-metric--leads${i === 0 ? ' has-chip' : ''}">${i === 0 ? '<span class="feedback-status-chip feedback-status-chip--green">Top</span>' : ''}<p class="paid-metric__value">${fmtInt(p.leads)}</p><p class="paid-metric__label">leads</p></div>
+      <div class="paid-metric paid-metric--delta"><span class="paid-delta"><img src="${ICON}arrow-up-14-green.svg" alt="">${delta(p)}%</span><p class="paid-metric__label">vs. last period</p></div>
+      <div class="paid-metric paid-metric--cpl"><p class="paid-metric__value">${formatUSD(p.cpl)}</p><p class="paid-metric__label">CPL</p></div>
+    </div>`).join('');
+}
+
+function renderTopPosts() {
+  renderTopPaid();
+  updateViewAllLinks();
+  const card = document.getElementById('topPostsList');
+  const metric = RANK_METRICS.find((m) => m.value === topPostsState.rank).key;
+  // the same posts Post Performance lists (shared dataset), organic only
+  const organic = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => !p.paid); // v2: paid posts go to Top Paid
+  const posts = organic
+    .filter((p) => topPostsState.platform === 'All Platforms' || p.platform === topPostsState.platform)
+    .sort((a, b) => b[metric] - a[metric])
+    .slice(0, 3);
+
+  // nothing organic in the range → hide the filters / View all too; nothing on one platform → keep them so it can be cleared
+  document.getElementById('organicControls').hidden = organic.length === 0;
+  const empty = document.getElementById('organicEmpty');
+  card.hidden = posts.length === 0;
+  empty.hidden = posts.length > 0;
+  if (posts.length === 0) {
+    empty.querySelector('.empty-state__title').textContent = organic.length ? `No organic posts on ${topPostsState.platform} in this date range.` : 'No organic posts in this date range.';
+    return;
+  }
+  card.innerHTML = posts.map((p, i) => `
+    <div class="forecast-row">
+      <span class="forecast-row__rank">${i + 1}</span>
+      <img class="forecast-row__thumb" src="${THUMB}${p.img}" alt="">
+      <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.views)}</p><p class="post-metric__label">Views</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.likes)}</p><p class="post-metric__label">Likes</p></div>
+      <div class="post-metric"><p class="post-metric__value">${formatCount(p.comments)}</p><p class="post-metric__label">Comments</p></div>
+    </div>`).join('');
+}
+
+buildFilter({
+  container: document.getElementById('postsRankFilterWrap'),
+  label: 'Rank by',
+  inactiveLabel: 'Rank by: Views',
+  defaultValue: 'Views',
+  options: RANK_METRICS.map((m) => ({ value: m.value })),
+  onSelect(value) {
+    topPostsState.rank = value || 'Views';
+    renderTopPosts();
+  },
+});
+
+buildFilter({
+  container: document.getElementById('postsPlatformFilterWrap'),
+  label: 'Platform',
+  defaultValue: 'All Platforms',
+  options: ['All Platforms', ...PLATFORMS.map((p) => p.name)].map((value) => ({ value })),
+  onSelect(value) {
+    topPostsState.platform = value || 'All Platforms';
+    renderTopPosts();
+  },
+});
+
+// ── Period selector — real Segment Chip toggle; "Custom" reveals the date-range row inline; drives every section ──
+document.querySelectorAll('#periodSelector .segment-chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#periodSelector .segment-chip').forEach((c) => c.classList.remove('segment-chip--active'));
+    chip.classList.add('segment-chip--active');
+    document.getElementById('customRange').hidden = chip.dataset.period !== 'custom';
+    pageState.period = chip.dataset.period;
+    pageState.spendUnit = pageState.pubUnit = null; // new range → each chart back to its default unit
+    renderPage();
+    renderTopPosts();
+    syncPeriodUrl();
+  });
+});
+// hairline under the period bar once the page has scrolled under it
+document.querySelector('.analytics-main').addEventListener('scroll', (e) => document.getElementById('periodBar').classList.toggle('is-stuck', e.target.scrollTop > 120));
+// keep ?period (and the custom dates) in the URL so a reload / shared link opens the same range
+function syncPeriodUrl() {
+  history.replaceState(null, '', `?${new URLSearchParams(periodParams(pageState.period))}${location.hash}`);
+  adsTable.render(); // campaign links carry the period for the breadcrumb back
+}
+bindCustomRange({
+  fromField: document.getElementById('customFrom'),
+  toField: document.getElementById('customTo'),
+  applyBtn: document.getElementById('customApply'),
+  onApply() { pageState.spendUnit = pageState.pubUnit = null; renderPage(); renderTopPosts(); syncPeriodUrl(); },
+});
+// Deep link (e.g. Home's "View analytics →" on its Paid / Organic tab): ?period=30d|90d|all|custom preselects the date range;
+// #top-paid / #top-organic scrolls to that list and rings its card
+const linkedPeriod = new URLSearchParams(location.search).get('period');
+const linkedChip = linkedPeriod && document.querySelector(`#periodSelector .segment-chip[data-period="${linkedPeriod}"]`);
+if (linkedChip) linkedChip.click(); else { renderPage(); renderTopPosts(); }
+const ARRIVAL_TARGETS = { '#top-paid': 'topPaidList', '#top-organic': 'topPostsList' };
+if (ARRIVAL_TARGETS[location.hash]) {
+  window.addEventListener('load', () => {
+    const section = document.querySelector(location.hash);
+    const main = document.querySelector('.analytics-main');
+    main.scrollTop = section.offsetTop - main.offsetTop - 28;
+    document.getElementById(ARRIVAL_TARGETS[location.hash]).classList.add('is-arrival');
+  });
+}
+
+fitFrameToViewport();
+</script>
+</body>
+</html>
