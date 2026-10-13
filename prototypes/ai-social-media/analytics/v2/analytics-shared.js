@@ -103,6 +103,28 @@ const fmtISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,
 const parseISO = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
 // query params that carry a period between Analytics and Post Performance (custom adds its dates)
 const periodParams = (key) => (key === 'custom' ? { period: key, from: fmtISO(PERIODS.custom.start), to: fmtISO(PERIODS.custom.end) } : { period: key });
+// Detail pages (campaign.html / post.html) — their own period selector, preset from the list they were opened from.
+// The part of a run (start → last) inside the picked range; 'all' = the whole run (lifetime), null = no overlap.
+function detailSpan(periodKey, start, last) {
+  if (periodKey === 'all') return { start, end: last };
+  const r = periodRange(periodKey);
+  const s = r.start > start ? r.start : start, e = r.end < last ? r.end : last;
+  return s > e ? null : { start: s, end: e };
+}
+// binds the Segment Chip track (#periodSelector) + Custom date range (#customRange) on a detail page
+function bindDetailPeriod({ initial, onChange }) {
+  const chips = document.querySelectorAll('#periodSelector .segment-chip');
+  const select = (key) => {
+    chips.forEach((c) => c.classList.toggle('segment-chip--active', c.dataset.period === key));
+    document.getElementById('customRange').hidden = key !== 'custom';
+  };
+  chips.forEach((chip) => chip.addEventListener('click', () => { select(chip.dataset.period); onChange(chip.dataset.period); }));
+  bindCustomRange({
+    fromField: document.getElementById('customFrom'), toField: document.getElementById('customTo'),
+    applyBtn: document.getElementById('customApply'), onApply: () => onChange('custom'),
+  });
+  select(initial);
+}
 function readCustomRange(params) {
   const from = parseISO(params.get('from')), to = parseISO(params.get('to'));
   if (from && to && from <= to && to <= TODAY) setCustomRange(from, to);
@@ -282,19 +304,33 @@ function buildPosts(periodKey, { adsConnected = false } = {}) {
   posts.forEach((post, i) => {
     post.id = i;
     post.engagement = engagementOf(post);
-    // any ad spend in the date range → Paid. Meta Ads covers Instagram / Facebook only.
-    post.paid = adsConnected && META_ADS_PLATFORMS.includes(post.platform) && rand(i * 3.3 + 0.7) < 0.35;
-    if (post.paid) {
-      post.spend = 40 + 360 * rand(i * 5.1 + 0.2);
-      post.leads = Math.max(1, Math.round(post.spend / (6 + 22 * rand(i * 7.7 + 0.9))));
-      post.cpl = post.spend / post.leads;
-    }
+    post.paid = false;
   });
-  // titles go out to the posts the Top lists show first — paid by leads (Top Paid), then the rest by views (Top Organic) —
-  // so those get the distinct titles and repeats ("· Part 2") sink to the long tail
-  const byRank = [...posts.filter((p) => p.paid).sort((a, b) => b.leads - a.leads), ...posts.filter((p) => !p.paid).sort((a, b) => b.views - a.views)];
-  byRank.forEach((post, i) => {
-    post.title = POST_TITLES[i % POST_TITLES.length] + (i >= POST_TITLES.length ? ` · Part ${Math.floor(i / POST_TITLES.length) + 1}` : '');
+  // Paid = a Pulse ad (Meta Ads table) delivered in the date range. Each one sits on a post of its platform (same type
+  // first, published closest to the ad's start) and brings its content + spend / leads for the days inside the range,
+  // so Top Paid, Post Performance and the Promoted Content detail all show the same post.
+  if (adsConnected) {
+    const { start, end } = periodRange(periodKey);
+    META_CAMPAIGNS_MOCK.filter((c) => c.spent !== null && parseISO(c.starts) <= end && parseISO(c.ends) >= start).forEach((c) => {
+      const days = campaignDaily(c).filter((d) => d.date >= start && d.date <= end);
+      if (!days.length) return;
+      const free = posts.filter((p) => !p.paid && p.platform === c.content.platform);
+      const pool = free.some((p) => p.type === c.content.type) ? free.filter((p) => p.type === c.content.type) : free;
+      if (!pool.length) return;
+      const anchor = parseISO(c.starts) < start ? start : parseISO(c.starts);
+      const host = pool.reduce((m, p) => (Math.abs(diffDays(anchor, p.date)) < Math.abs(diffDays(anchor, m.date)) ? p : m));
+      Object.assign(host, { paid: true, campaignId: c.id, title: c.content.title, img: c.content.img, type: c.content.type });
+      host.spend = days.reduce((a, d) => a + d.spend, 0);
+      host.leads = c.resultType === 'Reach' ? 0 : days.reduce((a, d) => a + d.results, 0); // a reach ad brings no leads
+      host.cpl = host.leads ? host.spend / host.leads : null;
+    });
+  }
+  // organic titles go out by views (Top Organic first), so the distinct titles land there and repeats ("· Part 2")
+  // sink to the long tail; titles already used by an ad are skipped
+  const adTitles = new Set(META_CAMPAIGNS_MOCK.map((c) => c.content.title));
+  const titles = POST_TITLES.filter((t) => !adTitles.has(t));
+  posts.filter((p) => !p.paid).sort((a, b) => b.views - a.views).forEach((post, i) => {
+    post.title = titles[i % titles.length] + (i >= titles.length ? ` · Part ${Math.floor(i / titles.length) + 1}` : '');
     post.img = POST_THUMBS[i % POST_THUMBS.length];
   });
   return posts;
@@ -408,6 +444,17 @@ function campaignDaily(c) {
     return { date: addDays(start, i), spend, results: results[i], cpr: results[i] ? spend / results[i] : null };
   });
 }
+// one organic post's daily views / likes / comments, published → today (post.html). Most of it lands in the first days and
+// tails off; integer splits add back up to the post's totals in its Post Performance row.
+function postDaily(post) {
+  const n = diffDays(post.date, TODAY) + 1, seed = post.id * 13.7 + 5;
+  const w = Array.from({ length: n }, (_, i) => Math.exp(-i / 5) * (0.6 + 0.8 * rand(seed + i * 1.1)) + 0.06 * (0.5 + rand(seed + i * 2.3)));
+  const views = splitByWeights(Math.round(post.views), w);
+  const likes = splitByWeights(Math.round(post.likes), w.map((x, i) => x * (0.8 + 0.4 * rand(seed * 2 + i))));
+  const comments = splitByWeights(Math.round(post.comments), w.map((x, i) => x * (0.7 + 0.6 * rand(seed * 3 + i))));
+  return w.map((_, i) => ({ date: addDays(post.date, i), views: views[i], likes: likes[i], comments: comments[i] }));
+}
+
 // the one seam for the integration: resolve { source: 'meta' | 'mock' | 'none', campaigns }
 function getMetaCampaigns() {
   if (DATA_STATE === 'empty') return Promise.resolve({ source: 'none', campaigns: [] }); // new account: no ad account
@@ -441,7 +488,7 @@ const ADS_COLUMNS = [
 // mount the table: { table, head, rows } elements; windowRows = visible rows before it scrolls (null = full height);
 // onRender({ source, count, status }) lets the page handle its own empty / not-connected states
 // only = an ad id → just that row (the detail page's header), with plain column heads and no self-link
-function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', only = null, onRender = () => {} }) {
+function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', only = null, rowData = (c) => c, onRender = () => {} }) {
   const state = { status: 'All', sortKey: null, sortDir: null, data: { source: 'mock', campaigns: [] }, selected: new Set(), list: [] };
   const dash = '<span class="ads-cell ads-cell--muted">—</span>';
   let menu = null;
@@ -462,7 +509,7 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
 
   function render() {
     const { source, campaigns } = state.data;
-    let list = campaigns.filter((c) => (only ? c.id === only : state.status === 'All' || c.delivery === state.status));
+    let list = campaigns.filter((c) => (only ? c.id === only : state.status === 'All' || c.delivery === state.status)).map(rowData);
     const col = ADS_COLUMNS.find((c) => c.key === state.sortKey);
     if (col) {
       const dir = state.sortDir === 'asc' ? 1 : -1;
@@ -477,7 +524,7 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
       <div class="sc-list-row" data-campaign="${c.id}">
         <span class="ads-col--check"><input type="checkbox" class="checkbox" data-select="${c.id}" aria-label="Select ${c.content.title}"${state.selected.has(c.id) ? ' checked' : ''}></span>
         <span class="ads-col--toggle"><span class="field-switch${c.on ? ' on' : ''}" role="img" aria-label="${c.on ? 'On' : 'Off'}"><span class="knob"></span></span></span>
-        <span class="ads-col--name ads-content"><img class="ads-content__thumb" src="${THUMB}${c.content.img}" alt=""><span class="ads-content__text">${only ? `<span class="ads-campaign ads-campaign--static">${c.content.title}</span>` : `<a class="ads-campaign" href="campaign.html?id=${c.id}${lp ? `&${lp}` : ''}">${c.content.title}</a>`}<span class="ads-sub">${c.content.platform} · ${c.content.type} · ${c.name}</span></span></span>
+        <span class="ads-col--name ads-content"><img class="ads-content__thumb" src="${THUMB}${c.content.img}" alt=""><span class="ads-content__text">${only ? `<span class="ads-campaign ads-campaign--static">${c.content.title}</span>` : `<a class="ads-campaign" href="campaign.html?id=${c.id}&range=all${lp ? `&${lp}` : ''}">${c.content.title}</a>`}<span class="ads-sub">${c.content.platform} · ${c.content.type} · ${c.name}</span></span></span>
         <span class="ads-col--delivery"><span class="ads-delivery${dCls}"><span class="ads-delivery__dot"></span>${c.delivery}</span></span>
         <span class="ads-col--num ads-col--wide">${c.results === null ? dash : `<span class="ads-cell">${fmtInt(c.results)}</span><span class="ads-sub">${c.resultType}</span>`}</span>
         <span class="ads-col--num ads-col--wide">${c.costPerResult === null ? dash : `<span class="ads-cell">${formatUSD(c.costPerResult)}</span><span class="ads-sub">${c.costType}</span>`}</span>

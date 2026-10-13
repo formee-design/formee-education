@@ -188,6 +188,10 @@
   .forecast-list{display:flex; flex-direction:column; width:100%; overflow:hidden;}
   .forecast-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:16px 16px 16px 20px; border-bottom:1px solid var(--color-neutral-150);}
   .forecast-row:last-child{border-bottom:none;}
+  /* Top Paid → Promoted Content detail (campaign.html), Top Organic → Post detail (post.html); the whole row is the link */
+  a.forecast-row{text-decoration:none; color:inherit; cursor:pointer;}
+  a.forecast-row:hover{background:var(--color-neutral-50);}
+  a.forecast-row:hover .forecast-row__name{text-decoration:underline;}
   .forecast-row__rank{width:12px; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .forecast-row__thumb{width:56px; height:56px; border-radius:8px; object-fit:cover; flex-shrink:0;}
   .forecast-row__title{display:flex; flex-direction:column; gap:2px; flex:1 0 0; min-width:0;}
@@ -419,7 +423,7 @@
           <div class="section-header-row">
             <div class="trends-section-header">
               <div class="trends-section-header__left">
-                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Performance</h2><span class="trends-section-header__badge" id="adsSourceBadge" title="Mock data for the initial UI — not from the Meta API yet">Sample data</span></div>
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Performance</h2></div>
                 <p class="trends-section-header__desc">Lifetime totals for the posts you promoted on Meta from Pulse — not limited by the date range above.</p>
               </div>
             </div>
@@ -613,7 +617,6 @@ const adsTable = mountAdsTable({
   linkParams: () => new URLSearchParams(periodParams(pageState.period)).toString(),
   onRender({ source, count, status }) {
     const none = source === 'none';
-    document.getElementById('adsSourceBadge').hidden = source !== 'mock';
     document.getElementById('adsControls').hidden = none;
     document.getElementById('adsCard').hidden = none || count === 0;
     document.getElementById('adsEmpty').hidden = !(none || count === 0);
@@ -771,12 +774,18 @@ function updateViewAllLinks() {
   const q = new URLSearchParams(periodParams(pageState.period));
   document.getElementById('viewAllCampaigns').href = `campaigns.html?${q}`; // full list; the period only feeds the breadcrumb back
   document.getElementById('viewAllPaid').href = `posts.html?view=paid&sort=Leads&${q}`; // same ranking as the 3 rows here
+  document.getElementById('viewAllOrganic').href = `posts.html?${organicQuery()}`;
+}
+// Post Performance, organic, with this range / platform / ranking
+function organicQuery() {
+  const q = new URLSearchParams({ view: 'organic', ...periodParams(pageState.period) });
   if (topPostsState.platform !== 'All Platforms') q.set('platform', topPostsState.platform);
   if (topPostsState.rank !== 'Views') q.set('sort', topPostsState.rank);
-  document.getElementById('viewAllOrganic').href = `posts.html?view=organic&${q}`;
+  return q;
 }
 
-// ── Top Paid Content — top 3 posts with ad spend in the range, by leads (Meta Ads covers Instagram / Facebook) ──
+// ── Top Paid Content — top 3 Pulse ads delivered in the range, by leads (Meta Ads covers Instagram / Facebook);
+//    a row opens that ad's Promoted Content detail ──
 function renderTopPaid() {
   const card = document.getElementById('topPaidList'), empty = document.getElementById('paidEmpty');
   const paid = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => p.paid)
@@ -791,15 +800,16 @@ function renderTopPaid() {
   }
   // change vs the previous period of the same length (placeholder, always a gain for the top 3)
   const delta = (p) => Math.round(3 + 12 * rand(p.leads * 1.31 + p.spend));
+  const lp = new URLSearchParams(periodParams(pageState.period)); // the detail opens on this range (and its breadcrumb leads back to it)
   card.innerHTML = paid.map((p, i) => `
-    <div class="forecast-row">
+    <a class="forecast-row" href="campaign.html?id=${p.campaignId}&${lp}">
       <span class="forecast-row__rank">${i + 1}</span>
       <img class="forecast-row__thumb" src="${THUMB}${p.img}" alt="">
       <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
       <div class="paid-metric paid-metric--leads${i === 0 ? ' has-chip' : ''}">${i === 0 ? '<span class="feedback-status-chip feedback-status-chip--green">Top</span>' : ''}<p class="paid-metric__value">${fmtInt(p.leads)}</p><p class="paid-metric__label">leads</p></div>
       <div class="paid-metric paid-metric--delta"><span class="paid-delta"><img src="${ICON}arrow-up-14-green.svg" alt="">${delta(p)}%</span><p class="paid-metric__label">vs. last period</p></div>
-      <div class="paid-metric paid-metric--cpl"><p class="paid-metric__value">${formatUSD(p.cpl)}</p><p class="paid-metric__label">CPL</p></div>
-    </div>`).join('');
+      <div class="paid-metric paid-metric--cpl"><p class="paid-metric__value">${p.cpl === null ? '—' : formatUSD(p.cpl)}</p><p class="paid-metric__label">CPL</p></div>
+    </a>`).join('');
 }
 
 function renderTopPosts() {
@@ -823,15 +833,16 @@ function renderTopPosts() {
     empty.querySelector('.empty-state__title').textContent = organic.length ? `No organic posts on ${topPostsState.platform} in this date range.` : 'No organic posts in this date range.';
     return;
   }
+  const lp = new URLSearchParams(periodParams(pageState.period)); // the detail opens on this range (and its breadcrumb leads back to it)
   card.innerHTML = posts.map((p, i) => `
-    <div class="forecast-row">
+    <a class="forecast-row" href="post.html?id=${p.id}&${lp}">
       <span class="forecast-row__rank">${i + 1}</span>
       <img class="forecast-row__thumb" src="${THUMB}${p.img}" alt="">
       <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
       <div class="post-metric"><p class="post-metric__value">${formatCount(p.views)}</p><p class="post-metric__label">Views</p></div>
       <div class="post-metric"><p class="post-metric__value">${formatCount(p.likes)}</p><p class="post-metric__label">Likes</p></div>
       <div class="post-metric"><p class="post-metric__value">${formatCount(p.comments)}</p><p class="post-metric__label">Comments</p></div>
-    </div>`).join('');
+    </a>`).join('');
 }
 
 buildFilter({

@@ -39,6 +39,8 @@
 <link rel="stylesheet" href="../../../../components/ai-social-media/controls-toggles.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/input.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/editor-panel-chrome.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/segment-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/date-picker.css">
 <link rel="stylesheet" href="analytics-shared.css">
 <style>
   *{box-sizing:border-box;}
@@ -84,6 +86,14 @@
 
 
 
+  /* period selector — same as Analytics / Post Performance (Segment Chip track; Custom = two date fields + Apply) */
+  .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
+  .period-row{display:flex; align-items:center; gap:var(--spacing-md);}
+  .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-md);}
+  .period-selector__to{font-size:var(--font-size-text-sm); color:var(--color-neutral-500);}
+  .input-field--date{width:240px; cursor:pointer;}
+  .date-field{position:relative; display:flex;}
+  .date-picker-popover{position:absolute; top:calc(100% + 8px); left:0; z-index:40; width:376px;}
   [hidden]{display:none !important;}
 
   .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
@@ -177,11 +187,33 @@
 
       <div class="analytics-header">
         <div class="page-header__title-block">
-          <div class="title-row"><h1 class="page-header__title" id="campaignName"></h1><span class="trends-section-header__badge" id="sourceBadge" title="Mock data for the initial UI — not from the Meta API yet">Sample data</span><button type="button" class="text-btn export-btn title-row__action" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button></div>
+          <div class="title-row"><h1 class="page-header__title" id="campaignName"></h1><button type="button" class="text-btn export-btn title-row__action" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button></div>
           <p class="campaign-meta" id="campaignMeta"></p>
         </div>
-        <!-- 2. This ad's row from the Meta Ads table — same columns and look as Analytics / Promoted Content -->
-        <p class="lifetime-caption">Lifetime totals</p>
+        <!-- period selector — same Segment Chip track + Custom range as Analytics; preset from the list this was opened from -->
+        <div class="period-row">
+          <div class="period-selector" id="periodSelector">
+            <div class="segment-chip" data-period="30d">30 days</div>
+            <div class="segment-chip" data-period="90d">90 days</div>
+            <div class="segment-chip" data-period="all">All time</div>
+            <div class="segment-chip" data-period="custom">Custom</div>
+          </div>
+          <div class="period-selector__extra" id="customRange" hidden>
+            <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customFrom" aria-label="Start date">
+              <span class="input-field__text"></span>
+              <span class="input-field__icon input-field__icon--18"><img src="../../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+            </div></span>
+            <span class="period-selector__to">to</span>
+            <span class="date-field"><div class="input-field input-field--date input-field--sm" id="customTo" aria-label="End date">
+              <span class="input-field__text"></span>
+              <span class="input-field__icon input-field__icon--18"><img src="../../../../components/ai-social-media/icons/input/icon-calendar.svg" alt=""></span>
+            </div></span>
+            <button type="button" class="actions-btn actions-btn--primary" id="customApply">Apply</button>
+          </div>
+        </div>
+        <!-- 2. This ad's row from the Meta Ads table — same columns and look as Analytics / Promoted Content; its numbers
+             follow the period above (All time = lifetime totals) -->
+        <p class="lifetime-caption" id="totalsCaption">Lifetime totals</p>
         <div class="analytics-card ads-card">
           <div class="sc-list sc-list--fluid ads-table" id="adsTable">
             <div class="sc-list-colhead" id="adsHead"></div>
@@ -192,7 +224,7 @@
 
       <div class="analytics-body">
 
-        <!-- 3. Performance Over Time — daily, over the campaign's run (start → today, or → end once it's over) -->
+        <!-- 3. Performance Over Time — the part of the ad's run inside the picked period (All time = start → today / end) -->
         <section class="analytics-section">
           <div class="section-header-row">
             <div class="trends-section-header">
@@ -248,39 +280,70 @@ if (PERIODS[fromPeriod]) {
   document.getElementById('crumbAnalytics').href = `analytics.html?${q}`;
   document.getElementById('crumbCampaigns').href = `campaigns.html?${q}`;
 }
-const ICONS = (n) => `${ICON}${n}`;
+// the range the page opens on: ?range=all from the lifetime lists (Meta Ads table / Promoted Content), else the list's
+// ?period (Top Paid / Post Performance), else All time. The selector above the table changes it from there.
+let period = PERIODS[params.get('range')] ? params.get('range') : PERIODS[fromPeriod] ? fromPeriod : 'all';
 const DASH = '—';
-const fmtRange = (a, b) => (a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`);
+const fmtRange = (a, b) => (diffDays(a, b) === 0 ? fmtDate(a) : a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`);
 const deliveryChip = (d) => `<span class="ads-delivery${d === 'Active' ? ' ads-delivery--active' : d === 'In Draft' ? ' ads-delivery--draft' : ''}"><span class="ads-delivery__dot"></span>${d}</span>`;
-let model = null, metric = 'spend', unit = null; // unit null = daily (or the finest the run allows)
+let model = null, adsTable = null, metric = 'spend', unit = null; // unit null = the finest the range allows
+const perKOf = (c) => (c.resultType === 'Reach' ? 1000 : 1); // Meta prices Reach per 1,000 people reached
+
+// the ad's delivery inside the picked period — null span = it didn't run then
+function current() {
+  const c = model.campaign, { start, last } = campaignRange(c);
+  const span = last < start ? null : detailSpan(period, start, last);
+  const days = span ? model.daily.filter((d) => d.date >= span.start && d.date <= span.end) : [];
+  return { c, span, days };
+}
+// the table row for the period — results / spend from the daily insights; impressions / reach pro-rated by spend (placeholder)
+function rowFor(c) {
+  if (c.spent === null || period === 'all') return c;
+  const { days } = current();
+  if (!days.length) return { ...c, results: null, costPerResult: null, spent: null, impressions: null, reach: null };
+  const spent = days.reduce((a, d) => a + d.spend, 0), results = days.reduce((a, d) => a + d.results, 0), share = spent / c.spent;
+  return { ...c, results, spent, costPerResult: results ? (spent / results) * perKOf(c) : null, impressions: Math.round(c.impressions * share), reach: Math.round(c.reach * share) };
+}
+function renderTotals() {
+  const { c, span } = current();
+  document.getElementById('totalsCaption').textContent = period === 'all' || c.spent === null ? 'Lifetime totals'
+    : span ? `Totals · ${fmtRange(span.start, span.end)}` : `Totals · ${rangeLabel(periodRange(period))} — no delivery`;
+  adsTable.render();
+}
 
 function renderChart() {
-  const { campaign: c, daily } = model;
+  const { c, span, days } = current();
   const { start, end, last } = campaignRange(c);
-  const draft = c.spent === null, notStarted = !draft && last < start;
-  document.getElementById('chartCard').hidden = draft || notStarted || !daily.length;
-  document.getElementById('chartEmpty').hidden = !(draft || notStarted || !daily.length);
-  document.getElementById('metricTabs').hidden = draft || !daily.length;
-  if (draft || !daily.length) {
+  const draft = c.spent === null, idle = draft || !model.daily.length;
+  document.getElementById('chartCard').hidden = idle || !span;
+  document.getElementById('chartEmpty').hidden = !(idle || !span);
+  document.getElementById('metricTabs').hidden = idle || !span;
+  if (idle) {
     document.getElementById('chartDesc').textContent = `Scheduled ${fmtRange(start, end)}`;
     document.getElementById('chartEmptyTitle').textContent = draft ? 'This campaign is still a draft.' : 'No delivery yet.';
     document.getElementById('chartEmptyBody').textContent = "Daily spend, results and cost per result will chart here once it's published and starts delivering.";
     return;
   }
-  const live = end > TODAY;
-  // Daily / Weekly / Monthly over the ad's run — same slicing as the Analytics charts
-  const units = unitsFor(start, last);
-  const perK = c.resultType === 'Reach' ? 1000 : 1; // Meta prices Reach per 1,000 people reached
+  if (!span) {
+    document.getElementById('chartDesc').textContent = `Ran ${fmtRange(start, end)}`;
+    document.getElementById('chartEmptyTitle').textContent = 'No delivery in this date range.';
+    document.getElementById('chartEmptyBody').textContent = `This ad ran ${fmtRange(start, end)}. Pick another range or All time.`;
+    return;
+  }
+  const live = end > TODAY && span.end >= last;
+  // Daily / Weekly / Monthly over the range — same slicing as the Analytics charts
+  const units = unitsFor(span.start, span.end);
+  const perK = perKOf(c);
   const u = units.includes(unit) ? unit : units[0];
   buildUnitSelect(document.getElementById('chartUnit'), { units, value: u, onChange(v) { unit = v; renderChart(); } });
-  const buckets = unitBuckets(start, last, u).map((bk) => {
-    const days = daily.filter((d) => d.date >= bk.start && d.date <= bk.end);
-    const spend = days.reduce((a, d) => a + d.spend, 0), results = days.reduce((a, d) => a + d.results, 0);
+  const buckets = unitBuckets(span.start, span.end, u).map((bk) => {
+    const bd = days.filter((d) => d.date >= bk.start && d.date <= bk.end);
+    const spend = bd.reduce((a, d) => a + d.spend, 0), results = bd.reduce((a, d) => a + d.results, 0);
     return { ...bk, spend, results, cpr: results ? (spend / results) * perK : null };
   });
-  document.getElementById('chartDesc').textContent = `${UNIT_LABEL[u]}, ${fmtRange(start, last)}${live ? ' (live — ends ' + fmtDay(end) + ')' : ''}`;
+  document.getElementById('chartDesc').textContent = `${UNIT_LABEL[u]}, ${fmtRange(span.start, span.end)}${live ? ' (live — ends ' + fmtDay(end) + ')' : ''}`;
   const values = buckets.map((bk) => bk[metric]);
-  const totalSpend = daily.reduce((a, d) => a + d.spend, 0), totalRes = daily.reduce((a, d) => a + d.results, 0);
+  const totalSpend = days.reduce((a, d) => a + d.spend, 0), totalRes = days.reduce((a, d) => a + d.results, 0);
   const total = metric === 'spend' ? formatUSD(totalSpend) : metric === 'results' ? fmtInt(totalRes) : (totalRes ? formatUSD((totalSpend / totalRes) * perK) : DASH);
   document.getElementById('chartTotal').textContent = total;
   document.getElementById('chartTotalLabel').textContent = metric === 'spend' ? 'Total spend' : metric === 'results' ? `Total results · ${c.resultType}` : `Average cost per result · ${c.costType}`;
@@ -319,7 +382,6 @@ getMetaCampaign(params.get('id')).then((m) => {
   document.title = `${c.content.title} — Promoted Content`;
   document.getElementById('crumbName').textContent = c.content.title;
   document.getElementById('campaignName').textContent = c.content.title;
-  document.getElementById('sourceBadge').hidden = m.source !== 'mock';
   document.getElementById('campaignMeta').innerHTML = [
     deliveryChip(c.delivery),
     fmtRange(start, end),
@@ -327,21 +389,24 @@ getMetaCampaign(params.get('id')).then((m) => {
     c.budget === null ? c.budgetType : `${formatUSD(c.budget)} ${c.budgetType.toLowerCase()} budget`,
     `Meta campaign · ${c.name}`,
   ].join('<span class="campaign-meta__sep"></span>');
-  mountAdsTable({ table: document.getElementById('adsTable'), head: document.getElementById('adsHead'), rows: document.getElementById('adsRows'), only: c.id });
+  adsTable = mountAdsTable({ table: document.getElementById('adsTable'), head: document.getElementById('adsHead'), rows: document.getElementById('adsRows'), only: c.id, rowData: rowFor });
+  bindDetailPeriod({ initial: period, onChange(key) { period = key; unit = null; renderTotals(); renderChart(); } });
+  renderTotals();
   renderChart();
   renderPromo();
-  // Export — this ad's row + its daily delivery (start → today). A draft has nothing to export yet.
+  // Export — this ad's row + its daily delivery for the picked period. A draft has nothing to export yet.
   const exportBtn = document.getElementById('adsExport');
   exportBtn.disabled = c.spent === null;
   exportBtn.title = c.spent === null ? 'Nothing to export yet — this ad hasn\'t been published.' : '';
   exportBtn.addEventListener('click', () => {
-    const { last } = campaignRange(c);
+    const { span, days } = current();
+    const from = span ? span.start : start, to = span ? span.end : campaignRange(c).last;
     openExportModal({
       title: 'Export ad data – daily breakdown',
-      intro: `This file contains this ad's totals and its daily spend, results and cost per result from ${fmtDMYlong(start)} to ${fmtDMYlong(last)}.`,
+      intro: `This file contains this ad's totals and its daily spend, results and cost per result from ${fmtDMYlong(from)} to ${fmtDMYlong(to)}.`,
       notices: ['The Off / On column isn\'t included in the file — the ad\'s status is in the Delivery column.'],
-      defaultName: `Formee Express, ${c.content.title}, ${fmtDMYlong(start)}–${fmtDMYlong(last)}`,
-      build: () => ({ text: `${adsCSV([c])}\n\n${toCSV(['Date', 'Amount spent (USD)', 'Results', 'Cost per result (USD)'], m.daily.map((d) => [fmtISO(d.date), d.spend.toFixed(2), d.results, d.cpr === null ? '' : d.cpr.toFixed(2)]))}` }),
+      defaultName: `Formee Express, ${c.content.title}, ${fmtDMYlong(from)}–${fmtDMYlong(to)}`,
+      build: () => ({ text: `${adsCSV([rowFor(c)])}\n\n${toCSV(['Date', 'Amount spent (USD)', 'Results', 'Cost per result (USD)'], days.map((d) => [fmtISO(d.date), d.spend.toFixed(2), d.results, d.cpr === null ? '' : d.cpr.toFixed(2)]))}` }),
     });
   });
 });

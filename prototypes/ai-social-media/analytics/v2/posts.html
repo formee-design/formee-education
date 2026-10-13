@@ -120,6 +120,9 @@
   /* Posts list — Schedule / List Row (schedule.css .sc-list--fluid) with page-specific columns */
   .posts-table .sc-list-colhead,
   .posts-table .sc-list-row{padding-left:20px; padding-right:20px;}
+  /* landing highlight when coming back from a post's detail via its breadcrumb (?post=<id>) */
+  @keyframes arrival-ring{0%,60%{box-shadow:inset 0 0 0 2px var(--color-brand-primary-mid); background:var(--color-brand-primary-light);} 100%{box-shadow:inset 0 0 0 2px transparent;}}
+  .posts-table .sc-list-row.is-arrival{animation:arrival-ring 2.4s ease-out;}
   .posts-col--post{flex:1 0 0; min-width:1px;}
   .posts-col--date{width:140px;}
   .posts-col--status{width:110px;}
@@ -128,6 +131,8 @@
   .posts-row__thumb{width:40px; height:40px; border-radius:var(--radius-md); object-fit:cover; flex-shrink:0;}
   .posts-row__text{display:flex; flex-direction:column; min-width:0;}
   .posts-row__text .sc-list-row__title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .posts-row__link{color:var(--color-neutral-900); text-decoration:none;} /* black title, underline only on hover — same as the ads table */
+  .posts-row__link:hover{text-decoration:underline;}
   .posts-cell{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
   .posts-cell--muted{color:var(--color-neutral-500);}
   .posts-more{display:flex; justify-content:center; padding:var(--spacing-md) 0;}
@@ -340,6 +345,7 @@ const state = {
   unit: null, // chart unit — null = the period's own (resets when the range changes)
   shown: PAGE_SIZE,
 };
+const arrivalPost = params.has('post') ? Number(params.get('post')) : null; // back from post.html — that row is highlighted once
 if (state.bucket !== null && !(state.bucket >= 0 && state.bucket < PERIODS[state.period].ends.length)) state.bucket = null;
 
 function syncUrl() {
@@ -496,7 +502,9 @@ lineChart.addEventListener('mouseleave', () => {
   document.getElementById('lineTip').hidden = true;
 });
 
-// ── Posts list ──
+// ── Posts list — a title opens its detail: Post (organic) or Promoted Content (paid) ──
+// the detail opens on this list's range (it has its own selector to change it)
+const detailParams = () => new URLSearchParams({ ...periodParams(state.period), ...(params.get('ads') === 'disconnected' ? { ads: 'disconnected' } : {}) });
 function renderList(posts) {
   const sort = SORTS.find((s) => s.value === state.sort);
   posts.sort((a, b) => (sort.key === 'date' ? b.date - a.date
@@ -530,10 +538,10 @@ function renderList(posts) {
   }
 
   document.getElementById('postsRows').innerHTML = posts.slice(0, state.shown).map((p) => `
-    <div class="sc-list-row">
+    <div class="sc-list-row" data-post="${p.id}">
       <span class="posts-col--post posts-row__post">
         <img class="posts-row__thumb" src="${THUMB}${p.img}" alt="">
-        <span class="posts-row__text"><span class="sc-list-row__title">${p.title}</span><span class="sc-list-row__sub">${p.platform} · ${p.type}</span></span>
+        <span class="posts-row__text"><a class="sc-list-row__title posts-row__link" href="${p.paid ? `campaign.html?id=${p.campaignId}` : `post.html?id=${p.id}`}&${detailParams()}">${p.title}</a><span class="sc-list-row__sub">${p.platform} · ${p.type}</span></span>
       </span>
       <span class="posts-col--date posts-cell">${fmtDate(p.date)}</span>
       <span class="posts-col--status">${p.paid ? '<span class="feedback-status-chip feedback-status-chip--blue">Paid</span>' : '<span class="feedback-status-chip feedback-status-chip--secondary">Organic</span>'}</span>
@@ -541,7 +549,7 @@ function renderList(posts) {
       <span class="posts-col--num posts-cell">${formatCount(p.likes)}</span>
       <span class="posts-col--num posts-cell">${formatCount(p.comments)}</span>
       <span class="posts-col--num posts-cell">${formatPct(p.engagement)}</span>
-      ${paidCols ? `<span class="posts-col--num posts-cell${p.paid ? '' : ' posts-cell--muted'}">${p.paid ? formatMoney(p.spend) : '—'}</span><span class="posts-col--num posts-cell${p.paid ? '' : ' posts-cell--muted'}">${p.paid ? formatMoney(p.cpl) : '—'}</span>` : ''}
+      ${paidCols ? `<span class="posts-col--num posts-cell${p.paid ? '' : ' posts-cell--muted'}">${p.paid ? formatMoney(p.spend) : '—'}</span><span class="posts-col--num posts-cell${p.paid ? '' : ' posts-cell--muted'}">${p.paid && p.cpl !== null ? formatMoney(p.cpl) : '—'}</span>` : ''}
     </div>`).join('');
   const rest = posts.length - state.shown;
   document.getElementById('postsMore').hidden = rest <= 0;
@@ -702,6 +710,10 @@ bindCustomRange({
 fitFrameToViewport();
 rebuildBucketFilter();
 render();
+if (arrivalPost !== null) {
+  const row = document.querySelector(`#postsRows [data-post="${arrivalPost}"]`);
+  if (row) { row.scrollIntoView({ block: 'center' }); row.classList.add('is-arrival'); }
+}
 </script>
 </body>
 </html>

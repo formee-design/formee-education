@@ -162,7 +162,7 @@
         <div class="section-header-row">
           <div class="trends-section-header">
             <div class="trends-section-header__left">
-              <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads</h2><span class="trends-section-header__badge" id="adsSourceBadge" title="Mock data for the initial UI — not from the Meta API yet">Sample data</span></div>
+              <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads</h2></div>
               <p class="trends-section-header__desc" id="adsDesc"></p>
             </div>
           </div>
@@ -208,7 +208,6 @@ const adsTable = mountAdsTable({
   linkParams: PERIODS[fromPeriod] ? new URLSearchParams(periodParams(fromPeriod)).toString() : '',
   onRender({ source, count, status }) {
     const none = source === 'none';
-    document.getElementById('adsSourceBadge').hidden = source !== 'mock';
     document.getElementById('adsControls').hidden = none;
     document.getElementById('adsDesc').textContent = none ? '' : `${count} ad${count === 1 ? '' : 's'}${status === 'All' ? '' : ` · ${status}`}`;
     document.getElementById('adsCard').hidden = none || count === 0;
