@@ -331,7 +331,7 @@
         <div class="stats-summary">
           <div class="stats-summary__stat">
             <div class="stats-summary__icon"><img src="../../../../components/ai-social-media/icons/stat-library-20.svg" alt=""></div>
-            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiPublished"></p><p class="stats-summary__label">Published Posts</p><p class="stats-summary__caption" id="kpiPublishedSub"></p></div>
+            <div class="stats-summary__text"><p class="stats-summary__value" id="kpiPublished"></p><p class="stats-summary__label">Posts ready</p><p class="stats-summary__caption" id="kpiPublishedSub">91% success rate</p></div>
           </div>
           <div class="stats-summary__divider stats-summary__divider--strong"></div>
           <div class="stats-summary__stat">
@@ -705,7 +705,7 @@ function renderPage() {
   const cells = buildCells(pageState.period);
   const total = sumCells(cells).posts;
   document.getElementById('kpiPublished').textContent = total;
-  document.getElementById('kpiPublishedSub').textContent = rangeLabel(periodRange(pageState.period));
+  document.getElementById('kpiPublishedSub').textContent = total ? '91% success rate' : '—'; // Figma "Posts ready" cell (placeholder rate); no rate without posts
   // no posts in the range (#state=range-empty, or a custom range with nothing in it) → each section's empty panel
   const none = total === 0;
   const swap = (cardId, emptyId) => { document.getElementById(cardId).hidden = none; document.getElementById(emptyId).hidden = !none; };
