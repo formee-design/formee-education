@@ -97,6 +97,9 @@
   /* Performance Over Time — line chart card */
   .line-card{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl);}
   .line-card__head{display:flex; flex-direction:column; gap:2px;}
+  /* total on the left, Daily / Weekly / Monthly select on the right — same as the Analytics chart cards */
+  .line-card__head-row{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-md);}
+  .unit-select .context-menu--option-list{width:160px; left:auto; right:0;}
   .line-card__value{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
   .line-card__label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
   .line-chart{position:relative; width:100%;}
@@ -267,7 +270,7 @@
             </div>
           </div>
           <div class="analytics-card line-card" id="chartCard">
-            <div class="line-card__head"><p class="line-card__value" id="chartTotal"></p><p class="line-card__label" id="chartTotalLabel"></p></div>
+            <div class="line-card__head-row"><div class="line-card__head"><p class="line-card__value" id="chartTotal"></p><p class="line-card__label" id="chartTotalLabel"></p></div><div id="chartUnit"></div></div>
             <div class="line-chart" id="lineChart">
               <svg id="lineSvg" height="260"></svg>
               <div class="editor-tooltip" id="lineTip" hidden></div>
@@ -334,6 +337,7 @@ const state = {
   bucket: params.has('bucket') ? Number(params.get('bucket')) : null,
   sort: pick(params.get('sort'), (v) => SORTS.some((s) => s.value === v)) || 'Views',
   metric: 'views',
+  unit: null, // chart unit — null = the period's own (resets when the range changes)
   shown: PAGE_SIZE,
 };
 if (state.bucket !== null && !(state.bucket >= 0 && state.bucket < PERIODS[state.period].ends.length)) state.bucket = null;
@@ -385,14 +389,15 @@ function chartPoints(posts) {
     });
     daily[k] = arr;
   });
-  const spans = P.chartUnit === 'day'
-    ? Array.from({ length: days }, (_, i) => ({ start: addDays(range.start, i), end: addDays(range.start, i) }))
-    : P.ends.map((_, b) => bucketRange(state.period, b));
+  const units = unitsFor(range.start, range.end);
+  const unit = units.includes(state.unit) ? state.unit : (units.includes(P.chartUnit) ? P.chartUnit : units[0]);
+  chartPoints.unit = unit; chartPoints.units = units;
+  const spans = unitBuckets(range.start, range.end, unit);
   return spans.map((s) => {
     const a = diffDays(range.start, s.start), b = diffDays(range.start, s.end);
     const sum = (k) => daily[k].slice(a, b + 1).reduce((x, y) => x + y, 0);
     const value = state.metric === 'cpl' ? (sum('leads') ? sum('spend') / sum('leads') : null) : sum(state.metric);
-    return { ...s, value, label: P.chartUnit === 'month' ? fmtMonth(s.end) : fmtDay(s.end) };
+    return { ...s, value };
   });
 }
 
@@ -421,15 +426,18 @@ function renderChart(posts) {
     return `<line class="line-chart__grid" x1="${M.l}" x2="${W - M.r}" y1="${y(v)}" y2="${y(v)}"/>
       <text class="line-chart__axis" x="${M.l - 10}" y="${y(v) + 4}" text-anchor="end">${state.metric === 'cpl' ? `$${Math.round(v)}` : formatCount(v)}</text>`;
   }).join('');
-  // x labels: every point for weeks / months; for days, the bucket ends (same dates as the Analytics bars)
+  // x labels: daily → the bucket ends (same dates as the Analytics bars); weekly / monthly → every point, thinned if crowded
+  const unit = chartPoints.unit;
+  buildUnitSelect(document.getElementById('chartUnit'), { units: chartPoints.units, value: unit, onChange(u) { state.unit = u; render(); } });
   const bucketEnds = new Set(PERIODS[state.period].ends.map((d) => d.getTime()));
-  const xLabels = pts.map((p, i) => (PERIODS[state.period].chartUnit !== 'day' || bucketEnds.has(p.end.getTime())
+  const every = pts.length > 14 ? Math.ceil(pts.length / 12) : 1;
+  const xLabels = pts.map((p, i) => ((unit === 'day' ? bucketEnds.has(p.end.getTime()) : i % every === 0)
     ? `<text class="line-chart__axis" x="${x(i)}" y="${H - 6}" text-anchor="middle">${p.label}</text>` : '')).join('');
 
   let band = '';
   if (state.bucket !== null) {
     const r = bucketRange(state.period, state.bucket);
-    const idx = pts.map((p, i) => (p.start >= r.start && p.end <= r.end ? i : -1)).filter((i) => i >= 0);
+    const idx = pts.map((p, i) => (p.end >= r.start && p.start <= r.end ? i : -1)).filter((i) => i >= 0);
     if (idx.length) {
       const x0 = Math.max(M.l, x(idx[0]) - step / 2), x1 = Math.min(W - M.r, x(idx[idx.length - 1]) + step / 2);
       band = `<rect class="line-chart__band" x="${x0}" y="${M.t}" width="${x1 - x0}" height="${ih}"/>
@@ -638,6 +646,7 @@ function render() {
   document.getElementById('chartTotal').textContent = formatMetric(state.metric, total);
   document.getElementById('chartTotalLabel').textContent = state.metric === 'cpl' ? `Average CPL · ${rangeLabel(range)}` : `Total ${METRIC_LABEL[state.metric]} · ${rangeLabel(range)}`;
   renderChart(chartPosts);
+  document.getElementById('chartTotalLabel').textContent += ` · ${UNIT_LABEL[chartPoints.unit].toLowerCase()}`; // after renderChart — it resolves the unit
   const listed = filteredPosts({ withBucket: true });
   renderStats(listed);
   renderList(listed);
@@ -647,7 +656,7 @@ function render() {
 document.querySelectorAll('#periodSelector .segment-chip').forEach((chip) => {
   chip.addEventListener('click', () => {
     if (state.period === chip.dataset.period) return;
-    state.period = chip.dataset.period; state.bucket = null; state.shown = PAGE_SIZE;
+    state.period = chip.dataset.period; state.bucket = null; state.shown = PAGE_SIZE; state.unit = null;
     rebuildBucketFilter(); render();
   });
 });
@@ -687,7 +696,7 @@ bindCustomRange({
   fromField: document.getElementById('customFrom'),
   toField: document.getElementById('customTo'),
   applyBtn: document.getElementById('customApply'),
-  onApply() { state.bucket = null; state.shown = PAGE_SIZE; rebuildBucketFilter(); render(); },
+  onApply() { state.bucket = null; state.shown = PAGE_SIZE; state.unit = null; rebuildBucketFilter(); render(); },
 });
 
 fitFrameToViewport();
