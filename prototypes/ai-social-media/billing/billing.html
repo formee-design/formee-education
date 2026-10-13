@@ -41,6 +41,9 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
 /* Figma "Container" (4334:98540). Its 0 1px 1px drop shadow has no shadow token yet — left off. */
 .bl-container{margin-top:var(--spacing-2xl); background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-2xl); padding:var(--spacing-2xl); display:flex; flex-direction:column; gap:var(--spacing-3xl);}
 .bl-panel[hidden]{display:none;}
+/* Plan & Credits: Current Plan and Credit Balance each get their own Container card */
+.bl-stack{display:flex; flex-direction:column; gap:var(--spacing-xl); margin-top:var(--spacing-2xl);}
+.bl-stack > .bl-container{margin-top:0;}
 
 /* ---------- section header (Figma "Manage Members" row: Text/lg SemiBold + actions) ---------- */
 .bl-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
@@ -243,9 +246,9 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
         </div>
 
         <!-- ============ Tab 1 — Plan & Credits (B01 / B02 / B03 / B10) ============ -->
-        <div class="bl-container bl-panel" data-panel="plan">
-          <section class="bl-section" id="planSection"></section>
-          <section class="bl-section" id="creditSection"></section>
+        <div class="bl-panel bl-stack" data-panel="plan">
+          <div class="bl-container"><section class="bl-section" id="planSection"></section></div>
+          <div class="bl-container"><section class="bl-section" id="creditSection"></section></div>
         </div>
 
         <!-- ============ Tab 2 — Credit Activity (existing table content, Settings table style) ============ -->
