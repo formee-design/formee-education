@@ -1,0 +1,32 @@
+/* Tab Bar / Tab / Item — AI Social Media component
+   Figma: FME_AI-Social-Media, "Super Admin Settings - Members" (4334:98384) → Tab Bar (4334:98534),
+   instances of "Tab / Item" (Member / Access Management / Brand).
+   - Item: 16px side padding, 5px top / 9px bottom (Figma literals — between spacing-xs 4 and
+     spacing-sm 8 / spacing-md 12, kept as-is so the 36px item height matches).
+   - Underline: Figma binds the bottom border width to icon/stroke-width (1.6px), so this does too.
+   - Selected: Text/md Bold, neutral-800 text + neutral-800 underline.
+   - Default:  Text/md Medium, neutral-500 text + neutral-300 underline.
+   - The trailing filler item stretches the 1px neutral-300 rule to the end of the bar.
+   Note: brand-setup-kit's Brand Kit tabs (I4381:75419) are an older variant of the same Figma
+   component (brand-primary selected, 2px inset) built inline in that file — not this one.
+   Consumed by: prototypes/ai-social-media/billing/billing.html */
+
+.tab-bar{ display:flex; align-items:flex-start; width:100%; overflow:hidden; }
+
+.tab-item{
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  padding:5px var(--spacing-lg) 9px; margin:0; background:none; cursor:pointer;
+  border:0; border-bottom:var(--icon-stroke-width) solid var(--color-neutral-300);
+  font-family:var(--font-family-text); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-500); white-space:nowrap;
+}
+.tab-item:hover:not(.tab-item--selected){ color:var(--color-neutral-700); }
+.tab-item:focus-visible{ outline:2px solid var(--color-brand-primary); outline-offset:-2px; }
+.tab-item--selected{
+  font-weight:var(--font-weight-bold); color:var(--color-neutral-800);
+  border-bottom-color:var(--color-neutral-800);
+}
+.tab-item--filler{
+  flex:1 0 0; min-width:1px; height:40px; box-sizing:border-box; padding:0; cursor:default;
+  border-bottom-width:var(--border-width-1);
+}
