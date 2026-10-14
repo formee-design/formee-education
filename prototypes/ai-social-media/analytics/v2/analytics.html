@@ -8,17 +8,17 @@
      v2 (2026-10-13): first row is Meta Ads Spend (left — area line chart of weekly spend + period total, "now live") |
      Published Posts (right — Published Posts Over Time and Published Mix merged: one stacked chart, split by Platform or
      Type, legend = mix). Section order: Ads + Publishing (Meta Ads Spend | Published Posts), Meta Ads Performance
-     (one row per post promoted from Pulse — sample data until the Meta API is wired), Top Paid Content | Top Organic Posts. Content Performance (one table, By platform / By content type,
+     (one row per post promoted from Pulse — sample data until the Meta API is wired), Top Performing Content | Top Organic Posts. Content Performance (one table, By platform / By content type,
      expandable rows) is DEFERRED — hidden in the markup as a record, not in the dev scope. Metrics are limited to what every connected platform API returns:
      posts, views, likes, comments (engagement = (likes + comments) ÷ views). All numbers are placeholder data.
      Live states:
        - Period selector — every section re-renders for 30 days / 90 days / All time / Custom; "Custom" reveals the date range
          inline; a short range can show a 0-post type in the Published Posts legend.
-       - Top Paid Content stays in its "Integration Pending" empty state until Meta Ads is connected.
+       - Top Performing Content stays in its "Integration Pending" empty state until Meta Ads is connected.
        - Custom: clicking either date opens the Date Picker (Time=Without time); Apply re-runs every section for that range
          (DD/MM/YYYY; no future dates). URL keeps ?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD.
        - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it.
-       - Drill-down to Post Performance (posts.html): "View all →" on Top Paid / Top Organic, and every segment of
+       - Drill-down to Post Performance (posts.html): "View all →" on Top Performing / Top Organic, and every segment of
          Published Posts Over Time (platform + week). Data + helpers shared via analytics-shared.js. -->
 <!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,7 +188,7 @@
   .forecast-list{display:flex; flex-direction:column; width:100%; overflow:hidden;}
   .forecast-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:16px 16px 16px 20px; border-bottom:1px solid var(--color-neutral-150);}
   .forecast-row:last-child{border-bottom:none;}
-  /* Top Paid → Promoted Content detail (campaign.html), Top Organic → Post detail (post.html); the whole row is the link */
+  /* Top Performing → Promoted Content detail (campaign.html), Top Organic → Post detail (post.html); the whole row is the link */
   a.forecast-row{text-decoration:none; color:inherit; cursor:pointer;}
   a.forecast-row:hover{background:var(--color-neutral-50);}
   a.forecast-row:hover .forecast-row__name{text-decoration:underline;}
@@ -204,7 +204,7 @@
   .post-metric__value{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .post-metric__label{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
 
-  /* Top Paid Content / Top Organic Posts — both cards stretch to the row height */
+  /* Top Performing Content / Top Organic Posts — both cards stretch to the row height */
   .analytics-row--stretch{align-items:stretch;}
   .top-posts-card{flex:1 0 auto;}
 
@@ -214,7 +214,7 @@
 
   .filter-dropdown--right .context-menu--option-list{left:auto; right:0;}
 
-  /* Top Paid Content — Home "Top content" row metrics (leads + Top chip · Δ vs last period · CPL) on the .forecast-row anatomy */
+  /* Top Performing Content — Home "Top content" row metrics (leads + Top chip · Δ vs last period · CPL) on the .forecast-row anatomy */
   .paid-metric{flex-shrink:0; display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); white-space:nowrap;}
   .paid-metric--leads{width:112px;}
   .paid-metric--leads.has-chip{gap:var(--spacing-xs);}
@@ -451,14 +451,14 @@
              otherwise Organic. Deep links: ?period=30d#top-paid / #top-organic (e.g. from Home's "View analytics →"). -->
         <div class="analytics-row analytics-row--stretch" id="topRow">
 
-          <!-- Top Paid Content — v2: Meta Ads is connected, so this lists the top 3 posts with ad spend, ranked by leads.
+          <!-- Top Performing Content — v2: Meta Ads is connected, so this lists the top 3 posts with ad spend, ranked by leads.
                Row anatomy = Home "Top content" (12427:416962): rank · thumb · title · leads (+Top chip) · Δ vs last period · CPL.
                Actual results only (leads, not Home's "forecast leads"). -->
           <section class="analytics-section" id="top-paid">
             <div class="section-header-row">
               <div class="trends-section-header">
                 <div class="trends-section-header__left">
-                  <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Paid Content</h2></div>
+                  <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top Performing Content</h2></div>
                   <p class="trends-section-header__desc">Your best-performing posts with ad spend in this date range.</p>
                 </div>
               </div>
@@ -561,9 +561,9 @@ function renderPublished() {
   const total = posts.length, max = Math.max(1, ...totals), n = buckets.length;
   const CHART_H = 200 - 18 - 8 - 18 - 8; // column height minus label + total rows and their gaps
   const href = (extra) => `posts.html?${new URLSearchParams({ ...periodParams(period), ...extra })}`;
-  // a bar opens its posts: on the period's own unit via the bucket filter, otherwise as that exact date range
-  const segHref = (k, extra) => (unit === native ? href({ ...extra, bucket: k })
-    : `posts.html?${new URLSearchParams({ period: 'custom', from: fmtISO(buckets[k].start), to: fmtISO(buckets[k].end), ...extra })}`);
+  // a bar opens its posts as that exact date range (Custom), listing this range's posts so the count matches the bar
+  const baseOf = period === 'custom' ? { base: 'custom', baseFrom: fmtISO(range.start), baseTo: fmtISO(range.end) } : { base: period };
+  const segHref = (k, extra) => `posts.html?${new URLSearchParams({ period: 'custom', from: fmtISO(buckets[k].start), to: fmtISO(buckets[k].end), ...baseOf, ...extra })}`;
   const every = n > 16 ? Math.ceil(n / 8) : 1; // dense days: thin the labels, drop the per-bar totals
   const chart = document.getElementById('publishedOverTime');
   chart.classList.toggle('stack-chart--dense', n > 16);
@@ -784,7 +784,7 @@ function organicQuery() {
   return q;
 }
 
-// ── Top Paid Content — top 3 Pulse ads delivered in the range, by leads (Meta Ads covers Instagram / Facebook);
+// ── Top Performing Content — top 3 Pulse ads delivered in the range, by leads (Meta Ads covers Instagram / Facebook);
 //    a row opens that ad's Promoted Content detail ──
 function renderTopPaid() {
   const card = document.getElementById('topPaidList'), empty = document.getElementById('paidEmpty');
@@ -818,7 +818,7 @@ function renderTopPosts() {
   const card = document.getElementById('topPostsList');
   const metric = RANK_METRICS.find((m) => m.value === topPostsState.rank).key;
   // the same posts Post Performance lists (shared dataset), organic only
-  const organic = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => !p.paid); // v2: paid posts go to Top Paid
+  const organic = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => !p.paid); // v2: paid posts go to Top Performing
   const posts = organic
     .filter((p) => topPostsState.platform === 'All Platforms' || p.platform === topPostsState.platform)
     .sort((a, b) => b[metric] - a[metric])

@@ -298,7 +298,8 @@ const params = new URLSearchParams(location.search);
 readCustomRange(params);
 const listPeriod = PERIODS[params.get('period')] ? params.get('period') : '30d'; // the list it came from — fixes which post ?id is
 const ADS_CONNECTED = params.get('ads') !== 'disconnected' && DATA_STATE !== 'empty'; // same switch as Post Performance
-const posts = buildPosts(listPeriod, { adsConnected: ADS_CONNECTED });
+const baseKey = listPeriod === 'custom' ? readBasePeriod(params) : null; // opened from a list cut out of a wider range (Analytics bar)
+const posts = baseKey ? buildPosts(baseKey, { adsConnected: ADS_CONNECTED }) : buildPosts(listPeriod, { adsConnected: ADS_CONNECTED });
 const post = posts.find((p) => p.id === Number(params.get('id'))) || posts.find((p) => !p.paid);
 const pq = new URLSearchParams(periodParams(listPeriod));
 if (post && post.paid) location.replace(`campaign.html?id=${post.campaignId}&${pq}`); // a promoted post has its own detail
@@ -371,7 +372,7 @@ function renderChart() {
 }
 
 if (post && !post.paid) {
-  const crumbPosts = new URLSearchParams({ view: 'organic', ...periodParams(listPeriod), post: post.id }); // back to the list, this row highlighted
+  const crumbPosts = new URLSearchParams({ view: 'organic', ...periodParams(listPeriod), ...baseParams(baseKey), post: post.id }); // back to the list, this row highlighted
   document.getElementById('crumbAnalytics').href = `analytics.html?${pq}`;
   document.getElementById('crumbPosts').href = `posts.html?${crumbPosts}`;
   document.title = `${post.title} — Post`;

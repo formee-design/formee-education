@@ -5,16 +5,18 @@
 <title>Post Performance — AI Social Media</title>
 <!-- Post Performance — the one drill-down page under Analytics (no Figma frame yet; laid out from the Analytics
      components so it can be moved into Figma as-is). Reached from Analytics:
-       - "View all →" on Top Paid Content   → ?view=paid
+       - "View all →" on Top Performing Content   → ?view=paid
        - "View all →" on Top Organic Posts  → ?view=organic (+ platform / sort carried over)
-       - a segment of Published Posts Over Time → ?platform=Instagram&bucket=0 (that platform's posts in that week)
+       - a segment of Published Posts → ?period=custom&from=…&to=…&base=30d&platform=Instagram (that platform's posts in
+         that week — base = the Analytics range, so the list is that bar's own posts and the count matches)
        - a bar / slice of Published Mix → ?platform= or ?type=
        - "View posts →" on a Content Performance row → ?platform= (&type= for a sub-row), or the reverse on By content type
-     Sections: filter bar (All posts / Organic / Paid · Platform · Content type · Published week/month — re-selectable),
+     Sections: filter bar (All posts / Organic / Paid · Platform · Content type),
      Stats summary (totals for the listed posts),
      Performance Over Time (line chart; Views / Likes / Comments, + CPL on Paid), Posts (sortable list).
      Same placeholder dataset as Analytics (analytics-shared.js), so every count matches.
-     URL state: ?period=30d|90d|all|custom &view=all|organic|paid &platform= &type= &bucket= &sort=
+     URL state: ?period=30d|90d|all|custom &view=all|organic|paid &platform= &type= &sort=
+       (an old ?bucket=<i> link opens as a Custom range of that week / month)
        v2: Meta Ads is connected by default (Paid posts with spend / leads / CPL); &ads=disconnected shows the old
        "Integration Pending" state.
        Without it, Paid stays in its "Integration Pending" empty state, same as Analytics. -->
@@ -106,14 +108,11 @@
   .line-chart svg{display:block; width:100%; overflow:visible;}
   .line-chart__grid{stroke:var(--color-neutral-150); stroke-width:1;}
   .line-chart__axis{font-family:var(--font-family-text); font-size:var(--font-size-text-xs); fill:var(--color-neutral-500);}
-  .line-chart__band{fill:var(--color-brand-primary-light);}
-  .line-chart__band-label{font-family:var(--font-family-text); font-size:var(--font-size-text-xs); font-weight:var(--font-weight-semibold); fill:var(--color-brand-primary);}
   .line-chart__area{fill:var(--color-brand-primary-light); opacity:.6;}
   .line-chart__line{fill:none; stroke:var(--color-brand-primary); stroke-width:2; stroke-linejoin:round; stroke-linecap:round;}
   .line-chart__guide{stroke:var(--color-neutral-400); stroke-width:1; stroke-dasharray:3 3;}
   .line-chart__dot{fill:var(--color-neutral-0); stroke:var(--color-brand-primary); stroke-width:2;}
   .line-chart__hover[hidden]{display:none;}
-  #lineHit{cursor:pointer;}
   .line-chart .editor-tooltip{position:absolute; top:0; transform:translate(-50%, calc(-100% - 8px)); pointer-events:none;}
   .line-chart .editor-tooltip[hidden]{display:none;}
 
@@ -248,7 +247,6 @@
           <div class="filter-row">
             <div class="filter-dropdown" id="platformFilterWrap"></div>
             <div class="filter-dropdown" id="typeFilterWrap"></div>
-            <div id="bucketFilterHolder"><div class="filter-dropdown" id="bucketFilterWrap"></div></div>
           </div>
         </div>
 
@@ -321,6 +319,13 @@
 <script>
 const params = new URLSearchParams(location.search);
 readCustomRange(params); // ?period=custom&from=…&to=… carried over from Analytics
+// old links pointed at one week / month with ?bucket=<i> — open that span as a Custom range of the same posts instead
+const legacyPeriod = params.get('period') || '30d';
+if (params.has('bucket') && legacyPeriod !== 'custom' && PERIODS[legacyPeriod]?.ends?.[Number(params.get('bucket'))]) {
+  const r = bucketRange(legacyPeriod, Number(params.get('bucket')));
+  setCustomRange(r.start, r.end);
+  params.set('period', 'custom'); params.set('base', legacyPeriod);
+}
 const ADS_CONNECTED = params.get('ads') !== 'disconnected' && DATA_STATE !== 'empty'; // v2: connected unless told otherwise
 const PAGE_SIZE = 20;
 const SORTS = [
@@ -339,33 +344,30 @@ const state = {
   view: pick(params.get('view'), (v) => ['all', 'organic', 'paid'].includes(v)) || 'all',
   platform: pick(params.get('platform'), (v) => PLATFORMS.some((p) => p.name === v)),
   type: pick(params.get('type'), (v) => TYPES.some((t) => t.name === v)),
-  bucket: params.has('bucket') ? Number(params.get('bucket')) : null,
   sort: pick(params.get('sort'), (v) => SORTS.some((s) => s.value === v)) || 'Views',
+  base: params.get('period') === 'custom' ? readBasePeriod(params) : null, // set when opened from an Analytics bar; any period change drops it
   metric: 'views',
   unit: null, // chart unit — null = the period's own (resets when the range changes)
   shown: PAGE_SIZE,
 };
 const arrivalPost = params.has('post') ? Number(params.get('post')) : null; // back from post.html — that row is highlighted once
-if (state.bucket !== null && !(state.bucket >= 0 && state.bucket < PERIODS[state.period].ends.length)) state.bucket = null;
 
 function syncUrl() {
-  const q = new URLSearchParams(periodParams(state.period));
+  const q = new URLSearchParams({ ...periodParams(state.period), ...baseParams(state.base) });
   if (state.view !== 'all') q.set('view', state.view);
   if (state.platform) q.set('platform', state.platform);
   if (state.type) q.set('type', state.type);
-  if (state.bucket !== null) q.set('bucket', state.bucket);
   if (state.sort !== 'Views') q.set('sort', state.sort);
   if (params.get('ads') === 'disconnected') q.set('ads', 'disconnected');
   history.replaceState(null, '', `?${q}${location.hash}`); // hash keeps #state=empty / range-empty
   document.getElementById('crumbAnalytics').href = `analytics.html?${new URLSearchParams(periodParams(state.period))}`;
 }
 
-function filteredPosts({ withBucket }) {
-  return buildPosts(state.period, { adsConnected: ADS_CONNECTED }).filter((p) =>
+function filteredPosts() {
+  return postsFor(state.period, state.base, { adsConnected: ADS_CONNECTED }).filter((p) =>
     (state.view === 'all' || (state.view === 'paid') === p.paid)
     && (!state.platform || p.platform === state.platform)
-    && (!state.type || p.type === state.type)
-    && (!withBucket || state.bucket === null || p.bucket === state.bucket));
+    && (!state.type || p.type === state.type));
 }
 
 const emptyState = (title, body) => `
@@ -440,21 +442,10 @@ function renderChart(posts) {
   const xLabels = pts.map((p, i) => ((unit === 'day' ? bucketEnds.has(p.end.getTime()) : i % every === 0)
     ? `<text class="line-chart__axis" x="${x(i)}" y="${H - 6}" text-anchor="middle">${p.label}</text>` : '')).join('');
 
-  let band = '';
-  if (state.bucket !== null) {
-    const r = bucketRange(state.period, state.bucket);
-    const idx = pts.map((p, i) => (p.end >= r.start && p.start <= r.end ? i : -1)).filter((i) => i >= 0);
-    if (idx.length) {
-      const x0 = Math.max(M.l, x(idx[0]) - step / 2), x1 = Math.min(W - M.r, x(idx[idx.length - 1]) + step / 2);
-      band = `<rect class="line-chart__band" x="${x0}" y="${M.t}" width="${x1 - x0}" height="${ih}"/>
-        <text class="line-chart__band-label" x="${(x0 + x1) / 2}" y="${M.t - 8}" text-anchor="middle">${rangeLabel(r)}</text>`;
-    }
-  }
-
   const drawn = pts.map((p, i) => ({ i, v: p.value })).filter((p) => p.v !== null);
   const line = drawn.map((p, k) => `${k ? 'L' : 'M'} ${x(p.i)} ${y(p.v)}`).join(' ');
   const area = drawn.length ? `${line} L ${x(drawn[drawn.length - 1].i)} ${y(0)} L ${x(drawn[0].i)} ${y(0)} Z` : '';
-  svg.innerHTML = `${band}${grid}${xLabels}
+  svg.innerHTML = `${grid}${xLabels}
     <path class="line-chart__area" d="${area}"/><path class="line-chart__line" d="${line}"/>
     <g class="line-chart__hover" id="lineHover" hidden><line class="line-chart__guide" id="lineGuide" y1="${M.t}" y2="${M.t + ih}"/><circle class="line-chart__dot" id="lineDot" r="4"/></g>
     <rect id="lineHit" x="${M.l}" y="${M.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
@@ -484,19 +475,6 @@ lineChart.addEventListener('mousemove', (e) => {
   tip.style.left = `${x(i)}px`;
   tip.style.top = `${y(p.value)}px`;
 });
-// click: filter the list to the week / month / day under the cursor (click it again to clear)
-lineChart.addEventListener('click', (e) => {
-  if (!chartModel || e.target.id !== 'lineHit') return;
-  const { pts, x, W } = chartModel;
-  const rect = document.getElementById('lineSvg').getBoundingClientRect();
-  const px = (e.clientX - rect.left) * (W / rect.width);
-  let i = 0;
-  pts.forEach((_, k) => { if (Math.abs(x(k) - px) < Math.abs(x(i) - px)) i = k; });
-  const b = PERIODS[state.period].ends.findIndex((_, k) => { const r = bucketRange(state.period, k); return pts[i].start >= r.start && pts[i].start <= r.end; });
-  if (b < 0) return;
-  state.bucket = state.bucket === b ? null : b; state.shown = PAGE_SIZE;
-  rebuildBucketFilter(); render();
-});
 lineChart.addEventListener('mouseleave', () => {
   document.getElementById('lineHover')?.setAttribute('hidden', '');
   document.getElementById('lineTip').hidden = true;
@@ -504,13 +482,13 @@ lineChart.addEventListener('mouseleave', () => {
 
 // ── Posts list — a title opens its detail: Post (organic) or Promoted Content (paid) ──
 // the detail opens on this list's range (it has its own selector to change it)
-const detailParams = () => new URLSearchParams({ ...periodParams(state.period), ...(params.get('ads') === 'disconnected' ? { ads: 'disconnected' } : {}) });
+const detailParams = () => new URLSearchParams({ ...periodParams(state.period), ...baseParams(state.base), ...(params.get('ads') === 'disconnected' ? { ads: 'disconnected' } : {}) });
 function renderList(posts) {
   const sort = SORTS.find((s) => s.value === state.sort);
   posts.sort((a, b) => (sort.key === 'date' ? b.date - a.date
     : sort.asc ? (a[sort.key] ?? Infinity) - (b[sort.key] ?? Infinity)
       : (b[sort.key] ?? -1) - (a[sort.key] ?? -1)));
-  const range = state.bucket !== null ? bucketRange(state.period, state.bucket) : periodRange(state.period);
+  const range = periodRange(state.period);
   document.getElementById('postsDesc').textContent = `${posts.length} post${posts.length === 1 ? '' : 's'} published ${rangeLabel(range)}`;
 
   const paidCols = ADS_CONNECTED && state.view !== 'organic';
@@ -556,24 +534,6 @@ function renderList(posts) {
   document.getElementById('postsMoreBtn').textContent = `Show ${Math.min(PAGE_SIZE, rest)} more`;
 }
 
-// "Published" filter — Controls/Filter/Select whose options are the period's weeks / months / days (the same buckets
-// as the Analytics bars). Preset when arriving from a bar or clicking the chart; × clears it, and it can be picked again.
-const bucketOptionLabel = (b) => (PERIODS[state.period].unit === 'month'
-  ? PERIODS[state.period].ends[b].toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-  : rangeLabel(bucketRange(state.period, b)));
-function rebuildBucketFilter() {
-  const holder = document.getElementById('bucketFilterHolder');
-  holder.innerHTML = '<div class="filter-dropdown" id="bucketFilterWrap"></div>';
-  const labels = PERIODS[state.period].ends.map((_, b) => bucketOptionLabel(b));
-  buildFilter({
-    container: document.getElementById('bucketFilterWrap'),
-    label: 'Published', inactiveLabel: 'Published: All', defaultValue: 'All',
-    initialValue: state.bucket === null ? null : labels[state.bucket],
-    options: ['All', ...labels].map((value) => ({ value })),
-    onSelect(value) { state.bucket = value ? labels.indexOf(value) : null; state.shown = PAGE_SIZE; render(); },
-  });
-}
-
 // ── Stats summary — totals for the listed posts (Stats summary component, same strip as Analytics) ──
 function renderStats(posts) {
   const s = sumCells(posts);
@@ -611,7 +571,7 @@ function render() {
 
   const range = periodRange(state.period);
   const scope = [state.view === 'all' ? 'All posts' : state.view === 'paid' ? 'Paid posts' : 'Organic posts', state.platform, state.type].filter(Boolean).join(' · ');
-  document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)} · Click the chart to filter posts by ${PERIODS[state.period].unit}.`;
+  document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)}`;
 
   const pending = state.view === 'paid' && !ADS_CONNECTED;
   const nonMeta = state.view === 'paid' && ADS_CONNECTED && state.platform && !META_ADS_PLATFORMS.includes(state.platform);
@@ -632,18 +592,17 @@ function render() {
     return;
   }
 
-  const chartPosts = filteredPosts({ withBucket: false });
+  const listed = filteredPosts();
+  const chartPosts = listed;
   const noData = chartPosts.length === 0;
   document.getElementById('chartCard').hidden = noData;
   document.getElementById('metricTabs').hidden = noData;
   const chartNoData = document.getElementById('chartNoData');
   chartNoData.hidden = !noData;
   if (noData) {
-    document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)}`; // no chart → no "click the chart" hint
     chartNoData.innerHTML = DATA_STATE === 'empty'
       ? emptyState('Nothing to chart yet.', 'Publish your first post and its views, likes and comments will be tracked here.')
       : emptyState('No posts in this date range.', 'Try a longer date range or clear a filter.');
-    const listed = filteredPosts({ withBucket: true });
     renderStats(listed);
     renderList(listed);
     return;
@@ -655,7 +614,6 @@ function render() {
   document.getElementById('chartTotalLabel').textContent = state.metric === 'cpl' ? `Average CPL · ${rangeLabel(range)}` : `Total ${METRIC_LABEL[state.metric]} · ${rangeLabel(range)}`;
   renderChart(chartPosts);
   document.getElementById('chartTotalLabel').textContent += ` · ${UNIT_LABEL[chartPoints.unit].toLowerCase()}`; // after renderChart — it resolves the unit
-  const listed = filteredPosts({ withBucket: true });
   renderStats(listed);
   renderList(listed);
 }
@@ -664,8 +622,8 @@ function render() {
 document.querySelectorAll('#periodSelector .segment-chip').forEach((chip) => {
   chip.addEventListener('click', () => {
     if (state.period === chip.dataset.period) return;
-    state.period = chip.dataset.period; state.bucket = null; state.shown = PAGE_SIZE; state.unit = null;
-    rebuildBucketFilter(); render();
+    state.period = chip.dataset.period; state.base = null; state.shown = PAGE_SIZE; state.unit = null;
+    render();
   });
 });
 document.getElementById('viewTabs').addEventListener('click', (e) => {
@@ -704,11 +662,10 @@ bindCustomRange({
   fromField: document.getElementById('customFrom'),
   toField: document.getElementById('customTo'),
   applyBtn: document.getElementById('customApply'),
-  onApply() { state.bucket = null; state.shown = PAGE_SIZE; state.unit = null; rebuildBucketFilter(); render(); },
+  onApply() { state.base = null; state.shown = PAGE_SIZE; state.unit = null; render(); },
 });
 
 fitFrameToViewport();
-rebuildBucketFilter();
 render();
 if (arrivalPost !== null) {
   const row = document.querySelector(`#postsRows [data-post="${arrivalPost}"]`);

@@ -70,9 +70,9 @@ for (const p of Object.values(PERIODS)) if (p.ends) p.buckets = p.ends.map(p.uni
 
 // Custom range (Date Picker · Time=Without time) → buckets: ≤ 14 days by day, ≤ 120 days by week (ending on the
 // last day), longer by month. Post volume scales with the length of the range.
-function setCustomRange(start, end) {
+function setCustomRange(start, end, key = 'custom') {
   const days = diffDays(start, end) + 1;
-  const p = PERIODS.custom;
+  const p = PERIODS[key] || (PERIODS[key] = {}); // key 'base' = a second slot for the range a Custom slice was cut from
   p.start = start; p.end = end; p.factor = days / 30;
   if (days <= 14) {
     Object.assign(p, { unit: 'day', chartUnit: 'day', ends: Array.from({ length: days }, (_, i) => addDays(start, i)) });
@@ -124,6 +124,27 @@ function bindDetailPeriod({ initial, onChange }) {
     applyBtn: document.getElementById('customApply'), onApply: () => onChange('custom'),
   });
   select(initial);
+}
+// A bar on Analytics opens its week / month in Post Performance as a Custom range, but lists the bar's own posts: the
+// parent range's dataset (?base=30d|90d|all, or base=custom&baseFrom&baseTo) cut to the custom dates — so the count
+// matches the bar. Returns the PERIODS key to build posts from, or null.
+function readBasePeriod(params) {
+  const b = params.get('base');
+  if (b === 'custom') {
+    const f = parseISO(params.get('baseFrom')), t = parseISO(params.get('baseTo'));
+    if (!f || !t || f > t) return null;
+    setCustomRange(f, t, 'base');
+    return 'base';
+  }
+  return ['30d', '90d', 'all'].includes(b) ? b : null;
+}
+const baseParams = (key) => (!key ? {} : key === 'base'
+  ? { base: 'custom', baseFrom: fmtISO(PERIODS.base.start), baseTo: fmtISO(PERIODS.base.end) } : { base: key });
+// posts for a list: its own range, or (with a base) the base range's posts that fall inside the custom dates
+function postsFor(periodKey, baseKey, opts) {
+  if (!baseKey) return buildPosts(periodKey, opts);
+  const { start, end } = periodRange(periodKey);
+  return buildPosts(baseKey, opts).filter((p) => p.date >= start && p.date <= end);
 }
 function readCustomRange(params) {
   const from = parseISO(params.get('from')), to = parseISO(params.get('to'));
@@ -308,7 +329,7 @@ function buildPosts(periodKey, { adsConnected = false } = {}) {
   });
   // Paid = a Pulse ad (Meta Ads table) delivered in the date range. Each one sits on a post of its platform (same type
   // first, published closest to the ad's start) and brings its content + spend / leads for the days inside the range,
-  // so Top Paid, Post Performance and the Promoted Content detail all show the same post.
+  // so Top Performing, Post Performance and the Promoted Content detail all show the same post.
   if (adsConnected) {
     const { start, end } = periodRange(periodKey);
     META_CAMPAIGNS_MOCK.filter((c) => c.spent !== null && parseISO(c.starts) <= end && parseISO(c.ends) >= start).forEach((c) => {

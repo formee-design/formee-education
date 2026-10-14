@@ -281,7 +281,7 @@ if (PERIODS[fromPeriod]) {
   document.getElementById('crumbCampaigns').href = `campaigns.html?${q}`;
 }
 // the range the page opens on: ?range=all from the lifetime lists (Meta Ads table / Promoted Content), else the list's
-// ?period (Top Paid / Post Performance), else All time. The selector above the table changes it from there.
+// ?period (Top Performing / Post Performance), else All time. The selector above the table changes it from there.
 let period = PERIODS[params.get('range')] ? params.get('range') : PERIODS[fromPeriod] ? fromPeriod : 'all';
 const DASH = '—';
 const fmtRange = (a, b) => (diffDays(a, b) === 0 ? fmtDate(a) : a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`);
