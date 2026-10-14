@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="../../../components/ai-social-media/tab-item.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
 <link rel="stylesheet" href="../../../components/shared/modal.css">
+<link rel="stylesheet" href="../../../components/shared/checkbox.css">
 <style>
 /* ============================================================================
    Billing — scope: Billing/261013_Pulse_Billing_Design_Scope.md (B01–B10).
@@ -44,6 +45,20 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
 /* Plan & Credits: Current Plan and Credit Balance each get their own Container card */
 .bl-stack{display:flex; flex-direction:column; gap:var(--spacing-xl); margin-top:var(--spacing-2xl);}
 .bl-stack > .bl-container{margin-top:0;}
+/* Payment Method + Subscription Renewal — two cards side by side under Credit Balance (spec 261014 §6) */
+.bl-row2{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-xl);}
+.bl-row2 > .bl-container{margin-top:0;}
+.bl-row2 .bl-box{flex:1; align-items:flex-start;}
+.bl-row2 .bl-section{height:100%;}
+.bl-pm{display:flex; align-items:center; gap:var(--spacing-md); min-width:0;}
+.bl-pm-ic{width:40px; height:40px; border-radius:var(--radius-lg); background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.bl-pm-ic img{width:20px; height:20px;}
+.bl-pm-name{margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); font-variant-numeric:tabular-nums;}
+.bl-row2 .bl-kv{width:100%;}
+.bl-renew-msg{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700);}
+/* auto-renewal consent (spec 261014 §5) — shared Checkbox */
+.bl-consent{display:flex; align-items:flex-start; gap:var(--spacing-sm); cursor:pointer; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700);}
+.bl-consent input{margin-top:var(--spacing-2);}
 
 /* ---------- section header (Figma "Manage Members" row: Text/lg SemiBold + actions) ---------- */
 .bl-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
@@ -249,6 +264,10 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
         <div class="bl-panel bl-stack" data-panel="plan">
           <div class="bl-container"><section class="bl-section" id="planSection"></section></div>
           <div class="bl-container"><section class="bl-section" id="creditSection"></section></div>
+          <div class="bl-row2">
+            <div class="bl-container"><section class="bl-section" id="paymentSection"></section></div>
+            <div class="bl-container"><section class="bl-section" id="renewalSection"></section></div>
+          </div>
         </div>
 
         <!-- ============ Tab 2 — Credit Activity (existing table content, Settings table style) ============ -->
@@ -319,6 +338,19 @@ const fmtDate = d => d.toLocaleDateString('en-US', { month:'short', day:'numeric
 const fmtShort = d => d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, d.getDate());
 
+/* default payment method — only what Stripe returns: brand, last 4, expiry (never full number / CVC) */
+const CARDS = {
+  visa:       { brand:'Visa',       last4:'4242', exp:'08/2028' },
+  mastercard: { brand:'Mastercard', last4:'5100', exp:'11/2029' }, // shown after a Customer Portal round trip
+  none:       null,
+};
+/* pending policy decisions (spec 261014 §9) — copy reads from here so nothing is hard-coded as approved */
+const POLICY = {
+  cancelAtPeriodEnd: null,      // proposed: cancel at current period end — null until approved
+  upgradeProration: null,       // proposed: immediate upgrade, prorated, billing date reset
+  renewalConsentRequired: true, // proposed: separate renewal-consent checkbox on the first paid checkout
+};
+
 /* credits used this cycle per plan × balance state (each is a sum of real §3.1 generation costs) */
 const USED = {
   free:     { full:0, normal:10,  low:30,   zero:40   },
@@ -332,7 +364,7 @@ const PATTERN = { free:[20,10], basic:[20,20,10], standard:[45,20,90,45,40], pre
 
 /* ---------------- state ---------------- */
 const S = { plan:'standard', bal:'normal', status:'active', tab:'plan', modal:null, target:null, result:null,
-            qty:2, purchased:0, topups:[], extraInvoices:[], pending:null, historyPlan:null, fromTrial:false, forceFail:false, lastKind:null };
+            qty:2, card:'visa', consent:false, purchased:0, topups:[], extraInvoices:[], pending:null, historyPlan:null, fromTrial:false, forceFail:false, lastKind:null };
 
 function parseHash(){
   const p = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
@@ -340,6 +372,7 @@ function parseHash(){
   if (['full','normal','low','zero'].includes(p.bal)) S.bal = p.bal;
   S.status = ['active','downgrade','cancel','payment'].includes(p.status) ? p.status : 'active';
   if (['plan','activity','history'].includes(p.tab)) S.tab = p.tab;
+  S.card = p.pm === 'none' ? 'none' : 'visa';
   S.target = PLANS[p.target] ? p.target : null;
   S.modal = p.modal || null; S.result = p.result || null;
   if (S.status === 'downgrade') S.pending = lowerPlan(S.plan);
@@ -352,6 +385,7 @@ function parseHash(){
 function writeHash(){
   const q = { plan:S.plan, bal:S.bal, tab:S.tab };
   if (S.plan !== 'free' && S.status !== 'active') q.status = S.status;
+  if (S.plan !== 'free' && S.card === 'none') q.pm = 'none';
   if (S.modal){ q.modal = S.modal; if (S.target) q.target = S.target; }
   if (S.result) q.result = S.result;
   history.replaceState(null, '', '#' + new URLSearchParams(q).toString());
@@ -434,21 +468,14 @@ function renderPlan(){
        <li>Video<span class="v">Up to 8s · 720p</span></li>`
     : `<li>Credits<span class="v">${fmt(p.credits)} credits / month</span></li>
        <li>Video<span class="v">${p.lengths.join(', ')} · up to ${p.res}</span></li>
-       <li>${S.status === 'cancel' ? 'Subscription ends' : 'Next billing date'}<span class="v">${S.status === 'cancel' ? tbd() : next}</span></li>`;
+       <li>${S.status === 'cancel' ? 'Ends on' : 'Next billing date'}<span class="v">${next}</span></li>`;
   let status = '';
   if (!free && S.status === 'downgrade'){
     const t = PLANS[S.pending];
     status = notice('info', 'schedule-16.svg', `Switching to ${planLabel(t)} on ${next}`,
       `You'll keep ${planLabel(p)} until then. From ${next}: ${usd(t.price)}/month · ${fmt(t.credits)} credits/month.`);
-  } else if (!free && S.status === 'cancel'){
-    status = notice('warn', 'triangle-alert.svg', `Your subscription is set to end on ${tbd()}`,
-      'When the cancellation takes effect and how long remaining credits stay usable are still being confirmed.');
-  } else if (!free && S.status === 'payment'){
-    status = notice('error', 'alert-sm.svg', "Payment couldn't be processed.", `Update your payment method or retry the payment to keep your ${planLabel(p)}.`,
-      btn('Update Payment Method', 'secondary', "toast('Opens the Stripe billing portal')") + btn('Retry Payment', 'primary', "startPayment('retry')"));
   }
-  const cancelLink = !free && S.status !== 'cancel'
-    ? `<div class="bl-section-foot"><button type="button" class="text-btn" onclick="openModal('cancel')">Cancel Subscription</button></div>` : '';
+  // cancellation / payment issue details live in the Subscription Renewal card below
   document.getElementById('planSection').innerHTML = `
     <div class="bl-section-head"><h2 class="bl-section-title">Current Plan ${statusChip}</h2><div class="bl-actions">${actions}</div></div>
     <div class="bl-box">
@@ -458,8 +485,69 @@ function renderPlan(){
       </div>
       <ul class="bl-kv">${kv}</ul>
     </div>
-    ${status}${cancelLink}`;
+    ${status}`;
 }
+
+/* ---------------- Tab 1: Payment Method (spec 261014 §3) ---------------- */
+function renderPayment(){
+  const free = S.plan === 'free', c = CARDS[S.card];
+  let action = '', body;
+  if (free){
+    body = `<div class="bl-box-left"><p class="bl-pm-name">No payment method added</p><p class="bl-box-sub">You'll add a card when you choose a plan.</p></div>`;
+  } else if (!c){
+    action = btn('Add Payment Method', 'primary', 'openPortal()');
+    body = `<div class="bl-box-left"><p class="bl-pm-name">No payment method on file</p><p class="bl-box-sub">Add a card so your next payment goes through.</p></div>`;
+  } else {
+    action = btn('Manage Payment Method', 'secondary', 'openPortal()');
+    body = `<div class="bl-pm"><span class="bl-pm-ic"><img src="${ICON}nav-billing.svg" alt=""></span><div class="bl-box-left"><p class="bl-pm-name">${c.brand} •••• ${c.last4}</p><p class="bl-box-sub">Expires ${c.exp}</p></div></div>`;
+  }
+  document.getElementById('paymentSection').innerHTML = `
+    <div class="bl-section-head"><h2 class="bl-section-title">Payment Method</h2><div class="bl-actions">${action}</div></div>
+    <div class="bl-box">${body}</div>
+    ${free ? '' : '<p class="bl-fine">Card details are managed securely in Stripe.</p>'}`;
+}
+
+/* ---------------- Tab 1: Subscription Renewal (spec 261014 §4) ---------------- */
+function renderRenewal(){
+  const free = S.plan === 'free', end = fmtDate(SUB.periodEnd);
+  let chipHtml, rows, msg = '', action = '';
+  if (free){
+    chipHtml = chip('No active subscription', 'secondary');
+    rows = `<li>Status<span class="v">Free Trial</span></li><li>Renews<span class="v">Doesn't renew</span></li>`;
+    msg = 'Trial credits are a one-time grant.';
+    action = btn('Explore Plans', 'secondary', "openModal('plans')");
+  } else if (S.status === 'cancel'){
+    chipHtml = chip('Cancellation scheduled', 'orange');
+    rows = `<li>Status<span class="v">Cancellation scheduled</span></li><li>Ends on<span class="v">${end}</span></li>`;
+    msg = `Your subscription will end on ${end}.`;
+    action = btn('Keep Subscription', 'primary', 'keepSubscription()');
+  } else if (S.status === 'payment'){
+    chipHtml = chip('Payment issue', 'error');
+    rows = `<li>Status<span class="v">Payment issue</span></li><li>Next billing date<span class="v">${end}</span></li>`;
+    msg = "We couldn't process your latest subscription payment.";
+    action = btn('Update Payment Method', 'primary', 'openPortal()');
+  } else {
+    chipHtml = chip('Auto-renewal enabled', 'green', 'circle-check.svg');
+    rows = `<li>Status<span class="v">Auto-renewal enabled</span></li><li>Next billing date<span class="v">${end}</span></li>`;
+    msg = 'Renews automatically every month until cancelled.';
+    action = `<button type="button" class="actions-btn actions-btn--secondary" onclick="openModal('cancel')">Cancel Subscription</button>`;
+  }
+  document.getElementById('renewalSection').innerHTML = `
+    <div class="bl-section-head"><h2 class="bl-section-title">Subscription Renewal</h2><div class="bl-actions">${action}</div></div>
+    <div class="bl-box"><ul class="bl-kv">${rows}</ul></div>
+    <p class="bl-renew-msg">${msg}</p>`;
+}
+
+/* Stripe Customer Portal round trip: leave → change card → come back → re-fetch the default card */
+function openPortal(){
+  toast('Opening Stripe Customer Portal…');
+  setTimeout(() => {
+    S.card = S.card === 'visa' ? 'mastercard' : 'visa';
+    render();
+    toast(S.status === 'payment' ? 'Payment method updated. The failed payment will be retried by Stripe.' : 'Payment method updated');
+  }, 1400);
+}
+function keepSubscription(){ setState({ status:'active' }); toast('Auto-renewal is back on'); }
 
 /* ---------------- Tab 1: Credit Balance (B03) ---------------- */
 function renderCredits(){
@@ -514,9 +602,13 @@ function renderHistory(){
 /* ---------------- modals (B04–B09) ---------------- */
 const closeBtn = `<button type="button" class="modal__close" onclick="closeModal()"><img src="${ICON}button-x-dark.svg" alt="Close"></button>`;
 const head = (title, sub='') => `<div class="modal__header-row"><div><h3 class="modal__title">${title}</h3>${sub ? `<p class="bl-modal-sub">${sub}</p>` : ''}</div>${closeBtn}</div>`;
-const renewLine = `<p class="bl-fine">Renews automatically every month until cancelled. ${tbd('Pending approval', 'Auto-renewal copy awaits approval (scope §12-6)')}</p>`;
+const consentBox = () => POLICY.renewalConsentRequired
+  ? `<label class="bl-consent" for="renewConsent"><input type="checkbox" class="checkbox" id="renewConsent" ${S.consent ? 'checked' : ''} onchange="S.consent=this.checked; document.getElementById('payBtn').disabled=!this.checked; document.getElementById('payBtn').className='actions-btn actions-btn--'+(this.checked?'primary':'inactive')"><span>I understand that my subscription will automatically renew every month until cancelled.</span></label>`
+  : '';
+const renewInfo = `<p class="bl-fine">Your subscription keeps renewing monthly until cancelled.</p>`;
 
 function openModal(m, target){
+  if (m === 'subscribe') S.consent = false;
   if (m === 'buy' && S.plan === 'free'){ console.warn('Buy More Credits is blocked for Free Trial'); return; } // B07 guard
   setState({ modal:m, target: target || null, result:null });
 }
@@ -557,13 +649,13 @@ function renderModal(){
     case 'subscribe': // Free Trial → first paid plan (checkout)
       html = head(`Subscribe to ${t.name}?`)
         + `<ul class="bl-rows"><li>Plan<span class="v">${t.name} · ${usd(t.price)}/month</span></li><li>Credits<span class="v">${fmt(t.credits)} credits / month</span></li><li>Next billing date<span class="v">${fmtDate(addMonths(TODAY, 1))}</span></li><li class="total">Due today<span class="v">${usd(t.price)} USD</span></li></ul>`
-        + renewLine
-        + `<div class="modal__footer">${btn('Back', 'secondary', "openModal('plans')")}${btn('Continue to Payment', 'primary', "startPayment('subscribe')", 'id="payBtn"')}</div>`;
+        + consentBox()
+        + `<div class="modal__footer">${btn('Back', 'secondary', "openModal('plans')")}${btn('Continue to Payment', S.consent || !POLICY.renewalConsentRequired ? 'primary' : 'inactive', "startPayment('subscribe')", `id="payBtn" ${S.consent || !POLICY.renewalConsentRequired ? '' : 'disabled'}`)}</div>`;
       break;
     case 'upgrade': // B05 — proration policy unconfirmed: TBD, never the raw price difference
       html = head(`Upgrade to ${t.name}?`)
         + `<ul class="bl-rows"><li>Your new plan<span class="v">${t.name} · ${usd(t.price)}/month</span></li><li>Effective date<span class="v">${tbd()}</span></li><li>Next billing date<span class="v">${tbd()}</span></li><li class="total">Amount due today<span class="v">${tbd('Stripe calculation', 'Proration / immediate charge pending (scope §12-3)')}</span></li></ul>`
-        + renewLine
+        + renewInfo
         + `<div class="modal__footer">${btn('Back', 'secondary', "openModal('plans')")}${btn('Confirm Upgrade', 'primary', "startPayment('upgrade')", 'id="payBtn"')}</div>`;
       break;
     case 'downgrade': // B06 — next billing cycle
@@ -586,7 +678,7 @@ function renderModal(){
       break; }
     case 'cancel': // B09 — effective date / credit access unconfirmed
       html = head('Cancel Subscription?')
-        + `<ul class="bl-rows"><li>Cancellation takes effect<span class="v">${tbd()}</span></li><li>Remaining credits usable until<span class="v">${tbd()}</span></li></ul>`
+        + `<ul class="bl-rows"><li>Cancellation takes effect<span class="v">${POLICY.cancelAtPeriodEnd ? 'At the end of the billing period · ' + next : tbd()}</span></li><li>Remaining credits usable until<span class="v">${tbd()}</span></li></ul>`
         + `<p class="bl-fine">These dates will be filled in from Stripe once the cancellation policy is confirmed.</p>`
         + `<div class="modal__footer">${btn('Keep Subscription', 'secondary', 'closeModal()')}${btn('Confirm Cancellation', 'danger', 'confirmCancel()')}</div>`;
       break;
@@ -660,7 +752,7 @@ function toast(msg){ const t = document.getElementById('toast'); t.textContent =
 function seg(label, key, opts, isDisabled = () => false){
   return `<h4>${label}</h4><div class="seg">${opts.map(([v, l]) => `<button type="button" class="${S[key] === v ? 'on' : ''}" ${isDisabled(v) ? 'disabled' : ''} onclick="launch('${key}','${v}')">${l}</button>`).join('')}</div>`;
 }
-function resetPlanState(){ Object.assign(SUB, SUB_DEFAULT); Object.assign(S, { purchased:0, topups:[], extraInvoices:[], historyPlan:null, pending:null, status:'active', lastKind:null }); }
+function resetPlanState(){ Object.assign(SUB, SUB_DEFAULT); Object.assign(S, { card:'visa', purchased:0, topups:[], extraInvoices:[], historyPlan:null, pending:null, status:'active', lastKind:null }); }
 function launch(key, v){
   if (key === 'plan') resetPlanState();
   if (key === 'open'){
@@ -679,6 +771,7 @@ function renderLauncher(){
     + seg('Credit balance (B03)', 'bal', [['full','Just granted'],['normal','Normal'],['low','Low'],['zero','Zero']])
     + seg('Subscription status (B10)', 'status', [['active','Active'],['downgrade','Downgrade scheduled'],['cancel','Cancel scheduled'],['payment','Payment issue']],
           v => free || (v === 'downgrade' && bottom))
+    + seg('Payment method', 'card', [['visa','Card on file'],['none','No card on file']], () => free)
     + `<h4>Modals (B04–B09)</h4><div class="seg">
         <button type="button" onclick="launch('open','plans')">Choose / change plan</button>
         ${free ? `<button type="button" onclick="launch('open','subscribe')">Subscribe</button>`
@@ -692,14 +785,14 @@ function renderLauncher(){
         <button type="button" onclick="launch('open','failed')">Failed</button>
         <button type="button" onclick="launch('open','cancelled')">Cancelled</button></div>`
     + `<label class="note"><input type="checkbox" ${S.forceFail ? 'checked' : ''} onchange="S.forceFail=this.checked"> Make the next payment fail</label>`
-    + `<p class="note">Low is a sample state — the 80% / 100% alert thresholds are still pending approval. Free Trial has no Buy More Credits entry point anywhere.</p>`;
+    + `<p class="note">Low is a sample state — the 80% / 100% alert thresholds are still pending approval. The renewal-consent checkbox (first paid checkout only) is proposed, pending legal review. Free Trial has no Buy More Credits entry point anywhere.</p>`;
 }
 
 /* ---------------- render ---------------- */
 function render(){
   document.querySelectorAll('.tab-item[data-tab]').forEach(t => { const on = t.dataset.tab === S.tab; t.classList.toggle('tab-item--selected', on); t.setAttribute('aria-selected', on); });
   document.querySelectorAll('.bl-panel').forEach(p => p.hidden = p.dataset.panel !== S.tab);
-  renderPlan(); renderCredits(); renderActivity(); renderHistory(); renderModal(); renderLauncher();
+  renderPlan(); renderCredits(); renderPayment(); renderRenewal(); renderActivity(); renderHistory(); renderModal(); renderLauncher();
   writeHash();
 }
 
