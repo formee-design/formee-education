@@ -8,13 +8,17 @@ const ICON = '../../../../components/ai-social-media/icons/';
 const THUMB = '../../trends/assets/';
 
 // Platform series use the brand blue ramp, darkest → lightest in display order (stacks build up from the darkest).
-const PLATFORMS = [
-  { name: 'Instagram', color: 'var(--color-brand-primary-dark)' },
-  { name: 'TikTok', color: 'var(--color-brand-primary)' },
-  { name: 'Facebook', color: 'var(--color-brand-link)' },
-  { name: 'REDnote', color: 'var(--color-brand-primary-mid)' },
-  { name: 'LinkedIn', color: 'var(--color-brand-primary-pale)' },
+// connected: false = not wired up yet (REDnote, 2026-10-14) — left out of every chart, list and filter, same as the
+// hidden layers in Figma. Flip it back to true once the integration lands; colours / seeds stay as they are.
+const ALL_PLATFORMS = [
+  { name: 'Instagram', color: 'var(--color-brand-primary-dark)', connected: true },
+  { name: 'TikTok', color: 'var(--color-brand-link)', connected: true },
+  { name: 'Facebook', color: 'var(--color-brand-primary-soft)', connected: true },
+  { name: 'REDnote', color: 'var(--color-brand-primary-mid)', connected: false },
+  { name: 'LinkedIn', color: 'var(--color-brand-primary-pale)', connected: true },
 ];
+const PLATFORMS = ALL_PLATFORMS.filter((p) => p.connected);
+const platformSeed = (p) => ALL_PLATFORMS.indexOf(p) + 1; // fixed per platform, so hiding one doesn't reshuffle the others' data
 const META_ADS_PLATFORMS = ['Instagram', 'Facebook'];
 // Content types per platform (2026-10-12):
 //   Instagram / TikTok / REDnote: Video · Image · Carousel
@@ -22,8 +26,8 @@ const META_ADS_PLATFORMS = ['Instagram', 'Facebook'];
 // v2: types are now a stack in the Published Posts chart, where primary-light vanishes on white → the four strongest blues
 const TYPES = [
   { name: 'Video', color: 'var(--color-brand-primary-dark)' },
-  { name: 'Image', color: 'var(--color-brand-primary)' },
-  { name: 'Carousel', color: 'var(--color-brand-link)' },
+  { name: 'Image', color: 'var(--color-brand-link)' },
+  { name: 'Carousel', color: 'var(--color-brand-primary-soft)' },
   { name: 'Multi-Image Post', color: 'var(--color-brand-primary-mid)' },
 ];
 // Published posts in the last 30 days, per platform × type
@@ -202,8 +206,8 @@ function splitAcross(total, n, seed) {
   return out;
 }
 // posts per bucket for each platform — the Published Posts Over Time stacks
-const platformSeries = (cells, periodKey) => PLATFORMS.map((p, i) => ({
-  ...p, series: splitAcross(sumCells(cells.filter((c) => c.platform === p.name)).posts, PERIODS[periodKey].ends.length, i + 1),
+const platformSeries = (cells, periodKey) => PLATFORMS.map((p) => ({
+  ...p, series: splitAcross(sumCells(cells.filter((c) => c.platform === p.name)).posts, PERIODS[periodKey].ends.length, platformSeed(p)),
 }));
 
 const rand = (seed) => { const x = Math.sin(seed * 12.9898 + 4.1414) * 43758.5453; return x - Math.floor(x); };
@@ -296,7 +300,8 @@ function buildPosts(periodKey, { adsConnected = false } = {}) {
   const cells = buildCells(periodKey);
   const n = PERIODS[periodKey].ends.length;
   const posts = [];
-  PLATFORMS.forEach((p, pi) => {
+  PLATFORMS.forEach((p) => {
+    const pi = platformSeed(p) - 1;
     const queues = cells.filter((c) => c.platform === p.name && c.posts > 0).map((c, ci) => {
       const seed = (pi + 1) * 1000 + ci * 100;
       // long tail — most posts land near the average, a few break out

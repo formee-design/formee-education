@@ -26,6 +26,7 @@
   --color-brand-primary-pale: #cad4ff;
   --color-brand-primary-light: #dce7fb;
   --color-brand-primary-mid: #a8cbff;
+  --color-brand-primary-soft: #78aeff; /* chart series step between link and primary-mid */
   --color-brand-primary: #4f6de6;
   --color-brand-primary-dark: #1e5fd9;
   --color-brand-accent: #ed7797;
