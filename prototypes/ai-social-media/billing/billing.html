@@ -47,6 +47,7 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
 .bl-stack > .bl-container{margin-top:0;}
 /* Payment Method + Subscription Renewal — two cards side by side under Credit Balance (spec 261014 §6) */
 .bl-row2{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-xl);}
+.bl-row2[hidden]{display:none;}
 .bl-row2 > .bl-container{margin-top:0;}
 .bl-row2 .bl-box{flex:1; align-items:flex-start;}
 .bl-row2 .bl-section{height:100%;}
@@ -264,7 +265,7 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
         <div class="bl-panel bl-stack" data-panel="plan">
           <div class="bl-container"><section class="bl-section" id="planSection"></section></div>
           <div class="bl-container"><section class="bl-section" id="creditSection"></section></div>
-          <div class="bl-row2">
+          <div class="bl-row2" id="paymentRow">
             <div class="bl-container"><section class="bl-section" id="paymentSection"></section></div>
             <div class="bl-container"><section class="bl-section" id="renewalSection"></section></div>
           </div>
@@ -491,6 +492,9 @@ function renderPlan(){
 /* ---------------- Tab 1: Payment Method (spec 261014 §3) ---------------- */
 function renderPayment(){
   const free = S.plan === 'free', c = CARDS[S.card];
+  // Free Trial has no card and no subscription — Payment Method + Subscription Renewal row is hidden
+  document.getElementById('paymentRow').hidden = free;
+  if (free) return;
   let action = '', body;
   if (free){
     body = `<div class="bl-box-left"><p class="bl-pm-name">No payment method added</p><p class="bl-box-sub">You'll add a card when you choose a plan.</p></div>`;
@@ -510,6 +514,7 @@ function renderPayment(){
 /* ---------------- Tab 1: Subscription Renewal (spec 261014 §4) ---------------- */
 function renderRenewal(){
   const free = S.plan === 'free', end = fmtDate(SUB.periodEnd);
+  if (free) return; // hidden with the Payment Method card (see renderPayment)
   let chipHtml, rows, msg = '', action = '';
   if (free){
     chipHtml = chip('No active subscription', 'secondary');
