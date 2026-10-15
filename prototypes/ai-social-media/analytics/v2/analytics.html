@@ -18,7 +18,7 @@
        - Custom: clicking either date opens the Date Picker (Time=Without time); Apply re-runs every section for that range
          (DD/MM/YYYY; no future dates). URL keeps ?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD.
        - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it.
-       - Drill-down to Post Performance (posts.html): "View all →" on Top Performing / Top Organic, and every segment of
+       - Drill-down to Published Posts (posts.html): "View all →" on Top Performing / Top Organic, and every segment of
          Published Posts Over Time (platform + week). Data + helpers shared via analytics-shared.js. -->
 <!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -124,6 +124,10 @@
   /* one bar thickness for every dense view (30 / 90 days daily, All time weekly) — 6px = what 90 daily columns fit in the card */
   .stack-chart--dense .stack-chart__stack{width:6px; max-width:6px; border-radius:0;} /* square tops — a 4px radius on a 6px bar reads as a pill */
   .stack-chart__seg:hover{box-shadow:inset 0 0 0 2px var(--color-neutral-0);}
+  /* hover tooltip — the same Editor tooltip as Meta Ads Spend, right above the hovered piece (no browser title box) */
+  .stack-chart{position:relative;}
+  .stack-chart__tip{position:absolute; top:0; left:0; transform:translate(-50%, calc(-100% - 8px)); pointer-events:none; z-index:2;}
+  .stack-chart__tip[hidden]{display:none;}
   .stack-chart__total{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
   .stack-chart__label{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap;}
   .platform-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-sm) var(--spacing-lg);}
@@ -188,7 +192,7 @@
   .forecast-list{display:flex; flex-direction:column; width:100%; overflow:hidden;}
   .forecast-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:16px 16px 16px 20px; border-bottom:1px solid var(--color-neutral-150);}
   .forecast-row:last-child{border-bottom:none;}
-  /* Top Performing → Promoted Content detail (campaign.html), Top Organic → Post detail (post.html); the whole row is the link */
+  /* Top Performing → Meta Ads Performance detail (campaign.html), Top Organic → Post detail (post.html); the whole row is the link */
   a.forecast-row{text-decoration:none; color:inherit; cursor:pointer;}
   a.forecast-row:hover{background:var(--color-neutral-50);}
   a.forecast-row:hover .forecast-row__name{text-decoration:underline;}
@@ -209,8 +213,6 @@
   .top-posts-card{flex:1 0 auto;}
 
   /* empty states — page-level card (#state=empty) and in-section panels (no posts in the range) */
-  .analytics-empty{display:flex; justify-content:center; padding:var(--spacing-6xl) var(--spacing-2xl);}
-  .analytics-empty .actions-btn{text-decoration:none;}
 
   .filter-dropdown--right .context-menu--option-list{left:auto; right:0;}
 
@@ -357,16 +359,6 @@
 
       <div class="analytics-body">
 
-        <!-- #state=empty — new account: nothing published yet (and Meta Ads not connected). One page-level
-             empty-state (No content variant, empty-state.css) stands in for every data section; Meta Ads stays below. -->
-        <div class="analytics-card analytics-empty" id="emptyAccount" hidden>
-          <div class="empty-state">
-            <span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span>
-            <div class="empty-state__text"><p class="empty-state__title">No published posts yet</p><p class="empty-state__body">Publish your first post to see how your content performs.</p></div>
-            <a class="actions-btn actions-btn--primary" href="../../new-content-generation/v4/new-content-to-generate.html"><img src="../../../../components/ai-social-media/icons/plus-16-white.svg" alt="">New Content</a>
-          </div>
-        </div>
-
         <!-- Ads + Publishing — Meta Ads Spend (left) | Published Posts (right). Published Posts merges the old
              "Over Time" and "Mix" cards: one stacked chart split by Platform or Type; the legend carries each share. -->
         <div class="analytics-row analytics-row--stretch" id="publishingRow">
@@ -417,7 +409,7 @@
              everything after Ends). Only ads made in Pulse come in, one per promoted post (no multi-ad campaigns), so the
              first column is the post — its Meta campaign name is the sub-line. Columns: checkbox · on/off · Promoted content · Delivery · Results · Cost per result · Budget ·
              Amount spent · Impressions · Reach · Ends. All ads in a 5-row scroll window, a Sort menu per column, status
-             filter; View all → campaigns.html (Promoted Content). MOCK data until the Meta API is wired — see getMetaCampaigns() in
+             filter; View all → campaigns.html (Meta Ads Performance). MOCK data until the Meta API is wired — see getMetaCampaigns() in
              analytics-shared.js. Checkbox / toggle are visual only; the post title opens campaign.html. -->
         <section class="analytics-section" id="adsSection">
           <div class="section-header-row">
@@ -573,10 +565,10 @@ function renderPublished() {
     <div class="stack-chart__col">
       <span class="stack-chart__total">${n > 16 ? '' : totals[k]}</span>
       <div class="stack-chart__stack" style="height:${(totals[k] / max) * CHART_H}px">
-        ${series.filter((g) => g.series[k] > 0).map((g) => `<a class="stack-chart__seg" href="${segHref(k, { [dim]: g.name })}" title="${g.name} · ${rangeLabel(bk)}: ${g.series[k]} posts (${Math.round((g.series[k] / totals[k]) * 100)}%) — view posts" style="flex:${g.series[k]} 0 0; background:${g.color}"></a>`).join('')}
+        ${series.filter((g) => g.series[k] > 0).map((g) => `<a class="stack-chart__seg" href="${segHref(k, { [dim]: g.name })}" data-tip="${g.name} · ${rangeLabel(bk)} · ${g.series[k]} post${g.series[k] === 1 ? '' : 's'}" aria-label="${g.name} · ${rangeLabel(bk)} · ${g.series[k]} posts — view posts" style="flex:${g.series[k]} 0 0; background:${g.color}"></a>`).join('')}
       </div>
       <span class="stack-chart__label">${k % every === 0 ? bk.label : ''}</span>
-    </div>`).join('');
+    </div>`).join('') + '<div class="editor-tooltip stack-chart__tip" hidden></div>';
   document.getElementById('platformLegend').innerHTML = series.map((g) => {
     const count = g.series.reduce((a2, c) => a2 + c, 0);
     const inner = `<span class="platform-legend__dot" style="background:${count ? g.color : 'var(--color-neutral-200)'}"></span>${g.name} <span class="platform-legend__value">${count}</span>`;
@@ -584,6 +576,22 @@ function renderPublished() {
       : `<span class="platform-legend__item platform-legend__item--zero">${inner}</span>`;
   }).join('');
 }
+
+// segment hover → tooltip above it. The frame is CSS-scaled, so client px are mapped back to layout px.
+(() => {
+  const chart = document.getElementById('publishedOverTime');
+  chart.addEventListener('mouseover', (e) => {
+    const seg = e.target.closest('.stack-chart__seg'); const tip = chart.querySelector('.stack-chart__tip');
+    if (!seg || !tip) return;
+    const cr = chart.getBoundingClientRect(), sr = seg.getBoundingClientRect(), scale = cr.width / chart.offsetWidth;
+    tip.textContent = seg.dataset.tip; tip.hidden = false;
+    const half = tip.offsetWidth / 2;
+    const x = (sr.left - cr.left + sr.width / 2) / scale;
+    tip.style.left = `${Math.min(Math.max(x, half), chart.offsetWidth - half)}px`;
+    tip.style.top = `${(sr.top - cr.top) / scale}px`;
+  });
+  chart.addEventListener('mouseout', (e) => { if (!e.relatedTarget || !e.relatedTarget.closest?.('.stack-chart__seg')) { const tip = chart.querySelector('.stack-chart__tip'); if (tip) tip.hidden = true; } });
+})();
 
 // ── Meta Ads Spend — one bar per bucket (week; month on All time; day on short custom ranges) + the period total ──
 function renderSpend() {
@@ -620,8 +628,10 @@ const adsTable = mountAdsTable({
     document.getElementById('adsControls').hidden = none;
     document.getElementById('adsCard').hidden = none || count === 0;
     document.getElementById('adsEmpty').hidden = !(none || count === 0);
-    document.getElementById('adsEmptyTitle').textContent = none ? 'No Meta ad account connected.' : `No ${status.toLowerCase()} ads.`;
-    document.getElementById('adsEmptyBody').textContent = none ? 'Connect a Meta ad account to see how your promoted posts perform.' : 'Try another status.';
+    if (none) { showNotConnected(document.getElementById('adsEmpty')); } else {
+      document.getElementById('adsEmptyTitle').textContent = NO_ADS_FOR_STATUS[status] || 'No ads.';
+      document.getElementById('adsEmptyBody').textContent = 'Try another status.';
+    }
   },
 });
 buildFilter({
@@ -722,13 +732,16 @@ function renderPage() {
   renderPerformance(cells);
 }
 
-// #state=empty — new account: zeroed stats, one page-level empty state, data sections hidden (Meta Ads stays)
+// #state=empty — new account: same layout as every other state, only the messages change (Figma 2026-10-15).
+// Meta sections say the ad account isn't connected, post sections say nothing is published yet.
 if (DATA_STATE === 'empty') {
   document.getElementById('kpiFailed').textContent = '0';
-  document.getElementById('kpiFailedSub').textContent = 'none';
   document.getElementById('kpiSpend').textContent = '$0.00';
-  document.getElementById('emptyAccount').hidden = false;
-  ['publishingRow', 'perfSection', 'topRow'].forEach((id) => { document.getElementById(id).hidden = true; });
+  showNotConnected(document.getElementById('spendEmpty'));
+  showNotConnected(document.getElementById('paidEmpty'));
+  const setEmpty = (id, title, body) => { const p = document.getElementById(id); p.querySelector('.empty-state__title').textContent = title; p.querySelector('.empty-state__body').textContent = body; };
+  setEmpty('overTimeEmpty', 'No published posts yet.', 'Publish your first post to see how your content performs.');
+  setEmpty('organicEmpty', 'No published posts yet.', 'Your best posts without ad spend will be ranked here.');
 }
 
 function bindTabs(id, key) {
@@ -759,6 +772,9 @@ document.getElementById('perfRows').addEventListener('keydown', (e) => {
   if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); togglePerfRow(row); }
 });
 
+// status filter with no rows — written per status so it reads naturally (not "No in draft ads.")
+const NO_ADS_FOR_STATUS = { Active: 'No active ads.', Off: 'No ads turned off.', 'In Draft': 'No ads in draft.' };
+
 // ── Top Organic Posts — posts with no ad spend in the date range, top 3 by the selected Rank by metric (placeholder data) ──
 // Common metrics only (views, likes, comments); Engagement Rate is derived from them, same as Content Performance.
 const RANK_METRICS = [
@@ -769,14 +785,14 @@ const RANK_METRICS = [
 ];
 const topPostsState = { platform: 'All Platforms', rank: 'Views' };
 
-// "View all →" opens Post Performance with the same date range / platform / ranking, so its list starts with these 3
+// "View all →" opens Published Posts with the same date range / platform / ranking, so its list starts with these 3
 function updateViewAllLinks() {
   const q = new URLSearchParams(periodParams(pageState.period));
   document.getElementById('viewAllCampaigns').href = `campaigns.html?${q}`; // full list; the period only feeds the breadcrumb back
   document.getElementById('viewAllPaid').href = `posts.html?view=paid&sort=Leads&${q}`; // same ranking as the 3 rows here
   document.getElementById('viewAllOrganic').href = `posts.html?${organicQuery()}`;
 }
-// Post Performance, organic, with this range / platform / ranking
+// Published Posts, organic, with this range / platform / ranking
 function organicQuery() {
   const q = new URLSearchParams({ view: 'organic', ...periodParams(pageState.period) });
   if (topPostsState.platform !== 'All Platforms') q.set('platform', topPostsState.platform);
@@ -785,7 +801,7 @@ function organicQuery() {
 }
 
 // ── Top Performing Content — top 3 Pulse ads delivered in the range, by leads (Meta Ads covers Instagram / Facebook);
-//    a row opens that ad's Promoted Content detail ──
+//    a row opens that ad's Meta Ads Performance detail ──
 function renderTopPaid() {
   const card = document.getElementById('topPaidList'), empty = document.getElementById('paidEmpty');
   const paid = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => p.paid)
@@ -794,8 +810,10 @@ function renderTopPaid() {
   document.getElementById('viewAllPaid').hidden = paid.length === 0;
   if (!paid.length) {
     const notConnected = DATA_STATE === 'empty';
-    document.getElementById('paidEmptyTitle').textContent = notConnected ? 'Paid results will appear once Meta Ads is connected.' : 'No paid posts in this date range.';
-    document.getElementById('paidEmptyBody').textContent = notConnected ? 'Boosted posts and ads will be ranked here by leads and CPL.' : 'Posts with ad spend will be ranked here by leads.';
+    if (!notConnected) { // not connected: the panel already holds the "Connect one" line
+      document.getElementById('paidEmptyTitle').textContent = 'No paid posts in this date range.';
+      document.getElementById('paidEmptyBody').textContent = 'Posts with ad spend will be ranked here by leads.';
+    }
     return;
   }
   // change vs the previous period of the same length (placeholder, always a gain for the top 3)
@@ -817,7 +835,7 @@ function renderTopPosts() {
   updateViewAllLinks();
   const card = document.getElementById('topPostsList');
   const metric = RANK_METRICS.find((m) => m.value === topPostsState.rank).key;
-  // the same posts Post Performance lists (shared dataset), organic only
+  // the same posts Published Posts lists (shared dataset), organic only
   const organic = buildPosts(pageState.period, { adsConnected: DATA_STATE !== 'empty' }).filter((p) => !p.paid); // v2: paid posts go to Top Performing
   const posts = organic
     .filter((p) => topPostsState.platform === 'All Platforms' || p.platform === topPostsState.platform)
@@ -830,7 +848,7 @@ function renderTopPosts() {
   card.hidden = posts.length === 0;
   empty.hidden = posts.length > 0;
   if (posts.length === 0) {
-    empty.querySelector('.empty-state__title').textContent = organic.length ? `No organic posts on ${topPostsState.platform} in this date range.` : 'No organic posts in this date range.';
+    empty.querySelector('.empty-state__title').textContent = DATA_STATE === 'empty' ? 'No published posts yet.' : organic.length ? `No organic posts on ${topPostsState.platform} in this date range.` : 'No organic posts in this date range.';
     return;
   }
   const lp = new URLSearchParams(periodParams(pageState.period)); // the detail opens on this range (and its breadcrumb leads back to it)

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Post — AI Social Media</title>
 <!-- Organic post detail (v2) — one published post, opened from a Top Organic Posts row (Analytics) or a post title in
-     Post Performance. Same layout as the Promoted Content detail (campaign.html):
-     1. header (post title, Organic, published date, platform, type) + its row from the Post Performance table,
+     Published Posts. Same layout as the Meta Ads Performance detail (campaign.html):
+     1. header (post title, Organic, published date, platform, type) + its row from the Published Posts table,
      2. Performance Over Time (area line chart: Views / Likes / Comments / Engagement rate, Daily / Weekly / Monthly),
      3. Post (the content, with a link to Library).
      ?id=<post id>&period=… (+ from / to for custom) — the id is the post's index in buildPosts() for that range, so the
@@ -61,7 +61,7 @@
   .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
   .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
 
-  /* breadcrumb — Analytics (link, neutral/500) › Post Performance */
+  /* breadcrumb — Analytics (link, neutral/500) › Published Posts */
   .crumb-link{color:var(--color-neutral-500); text-decoration:none; font-weight:var(--font-weight-medium);}
   .crumb-link:hover{color:var(--color-neutral-700);}
   .crumb-sep{width:16px; height:16px; opacity:.6;}
@@ -87,7 +87,7 @@
 
 
 
-  /* period selector — same as Analytics / Post Performance (Segment Chip track; Custom = two date fields + Apply) */
+  /* period selector — same as Analytics / Published Posts (Segment Chip track; Custom = two date fields + Apply) */
   .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
   .period-row{display:flex; align-items:center; gap:var(--spacing-md);}
   .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-md);}
@@ -119,7 +119,7 @@
   .promo-card__text{display:flex; flex-direction:column; gap:var(--spacing-xs); flex:1 0 0; min-width:0;}
   .promo-card__title{margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .promo-card__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
-  /* this post's row — same columns as the Post Performance table (posts.html) */
+  /* this post's row — same columns as the Published Posts table (posts.html) */
   .posts-table .sc-list-colhead,
   .posts-table .sc-list-row{padding-left:20px; padding-right:20px;}
   .posts-col--post{flex:1 0 0; min-width:1px;}
@@ -178,7 +178,7 @@
       <div class="app-topbar__crumb">
         <a class="crumb-link" href="analytics.html" id="crumbAnalytics">Analytics</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
-        <a class="crumb-link" href="posts.html" id="crumbPosts">Post Performance</a>
+        <a class="crumb-link" href="posts.html" id="crumbPosts">Published Posts</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
         <span id="crumbName"></span>
       </div>
@@ -201,7 +201,7 @@
 
       <div class="analytics-header">
         <div class="page-header__title-block">
-          <div class="title-row"><h1 class="page-header__title" id="postTitle"></h1><button type="button" class="text-btn export-btn title-row__action" id="postExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button></div>
+          <div class="title-row"><h1 class="page-header__title" id="postTitle"></h1></div><!-- no Export here — export is for Meta ads only (2026-10-15) -->
           <p class="campaign-meta" id="postMeta"></p>
         </div>
         <!-- period selector — same Segment Chip track + Custom range as Analytics; preset from the list this was opened from -->
@@ -225,7 +225,7 @@
             <button type="button" class="actions-btn actions-btn--primary" id="customApply">Apply</button>
           </div>
         </div>
-        <!-- 1. This post's row from the Post Performance table — same columns, one row, for the picked period -->
+        <!-- 1. This post's row from the Published Posts table — same columns, one row, for the picked period -->
         <p class="lifetime-caption" id="totalsCaption"></p>
         <div class="analytics-card">
           <div class="sc-list sc-list--fluid posts-table">
@@ -297,7 +297,7 @@
 const params = new URLSearchParams(location.search);
 readCustomRange(params);
 const listPeriod = PERIODS[params.get('period')] ? params.get('period') : '30d'; // the list it came from — fixes which post ?id is
-const ADS_CONNECTED = params.get('ads') !== 'disconnected' && DATA_STATE !== 'empty'; // same switch as Post Performance
+const ADS_CONNECTED = params.get('ads') !== 'disconnected' && DATA_STATE !== 'empty'; // same switch as Published Posts
 const baseKey = listPeriod === 'custom' ? readBasePeriod(params) : null; // opened from a list cut out of a wider range (Analytics bar)
 const posts = baseKey ? buildPosts(baseKey, { adsConnected: ADS_CONNECTED }) : buildPosts(listPeriod, { adsConnected: ADS_CONNECTED });
 const post = posts.find((p) => p.id === Number(params.get('id'))) || posts.find((p) => !p.paid);
@@ -404,18 +404,6 @@ if (post && !post.paid) {
   fitFrameToViewport();
   renderTotals();
   renderChart();
-
-  // Export — this post's totals + its daily views, likes, comments and engagement for the picked period
-  document.getElementById('postExport').addEventListener('click', () => {
-    const { span, days, totals: t } = current();
-    const from = span ? span.start : post.date, to = span ? span.end : TODAY;
-    openExportModal({
-      title: 'Export post data – daily breakdown',
-      intro: `This file contains this post's totals and its daily views, likes, comments and engagement rate from ${fmtDMYlong(from)} to ${fmtDMYlong(to)}.`,
-      defaultName: `Formee Express, ${post.title}, ${fmtDMYlong(from)}–${fmtDMYlong(to)}`,
-      build: () => ({ text: `${toCSV(['Post', 'Platform', 'Type', 'Published', 'Views', 'Likes', 'Comments', 'Engagement rate'], [[post.title, post.platform, post.type, fmtISO(post.date), t.views, t.likes, t.comments, t.engagement === null ? '' : formatPct(t.engagement)]])}\n\n${toCSV(['Date', 'Views', 'Likes', 'Comments', 'Engagement rate'], days.map((d) => [fmtISO(d.date), d.views, d.likes, d.comments, d.views ? formatPct(engagementOf(d)) : '']))}` }),
-    });
-  });
 } else {
   location.replace(`posts.html?${pq}`); // nothing published in this range
 }

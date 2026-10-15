@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Promoted Content — AI Social Media</title>
-<!-- Promoted Content (v2) — the full list behind Analytics › Meta Ads Performance › "View all →". One row per post
+<title>Meta Ads Performance — AI Social Media</title>
+<!-- Meta Ads Performance (v2) — the full list behind Analytics › Meta Ads Performance › "View all →". One row per post
      promoted on Meta from Pulse (Pulse sets ads up per content — no multi-ad campaigns); the Meta campaign name is the sub-line.
      Same shared table as Analytics (mountAdsTable in analytics-shared.js — Ads Manager columns minus Actions, a Sort menu
      per column, status filter), but every campaign at full height instead of the 5-row scroll window.
@@ -55,7 +55,7 @@
   .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
   .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
 
-  /* breadcrumb — Analytics (link, neutral/500) › Post Performance */
+  /* breadcrumb — Analytics (link, neutral/500) › Published Posts */
   .crumb-link{color:var(--color-neutral-500); text-decoration:none; font-weight:var(--font-weight-medium);}
   .crumb-link:hover{color:var(--color-neutral-700);}
   .crumb-sep{width:16px; height:16px; opacity:.6;}
@@ -81,6 +81,8 @@
 
 
 
+  .section-header-row--count{align-items:center;}
+  .ads-count{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
   [hidden]{display:none !important;}
 
   .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
@@ -133,7 +135,7 @@
       <div class="app-topbar__crumb">
         <a class="crumb-link" href="analytics.html" id="crumbAnalytics">Analytics</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
-        <span>Promoted Content</span>
+        <span>Meta Ads Performance</span>
       </div>
       <div class="app-topbar__spacer"></div>
       <label class="search-field search-field--expanded">
@@ -153,19 +155,15 @@
 
       <div class="analytics-header">
         <div class="page-header__title-block">
-          <h1 class="page-header__title">Promoted Content</h1>
+          <h1 class="page-header__title">Meta Ads Performance</h1>
           <p class="page-header__sub">Every post you promoted on Meta from Pulse, and how its ad performed — lifetime totals.</p>
         </div>
       </div>
 
       <section class="analytics-section">
-        <div class="section-header-row">
-          <div class="trends-section-header">
-            <div class="trends-section-header__left">
-              <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads</h2></div>
-              <p class="trends-section-header__desc" id="adsDesc"></p>
-            </div>
-          </div>
+        <!-- no sub-heading — the page title already says it; just the count next to Status / Export -->
+        <div class="section-header-row section-header-row--count">
+          <p class="ads-count" id="adsDesc"></p>
           <div class="filter-row" id="adsControls">
             <div class="filter-dropdown filter-dropdown--right" id="adsStatusFilterWrap"></div>
             <button type="button" class="text-btn export-btn" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button>

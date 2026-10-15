@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Promoted Content — AI Social Media</title>
+<title>Meta Ads Performance — AI Social Media</title>
 <!-- Promoted content detail (v2) — one ad, opened from a post title in Analytics › Meta Ads Performance or Promoted
      Content. Pulse sets ads up per content (no multi-ad campaigns), so this is one post's ad: the post is the subject,
-     its Meta campaign name is metadata. Laid out like Post Performance: 1. header (post title, delivery, dates, objective,
+     its Meta campaign name is metadata. Laid out like Published Posts: 1. header (post title, delivery, dates, objective,
      budget, Meta campaign),
-     2. its row from the Meta Ads table (same columns as Analytics / Promoted Content — one row, no sort menus),
+     2. its row from the Meta Ads table (same columns as Analytics / Meta Ads Performance — one row, no sort menus),
      3. Performance Over Time (daily area line chart: Spend / Results / Cost per result), 4. Promoted content (the post).
      No metrics beyond the table's (no CTR / CPM). ?id=c01 … c13 (c12 = the In Draft campaign → draft state: no chart,
      post card marked not published). MOCK data until the Meta API is wired (getMetaCampaign() in analytics-shared.js). -->
@@ -60,7 +60,7 @@
   .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
   .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
 
-  /* breadcrumb — Analytics (link, neutral/500) › Post Performance */
+  /* breadcrumb — Analytics (link, neutral/500) › Published Posts */
   .crumb-link{color:var(--color-neutral-500); text-decoration:none; font-weight:var(--font-weight-medium);}
   .crumb-link:hover{color:var(--color-neutral-700);}
   .crumb-sep{width:16px; height:16px; opacity:.6;}
@@ -86,7 +86,7 @@
 
 
 
-  /* period selector — same as Analytics / Post Performance (Segment Chip track; Custom = two date fields + Apply) */
+  /* period selector — same as Analytics / Published Posts (Segment Chip track; Custom = two date fields + Apply) */
   .period-selector{display:flex; align-items:center; gap:0; background:var(--color-neutral-100); padding:4px; border-radius:var(--radius-xl); width:max-content;}
   .period-row{display:flex; align-items:center; gap:var(--spacing-md);}
   .period-selector__extra{display:flex; align-items:center; gap:var(--spacing-md);}
@@ -165,7 +165,7 @@
       <div class="app-topbar__crumb">
         <a class="crumb-link" href="analytics.html" id="crumbAnalytics">Analytics</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
-        <a class="crumb-link" href="campaigns.html" id="crumbCampaigns">Promoted Content</a>
+        <a class="crumb-link" href="campaigns.html" id="crumbCampaigns">Meta Ads Performance</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
         <span id="crumbName"></span>
       </div>
@@ -211,7 +211,7 @@
             <button type="button" class="actions-btn actions-btn--primary" id="customApply">Apply</button>
           </div>
         </div>
-        <!-- 2. This ad's row from the Meta Ads table — same columns and look as Analytics / Promoted Content; its numbers
+        <!-- 2. This ad's row from the Meta Ads table — same columns and look as Analytics / Meta Ads Performance; its numbers
              follow the period above (All time = lifetime totals) -->
         <p class="lifetime-caption" id="totalsCaption">Lifetime totals</p>
         <div class="analytics-card ads-card">
@@ -280,8 +280,8 @@ if (PERIODS[fromPeriod]) {
   document.getElementById('crumbAnalytics').href = `analytics.html?${q}`;
   document.getElementById('crumbCampaigns').href = `campaigns.html?${q}`;
 }
-// the range the page opens on: ?range=all from the lifetime lists (Meta Ads table / Promoted Content), else the list's
-// ?period (Top Performing / Post Performance), else All time. The selector above the table changes it from there.
+// the range the page opens on: ?range=all from the lifetime lists (Meta Ads table / Meta Ads Performance), else the list's
+// ?period (Top Performing / Published Posts), else All time. The selector above the table changes it from there.
 let period = PERIODS[params.get('range')] ? params.get('range') : PERIODS[fromPeriod] ? fromPeriod : 'all';
 const DASH = '—';
 const fmtRange = (a, b) => (diffDays(a, b) === 0 ? fmtDate(a) : a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`);
@@ -379,7 +379,7 @@ fitFrameToViewport();
 getMetaCampaign(params.get('id')).then((m) => {
   model = m;
   const c = m.campaign, { start, end } = campaignRange(c);
-  document.title = `${c.content.title} — Promoted Content`;
+  document.title = `${c.content.title} — Meta Ads Performance`;
   document.getElementById('crumbName').textContent = c.content.title;
   document.getElementById('campaignName').textContent = c.content.title;
   document.getElementById('campaignMeta').innerHTML = [

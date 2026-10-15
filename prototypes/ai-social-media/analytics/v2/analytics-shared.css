@@ -68,9 +68,11 @@
 .line-chart .editor-tooltip{position:absolute; top:0; transform:translate(-50%, calc(-100% - 10px)); pointer-events:none;}
 .line-chart .editor-tooltip[hidden]{display:none;}
 
-/* Export — the trigger (Actions / Text Button + download icon, beside "View all →") */
+/* Export — the trigger: Actions / Text Button in its default (bordered) look + download icon (Figma 2026-10-15) */
+.export-btn{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-lg);}
+.export-btn:hover{background:var(--color-neutral-75);}
 .export-btn img{width:16px; height:16px; display:block;}
-.export-btn:disabled{color:var(--color-neutral-400); cursor:not-allowed; background:none;}
+.export-btn:disabled{color:var(--color-neutral-400); cursor:not-allowed; background:var(--color-neutral-0);}
 .export-btn:disabled img{opacity:.5;}
 
 /* Export modal — shared Modal (modal--form) on .frame, laid out like Ads Manager's export dialog */
@@ -96,3 +98,8 @@
 /* chart card head — total + label on the left, the unit select (Daily / Weekly / Monthly) on the right */
 .chart-head-row{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-md);}
 .unit-select .context-menu--option-list{width:160px;}
+
+/* Meta Ads not connected — centred one-liner inside an empty panel (Home uses the same sentence) */
+.not-connected{margin:0; padding:0 var(--spacing-2xl); text-align:center; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-500);}
+.not-connected__link{color:var(--color-brand-primary); text-decoration:none;}
+.not-connected__link:hover{text-decoration:underline;}

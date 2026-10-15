@@ -1,6 +1,6 @@
 // Analytics — shared placeholder data + helpers for analytics.html and posts.html.
 // One dataset (platform × content type) drives every number on both screens, so a total on Analytics
-// always matches the posts listed on Post Performance. Only metrics every connected platform's API returns:
+// always matches the posts listed on Published Posts. Only metrics every connected platform's API returns:
 // posts, views, likes, comments (engagement = (likes + comments) ÷ views). Paid metrics (spend, leads, CPL)
 // come from Meta Ads, so they exist only for Instagram / Facebook posts and only once Meta Ads is connected.
 
@@ -63,7 +63,7 @@ const fmtDate = (date) => date.toLocaleDateString('en-US', { month: 'short', day
 const fmtMonth = (date) => date.toLocaleDateString('en-US', { month: 'short' });
 
 // Global date range → post-count scale and chart buckets (placeholder). Each bucket is the week / month / day
-// ending on `ends[i]`; `chartUnit` is the x-axis step of the Post Performance line chart.
+// ending on `ends[i]`; `chartUnit` is the x-axis step of the Published Posts line chart.
 const PERIODS = {
   '30d': { factor: 1, unit: 'week', chartUnit: 'day', ends: Array.from({ length: 5 }, (_, i) => addDays(TODAY, -7 * (4 - i))) },
   '90d': { factor: 2.7, unit: 'week', chartUnit: 'week', ends: Array.from({ length: 13 }, (_, i) => addDays(TODAY, -7 * (12 - i))) },
@@ -105,7 +105,7 @@ function bucketRange(periodKey, i) {
 const fmtDMY = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 const fmtISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parseISO = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
-// query params that carry a period between Analytics and Post Performance (custom adds its dates)
+// query params that carry a period between Analytics and Published Posts (custom adds its dates)
 const periodParams = (key) => (key === 'custom' ? { period: key, from: fmtISO(PERIODS.custom.start), to: fmtISO(PERIODS.custom.end) } : { period: key });
 // Detail pages (campaign.html / post.html) — their own period selector, preset from the list they were opened from.
 // The part of a run (start → last) inside the picked range; 'all' = the whole run (lifetime), null = no overlap.
@@ -129,7 +129,7 @@ function bindDetailPeriod({ initial, onChange }) {
   });
   select(initial);
 }
-// A bar on Analytics opens its week / month in Post Performance as a Custom range, but lists the bar's own posts: the
+// A bar on Analytics opens its week / month in Published Posts as a Custom range, but lists the bar's own posts: the
 // parent range's dataset (?base=30d|90d|all, or base=custom&baseFrom&baseTo) cut to the custom dates — so the count
 // matches the bar. Returns the PERIODS key to build posts from, or null.
 function readBasePeriod(params) {
@@ -334,7 +334,7 @@ function buildPosts(periodKey, { adsConnected = false } = {}) {
   });
   // Paid = a Pulse ad (Meta Ads table) delivered in the date range. Each one sits on a post of its platform (same type
   // first, published closest to the ad's start) and brings its content + spend / leads for the days inside the range,
-  // so Top Performing, Post Performance and the Promoted Content detail all show the same post.
+  // so Top Performing, Published Posts and the Meta Ads Performance detail all show the same post.
   if (adsConnected) {
     const { start, end } = periodRange(periodKey);
     META_CAMPAIGNS_MOCK.filter((c) => c.spent !== null && parseISO(c.starts) <= end && parseISO(c.ends) >= start).forEach((c) => {
@@ -422,7 +422,12 @@ function drawAreaChart(wrap, { values, labels, tip, format = formatCount, height
   });
 }
 
-// ── Meta Ads table — shared by Analytics (Meta Ads Performance, 5-row scroll window) and Promoted Content (full list).
+// Meta Ads not connected — one sentence with a "Connect one" link, the same copy as Home's Top performing card.
+// Replaces an empty panel's content (Meta Ads Spend / Meta Ads Performance / Top Performing on a new account).
+const META_NOT_CONNECTED = 'No Meta Ads account connected for this brand. <a class="not-connected__link" href="#connect-meta">Connect one</a> to track real ad performance here.';
+function showNotConnected(panel) { panel.innerHTML = `<p class="not-connected">${META_NOT_CONNECTED}</p>`; }
+
+// ── Meta Ads table — shared by Analytics (Meta Ads Performance, 5-row scroll window) and Meta Ads Performance (full list).
 //    Only ads made in Pulse come in, and Pulse sets ads up per content (no multi-ad campaigns), so each row is ONE promoted
 //    post: content first, its Meta campaign name as a sub-line (handy when cross-checking in Ads Manager). MOCK data (Ads Manager reference + two live campaigns so "Active" has rows), shaped like the Meta
 //    Marketing API campaign + insights fields so getMetaCampaigns() can swap to the API without touching the renderer. ──
@@ -471,7 +476,7 @@ function campaignDaily(c) {
   });
 }
 // one organic post's daily views / likes / comments, published → today (post.html). Most of it lands in the first days and
-// tails off; integer splits add back up to the post's totals in its Post Performance row.
+// tails off; integer splits add back up to the post's totals in its Published Posts row.
 function postDaily(post) {
   const n = diffDays(post.date, TODAY) + 1, seed = post.id * 13.7 + 5;
   const w = Array.from({ length: n }, (_, i) => Math.exp(-i / 5) * (0.6 + 0.8 * rand(seed + i * 1.1)) + 0.06 * (0.5 + rand(seed + i * 2.3)));
@@ -895,7 +900,7 @@ function openExportModal({ title, intro, notices = [], defaultName, build }) {
   input.focus(); input.select();
 }
 
-// Export from the Meta Ads table (Analytics · Promoted Content) — ads are lifetime figures, so the report spans the
+// Export from the Meta Ads table (Analytics · Meta Ads Performance) — ads are lifetime figures, so the report spans the
 // earliest ad start → today. Drafts have no delivery data and are left out (with a notice), like Ads Manager.
 const fmtDMYlong = (d) => `${d.getDate()} ${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getFullYear()}`;
 function openAdsExport(table) {
