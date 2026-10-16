@@ -3,23 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <title>Published Posts — AI Social Media</title>
-<!-- Published Posts — the one drill-down page under Analytics (no Figma frame yet; laid out from the Analytics
-     components so it can be moved into Figma as-is). Reached from Analytics:
-       - "View all →" on Top Performing Content   → ?view=paid
+<!-- Published Posts — the one list page under Analytics (Figma: Analytics_to be › 03_Published Posts). Reached from Analytics:
+       - "View all →" on Meta Ads Performance → ?view=paid (Meta Ads filter, newest ad first)
+       - "View all →" on Top Performing Content → ?view=paid&adsort=results (Results ↓, the same order as its rows)
        - "View all →" on Top Organic Posts  → ?view=organic (+ platform / sort carried over)
        - a segment of Published Posts → ?period=custom&from=…&to=…&base=30d&platform=Instagram (that platform's posts in
          that week — base = the Analytics range, so the list is that bar's own posts and the count matches)
        - a bar / slice of Published Mix → ?platform= or ?type=
        - "View posts →" on a Content Performance row → ?platform= (&type= for a sub-row), or the reverse on By content type
-     Sections: filter bar (All posts / Organic / Paid · Platform · Content type),
+     Sections: filter bar (All posts / Organic / Meta Ads · Platform · Content type),
      Stats summary (totals for the listed posts),
-     Performance Over Time (line chart; Views / Likes / Comments, + CPL on Paid), Posts (sortable list).
+     Performance Over Time (line chart; Views / Likes / Comments, + CPL on Meta Ads), then the list:
+       - All posts / Organic → Posts (Sort by: Views / Likes / Comments / Engagement Rate / Newest — a Light view chip)
+       - Meta Ads → Ads: the same Meta Ads table as Analytics (Status filter, Export, On/Off, column sorts with Clear sort),
+         ads that delivered in the range + drafts last edited in it, newest first ("Paid" is "Meta Ads" everywhere, 2026-10-16:
+         Meta is the only paid integration)
      Same placeholder dataset as Analytics (analytics-shared.js), so every count matches.
-     URL state: ?period=30d|90d|all|custom &view=all|organic|paid &platform= &type= &sort=
-       (an old ?bucket=<i> link opens as a Custom range of that week / month)
-       v2: Meta Ads is connected by default (Paid posts with spend / leads / CPL); &ads=disconnected shows the old
-       "Integration Pending" state.
-       Without it, Paid stays in its "Integration Pending" empty state, same as Analytics. -->
+     URL state: ?period=30d|90d|all|custom &view=all|organic|paid &platform= &type= &sort= &adsort=results
+       (an old ?bucket=<i> link opens as a Custom range of that week / month; ?ad=<id> rings that ad's row, back from its detail)
+       v2: Meta Ads is connected by default; &ads=disconnected (or #state=empty) shows the not-connected line on Meta Ads. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -43,6 +45,11 @@
 <link rel="stylesheet" href="../../../../components/ai-social-media/schedule.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/date-picker.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/editor-panel-chrome.css">
+<link rel="stylesheet" href="../../../../components/shared/checkbox.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/switch.css">
+<link rel="stylesheet" href="../../../../components/shared/modal.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/controls-toggles.css">
+<link rel="stylesheet" href="analytics-shared.css">
 <style>
   *{box-sizing:border-box;}
   body{
@@ -121,7 +128,7 @@
   .posts-table .sc-list-row{padding-left:20px; padding-right:20px;}
   /* landing highlight when coming back from a post's detail via its breadcrumb (?post=<id>) */
   @keyframes arrival-ring{0%,60%{box-shadow:inset 0 0 0 2px var(--color-brand-primary-mid); background:var(--color-brand-primary-light);} 100%{box-shadow:inset 0 0 0 2px transparent;}}
-  .posts-table .sc-list-row.is-arrival{animation:arrival-ring 2.4s ease-out;}
+  .posts-table .sc-list-row.is-arrival, .ads-table .sc-list-row.is-arrival{animation:arrival-ring 2.4s ease-out;}
   .posts-col--post{flex:1 0 0; min-width:1px;}
   .posts-col--date{width:140px;}
   .posts-col--status{width:110px;}
@@ -237,12 +244,12 @@
           </div>
         </div>
 
-        <!-- filter bar — All posts / Organic / Paid · Platform · Content type · Published (week from the Analytics bar) -->
+        <!-- filter bar — All posts / Organic / Meta Ads · Platform · Content type -->
         <div class="filter-bar">
           <div class="controls-segmented-control" id="viewTabs" role="tablist">
             <button type="button" class="controls-segment-chip" data-view="all" role="tab">All posts</button>
             <button type="button" class="controls-segment-chip" data-view="organic" role="tab">Organic</button>
-            <button type="button" class="controls-segment-chip" data-view="paid" role="tab">Paid</button>
+            <button type="button" class="controls-segment-chip" data-view="paid" role="tab">Meta Ads</button>
           </div>
           <div class="filter-row">
             <div class="filter-dropdown" id="platformFilterWrap"></div>
@@ -261,7 +268,7 @@
           <div class="section-header-row">
             <div class="trends-section-header">
               <div class="trends-section-header__left">
-                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Performance Over Time</h2><span class="trends-section-header__badge" id="pendingBadge" hidden>Integration Pending</span></div>
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Performance Over Time</h2></div>
                 <p class="trends-section-header__desc" id="chartDesc"></p>
               </div>
             </div>
@@ -305,6 +312,29 @@
           <div class="empty-state-panel" id="postsEmpty" hidden></div>
         </section>
 
+        <!-- Ads — the Meta Ads filter's list: the Meta Ads table (same as Analytics), full height -->
+        <section class="analytics-section" id="adsSection" hidden>
+          <div class="section-header-row">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left">
+                <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Ads</h2></div>
+                <p class="trends-section-header__desc" id="adsDesc"></p>
+              </div>
+            </div>
+            <div class="filter-row" id="adsControls">
+              <div class="filter-dropdown filter-dropdown--right" id="adsStatusFilterWrap"></div>
+              <button type="button" class="text-btn export-btn" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button>
+            </div>
+          </div>
+          <div class="analytics-card ads-card" id="adsCard">
+            <div class="sc-list sc-list--fluid ads-table" id="adsTable">
+              <div class="sc-list-colhead" id="adsHead"></div>
+              <div id="adsRows"></div>
+            </div>
+          </div>
+          <div class="empty-state-panel" id="adsEmpty" hidden></div>
+        </section>
+
       </div>
     </main>
   </div>
@@ -328,13 +358,13 @@ if (params.has('bucket') && legacyPeriod !== 'custom' && PERIODS[legacyPeriod]?.
 }
 const ADS_CONNECTED = params.get('ads') !== 'disconnected' && DATA_STATE !== 'empty'; // v2: connected unless told otherwise
 const PAGE_SIZE = 20;
+// Sort by — All posts / Organic only; the Meta Ads filter's table sorts by its column heads
 const SORTS = [
   { value: 'Views', key: 'views' },
   { value: 'Likes', key: 'likes' },
   { value: 'Comments', key: 'comments' },
   { value: 'Engagement Rate', key: 'engagement' },
   { value: 'Newest', key: 'date' },
-  ...(ADS_CONNECTED ? [{ value: 'Leads', key: 'leads' }, { value: 'Lowest CPL', key: 'cpl', asc: true }, { value: 'Spend', key: 'spend' }] : []),
 ];
 const METRIC_LABEL = { views: 'views', likes: 'likes', comments: 'comments', cpl: 'CPL' };
 const pick = (v, ok) => (ok(v) ? v : null);
@@ -351,6 +381,7 @@ const state = {
   shown: PAGE_SIZE,
 };
 const arrivalPost = params.has('post') ? Number(params.get('post')) : null; // back from post.html — that row is highlighted once
+let arrivalAd = params.get('ad'); // back from campaign.html — that ad's row is highlighted once
 
 function syncUrl() {
   const q = new URLSearchParams({ ...periodParams(state.period), ...baseParams(state.base) });
@@ -358,6 +389,7 @@ function syncUrl() {
   if (state.platform) q.set('platform', state.platform);
   if (state.type) q.set('type', state.type);
   if (state.sort !== 'Views') q.set('sort', state.sort);
+  if (params.get('adsort') === 'results') q.set('adsort', 'results'); // opened from Top Performing (the table's first sort)
   if (params.get('ads') === 'disconnected') q.set('ads', 'disconnected');
   history.replaceState(null, '', `?${q}${location.hash}`); // hash keeps #state=empty / range-empty
   document.getElementById('crumbAnalytics').href = `analytics.html?${new URLSearchParams(periodParams(state.period))}`;
@@ -495,7 +527,7 @@ function renderList(posts) {
   document.getElementById('postsHead').innerHTML = `
     <span class="posts-col--post">Post</span>
     <span class="posts-col--date">Published</span>
-    <span class="posts-col--status">Paid / Organic</span>
+    <span class="posts-col--status">Meta Ads / Organic</span>
     <span class="posts-col--num">Views</span>
     <span class="posts-col--num">Likes</span>
     <span class="posts-col--num">Comments</span>
@@ -522,7 +554,7 @@ function renderList(posts) {
         <span class="posts-row__text"><a class="sc-list-row__title posts-row__link" href="${p.paid ? `campaign.html?id=${p.campaignId}` : `post.html?id=${p.id}`}&${detailParams()}">${p.title}</a><span class="sc-list-row__sub">${p.platform} · ${p.type}</span></span>
       </span>
       <span class="posts-col--date posts-cell">${fmtDate(p.date)}</span>
-      <span class="posts-col--status">${p.paid ? '<span class="feedback-status-chip feedback-status-chip--blue">Paid</span>' : '<span class="feedback-status-chip feedback-status-chip--secondary">Organic</span>'}</span>
+      <span class="posts-col--status">${p.paid ? '<span class="feedback-status-chip feedback-status-chip--blue">Meta Ads</span>' : '<span class="feedback-status-chip feedback-status-chip--secondary">Organic</span>'}</span>
       <span class="posts-col--num posts-cell">${formatCount(p.views)}</span>
       <span class="posts-col--num posts-cell">${formatCount(p.likes)}</span>
       <span class="posts-col--num posts-cell">${formatCount(p.comments)}</span>
@@ -564,33 +596,35 @@ function render() {
   document.querySelectorAll('#periodSelector .segment-chip').forEach((c) => c.classList.toggle('segment-chip--active', c.dataset.period === state.period));
   document.getElementById('customRange').hidden = state.period !== 'custom';
   document.querySelectorAll('#viewTabs .controls-segment-chip').forEach((c) => c.classList.toggle('controls-segment-chip--selected', c.dataset.view === state.view));
-  // CPL exists only for Paid (Meta Ads)
+  // CPL exists only for Meta Ads
   if (state.metric === 'cpl' && state.view !== 'paid') state.metric = 'views';
   document.querySelector('#metricTabs [data-metric="cpl"]').hidden = state.view !== 'paid';
   document.querySelectorAll('#metricTabs .controls-segment-chip').forEach((c) => c.classList.toggle('controls-segment-chip--selected', c.dataset.metric === state.metric));
 
   const range = periodRange(state.period);
-  const scope = [state.view === 'all' ? 'All posts' : state.view === 'paid' ? 'Paid posts' : 'Organic posts', state.platform, state.type].filter(Boolean).join(' · ');
+  const scope = [state.view === 'all' ? 'All posts' : state.view === 'paid' ? 'Meta Ads posts' : 'Organic posts', state.platform, state.type].filter(Boolean).join(' · ');
   document.getElementById('chartDesc').textContent = `${scope} · ${rangeLabel(range)}`;
 
-  const pending = state.view === 'paid' && !ADS_CONNECTED;
-  const nonMeta = state.view === 'paid' && ADS_CONNECTED && state.platform && !META_ADS_PLATFORMS.includes(state.platform);
-  document.getElementById('pendingBadge').hidden = !pending;
+  const metaView = state.view === 'paid';
+  const pending = metaView && !ADS_CONNECTED; // no Meta ad account → one line, like Analytics / Home
+  const nonMeta = metaView && ADS_CONNECTED && state.platform && !META_ADS_PLATFORMS.includes(state.platform);
   document.getElementById('postsStats').hidden = pending || nonMeta;
   document.getElementById('metricTabs').hidden = pending;
   document.getElementById('chartCard').hidden = pending || nonMeta;
-  document.getElementById('postsSection').hidden = pending || nonMeta;
+  document.getElementById('postsSection').hidden = metaView; // Meta Ads lists ads (the table below), not posts
+  document.getElementById('adsSection').hidden = !metaView || pending || nonMeta;
   const chartEmpty = document.getElementById('chartEmpty');
   chartEmpty.hidden = !(pending || nonMeta);
   document.getElementById('chartNoData').hidden = true;
   if (pending) {
-    chartEmpty.innerHTML = emptyState('Paid results will appear once Meta Ads is connected.', 'Boosted posts and ads will be listed here with spend, leads and CPL over time.');
+    showNotConnected(chartEmpty);
     return;
   }
   if (nonMeta) {
-    chartEmpty.innerHTML = emptyState(`No paid data for ${state.platform}.`, 'Paid results come from Meta Ads, which covers Instagram and Facebook.');
+    chartEmpty.innerHTML = emptyState(`No Meta Ads data for ${state.platform}.`, 'Meta Ads covers Instagram and Facebook only.');
     return;
   }
+  if (metaView) adsTable.render();
 
   const listed = filteredPosts();
   const chartPosts = listed;
@@ -652,11 +686,51 @@ buildFilter({
 });
 buildFilter({
   container: document.getElementById('sortFilterWrap'),
-  label: 'Sort by', inactiveLabel: 'Sort by: Views', defaultValue: 'Views', initialValue: state.sort,
+  label: 'Sort by', defaultValue: 'Views', initialValue: state.sort, viewSelect: true, // Light pill "Sort by: Likes", no ✕
   options: SORTS.map((s) => ({ value: s.value })),
   onSelect(value) { state.sort = value || 'Views'; render(); },
 });
 document.getElementById('sortFilterWrap').classList.add('filter-dropdown--right');
+
+// ── Ads — the Meta Ads table (analytics-shared.js) for the range, platform and type picked above ──
+const NO_ADS_FOR_STATUS = { Active: 'No active ads.', Off: 'No ads turned off.', 'In Draft': 'No ads in draft.' };
+const adsTable = mountAdsTable({
+  table: document.getElementById('adsTable'), head: document.getElementById('adsHead'), rows: document.getElementById('adsRows'),
+  rowData: (c) => adRowForPeriod(c, state.period),
+  filter: (c) => (!state.platform || c.content.platform === state.platform) && (!state.type || c.content.type === state.type),
+  sorts: params.get('adsort') === 'results' ? [{ key: 'results', dir: 'desc' }] : [], // from Top Performing: Results ↓
+  linkParams: () => detailParams().toString(),
+  onRender({ count, total, status }) {
+    if (state.view !== 'paid') return;
+    const range = periodRange(state.period);
+    document.getElementById('adsDesc').textContent = `${count} ad${count === 1 ? '' : 's'} ran or ${count === 1 ? 'was' : 'were'} edited ${rangeLabel(range)}`;
+    const rangeEmpty = total === 0;
+    document.getElementById('adsControls').hidden = rangeEmpty;
+    document.getElementById('adsCard').hidden = count === 0;
+    const empty = document.getElementById('adsEmpty');
+    empty.hidden = count > 0;
+    if (count === 0) {
+      // "No Meta ads for Instagram Carousels in this date range." — the filters picked above, in words
+      const what = [state.platform, state.type && `${state.type}s`].filter(Boolean).join(' ');
+      empty.innerHTML = !rangeEmpty ? emptyState(NO_ADS_FOR_STATUS[status] || 'No ads.', 'Try another status.')
+        : what ? emptyState(`No Meta ads for ${what} in this date range.`, 'Try another date range or clear a filter.')
+          : emptyState('No Meta ads ran in this date range.', 'Try a longer date range.');
+    }
+    if (arrivalAd) { // back from an ad's detail — ring its row once
+      const row = document.querySelector(`#adsRows [data-campaign="${arrivalAd}"]`);
+      if (row) { row.scrollIntoView({ block: 'center' }); row.classList.add('is-arrival'); }
+      arrivalAd = null;
+    }
+  },
+});
+buildFilter({
+  container: document.getElementById('adsStatusFilterWrap'),
+  label: 'Status', inactiveLabel: 'Status: All', defaultValue: 'All',
+  options: ADS_STATUSES.map((value) => ({ value })),
+  onSelect(value) { adsTable.setStatus(value || 'All'); },
+});
+document.getElementById('adsStatusFilterWrap').classList.add('filter-dropdown--right');
+document.getElementById('adsExport').addEventListener('click', () => openAdsExport(adsTable, state.period)); // checked rows, else the current view
 
 bindCustomRange({
   fromField: document.getElementById('customFrom'),

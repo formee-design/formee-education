@@ -20,23 +20,21 @@ const ALL_PLATFORMS = [
 const PLATFORMS = ALL_PLATFORMS.filter((p) => p.connected);
 const platformSeed = (p) => ALL_PLATFORMS.indexOf(p) + 1; // fixed per platform, so hiding one doesn't reshuffle the others' data
 const META_ADS_PLATFORMS = ['Instagram', 'Facebook'];
-// Content types per platform (2026-10-12):
-//   Instagram / TikTok / REDnote: Video · Image · Carousel
-//   Facebook / LinkedIn:          Video · Image · Multi-Image Post
-// v2: types are now a stack in the Published Posts chart, where primary-light vanishes on white → the four strongest blues
+// Content types — Video · Image · Carousel on every platform. Facebook / LinkedIn's multi-image post is a Carousel too
+// (Figma 2026-10-16: Multi-Image Post merged into Carousel, so the Type chart, legend and filter have three types).
+// v2: types are a stack in the Published Posts chart, where primary-light vanishes on white → the strongest blues
 const TYPES = [
   { name: 'Video', color: 'var(--color-brand-primary-dark)' },
   { name: 'Image', color: 'var(--color-brand-link)' },
   { name: 'Carousel', color: 'var(--color-brand-primary-soft)' },
-  { name: 'Multi-Image Post', color: 'var(--color-brand-primary-mid)' },
 ];
 // Published posts in the last 30 days, per platform × type
 const BASE_POSTS = {
   Instagram: { Video: 9, Image: 4, Carousel: 5 },
   TikTok: { Video: 18, Image: 2, Carousel: 4 },
-  Facebook: { Video: 5, Image: 2, 'Multi-Image Post': 1 },
+  Facebook: { Video: 5, Image: 2, Carousel: 1 },
   REDnote: { Video: 1, Image: 2, Carousel: 1 },
-  LinkedIn: { Video: 3, Image: 5, 'Multi-Image Post': 4 },
+  LinkedIn: { Video: 3, Image: 5, Carousel: 4 },
 };
 // Per-post averages: platform baseline × format multiplier (placeholder)
 const PLATFORM_BASE = {
@@ -50,7 +48,6 @@ const TYPE_MULT = {
   Video: { views: 1.3, eng: 1.0 },
   Image: { views: 0.55, eng: 0.95 },
   Carousel: { views: 0.8, eng: 1.25 },
-  'Multi-Image Post': { views: 0.75, eng: 1.15 },
 };
 const ENG_TWEAK = { TikTok: { Carousel: 0.8 }, Instagram: { Video: 1.3 }, REDnote: { Image: 1.35 } };
 
@@ -427,24 +424,28 @@ function drawAreaChart(wrap, { values, labels, tip, format = formatCount, height
 const META_NOT_CONNECTED = 'No Meta Ads account connected for this brand. <a class="not-connected__link" href="#connect-meta">Connect one</a> to track real ad performance here.';
 function showNotConnected(panel) { panel.innerHTML = `<p class="not-connected">${META_NOT_CONNECTED}</p>`; }
 
-// ── Meta Ads table — shared by Analytics (Meta Ads Performance, 5-row scroll window) and Meta Ads Performance (full list).
-//    Only ads made in Pulse come in, and Pulse sets ads up per content (no multi-ad campaigns), so each row is ONE promoted
-//    post: content first, its Meta campaign name as a sub-line (handy when cross-checking in Ads Manager). MOCK data (Ads Manager reference + two live campaigns so "Active" has rows), shaped like the Meta
-//    Marketing API campaign + insights fields so getMetaCampaigns() can swap to the API without touching the renderer. ──
+// ── Meta Ads table — shared by Analytics (Meta Ads Performance, 5-row scroll window) and Published Posts' Meta Ads filter
+//    (full list). Only ads made in Pulse come in, and Pulse sets ads up per content (no multi-ad campaigns), so each row is
+//    ONE promoted post: content first, its Meta campaign name as a sub-line (handy when cross-checking in Ads Manager). MOCK
+//    data (Ads Manager reference + two live campaigns so "Active" has rows), shaped like the Meta Marketing API campaign +
+//    insights fields so getMetaCampaigns() can swap to the API without touching the renderer.
+//    created = when the ad was made in Pulse (the table's default order: newest first); edited = a draft's last edit (a
+//    draft is listed in a range when it was last edited inside it, and Ends shows that date); content.published false =
+//    the promoted post isn't live yet ("Not published" chip). ──
 const META_CAMPAIGNS_MOCK = [
-  { id: 'c01', content: { title: 'Meet Your Future Classmates', img: 'viral-4.png', platform: 'Instagram', type: 'Video' }, starts: '2026-10-01', name: 'Cardiff University - October 2026', on: true, delivery: 'Active', results: 18, resultType: 'Website Applications', costPerResult: 4.12, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 74.16, impressions: 8940, reach: 5210, ends: '2026-10-31' },
-  { id: 'c02', content: { title: 'Your Visa Checklist, Step by Step', img: 'post-5.png', platform: 'Facebook', type: 'Image' }, starts: '2026-10-03', name: 'India Leads — Ireland EPs — October 2026', on: true, delivery: 'Active', results: 47, resultType: 'Website Applications', costPerResult: 3.40, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 159.80, impressions: 52310, reach: 30775, ends: '2026-11-10' },
-  { id: 'c03', content: { title: 'A Day on Campus in the UK', img: 'viral-5.png', platform: 'Instagram', type: 'Video' }, starts: '2026-07-10', name: 'July Brand Awareness', on: false, delivery: 'Off', results: 2547158, resultType: 'Reach', costPerResult: 0.02, costType: 'Per 1,000 People Reached', budget: null, budgetType: 'Using ad set budget', spent: 59.00, impressions: 2698111, reach: 2547158, ends: '2026-08-10' },
-  { id: 'c04', content: { title: 'Study in Germany — Private Unis', img: 'viral-2.png', platform: 'Instagram', type: 'Carousel' }, starts: '2026-07-01', name: 'Private German Unis - July 2026', on: false, delivery: 'Off', results: 21, resultType: 'Website Applications', costPerResult: 14.27, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 299.63, impressions: 98371, reach: 55129, ends: '2026-07-29' },
-  { id: 'c05', content: { title: 'Free 1:1 Counselling, Book Anytime', img: 'viral-6.png', platform: 'Facebook', type: 'Video' }, starts: '2026-07-08', name: 'INSTANT FORM: India Leads — Ireland EPs — July 2026', on: false, delivery: 'Off', results: 136, resultType: 'Multiple Conversions', costPerResult: 1.28, costType: 'Per Conversion', budget: 600, budgetType: 'Lifetime', spent: 173.42, impressions: 195117, reach: 125800, ends: '2026-08-10' },
-  { id: 'c06', content: { title: 'Ireland EPs — Apply in 3 Steps', img: 'viral-3.png', platform: 'Facebook', type: 'Multi-Image Post' }, starts: '2026-07-06', name: 'CRM: India Leads — Ireland EPs — July 2026', on: false, delivery: 'Off', results: 62, resultType: 'Website Applications', costPerResult: 4.64, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 287.86, impressions: 79508, reach: 50537, ends: '2026-08-06' },
-  { id: 'c07', content: { title: 'Top USA Public Universities', img: 'viral-1.png', platform: 'Instagram', type: 'Image' }, starts: '2026-07-07', name: 'USA Public Unis - July 2026', on: false, delivery: 'Off', results: 94, resultType: 'Website Applications', costPerResult: 5.75, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 540.23, impressions: 107137, reach: 60053, ends: '2026-08-07' },
-  { id: 'c08', content: { title: 'Study Abroad Under 15 Lakh', img: 'viral-4.png', platform: 'Instagram', type: 'Video' }, starts: '2026-07-10', name: '15 Lakh - July 2026', on: false, delivery: 'Off', results: 113, resultType: 'Website Applications', costPerResult: 3.78, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 426.58, impressions: 259068, reach: 140314, ends: '2026-08-10' },
-  { id: 'c09', content: { title: 'Still Thinking About the USA?', img: 'viral-2.png', platform: 'Facebook', type: 'Image' }, starts: '2026-07-10', name: 'Retargeting - USA Public Unis - July 2026', on: false, delivery: 'Off', results: 21, resultType: 'Website Applications', costPerResult: 20.82, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 437.29, impressions: 61953, reach: 14400, ends: '2026-08-10' },
-  { id: 'c10', content: { title: 'Cardiff University — August Intake', img: 'viral-5.png', platform: 'Instagram', type: 'Video' }, starts: '2026-08-01', name: 'Cardiff University - August 2026', on: false, delivery: 'Off', results: 31, resultType: 'Website Applications', costPerResult: 3.75, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 116.39, impressions: 10114, reach: 5900, ends: '2026-08-14' },
-  { id: 'c11', content: { title: 'Uni of Birmingham — Open Applications', img: 'viral-3.png', platform: 'Instagram', type: 'Carousel' }, starts: '2026-07-14', name: 'Uni of Birmingham - July 2026', on: false, delivery: 'Off', results: 26, resultType: 'Website Applications', costPerResult: 4.61, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 119.94, impressions: 43411, reach: 28739, ends: '2026-08-14' },
-  { id: 'c12', content: { title: 'India → Ireland: Book a Free Call', img: 'viral-6.png', platform: 'Facebook', type: 'Video' }, starts: '2026-10-20', name: 'INSTANT FORM: India Leads — Ireland EPs — July', on: false, delivery: 'In Draft', results: null, resultType: null, costPerResult: null, costType: null, budget: 350, budgetType: 'Lifetime', spent: null, impressions: null, reach: null, ends: '2026-11-13' } /* draft: scheduled after today (reference showed 13 Oct) */,,
-  { id: 'c13', content: { title: 'Live Webinar: Study in the UK', img: 'post-5.png', platform: 'Facebook', type: 'Image' }, starts: '2025-07-03', name: '03 JULY 2026 - WEBINAR', on: false, delivery: 'Off', results: 4, resultType: 'Website Applications', costPerResult: 23.28, costType: 'Per Website Application', budget: 400, budgetType: 'Lifetime', spent: 93.12, impressions: 38168, reach: 27544, ends: '2025-07-31' },
+  { id: 'c01', created: '2026-09-30', content: { title: 'Meet Your Future Classmates', img: 'viral-4.png', platform: 'Instagram', type: 'Video' }, starts: '2026-10-01', name: 'Cardiff University - October 2026', on: true, delivery: 'Active', results: 18, resultType: 'Website Applications', costPerResult: 4.12, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 74.16, impressions: 8940, reach: 5210, ends: '2026-10-31' },
+  { id: 'c02', created: '2026-09-29', content: { title: 'Your Visa Checklist, Step by Step', img: 'post-5.png', platform: 'Facebook', type: 'Image' }, starts: '2026-10-03', name: 'India Leads — Ireland EPs — October 2026', on: true, delivery: 'Active', results: 47, resultType: 'Website Applications', costPerResult: 3.40, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 159.80, impressions: 52310, reach: 30775, ends: '2026-11-10' },
+  { id: 'c03', created: '2026-07-09', content: { title: 'A Day on Campus in the UK', img: 'viral-5.png', platform: 'Instagram', type: 'Video' }, starts: '2026-07-10', name: 'July Brand Awareness', on: false, delivery: 'Off', results: 2547158, resultType: 'Reach', costPerResult: 0.02, costType: 'Per 1,000 People Reached', budget: null, budgetType: 'Using ad set budget', spent: 59.00, impressions: 2698111, reach: 2547158, ends: '2026-08-10' },
+  { id: 'c04', created: '2026-06-30', content: { title: 'Study in Germany — Private Unis', img: 'viral-2.png', platform: 'Instagram', type: 'Carousel' }, starts: '2026-07-01', name: 'Private German Unis - July 2026', on: false, delivery: 'Off', results: 21, resultType: 'Website Applications', costPerResult: 14.27, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 299.63, impressions: 98371, reach: 55129, ends: '2026-07-29' },
+  { id: 'c05', created: '2026-06-29', content: { title: 'Free 1:1 Counselling, Book Anytime', img: 'viral-6.png', platform: 'Facebook', type: 'Video' }, starts: '2026-07-08', name: 'INSTANT FORM: India Leads — Ireland EPs — July 2026', on: false, delivery: 'Off', results: 136, resultType: 'Multiple Conversions', costPerResult: 1.28, costType: 'Per Conversion', budget: 600, budgetType: 'Lifetime', spent: 173.42, impressions: 195117, reach: 125800, ends: '2026-08-10' },
+  { id: 'c06', created: '2026-06-28', content: { title: 'Ireland EPs — Apply in 3 Steps', img: 'viral-3.png', platform: 'Facebook', type: 'Carousel' }, starts: '2026-07-06', name: 'CRM: India Leads — Ireland EPs — July 2026', on: false, delivery: 'Off', results: 62, resultType: 'Website Applications', costPerResult: 4.64, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 287.86, impressions: 79508, reach: 50537, ends: '2026-08-06' },
+  { id: 'c07', created: '2026-06-27', content: { title: 'Top USA Public Universities', img: 'viral-1.png', platform: 'Instagram', type: 'Image' }, starts: '2026-07-07', name: 'USA Public Unis - July 2026', on: false, delivery: 'Off', results: 94, resultType: 'Website Applications', costPerResult: 5.75, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 540.23, impressions: 107137, reach: 60053, ends: '2026-08-07' },
+  { id: 'c08', created: '2026-06-26', content: { title: 'Study Abroad Under 15 Lakh', img: 'viral-4.png', platform: 'Instagram', type: 'Video' }, starts: '2026-07-10', name: '15 Lakh - July 2026', on: false, delivery: 'Off', results: 113, resultType: 'Website Applications', costPerResult: 3.78, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 426.58, impressions: 259068, reach: 140314, ends: '2026-08-10' },
+  { id: 'c09', created: '2026-06-25', content: { title: 'Still Thinking About the USA?', img: 'viral-2.png', platform: 'Facebook', type: 'Image' }, starts: '2026-07-10', name: 'Retargeting - USA Public Unis - July 2026', on: false, delivery: 'Off', results: 21, resultType: 'Website Applications', costPerResult: 20.82, costType: 'Per Website Application', budget: 600, budgetType: 'Lifetime', spent: 437.29, impressions: 61953, reach: 14400, ends: '2026-08-10' },
+  { id: 'c10', created: '2026-06-24', content: { title: 'Cardiff University — August Intake', img: 'viral-5.png', platform: 'Instagram', type: 'Video' }, starts: '2026-08-01', name: 'Cardiff University - August 2026', on: false, delivery: 'Off', results: 31, resultType: 'Website Applications', costPerResult: 3.75, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 116.39, impressions: 10114, reach: 5900, ends: '2026-08-14' },
+  { id: 'c11', created: '2026-06-23', content: { title: 'Uni of Birmingham — Open Applications', img: 'viral-3.png', platform: 'Instagram', type: 'Carousel' }, starts: '2026-07-14', name: 'Uni of Birmingham - July 2026', on: false, delivery: 'Off', results: 26, resultType: 'Website Applications', costPerResult: 4.61, costType: 'Per Website Application', budget: 300, budgetType: 'Lifetime', spent: 119.94, impressions: 43411, reach: 28739, ends: '2026-08-14' },
+  { id: 'c12', created: '2025-06-20', edited: '2026-10-08', content: { title: 'India → Ireland: Book a Free Call', img: 'viral-6.png', platform: 'Facebook', type: 'Video', published: false }, starts: '2026-10-20', name: 'INSTANT FORM: India Leads — Ireland EPs — July', on: false, delivery: 'In Draft', results: null, resultType: null, costPerResult: null, costType: null, budget: 350, budgetType: 'Lifetime', spent: null, impressions: null, reach: null, ends: '2026-11-13' }, // draft: scheduled after today; its post isn't published yet ("Not published" chip)
+  { id: 'c13', created: '2025-06-30', content: { title: 'Live Webinar: Study in the UK', img: 'post-5.png', platform: 'Facebook', type: 'Image' }, starts: '2025-07-03', name: '03 JULY 2026 - WEBINAR', on: false, delivery: 'Off', results: 4, resultType: 'Website Applications', costPerResult: 23.28, costType: 'Per Website Application', budget: 400, budgetType: 'Lifetime', spent: 93.12, impressions: 38168, reach: 27544, ends: '2025-07-31' },
 ];
 // one ad's detail — campaign.html (the promoted post + its Meta campaign). Placeholder daily insights + ads, derived from the campaign's
 // totals so every number on the page adds back up to the row in the table.
@@ -475,6 +476,23 @@ function campaignDaily(c) {
     return { date: addDays(start, i), spend, results: results[i], cpr: results[i] ? spend / results[i] : null };
   });
 }
+// ── The Meta Ads table follows the date range (2026-10-16). One ad's row for a range: results / cost / spend / impressions /
+//    reach are the days inside it (impressions / reach pro-rated by spend — placeholder until the Meta insights API), while
+//    budget, delivery and On / Off stay current. Listed when it delivered in the range, or — a draft — was last edited in
+//    it; otherwise null (not listed). All time = lifetime totals. ──
+const perKOf = (c) => (c.resultType === 'Reach' ? 1000 : 1); // Meta prices Reach per 1,000 people reached
+function adRowForPeriod(c, periodKey) {
+  if (NO_DATA) return null;
+  if (periodKey === 'all') return c;
+  const { start, end } = periodRange(periodKey);
+  if (c.spent === null) { const e = parseISO(c.edited); return e && e >= start && e <= end ? c : null; } // draft
+  const days = campaignDaily(c).filter((d) => d.date >= start && d.date <= end);
+  const spent = days.reduce((a, d) => a + d.spend, 0);
+  if (!spent) return null;
+  const results = days.reduce((a, d) => a + d.results, 0), share = spent / c.spent;
+  return { ...c, results, spent, costPerResult: results ? (spent / results) * perKOf(c) : null, impressions: Math.round(c.impressions * share), reach: Math.round(c.reach * share) };
+}
+
 // one organic post's daily views / likes / comments, published → today (post.html). Most of it lands in the first days and
 // tails off; integer splits add back up to the post's totals in its Published Posts row.
 function postDaily(post) {
@@ -496,7 +514,8 @@ const ADS_STATUSES = ['All', 'Active', 'Off', 'In Draft'];
 const DELIVERY_PRIORITY = { Active: 0, 'In Draft': 1, Off: 2 }; // highest priority first
 const fmtInt = (n) => n.toLocaleString('en-US');
 const fmtEnds = (iso) => { const d = parseISO(iso); return d ? `${d.getDate()} ${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getFullYear()}` : '—'; };
-// Sort menu per column (simplified Ads Manager column menu — Sort only, no quick filters)
+const endsOf = (c) => (c.delivery === 'In Draft' ? c.edited : c.ends); // a draft's Ends cell = its last edit
+// Sort menu per column (simplified Ads Manager column menu — Sort only, no quick filters); a sorted column adds Clear sort
 const SORT_UP = 'arrow-up.svg', SORT_DOWN = 'ui-arrow-down.svg';
 const SORT_NUMERIC = [{ label: 'Sort highest to lowest', dir: 'desc', icon: SORT_DOWN }, { label: 'Sort lowest to highest', dir: 'asc', icon: SORT_UP }];
 const ADS_COLUMNS = [
@@ -506,24 +525,43 @@ const ADS_COLUMNS = [
     menu: [{ label: 'Sort A to Z', dir: 'asc', icon: SORT_UP }, { label: 'Sort Z to A', dir: 'desc', icon: SORT_DOWN }] },
   { key: 'delivery', label: 'Delivery', cls: 'ads-col--delivery', sort: (c) => DELIVERY_PRIORITY[c.delivery],
     menu: [{ label: 'Sort highest to lowest priority', dir: 'asc', icon: SORT_DOWN }, { label: 'Sort lowest to highest priority', dir: 'desc', icon: SORT_UP }] },
-  { key: 'results', label: 'Results', cls: 'ads-col--num ads-col--wide', sort: (c) => c.results, menu: SORT_NUMERIC },
+  // Results mixes units (a Reach ad's result is people reached), so a Reach ad always sorts after the lead ads
+  { key: 'results', label: 'Results', cls: 'ads-col--num ads-col--wide', sort: (c) => c.results, group: (c) => (c.resultType === 'Reach' ? 1 : 0), menu: SORT_NUMERIC },
   { key: 'cpr', label: 'Cost per result', cls: 'ads-col--num ads-col--wide', sort: (c) => c.costPerResult, menu: SORT_NUMERIC },
   { key: 'budget', label: 'Budget', cls: 'ads-col--num', sort: (c) => c.budget, menu: SORT_NUMERIC },
   { key: 'spent', label: 'Amount spent', cls: 'ads-col--num', sort: (c) => c.spent, menu: SORT_NUMERIC },
   { key: 'impressions', label: 'Impressions', cls: 'ads-col--num', sort: (c) => c.impressions, menu: SORT_NUMERIC },
   { key: 'reach', label: 'Reach', cls: 'ads-col--num', sort: (c) => c.reach, menu: SORT_NUMERIC },
-  { key: 'ends', label: 'Ends', cls: 'ads-col--ends', sort: (c) => c.ends,
+  { key: 'ends', label: 'Ends', cls: 'ads-col--ends', sort: (c) => endsOf(c),
     menu: [{ label: 'Sort oldest to newest', dir: 'asc', icon: SORT_UP }, { label: 'Sort newest to oldest', dir: 'desc', icon: SORT_DOWN }] },
 ];
+// several columns can be sorted at once — the first one picked sorts first; nothing sorted = newest ads first (created)
+function sortAds(list, sorts) {
+  const byCol = sorts.map((s) => ({ ...s, col: ADS_COLUMNS.find((c) => c.key === s.key) })).filter((s) => s.col);
+  return [...list].sort((a, b) => {
+    for (const { col, dir } of byCol) {
+      const va = col.sort(a), vb = col.sort(b);
+      if (va === null && vb === null) continue;
+      if (va === null) return 1; if (vb === null) return -1; // "—" (drafts) always last
+      if (col.group) { const g = col.group(a) - col.group(b); if (g) return g; }
+      if (va !== vb) return (va > vb ? 1 : -1) * (dir === 'asc' ? 1 : -1);
+    }
+    return a.created < b.created ? 1 : a.created > b.created ? -1 : 0;
+  });
+}
 
 // mount the table: { table, head, rows } elements; windowRows = visible rows before it scrolls (null = full height);
-// onRender({ source, count, status }) lets the page handle its own empty / not-connected states
+// rowData(c) = the ad's row for the page's range (null = not listed); filter(c) = extra page filters (platform / type);
+// sorts = the sort it opens with ([{ key, dir }], e.g. Results ↓ from Top Performing's View all);
+// onRender({ source, count, total, status }) lets the page handle its own empty / not-connected states (total = before the
+// Status filter, so "nothing in this range" and "nothing with this status" can say different things)
 // only = an ad id → just that row (the detail page's header), with plain column heads and no self-link
-function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', only = null, rowData = (c) => c, onRender = () => {} }) {
-  const state = { status: 'All', sortKey: null, sortDir: null, data: { source: 'mock', campaigns: [] }, selected: new Set(), list: [] };
+function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', only = null, rowData = (c) => c, filter = () => true, sorts = [], onRender = () => {} }) {
+  const state = { status: 'All', sorts: [...sorts], data: { source: 'mock', campaigns: [] }, selected: new Set(), list: [] };
   const dash = '<span class="ads-cell ads-cell--muted">—</span>';
   let menu = null;
   const closeMenu = () => { if (!menu) return; menu.el.remove(); menu.btn.setAttribute('aria-expanded', 'false'); menu = null; };
+  const sortOf = (key) => state.sorts.find((s) => s.key === key);
 
   function renderHead() {
     head.innerHTML = ADS_COLUMNS.map((c) => {
@@ -532,30 +570,28 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
         return `<span class="${c.cls}"><input type="checkbox" class="checkbox" data-select="all" aria-label="Select all ads"${all ? ' checked' : ''}></span>`;
       }
       if (!c.menu || only) return `<span class="${c.cls}">${c.label}</span>`;
-      const on = state.sortKey === c.key;
-      const opt = on ? c.menu.find((o) => o.dir === state.sortDir) : null;
-      return `<span class="${c.cls}"><button type="button" class="ads-head${on ? ' ads-head--active' : ''}" data-col="${c.key}" aria-haspopup="menu" aria-expanded="false">${c.label}${opt ? `<img class="ads-head__sort" src="${ICON}${opt.icon}" alt="">` : ''}<img class="ads-head__caret" src="${ICON}caret-down-filled.svg" alt=""></button></span>`;
+      const s = sortOf(c.key);
+      const opt = s ? c.menu.find((o) => o.dir === s.dir) : null;
+      return `<span class="${c.cls}"><button type="button" class="ads-head${s ? ' ads-head--active' : ''}" data-col="${c.key}" aria-haspopup="menu" aria-expanded="false">${c.label}${opt ? `<img class="ads-head__sort" src="${ICON}${opt.icon}" alt="">` : ''}<img class="ads-head__caret" src="${ICON}caret-down-filled.svg" alt=""></button></span>`;
     }).join('');
   }
 
   function render() {
     const { source, campaigns } = state.data;
-    let list = campaigns.filter((c) => (only ? c.id === only : state.status === 'All' || c.delivery === state.status)).map(rowData);
-    const col = ADS_COLUMNS.find((c) => c.key === state.sortKey);
-    if (col) {
-      const dir = state.sortDir === 'asc' ? 1 : -1;
-      list = [...list].sort((a, b) => { const va = col.sort(a), vb = col.sort(b); if (va === null) return 1; if (vb === null) return -1; return (va > vb ? 1 : va < vb ? -1 : 0) * dir; }); // "—" always last
-    }
+    const inRange = campaigns.filter((c) => (only ? c.id === only : filter(c))).map(rowData).filter(Boolean);
+    const list = sortAds(inRange.filter((c) => only || state.status === 'All' || c.delivery === state.status), state.sorts);
     state.list = list;
     renderHead();
-    const lp = typeof linkParams === 'function' ? linkParams() : linkParams; // e.g. period=30d, for the breadcrumb back
+    const lp = typeof linkParams === 'function' ? linkParams() : linkParams; // the detail opens on this range (and its breadcrumb leads back)
     rows.innerHTML = list.map((c) => {
       const dCls = c.delivery === 'Active' ? ' ads-delivery--active' : c.delivery === 'In Draft' ? ' ads-delivery--draft' : '';
+      const title = only ? `<span class="ads-campaign ads-campaign--static">${c.content.title}</span>` : `<a class="ads-campaign" href="campaign.html?id=${c.id}${lp ? `&${lp}` : ''}">${c.content.title}</a>`;
+      const notPublished = c.content.published === false ? '<span class="feedback-status-chip feedback-status-chip--secondary ads-content__chip">Not published</span>' : '';
       return `
       <div class="sc-list-row" data-campaign="${c.id}">
         <span class="ads-col--check"><input type="checkbox" class="checkbox" data-select="${c.id}" aria-label="Select ${c.content.title}"${state.selected.has(c.id) ? ' checked' : ''}></span>
         <span class="ads-col--toggle"><span class="field-switch${c.on ? ' on' : ''}" role="img" aria-label="${c.on ? 'On' : 'Off'}"><span class="knob"></span></span></span>
-        <span class="ads-col--name ads-content"><img class="ads-content__thumb" src="${THUMB}${c.content.img}" alt=""><span class="ads-content__text">${only ? `<span class="ads-campaign ads-campaign--static">${c.content.title}</span>` : `<a class="ads-campaign" href="campaign.html?id=${c.id}&range=all${lp ? `&${lp}` : ''}">${c.content.title}</a>`}<span class="ads-sub">${c.content.platform} · ${c.content.type} · ${c.name}</span></span></span>
+        <span class="ads-col--name ads-content"><img class="ads-content__thumb" src="${THUMB}${c.content.img}" alt=""><span class="ads-content__text"><span class="ads-content__title-row">${title}${notPublished}</span><span class="ads-sub">${c.content.platform} · ${c.content.type} · ${c.name}</span></span></span>
         <span class="ads-col--delivery"><span class="ads-delivery${dCls}"><span class="ads-delivery__dot"></span>${c.delivery}</span></span>
         <span class="ads-col--num ads-col--wide">${c.results === null ? dash : `<span class="ads-cell">${fmtInt(c.results)}</span><span class="ads-sub">${c.resultType}</span>`}</span>
         <span class="ads-col--num ads-col--wide">${c.costPerResult === null ? dash : `<span class="ads-cell">${formatUSD(c.costPerResult)}</span><span class="ads-sub">${c.costType}</span>`}</span>
@@ -563,19 +599,19 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
         <span class="ads-col--num">${c.spent === null ? dash : `<span class="ads-cell">${formatUSD(c.spent)}</span>`}</span>
         <span class="ads-col--num">${c.impressions === null ? dash : `<span class="ads-cell">${fmtInt(c.impressions)}</span>`}</span>
         <span class="ads-col--num">${c.reach === null ? dash : `<span class="ads-cell">${fmtInt(c.reach)}</span>`}</span>
-        <span class="ads-col--ends ads-cell">${fmtEnds(c.ends)}</span>
+        <span class="ads-col--ends ads-cell">${fmtEnds(endsOf(c))}</span>
       </div>`;
     }).join('');
     // scroll window: head + the first N rows of the first render (rows vary a little — some have a sub-line), then
     // held, so sorting / filtering never changes the card's height; the rest scrolls under the sticky head
     fitWindow();
-    onRender({ source, count: list.length, status: state.status, selected: state.selected.size });
+    onRender({ source, count: list.length, total: inRange.length, status: state.status, selected: state.selected.size });
   }
 
   // measured only once the rows have a real height — a page loaded in a background tab has no layout yet (0px), so a
-  // ResizeObserver retries as soon as the rows are laid out
+  // ResizeObserver retries as soon as the rows are laid out. Fewer rows than the window (a short range) = no cap yet.
   function fitWindow() {
-    if (!windowRows || state.windowH || !rows.children.length) return;
+    if (!windowRows || state.windowH || rows.children.length < windowRows) return;
     const h = [...rows.children].slice(0, windowRows).reduce((sum, el) => sum + el.offsetHeight, 0);
     if (!h) return;
     state.windowH = head.offsetHeight + h;
@@ -590,16 +626,20 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
     if (menu && menu.btn === btn) { closeMenu(); return; }
     closeMenu();
     const col = ADS_COLUMNS.find((c) => c.key === btn.dataset.col);
+    const cur = sortOf(col.key);
     const frame = document.querySelector('.frame');
     const scale = frame.getBoundingClientRect().width / frame.offsetWidth;
     const fr = frame.getBoundingClientRect(), br = btn.getBoundingClientRect();
     const el = document.createElement('div');
     el.className = 'context-menu ads-menu';
     el.setAttribute('role', 'menu');
-    el.innerHTML = `<p class="ads-menu__title">Sort</p>${col.menu.map((o) => `
-      <button type="button" class="menu-item${state.sortKey === col.key && state.sortDir === o.dir ? ' menu-item--selected' : ''}" role="menuitem" data-dir="${o.dir}">
+    el.innerHTML = col.menu.map((o) => `
+      <button type="button" class="menu-item${cur && cur.dir === o.dir ? ' menu-item--selected' : ''}" role="menuitem" data-dir="${o.dir}">
         <span class="ads-menu__label"><img src="${ICON}${o.icon}" alt="">${o.label}</span><img class="ads-menu__check" src="${ICON}panel-check.svg" alt="">
-      </button>`).join('')}`;
+      </button>`).join('') + (cur ? `
+      <button type="button" class="menu-item" role="menuitem" data-clear="1">
+        <span class="ads-menu__label"><img src="${ICON}close-x.svg" alt="">Clear sort</span>
+      </button>` : '');
     frame.appendChild(el);
     const left = (br.left - fr.left) / scale, top = (br.bottom - fr.top) / scale + 6;
     const alignRight = col.cls.includes('ads-col--num') || col.key === 'ends';
@@ -610,7 +650,9 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
     el.addEventListener('click', (ev) => {
       const item = ev.target.closest('.menu-item');
       if (!item) return;
-      state.sortKey = col.key; state.sortDir = item.dataset.dir;
+      if (item.dataset.clear) state.sorts = state.sorts.filter((s) => s.key !== col.key); // back to newest first when none is left
+      else if (cur) cur.dir = item.dataset.dir; // keeps its place in the sort order
+      else state.sorts.push({ key: col.key, dir: item.dataset.dir });
       closeMenu(); render();
     });
   });
@@ -642,7 +684,9 @@ function mountAdsTable({ table, head, rows, windowRows = null, linkParams = '', 
 // ── Filter / Select — Controls/Filter/Select (Inactive/Active) + its open option list (Menu/Item, context-menu--option-list) ──
 // inactiveLabel: text for the Inactive pill when the default is selected (e.g. "Rank by: Views").
 // initialValue: preselects a non-default option (e.g. from a deep link).
-function buildFilter({ container, label, options, onSelect, closeToDefault = true, defaultValue = 'All', inactiveLabel = label, initialValue = null }) {
+// viewSelect: a view choice that always has a value (Rank by, Sort by) — stays the Light pill with "Label: value", no ✕
+// (chip rule 2026-10-15: only filters that narrow a list turn dark with ✕).
+function buildFilter({ container, label, options, onSelect, closeToDefault = true, defaultValue = 'All', inactiveLabel = label, initialValue = null, viewSelect = false }) {
   let value = initialValue && initialValue !== defaultValue ? initialValue : null; // null = default (Inactive pill)
   const wrap = document.createElement('div');
   wrap.className = 'filter-dropdown';
@@ -658,7 +702,12 @@ function buildFilter({ container, label, options, onSelect, closeToDefault = tru
     </button>`).join('');
 
   function renderBtn() {
-    if (value === null) {
+    if (viewSelect) {
+      const current = value ?? defaultValue;
+      btn.className = 'filter-select';
+      btn.innerHTML = `<span class="filter-select__label">${label}: ${current}</span><img class="filter-select__caret" src="${ICON}caret-down-filled.svg" alt="">`;
+      list.querySelectorAll('.menu-option').forEach((o) => o.classList.toggle('menu-option--focused', o.dataset.value === current));
+    } else if (value === null) {
       btn.className = 'filter-select';
       btn.innerHTML = `<span class="filter-select__label">${inactiveLabel}</span><img class="filter-select__caret" src="${ICON}caret-down-filled.svg" alt="">`;
     } else {
@@ -900,13 +949,16 @@ function openExportModal({ title, intro, notices = [], defaultName, build }) {
   input.focus(); input.select();
 }
 
-// Export from the Meta Ads table (Analytics · Meta Ads Performance) — ads are lifetime figures, so the report spans the
-// earliest ad start → today. Drafts have no delivery data and are left out (with a notice), like Ads Manager.
+// Export from the Meta Ads table (Analytics · Published Posts' Meta Ads filter) — the table follows the date range, so the
+// report holds the range's figures and its name spans that range (All time = earliest ad start → today). Drafts have no
+// delivery data and are left out (with a notice), like Ads Manager.
 const fmtDMYlong = (d) => `${d.getDate()} ${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getFullYear()}`;
-function openAdsExport(table) {
+function openAdsExport(table, periodKey = 'all') {
   const { rows, scope } = table.exportSet();
   const drafts = rows.filter((c) => c.spent === null), data = rows.filter((c) => c.spent !== null);
-  const first = META_CAMPAIGNS_MOCK.reduce((m, c) => (c.starts < m ? c.starts : m), META_CAMPAIGNS_MOCK[0].starts);
+  const range = periodKey === 'all'
+    ? { start: parseISO(META_CAMPAIGNS_MOCK.reduce((m, c) => (c.starts < m ? c.starts : m), META_CAMPAIGNS_MOCK[0].starts)), end: TODAY }
+    : periodRange(periodKey);
   openExportModal({
     title: `Export ads table data – ${scope === 'selected' ? `${rows.length} selected` : 'current view'}`,
     intro: `This file will only contain data from your ${scope === 'selected' ? 'selected ads' : 'current view'} and will exclude ads that have not been published.`,
@@ -914,7 +966,7 @@ function openAdsExport(table) {
       'The Off / On column isn\'t included in the file — each ad\'s status is in the Delivery column.',
       ...(drafts.length ? [`${drafts.length} ad${drafts.length === 1 ? ' is' : 's are'} still in draft with no delivery data, so ${drafts.length === 1 ? 'it isn\'t' : 'they aren\'t'} in the file.`] : []),
     ],
-    defaultName: `Formee Express, Promoted content, ${fmtDMYlong(parseISO(first))}–${fmtDMYlong(TODAY)}`,
+    defaultName: `Formee Express, Promoted content, ${fmtDMYlong(range.start)}–${fmtDMYlong(range.end)}`,
     build: () => ({ text: adsCSV(data) }),
   });
 }

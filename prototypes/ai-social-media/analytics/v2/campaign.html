@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Meta Ads Performance — AI Social Media</title>
-<!-- Promoted content detail (v2) — one ad, opened from a post title in Analytics › Meta Ads Performance or Promoted
-     Content. Pulse sets ads up per content (no multi-ad campaigns), so this is one post's ad: the post is the subject,
+<title>Ad detail — AI Social Media</title>
+<!-- Ad detail (v2) — one ad, opened from a post title in the Meta Ads table (Analytics or Published Posts' Meta Ads filter),
+     a Top Performing row, or a Meta Ads post in Published Posts. Breadcrumb: Analytics › Published Posts › ad (wherever it
+     was opened from — Published Posts is the one list page). Pulse sets ads up per content (no multi-ad campaigns), so this is one post's ad: the post is the subject,
      its Meta campaign name is metadata. Laid out like Published Posts: 1. header (post title, delivery, dates, objective,
      budget, Meta campaign),
      2. its row from the Meta Ads table (same columns as Analytics / Meta Ads Performance — one row, no sort menus),
@@ -165,7 +166,7 @@
       <div class="app-topbar__crumb">
         <a class="crumb-link" href="analytics.html" id="crumbAnalytics">Analytics</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
-        <a class="crumb-link" href="campaigns.html" id="crumbCampaigns">Meta Ads Performance</a>
+        <a class="crumb-link" href="posts.html?view=paid" id="crumbPosts">Published Posts</a>
         <img class="crumb-sep" src="../../../../components/ai-social-media/icons/chevron-right.svg" alt="">
         <span id="crumbName"></span>
       </div>
@@ -275,19 +276,20 @@
 const params = new URLSearchParams(location.search);
 readCustomRange(params);
 const fromPeriod = params.get('period');
-if (PERIODS[fromPeriod]) {
-  const q = new URLSearchParams(periodParams(fromPeriod));
-  document.getElementById('crumbAnalytics').href = `analytics.html?${q}`;
-  document.getElementById('crumbCampaigns').href = `campaigns.html?${q}`;
+if (PERIODS[fromPeriod]) document.getElementById('crumbAnalytics').href = `analytics.html?${new URLSearchParams(periodParams(fromPeriod))}`;
+// Published Posts in the breadcrumb → its Meta Ads filter on the range this was opened from, with this ad's row ringed
+function setPostsCrumb(id) {
+  const q = new URLSearchParams(params);
+  q.delete('id'); q.delete('range'); q.set('view', 'paid'); q.set('ad', id);
+  document.getElementById('crumbPosts').href = `posts.html?${q}`;
 }
-// the range the page opens on: ?range=all from the lifetime lists (Meta Ads table / Meta Ads Performance), else the list's
-// ?period (Top Performing / Published Posts), else All time. The selector above the table changes it from there.
+// the range the page opens on: the previous screen's ?period (every list follows the date range now), else All time.
+// (?range= from older lifetime-list links still wins.) The selector above the table changes it from there.
 let period = PERIODS[params.get('range')] ? params.get('range') : PERIODS[fromPeriod] ? fromPeriod : 'all';
 const DASH = '—';
 const fmtRange = (a, b) => (diffDays(a, b) === 0 ? fmtDate(a) : a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`);
 const deliveryChip = (d) => `<span class="ads-delivery${d === 'Active' ? ' ads-delivery--active' : d === 'In Draft' ? ' ads-delivery--draft' : ''}"><span class="ads-delivery__dot"></span>${d}</span>`;
 let model = null, adsTable = null, metric = 'spend', unit = null; // unit null = the finest the range allows
-const perKOf = (c) => (c.resultType === 'Reach' ? 1000 : 1); // Meta prices Reach per 1,000 people reached
 
 // the ad's delivery inside the picked period — null span = it didn't run then
 function current() {
@@ -379,7 +381,8 @@ fitFrameToViewport();
 getMetaCampaign(params.get('id')).then((m) => {
   model = m;
   const c = m.campaign, { start, end } = campaignRange(c);
-  document.title = `${c.content.title} — Meta Ads Performance`;
+  document.title = `${c.content.title} — Ad detail`;
+  setPostsCrumb(c.id);
   document.getElementById('crumbName').textContent = c.content.title;
   document.getElementById('campaignName').textContent = c.content.title;
   document.getElementById('campaignMeta').innerHTML = [

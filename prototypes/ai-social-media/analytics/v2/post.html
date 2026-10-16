@@ -232,7 +232,7 @@
             <div class="sc-list-colhead">
               <span class="posts-col--post">Post</span>
               <span class="posts-col--date">Published</span>
-              <span class="posts-col--status">Paid / Organic</span>
+              <span class="posts-col--status">Meta Ads / Organic</span>
               <span class="posts-col--num">Views</span>
               <span class="posts-col--num">Likes</span>
               <span class="posts-col--num">Comments</span>
@@ -266,7 +266,7 @@
             <div class="line-chart" id="postChart"></div>
           </div>
           <div class="empty-state-panel" id="chartEmpty" hidden>
-            <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">Not published yet in this date range.</p><p class="empty-state__body" id="chartEmptyBody"></p></div></div>
+            <div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="../../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No data for this date range.</p><p class="empty-state__body" id="chartEmptyBody"></p></div></div>
           </div>
         </section>
 
@@ -327,7 +327,7 @@ function current() {
 function renderTotals() {
   const { span, totals: t } = current();
   document.getElementById('totalsCaption').textContent = period === 'all' ? `Totals since published · ${fmtRange(post.date, TODAY)}`
-    : span ? `Totals · ${fmtRange(span.start, span.end)}` : `Totals · ${rangeLabel(periodRange(period))} — not published yet`;
+    : span ? `Totals · ${fmtRange(span.start, span.end)}` : `Totals · ${rangeLabel(periodRange(period))} — before this post went live`;
   const num = (v, f) => `<span class="posts-col--num posts-cell">${span ? f(v) : DASH}</span>`;
   document.getElementById('postRow').innerHTML = `
     <div class="sc-list-row">

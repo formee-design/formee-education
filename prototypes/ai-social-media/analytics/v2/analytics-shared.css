@@ -1,12 +1,12 @@
 /* Analytics v2 — shared styles for the Meta Ads campaign table (Analytics · Meta Ads Performance and
-   Promoted Content). Built from Schedule / List Row (schedule.css), shared/checkbox.css, switch.css and the
+   Published Posts' Meta Ads filter). Built from Schedule / List Row (schedule.css), shared/checkbox.css, switch.css and the
    Controls / Context Menu (controls-menu.css) — this file only adds the table's columns and its sort menu. */
 
 /* Meta Ads Performance — Schedule / List Row table, Ads Manager column set; numbers right-aligned, scrolls sideways if narrow */
 .ads-table{max-width:none;}
 .ads-table .sc-list-colhead, .ads-table .sc-list-row{min-width:1480px; padding-left:var(--spacing-lg); padding-right:var(--spacing-lg); gap:var(--spacing-md);}
 .ads-table .sc-list-row{align-items:flex-start;}
-.ads-table .sc-list-row:hover{background:var(--color-neutral-50);}
+.ads-table .sc-list-row:hover{background:var(--color-neutral-100);} /* Figma Analytics / Ads Row State=Hover */
 .ads-col--check{width:20px; display:flex; align-items:center; min-height:20px;}
 .ads-col--toggle{width:56px; white-space:nowrap;}
 .ads-col--name{flex:1 0 0; min-width:220px;}
@@ -23,6 +23,9 @@
 .ads-content__thumb{width:36px; height:36px; border-radius:var(--radius-md); object-fit:cover; flex-shrink:0;}
 .ads-content__text{display:flex; flex-direction:column; min-width:0;}
 .ads-content__text .ads-campaign{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+/* title + "Not published" chip (a draft whose post isn't live yet) */
+.ads-content__title-row{display:flex; align-items:center; gap:var(--spacing-sm); min-width:0;}
+.ads-content__chip{flex-shrink:0;}
 .ads-delivery{display:inline-flex; align-items:center; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
 .ads-delivery__dot{width:8px; height:8px; border-radius:var(--radius-full); background:var(--color-neutral-400); flex-shrink:0;}
 .ads-delivery--active .ads-delivery__dot{background:var(--color-badge-green-text);}
@@ -47,7 +50,6 @@
 /* Sort menu — Controls / Context Menu (Actions type) with Menu / Item rows; lives on .frame so the scrolling table
    doesn't clip it */
 .ads-menu{position:absolute; z-index:60; width:max-content; min-width:200px;}
-.ads-menu__title{margin:0; padding:var(--spacing-xs) var(--spacing-sm); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}
 .ads-menu .menu-item:hover{background:var(--color-neutral-75);}
 .ads-menu__label{display:flex; align-items:center; gap:var(--spacing-sm);}
 .ads-menu__check{visibility:hidden;}

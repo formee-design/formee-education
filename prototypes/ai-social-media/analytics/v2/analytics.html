@@ -14,12 +14,18 @@
      Live states:
        - Period selector — every section re-renders for 30 days / 90 days / All time / Custom; "Custom" reveals the date range
          inline; a short range can show a 0-post type in the Published Posts legend.
-       - Top Performing Content stays in its "Integration Pending" empty state until Meta Ads is connected.
+       - Meta Ads Performance follows the date range too (2026-10-16): ads that delivered in it (period figures) + drafts
+         last edited in it; default order = newest ad first; column sort menus (several at once, Clear sort); a draft whose
+         post isn't live shows "Not published". View all → Published Posts with the Meta Ads filter, same range.
+       - Top Performing Content: rows ranked by leads; change vs last period ↑ green / ↓ red / 0% / "—" No prior data
+         (#state=deltas shows the ↓ · — · 0% rows from Figma). View all → Published Posts, Meta Ads, Results ↓.
+       - #state=empty — new account (Meta not connected) · #state=range-empty — nothing in the range.
        - Custom: clicking either date opens the Date Picker (Time=Without time); Apply re-runs every section for that range
          (DD/MM/YYYY; no future dates). URL keeps ?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD.
        - Deep links: ?period=30d#top-paid / #top-organic scroll to that list and ring it.
-       - Drill-down to Published Posts (posts.html): "View all →" on Top Performing / Top Organic, and every segment of
-         Published Posts Over Time (platform + week). Data + helpers shared via analytics-shared.js. -->
+       - Drill-down to Published Posts (posts.html) — the one list page: every "View all →" (Meta Ads Performance, Top
+         Performing, Top Organic) and every segment of Published Posts Over Time (platform + week). The old Meta Ads
+         Performance list page (campaigns.html) is gone. Data + helpers shared via analytics-shared.js. -->
 <!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -194,7 +200,7 @@
   .forecast-row:last-child{border-bottom:none;}
   /* Top Performing → Meta Ads Performance detail (campaign.html), Top Organic → Post detail (post.html); the whole row is the link */
   a.forecast-row{text-decoration:none; color:inherit; cursor:pointer;}
-  a.forecast-row:hover{background:var(--color-neutral-50);}
+  a.forecast-row:hover{background:var(--color-neutral-100);} /* Figma Top row hover — neutral/100 */
   a.forecast-row:hover .forecast-row__name{text-decoration:underline;}
   .forecast-row__rank{width:12px; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .forecast-row__thumb{width:56px; height:56px; border-radius:8px; object-fit:cover; flex-shrink:0;}
@@ -225,7 +231,12 @@
   .paid-metric__value{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .paid-metric__label{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
   .paid-delta{display:flex; align-items:center; gap:var(--spacing-2); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-badge-green-text);}
-  .paid-delta img{width:14px; height:14px; display:block;}
+  /* change vs last period — Figma Analytics / Top Paid Row, Trend=Up / Down / No change / No prior. The arrow is the
+     14px arrow-up icon used as a mask, so it takes the text colour (token) and flips for Down */
+  .paid-delta__arrow{width:14px; height:14px; flex-shrink:0; background:currentColor; -webkit-mask:url(../../../../components/ai-social-media/icons/arrow-up-14-green.svg) center/contain no-repeat; mask:url(../../../../components/ai-social-media/icons/arrow-up-14-green.svg) center/contain no-repeat;}
+  .paid-delta--down{color:var(--color-badge-red-text);}
+  .paid-delta--down .paid-delta__arrow{transform:rotate(180deg);}
+  .paid-delta--flat, .paid-delta--none{color:var(--color-neutral-500);}
 
   [hidden]{display:none !important;}
 
@@ -408,21 +419,23 @@
         <!-- Meta Ads Performance — read-only ads table (reference: Meta Ads Manager campaign list, minus Actions and
              everything after Ends). Only ads made in Pulse come in, one per promoted post (no multi-ad campaigns), so the
              first column is the post — its Meta campaign name is the sub-line. Columns: checkbox · on/off · Promoted content · Delivery · Results · Cost per result · Budget ·
-             Amount spent · Impressions · Reach · Ends. All ads in a 5-row scroll window, a Sort menu per column, status
-             filter; View all → campaigns.html (Meta Ads Performance). MOCK data until the Meta API is wired — see getMetaCampaigns() in
-             analytics-shared.js. Checkbox / toggle are visual only; the post title opens campaign.html. -->
+             Amount spent · Impressions · Reach · Ends. Follows the date range (ads that delivered in it, with that range's
+             figures, + drafts last edited in it — Ends = that edit), newest ad first, in a 5-row scroll window; a Sort menu
+             per column (several at once, Clear sort), status filter; View all → Published Posts (Meta Ads filter, same range).
+             MOCK data until the Meta API is wired — see getMetaCampaigns() in analytics-shared.js. Checkbox / toggle are
+             visual only; the post title opens campaign.html. -->
         <section class="analytics-section" id="adsSection">
           <div class="section-header-row">
             <div class="trends-section-header">
               <div class="trends-section-header__left">
                 <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Meta Ads Performance</h2></div>
-                <p class="trends-section-header__desc">Lifetime totals for the posts you promoted on Meta from Pulse — not limited by the date range above.</p>
+                <p class="trends-section-header__desc">Results for the posts you promoted on Meta in this date range.</p>
               </div>
             </div>
             <div class="filter-row" id="adsControls">
               <div class="filter-dropdown filter-dropdown--right" id="adsStatusFilterWrap"></div>
               <button type="button" class="text-btn export-btn" id="adsExport"><img src="../../../../components/ai-social-media/icons/download.svg" alt="">Export</button>
-              <a class="text-btn" id="viewAllCampaigns" href="campaigns.html">View all →</a>
+              <a class="text-btn" id="viewAllCampaigns" href="posts.html?view=paid">View all →</a>
             </div>
           </div>
           <div class="analytics-card ads-card" id="adsCard">
@@ -439,7 +452,7 @@
           </div>
         </section>
 
-        <!-- row · top posts — Paid (left) | Organic (right), 50/50. A post with any ad spend in the date range counts as Paid,
+        <!-- row · top posts — Meta Ads (left) | Organic (right), 50/50. A post with any ad spend in the date range counts as Meta Ads,
              otherwise Organic. Deep links: ?period=30d#top-paid / #top-organic (e.g. from Home's "View analytics →"). -->
         <div class="analytics-row analytics-row--stretch" id="topRow">
 
@@ -618,20 +631,22 @@ function renderSpend() {
   });
 }
 
-// ── Meta Ads Performance — the shared campaign table (analytics-shared.js), all campaigns in a 5-row scroll window ──
+// ── Meta Ads Performance — the shared campaign table (analytics-shared.js): the range's ads in a 5-row scroll window ──
 const adsTable = mountAdsTable({
   table: document.getElementById('adsTable'), head: document.getElementById('adsHead'), rows: document.getElementById('adsRows'),
   windowRows: 5,
+  rowData: (c) => adRowForPeriod(c, pageState.period),
   linkParams: () => new URLSearchParams(periodParams(pageState.period)).toString(),
-  onRender({ source, count, status }) {
-    const none = source === 'none';
-    document.getElementById('adsControls').hidden = none;
+  onRender({ source, count, total, status }) {
+    const none = source === 'none', rangeEmpty = !none && total === 0; // nothing ran / was edited in this range
+    document.getElementById('adsControls').hidden = none || rangeEmpty; // Status · Export · View all hidden (Figma 04)
     document.getElementById('adsCard').hidden = none || count === 0;
-    document.getElementById('adsEmpty').hidden = !(none || count === 0);
-    if (none) { showNotConnected(document.getElementById('adsEmpty')); } else {
-      document.getElementById('adsEmptyTitle').textContent = NO_ADS_FOR_STATUS[status] || 'No ads.';
-      document.getElementById('adsEmptyBody').textContent = 'Try another status.';
-    }
+    const empty = document.getElementById('adsEmpty');
+    empty.hidden = !(none || count === 0);
+    if (none) { showNotConnected(empty); return; }
+    if (!empty.querySelector('#adsEmptyTitle')) empty.innerHTML = ADS_EMPTY_HTML; // back from the not-connected line
+    document.getElementById('adsEmptyTitle').textContent = rangeEmpty ? 'No Meta ads ran in this date range.' : NO_ADS_FOR_STATUS[status] || 'No ads.';
+    document.getElementById('adsEmptyBody').textContent = rangeEmpty ? 'Try a longer date range.' : 'Try another status.';
   },
 });
 buildFilter({
@@ -641,7 +656,7 @@ buildFilter({
   onSelect(value) { adsTable.setStatus(value || 'All'); },
 });
 document.getElementById('adsStatusFilterWrap').classList.add('filter-dropdown--right');
-document.getElementById('adsExport').addEventListener('click', () => openAdsExport(adsTable)); // checked rows, else the current view
+document.getElementById('adsExport').addEventListener('click', () => openAdsExport(adsTable, pageState.period)); // checked rows, else the current view
 
 // ── Content Performance — grouped by platform or by type; expanding a group shows the other dimension inside it,
 //    each child indexed against its group's own engagement (so platforms are only compared with themselves) ──
@@ -676,7 +691,7 @@ function renderPerformance(cells) {
     if (!groupCells.length) return '';
     const total = sumCells(groupCells);
     const groupEng = engagementOf(total);
-    // children keep the fixed TYPES / PLATFORMS order (Video · Image · Carousel · Multi-Image Post); the Best chip marks the best one
+    // children keep the fixed TYPES / PLATFORMS order (Video · Image · Carousel); the Best chip marks the best one
     const children = groupCells.filter((c) => c.posts > 0).map((c) => ({
       name: c[childKey], stats: c, index: groupEng ? engagementOf(c) / groupEng - 1 : 0,
     }));
@@ -774,6 +789,7 @@ document.getElementById('perfRows').addEventListener('keydown', (e) => {
 
 // status filter with no rows — written per status so it reads naturally (not "No in draft ads.")
 const NO_ADS_FOR_STATUS = { Active: 'No active ads.', Off: 'No ads turned off.', 'In Draft': 'No ads in draft.' };
+const ADS_EMPTY_HTML = document.getElementById('adsEmpty').innerHTML;
 
 // ── Top Organic Posts — posts with no ad spend in the date range, top 3 by the selected Rank by metric (placeholder data) ──
 // Common metrics only (views, likes, comments); Engagement Rate is derived from them, same as Content Performance.
@@ -785,11 +801,13 @@ const RANK_METRICS = [
 ];
 const topPostsState = { platform: 'All Platforms', rank: 'Views' };
 
-// "View all →" opens Published Posts with the same date range / platform / ranking, so its list starts with these 3
+// "View all →" — every one opens Published Posts (the one list page) with the same date range:
+//   Meta Ads Performance → Meta Ads filter, newest first (same order as the table here);
+//   Top Performing → Meta Ads filter, Results ↓ (same order as its 3 rows); Top Organic → Organic + platform / ranking
 function updateViewAllLinks() {
   const q = new URLSearchParams(periodParams(pageState.period));
-  document.getElementById('viewAllCampaigns').href = `campaigns.html?${q}`; // full list; the period only feeds the breadcrumb back
-  document.getElementById('viewAllPaid').href = `posts.html?view=paid&sort=Leads&${q}`; // same ranking as the 3 rows here
+  document.getElementById('viewAllCampaigns').href = `posts.html?view=paid&${q}`;
+  document.getElementById('viewAllPaid').href = `posts.html?view=paid&adsort=results&${q}`;
   document.getElementById('viewAllOrganic').href = `posts.html?${organicQuery()}`;
 }
 // Published Posts, organic, with this range / platform / ranking
@@ -811,13 +829,19 @@ function renderTopPaid() {
   if (!paid.length) {
     const notConnected = DATA_STATE === 'empty';
     if (!notConnected) { // not connected: the panel already holds the "Connect one" line
-      document.getElementById('paidEmptyTitle').textContent = 'No paid posts in this date range.';
+      document.getElementById('paidEmptyTitle').textContent = 'No Meta Ads posts in this date range.';
       document.getElementById('paidEmptyBody').textContent = 'Posts with ad spend will be ranked here by leads.';
     }
     return;
   }
-  // change vs the previous period of the same length (placeholder, always a gain for the top 3)
-  const delta = (p) => Math.round(3 + 12 * rand(p.leads * 1.31 + p.spend));
+  // change vs the previous period of the same length (placeholder: a gain for the top 3). #state=deltas shows the other
+  // states from Figma "Top Performing · change down · no prior data · no change": ↓ red, "—" No prior data (no earlier
+  // period to compare, e.g. a new ad), 0% grey.
+  const deltaOf = (p, i) => (DATA_STATE === 'deltas' ? [{ dir: 'down', pct: 4 }, { dir: 'none' }, { dir: 'flat', pct: 0 }][i]
+    : { dir: 'up', pct: Math.round(3 + 12 * rand(p.leads * 1.31 + p.spend)) });
+  const deltaCell = (d) => (d.dir === 'none'
+    ? '<span class="paid-delta paid-delta--none">—</span><p class="paid-metric__label">No prior data</p>'
+    : `<span class="paid-delta paid-delta--${d.dir}">${d.dir === 'flat' ? '' : '<span class="paid-delta__arrow"></span>'}${d.pct}%</span><p class="paid-metric__label">vs. last period</p>`);
   const lp = new URLSearchParams(periodParams(pageState.period)); // the detail opens on this range (and its breadcrumb leads back to it)
   card.innerHTML = paid.map((p, i) => `
     <a class="forecast-row" href="campaign.html?id=${p.campaignId}&${lp}">
@@ -825,7 +849,7 @@ function renderTopPaid() {
       <img class="forecast-row__thumb" src="${THUMB}${p.img}" alt="">
       <div class="forecast-row__title"><p class="forecast-row__name">${p.title}</p><p class="forecast-row__sub">${p.platform} · ${p.type}</p></div>
       <div class="paid-metric paid-metric--leads${i === 0 ? ' has-chip' : ''}">${i === 0 ? '<span class="feedback-status-chip feedback-status-chip--green">Top</span>' : ''}<p class="paid-metric__value">${fmtInt(p.leads)}</p><p class="paid-metric__label">leads</p></div>
-      <div class="paid-metric paid-metric--delta"><span class="paid-delta"><img src="${ICON}arrow-up-14-green.svg" alt="">${delta(p)}%</span><p class="paid-metric__label">vs. last period</p></div>
+      <div class="paid-metric paid-metric--delta">${deltaCell(deltaOf(p, i))}</div>
       <div class="paid-metric paid-metric--cpl"><p class="paid-metric__value">${p.cpl === null ? '—' : formatUSD(p.cpl)}</p><p class="paid-metric__label">CPL</p></div>
     </a>`).join('');
 }
@@ -866,8 +890,8 @@ function renderTopPosts() {
 buildFilter({
   container: document.getElementById('postsRankFilterWrap'),
   label: 'Rank by',
-  inactiveLabel: 'Rank by: Views',
   defaultValue: 'Views',
+  viewSelect: true, // always has a value → Light pill "Rank by: Likes", no ✕
   options: RANK_METRICS.map((m) => ({ value: m.value })),
   onSelect(value) {
     topPostsState.rank = value || 'Views';
