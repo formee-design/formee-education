@@ -1706,7 +1706,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-secsub{ font-size:12px; line-height:18px; color:var(--neutral-500); margin-top:4px; }
 .s3-btn{ font:inherit; font-size:13px; font-weight:600; line-height:20px; display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:var(--radius-lg); border:1px solid var(--neutral-900); background:var(--neutral-900); color:var(--neutral-0); cursor:pointer; white-space:nowrap; }
 .s3-btn.sec{ background:var(--neutral-0); color:var(--neutral-900); border-color:var(--neutral-300); }
-.s3-btn.danger{ background:var(--badge-red-text); border-color:var(--badge-red-text); }
+.s3-btn.danger{ background:var(--s3-danger, var(--badge-red-text)); border-color:var(--s3-danger, var(--badge-red-text)); }
 .s3-btn:disabled{ opacity:.45; cursor:default; }
 .s3-btn .plus{ font-size:16px; line-height:1; font-weight:400; }
 .s3-card{ background:var(--neutral-0); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:visible; }
@@ -1884,6 +1884,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-mi.danger{ color:var(--s3-danger); }
 .s3-mi .cb{ width:16px; height:16px; margin-top:2px; accent-color:var(--neutral-900); appearance:auto; -webkit-appearance:checkbox; flex:none; pointer-events:none; }
 .s3-menu{ z-index:400; }
+.s3-mhint{ font-size:12px; line-height:18px; color:var(--neutral-500); padding:6px 10px 4px; }
 .s3-phead{ justify-content:space-between; }
 .s3-phead .l{ display:flex; align-items:center; gap:12px; }
 .s3-nmline{ display:flex; align-items:center; gap:6px; }
@@ -37704,12 +37705,12 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     return L;
   }
   function closeLayer(){ closeMenu(); var L=$('#s3Layer'); L.hidden=true; S.ed=null; S.inv=null; }
-  function modal(title, desc, body, primary, onOk, danger){
-    var L = layer(title, desc, body?'<div class="s3-dbody">'+body+'</div>':'', '<button type="button" class="s3-btn sec" data-s3close>Cancel</button><button type="button" class="s3-btn'+(danger?' danger':'')+'" id="s3ok">'+esc(primary)+'</button>');
+  function modal(title, desc, body, primary, onOk, danger, secondary){
+    var L = layer(title, desc, body?'<div class="s3-dbody">'+body+'</div>':'', '<button type="button" class="s3-btn sec" data-s3close>'+esc(secondary||'Cancel')+'</button><button type="button" class="s3-btn'+(danger?' danger':'')+'" id="s3ok">'+esc(primary)+'</button>');
     $('#s3ok').onclick=function(){ if (onOk()!==false) closeLayer(); };
     var f=L.querySelector('input'); if (f) setTimeout(function(){f.focus();},30);
   }
-  function confirmBox(title, desc, primary, onOk){ modal(title, desc, '', primary, onOk, true); }
+  function confirmBox(title, desc, primary, onOk, secondary){ modal(title, desc, '', primary, onOk, true, secondary); }
 
   /* Edit access — 브랜드마다 역할. Brand Admin 은 내 브랜드만 바꾸고, 다른 브랜드는 읽기 전용 */
   function editModal(pid){
@@ -37772,7 +37773,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     });
   }
   function renameModal(name){
-    modal('Rename brand', '', '<div class="s3-field"><span class="s3-label">Brand name</span><input class="s3-input s3-dfull" id="s3rn" value="'+esc(name)+'"></div>', 'Save', function(){
+    modal('Rename brand', 'Members and content stay the same.', '<div class="s3-field"><span class="s3-label">Brand name</span><input class="s3-input s3-dfull" id="s3rn" value="'+esc(name)+'"></div>', 'Save', function(){
       var n=$('#s3rn').value.trim(); if(!n||n===name) return true; if (brand(n)){ toast('A brand with that name already exists'); return false; }
       brand(name).name=n; A[n]=A[name]||{}; delete A[name]; if (S.axBrand===name) S.axBrand=n; render(); toast('Renamed to '+n);
     });
@@ -37789,7 +37790,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (kind==='eadd'){ S.menu=k; var left=scopeBrands().filter(function(n){ return !S.ed.d[n]; });
       return openMenu(t, left.map(function(n){ return '<button type="button" class="s3-mi" data-s3act="edadd" data-id="'+esc(n)+'">'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join(''), 260); }
     if (kind==='ib'){ S.menu=k; return openMenu(t, scopeBrands().map(function(n){ var on=S.inv.brands.indexOf(n)>=0;
-      return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'>'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join(''), t.offsetWidth); }
+      return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'>'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join('')+
+      (isBA()?'<p class="s3-mhint">Only brands you manage are listed. Ask your account admin for other brands.</p>':''), t.offsetWidth); }
     if (kind==='ir'){ S.menu=k; return openMenu(t, roleItems(S.inv.role, 'invrole', 'x'), t.offsetWidth); }
   }
 
@@ -37800,9 +37802,9 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var p = person(id);
     if (a==='resend'){ toast('Invite sent again to '+p.email); return; }
     if (a==='editaccess'){ S.ed=null; return editModal(id); }
-    if (a==='cancelinvite') return confirmBox('Cancel this invite?', p.email+' won’t be able to join with the link they received.', 'Cancel invite', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Invite cancelled'); });
+    if (a==='cancelinvite') return confirmBox('Cancel this invite?', p.email+' won’t be able to join with the link they received.', 'Cancel invite', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Invite cancelled'); }, 'Keep invite');
     if (a==='removemember') return confirmBox('Remove '+(p.name||p.email)+'?', 'They lose access to every brand in this account. Their content stays.', 'Remove member', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Member removed'); });
-    if (a==='removemine') return confirmBox('Remove from your brands?', (p.name||p.email)+' loses access to '+accessOf(id).map(function(x){return x.brand;}).join(' and ')+'. Other brands in the account are not affected.', 'Remove', function(){ myBrands().forEach(function(b){ if (A[b]) delete A[b][id]; }); render(); toast('Removed from your brands'); });
+    if (a==='removemine') return confirmBox('Remove '+(p.name||p.email)+' from your brands?', 'They lose access to '+accessOf(id).map(function(x){return x.brand;}).join(' and ')+'. Other brands stay.', 'Remove', function(){ myBrands().forEach(function(b){ if (A[b]) delete A[b][id]; }); render(); toast('Removed from your brands'); });
     if (a==='setrole'){ A[S.axBrand][id]=el.dataset.role; render(); toast((p.name||p.email)+' is now '+el.dataset.role+' in '+S.axBrand); return; }
     if (a==='removeaccess'){ delete A[S.axBrand][id]; render(); toast('Access removed from '+S.axBrand); return; }
     if (a==='addrole'){ S.addRole=el.dataset.role; var q=$('#s3addq').value; render(); $('#s3addq').value=q; return; }
@@ -37813,7 +37815,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       el.querySelector('.cb').checked = i<0; var lb=document.querySelector('#s3Layer [data-s3menu="ib:x"] .lb'); lb.innerHTML = S.inv.brands.length?esc(S.inv.brands.join(', ')):'<span class="ph">Choose brands</span>'; return; }
     if (a==='invrole'){ S.inv.emails=$('#s3invEmail').value; S.inv.role=el.dataset.role; return inviteModal(); }
     if (a==='rename') return renameModal(id);
-    if (a==='deletebrand') return confirmBox('Delete '+id+'?', 'The brand, its library and its scheduled posts are removed for everyone. This can’t be undone.', 'Delete brand', function(){ B.splice(B.indexOf(brand(id)),1); delete A[id]; render(); toast(id+' deleted'); });
+    if (a==='deletebrand') return confirmBox('Delete '+id+'?', 'Its library and scheduled posts go too. This can’t be undone.', 'Delete brand', function(){ B.splice(B.indexOf(brand(id)),1); delete A[id]; render(); toast(id+' deleted'); });
   }
   function addPerson(){
     var q = $('#s3addq').value.trim(), r = S.addRole; if (!q) return;
