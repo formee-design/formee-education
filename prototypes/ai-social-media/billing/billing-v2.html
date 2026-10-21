@@ -31,7 +31,8 @@
      Standard yearly
    - Dev review 10/21: one Change plan button; Keep Standard / Resume subscription ask for
      confirmation; no brand picker on downgrade (the company's plan covers every brand);
-     actions started in a popup finish inside that popup (no toast)
+     actions started in a popup finish inside that popup; no toasts anywhere — a Stripe round
+     trip just shows its result on the page (new card, payment issue cleared)
    - Policy values are filled in (upgrade proration, cancel at period end, $30 / 100 credits)
    ============================================================================ */
 *{box-sizing:border-box;}
@@ -203,11 +204,6 @@ button{font:inherit;}
 .bl-qty output{min-width:28px; text-align:center; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
 
 
-/* toast (Feedback / Toast 8335:120706) */
-.toast{position:absolute; z-index:120; left:50%; bottom:28px; transform:translateX(-50%); height:40px; display:flex; align-items:center; gap:var(--spacing-sm); padding:0 var(--spacing-lg); border-radius:var(--radius-lg); background:var(--color-neutral-900); color:var(--color-neutral-0); box-shadow:var(--shadow-md); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); white-space:nowrap;}
-.toast[hidden]{display:none;}
-.toast .ic-svg{width:16px; height:16px;}
-.toast .is-alert{color:var(--color-badge-red-bg);}
 
 /* ══ states launcher — 프로토타입 탐색용, 제품 UI 아님 ══ */
 .launcher{position:fixed; z-index:9998; right:16px; bottom:16px; width:300px; max-height:calc(100vh - 32px); display:flex; flex-direction:column; background:var(--color-neutral-0); border:1px solid var(--color-neutral-300); border-radius:var(--radius-lg); box-shadow:var(--shadow-popover); font-family:var(--font-family-text); font-size:var(--font-size-text-xs); line-height:18px; color:var(--color-neutral-700);}
@@ -333,7 +329,6 @@ button{font:inherit;}
       </div>
     </main>
 
-    <div class="toast" id="toast" hidden></div>
   </div>
 
   <div class="modal-overlay" id="modalOverlay" hidden onclick="if(event.target===this && S.result!=='processing') closeModal()">
@@ -620,12 +615,12 @@ function renderPayment(){
 }
 
 /* Stripe Customer Portal round trip: leave → change card → come back → re-fetch the default card */
+// no toast on the way out or back — the page itself shows the result (dev review 10/21)
 function openPortal(kind){
-  toast('Opening billing settings…');
   setTimeout(() => {
     S.card = S.card === 'visa' ? 'mastercard' : 'visa';
+    if (kind === 'retry') S.status = 'active';   // Stripe retries the failed payment with the new card
     render();
-    toast(kind === 'retry' ? 'Payment method updated. We’ll retry your payment shortly.' : 'Payment method updated');
   }, 1400);
 }
 /* popup actions finish inside the same popup (dev review 10/21) — no toast */
@@ -650,7 +645,7 @@ function renderHistory(){
   }
   el.innerHTML = `<table class="bl-table"><colgroup><col style="width:22%"><col><col style="width:18%"><col style="width:14%"></colgroup>
     <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th class="num">Invoice</th></tr></thead>
-    <tbody>${inv.map(i => `<tr><td>${fmtDate(i.date)}</td><td>${i.desc}<span class="bl-cell-sub">${i.sub}</span></td><td class="num">${i.amount}</td><td class="num"><a class="bl-link" href="#" onclick="event.preventDefault(); toast('Opens the Stripe invoice in a new tab')">View</a></td></tr>`).join('')}</tbody></table>`;
+    <tbody>${inv.map(i => `<tr><td>${fmtDate(i.date)}</td><td>${i.desc}<span class="bl-cell-sub">${i.sub}</span></td><td class="num">${i.amount}</td><td class="num"><a class="bl-link" href="#" onclick="event.preventDefault()" title="Opens the Stripe invoice in a new tab">View</a></td></tr>`).join('')}</tbody></table>`;
 }
 
 /* ---------------- modals ---------------- */
@@ -810,6 +805,8 @@ function renderResult(){
     case 'canceled': {
       const end = fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd);
       return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">Your subscription has been canceled.</h3><p class="bl-m-text">You can use ${p.name} and your monthly credits until ${end}.</p><p class="bl-fine">Purchased credits stay in your account.</p></div>` + foot(btn('Done', 'primary', 'closeModal()')); }
+    case 'monthly':
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">You’ll switch to monthly billing.</h3><p class="bl-m-text">Monthly billing starts on ${fmtDate(YEAR_END)}, when your yearly plan ends.</p></div>` + foot(btn('Done', 'primary', 'closeModal()'));
     case 'resumed':
       return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">Your subscription is back on.</h3><p class="bl-m-text">${p.name} renews on ${fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd)}.</p></div>` + foot(btn('Done', 'primary', 'closeModal()'));
     case 'success-topup': {
@@ -856,16 +853,10 @@ function completePayment(kind, target, qty, view){
 }
 function switchCycle(view){
   if (view === 'yearly'){ S.target = S.plan; startPayment('switch'); return; }
-  closeModal(); toast(`You’ll switch to monthly billing on ${fmtDate(YEAR_END)}`);
+  setState({ modal:'result', result:'monthly' });
 }
 function confirmDowngrade(){ const t = S.target; setState({ status:'downgrade', pending:t, target:null, modal:'result', result:'scheduled' }); }
 function confirmCancel(){ setState({ status:'cancel', modal:'result', result:'canceled' }); }
-let toastTimer;
-function toast(msg, alert = false){
-  const t = document.getElementById('toast');
-  t.innerHTML = (alert ? ic('warn', 'is-alert') : ic('check')) + `<span>${msg}</span>`;
-  t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2800);
-}
 
 /* ---------------- states launcher (prototype aid) ---------------- */
 function seg(label, key, opts, isDisabled = () => false){
@@ -876,7 +867,6 @@ function launch(key, v){
   if (key === 'plan') resetPlanState();
   if (key === 'open'){
     clearTimeout(payTimer);
-    if (v === 'checkout-canceled'){ closeModal(); toast('Checkout canceled. You weren’t charged.', true); return; }
     if (['processing','success-sub','success-topup','failed','scheduled','canceled','kept','resumed'].includes(v)){ setState({ modal:'result', result:v }); return; }
     if (v === 'plans-yearly'){ openModal('plans'); setState({ view:'yearly' }); return; }
     if (v === 'subscribe-yearly'){ openModal('subscribe', 'standard'); setState({ view:'yearly' }); return; }
@@ -909,8 +899,7 @@ function renderLauncher(){
         <button type="button" ${paid ? '' : 'disabled'} onclick="launch('open','success-topup')">Credits added</button>
         <button type="button" onclick="launch('open','failed')">Payment failed</button>
         <button type="button" ${S.status === 'downgrade' ? '' : 'disabled'} onclick="launch('open','scheduled')">Change scheduled</button>
-        <button type="button" ${S.status === 'cancel' ? '' : 'disabled'} onclick="launch('open','canceled')">Subscription canceled</button>
-        <button type="button" onclick="launch('open','checkout-canceled')">Checkout canceled</button></div>`
+        <button type="button" ${S.status === 'cancel' ? '' : 'disabled'} onclick="launch('open','canceled')">Subscription canceled</button></div>`
     + `<label class="note"><input type="checkbox" ${S.forceFail ? 'checked' : ''} onchange="S.forceFail=this.checked"> Make the next payment fail</label>`
     + `<p class="note">Keep Standard, Resume, Downgrade and Cancel each confirm in a popup and show the result in the same popup. Yearly prices are monthly × 12 × 0.85 — 15% is confirmed, the exact amounts are not.</p>`;
 }
