@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Billing v2 · Plan & credits</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/tab-item.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/segment-chip.css">
+<link rel="stylesheet" href="../../../components/shared/modal.css">
+<link rel="stylesheet" href="../../../components/shared/checkbox.css">
+<style>
+/* ============================================================================
+   Billing v2 — Figma "Billing_to be_261016" (13221:684793, Phase2 hand off page).
+   What changed from billing.html (v1):
+   - Pulse shell (Nav / Navigation + Nav / App TopBar with the Credits chip), Account group
+   - Sentence case everywhere (tabs, titles, buttons); plan names without "Plan"
+   - Plan & credits = three cards: Current plan / Credit balance / Payment method.
+     Subscription renewal card is gone — renewal date, scheduled change, cancellation and
+     payment failure all live inside Current plan; "Cancel subscription" is a link under the cards
+   - Brands & members per plan (Basic 1/1, Standard 3/3, Premium 10/5, Free trial 1/1)
+   - Monthly / Yearly (Save 15%) in Change plan · Choose a plan · Subscribe
+   - New states: Cancellation scheduled (Resume subscription), No plan (purchased credits left),
+     Standard yearly
+   - Dev review 10/21: one Change plan button; Keep Standard / Resume subscription ask for
+     confirmation; no brand picker on downgrade (the company's plan covers every brand);
+     actions started in a popup finish inside that popup (no toast)
+   - Policy values are filled in (upgrade proration, cancel at period end, $30 / 100 credits)
+   ============================================================================ */
+*{box-sizing:border-box;}
+html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+body{margin:0; overflow:hidden; color:var(--color-neutral-900); font-family:var(--font-family-text); font-optical-sizing:none; font-variation-settings:"opsz" 14;}
+button{font:inherit;}
+.frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; display:flex; align-items:stretch; background:var(--color-neutral-50); border:1px solid var(--color-neutral-300);}
+.frame > .sidebar{height:100%;}
+.right-col{position:relative; flex:1 0 0; min-width:1px; height:100%; display:flex; flex-direction:column;}
+.right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+.home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
+.home-fab svg{width:14px; height:14px; flex-shrink:0;}
+.ic-svg{width:16px; height:16px; flex-shrink:0; display:block;}
+
+/* ---------- Nav / Credit Balance chip in the top bar (12875:71591 — Normal / Low / Zero, border only) ---------- */
+.credit-chip{display:inline-flex; align-items:center; gap:var(--spacing-xs); height:32px; padding:0 var(--spacing-lg); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-full); background:var(--color-neutral-0); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-medium); color:var(--color-neutral-700); cursor:pointer; white-space:nowrap;}
+.credit-chip b{display:inline-flex; align-items:center; gap:2px; font-weight:var(--font-weight-semibold); color:var(--color-brand-primary);}
+.credit-chip .ic-svg{width:12px; height:12px;}
+.credit-chip.is-low{border-color:var(--color-badge-orange-text);}
+.credit-chip.is-low b{color:var(--color-badge-orange-text);}
+.credit-chip.is-zero{border-color:var(--color-badge-red-text);}
+.credit-chip.is-zero b{color:var(--color-badge-red-text);}
+
+/* ---------- page ---------- */
+.page-col{width:960px; margin:0 auto; padding:var(--spacing-3xl) 0 var(--spacing-6xl);}
+.bl-title{font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-display-sm); color:var(--color-neutral-900); margin:0;}
+.bl-sub{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500); margin:var(--spacing-xs) 0 0;}
+.tab-bar{margin-top:var(--spacing-xl);}
+/* tab colours (10-14): selected = neutral/900 text + underline, the rest neutral/500 over a neutral/300 rule */
+.tab-bar .tab-item{color:var(--color-neutral-500);}
+.tab-bar .tab-item--selected{color:var(--color-neutral-900);}
+.bl-panel[hidden]{display:none;}
+.bl-stack{display:flex; flex-direction:column; gap:var(--spacing-xl); margin-top:var(--spacing-2xl);}
+.bl-container{background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-2xl); padding:var(--spacing-2xl);}
+.bl-panel.bl-container{margin-top:var(--spacing-2xl);}
+.bl-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+.bl-section-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-lg); min-height:40px;}
+.bl-section-title{display:flex; align-items:center; gap:var(--spacing-sm); margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.bl-section-desc{margin:var(--spacing-2) 0 0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.bl-actions{display:flex; align-items:center; gap:var(--spacing-md); flex-shrink:0;}
+.bl-cancel-link{display:inline-block; margin-top:var(--spacing-xl); padding:0; border:none; background:none; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-700); text-decoration:underline; text-underline-offset:2px; cursor:pointer;}
+.bl-cancel-link[hidden]{display:none;}
+
+/* summary box — neutral-50, neutral-400 border, radius-xl */
+.bl-box{background:var(--color-neutral-50); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-xl); padding:var(--spacing-lg) var(--spacing-xl); display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-2xl);}
+.bl-box > .bl-box-left{flex:1 0 0;}
+.bl-box-left{display:flex; flex-direction:column; gap:var(--spacing-2); min-width:0;}
+.bl-plan-name{margin:0; font-size:var(--font-size-display-xs); line-height:var(--line-height-display-xs); font-weight:var(--font-weight-display-xs); color:var(--color-neutral-900);}
+.bl-price{display:flex; align-items:baseline; gap:var(--spacing-xs);}
+.bl-price b{font-size:var(--font-size-display-md); line-height:var(--line-height-display-md); font-weight:var(--font-weight-display-md); color:var(--color-neutral-900); letter-spacing:-0.2px;}
+.bl-price span{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+.bl-kv{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-sm); flex:1 0 0; min-width:0;}
+.bl-kv li{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-lg); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+.bl-kv li .v{color:var(--color-neutral-900); font-weight:var(--font-weight-semibold); text-align:right; white-space:nowrap;}
+
+/* credit balance box */
+.bl-avail{display:flex; align-items:baseline; gap:var(--spacing-sm);}
+.bl-avail b{font-size:var(--font-size-display-md); line-height:var(--line-height-display-md); font-weight:var(--font-weight-display-md); color:var(--color-brand-primary);}
+.bl-avail b.is-zero{color:var(--color-neutral-900);}
+.bl-avail span{font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.bl-box-sub{margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-700);}
+.bl-meter{flex:1 0 0; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-sm);}
+.bl-meter-top{display:flex; justify-content:space-between; gap:var(--spacing-lg); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-700);}
+.bl-track{height:6px; border-radius:var(--radius-full); background:var(--color-brand-primary-mid); overflow:hidden;}
+.bl-fill{height:100%; border-radius:var(--radius-full); background:var(--color-brand-primary);}
+.bl-track.is-low, .bl-track.is-zero{background:var(--color-neutral-300);}
+.bl-track.is-low .bl-fill{background:var(--color-badge-orange-text);}
+.bl-track.is-zero .bl-fill{background:var(--color-error-text);}
+
+/* payment method */
+.bl-pm{display:flex; align-items:center; gap:var(--spacing-lg); min-width:0;}
+.bl-pm-ic{width:40px; height:40px; border-radius:var(--radius-lg); background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--color-neutral-600);}
+.bl-pm-ic .ic-svg{width:20px; height:20px;}
+.bl-pm-name{margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); font-variant-numeric:tabular-nums;}
+.bl-box--pm{justify-content:flex-start;}
+.bl-fine{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+
+/* notices inside a card */
+.bl-notice{display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-md) var(--spacing-lg); border-radius:var(--radius-xl); border:var(--border-width-1) solid transparent;}
+.bl-notice > .ic-svg{width:18px; height:18px; align-self:flex-start; margin-top:1px;}
+.bl-notice-text{flex:1; min-width:0;}
+.bl-notice-title{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold);}
+.bl-notice-body{margin:var(--spacing-2) 0 0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-700);}
+.bl-notice--info{background:var(--color-neutral-50); border-color:var(--color-neutral-400); color:var(--color-neutral-500);}
+.bl-notice--info .bl-notice-title{color:var(--color-neutral-900);}
+.bl-notice--warn{background:var(--color-badge-orange-bg); color:var(--color-badge-orange-text);}
+.bl-notice--warn .bl-notice-title{color:var(--color-badge-orange-text);}
+.bl-notice--error{background:var(--color-badge-red-bg); color:var(--color-badge-red-text);}
+.bl-notice--error .bl-notice-title{color:var(--color-badge-red-text);}
+/* payment failed: red outline, title in regular weight (Current plan · Payment issue) */
+.bl-notice--failed{background:var(--color-badge-red-bg); border-color:var(--color-error-text);}
+.bl-notice--failed .bl-notice-title{color:var(--color-badge-red-text); font-weight:var(--font-weight-medium);}
+.bl-notice--failed .bl-notice-body{margin-top:0;}
+
+/* ---------- tables ---------- */
+.bl-table{width:100%; border-collapse:collapse; table-layout:fixed;}
+.bl-table th{text-align:left; padding:var(--spacing-md); height:56px; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-900); border-bottom:var(--border-width-1) solid var(--color-neutral-500);}
+.bl-table td{padding:var(--spacing-lg) var(--spacing-md); height:76px; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-700); border-bottom:var(--border-width-1) solid var(--color-neutral-400); vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.bl-table tr:last-child td{border-bottom:none;}
+.bl-table .num{text-align:right;}
+.bl-cell{display:flex; align-items:center; gap:var(--spacing-md); color:var(--color-neutral-700);}
+.bl-cell .ic-svg{color:var(--color-neutral-500);}
+.bl-cell-sub{display:block; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.bl-credit{font-weight:var(--font-weight-semibold);}
+.bl-credit.plus{color:var(--color-badge-green-text);}
+.bl-credit.minus{color:var(--color-error-text);}
+.bl-link{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-brand-link); text-decoration:none;}
+.bl-link:hover{text-decoration:underline;}
+.bl-empty{display:flex; justify-content:center; padding:var(--spacing-5xl) 0;}
+
+/* ---------- modals — Divided modal: header / body / footer with a full-width rule ---------- */
+.modal-overlay[hidden]{display:none;}
+.modal.bl-modal{padding:0; gap:0; max-width:556px; border-radius:var(--radius-2xl);}
+.modal.bl-modal--plans{max-width:1116px;}
+.bl-m-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-md); padding:var(--spacing-3xl) var(--spacing-3xl) 0;}
+.bl-m-title{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+.bl-m-sub{margin:var(--spacing-xs) 0 0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.bl-m-close{width:28px; height:28px; display:flex; align-items:center; justify-content:center; padding:0; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-700); cursor:pointer;}
+.bl-m-close:hover{background:var(--color-neutral-75);}
+.bl-m-close .ic-svg{width:20px; height:20px;}
+.bl-m-body{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:var(--spacing-2xl) var(--spacing-3xl) var(--spacing-3xl);}
+.bl-m-text{margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-700);}
+.bl-m-foot{display:flex; justify-content:flex-end; gap:var(--spacing-md); padding:var(--spacing-xl) var(--spacing-3xl); border-top:var(--border-width-1) solid var(--color-neutral-300);}
+/* result modals — centred glyph + text */
+.bl-m-result{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-md); padding:var(--spacing-3xl) var(--spacing-3xl) var(--spacing-2xl); text-align:center;}
+.bl-m-result .bl-m-title{font-size:var(--font-size-display-xs); line-height:var(--line-height-display-xs); margin-top:var(--spacing-md);}
+.bl-m-result .bl-m-text{font-size:var(--font-size-text-md);}
+.bl-m-result .bl-fine{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+.bl-glyph{width:56px; height:56px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;}
+.bl-glyph .ic-svg{width:24px; height:24px;}
+.bl-glyph--success{background:var(--color-badge-green-bg); color:var(--color-badge-green-text);}
+.bl-glyph--error{background:var(--color-badge-red-bg); color:var(--color-badge-red-text);}
+.bl-glyph--processing{background:var(--color-brand-primary-light); color:var(--color-brand-primary);}
+.bl-glyph--processing .ic-svg{animation:bl-spin 1s linear infinite;}
+@keyframes bl-spin{to{transform:rotate(360deg);}}
+
+/* Monthly / Yearly segmented toggle */
+.bl-cycle{display:inline-flex; align-self:flex-start; padding:var(--spacing-xs); background:var(--color-neutral-150); border-radius:var(--radius-xl);}
+.bl-cycle .segment-chip{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.bl-cycle .segment-chip--active{color:var(--color-neutral-900);}
+
+/* plan cards */
+.bl-plans{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-lg);}
+.bl-plan{display:flex; flex-direction:column; gap:var(--spacing-lg); padding:var(--spacing-2xl); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-xl); background:var(--color-neutral-0);}
+.bl-plan.is-current{background:var(--color-neutral-150); border-color:var(--color-neutral-500);}
+.bl-plan-head{display:flex; align-items:center; gap:var(--spacing-md); min-height:24px;}
+.bl-plan-title{margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.bl-plan .bl-price b{font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm);}
+.bl-plan-billed{margin:calc(-1 * var(--spacing-xs)) 0 0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-500);}
+.bl-feats{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-sm); flex:1;}
+.bl-feats li{display:flex; align-items:center; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700);}
+.bl-feats li .ic-svg{color:var(--color-neutral-500);}
+.bl-plan .actions-btn{width:100%; margin-top:var(--spacing-xs);}
+
+/* confirm rows */
+.bl-rows{list-style:none; margin:0; padding:var(--spacing-lg) var(--spacing-xl); display:flex; flex-direction:column; gap:var(--spacing-md); background:var(--color-neutral-50); border:var(--border-width-1) solid var(--color-neutral-300); border-radius:var(--radius-xl);}
+.bl-rows li{display:flex; justify-content:space-between; align-items:center; gap:var(--spacing-lg); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.bl-rows li .v{color:var(--color-neutral-900); font-weight:var(--font-weight-semibold); text-align:right;}
+.bl-rows li.total{padding-top:var(--spacing-lg); border-top:var(--border-width-1) solid var(--color-neutral-300);}
+.bl-rows li.total, .bl-rows li.total .v{font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); color:var(--color-neutral-900); font-weight:var(--font-weight-semibold);}
+.bl-m-body > .bl-fine{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);}
+.bl-consent{display:flex; align-items:flex-start; gap:var(--spacing-md); cursor:pointer; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-700);}
+
+/* quantity stepper */
+.bl-qty{display:inline-flex; align-items:center; gap:var(--spacing-md);}
+.bl-qty button{width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; padding:0; border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-lg); background:var(--color-neutral-0); color:var(--color-neutral-900); cursor:pointer;}
+.bl-qty button:hover:not(:disabled){background:var(--color-neutral-100);}
+.bl-qty button:disabled{opacity:.4; cursor:not-allowed;}
+.bl-qty output{min-width:28px; text-align:center; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+
+
+/* toast (Feedback / Toast 8335:120706) */
+.toast{position:absolute; z-index:120; left:50%; bottom:28px; transform:translateX(-50%); height:40px; display:flex; align-items:center; gap:var(--spacing-sm); padding:0 var(--spacing-lg); border-radius:var(--radius-lg); background:var(--color-neutral-900); color:var(--color-neutral-0); box-shadow:var(--shadow-md); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); white-space:nowrap;}
+.toast[hidden]{display:none;}
+.toast .ic-svg{width:16px; height:16px;}
+.toast .is-alert{color:var(--color-badge-red-bg);}
+
+/* ══ states launcher — 프로토타입 탐색용, 제품 UI 아님 ══ */
+.launcher{position:fixed; z-index:9998; right:16px; bottom:16px; width:300px; max-height:calc(100vh - 32px); display:flex; flex-direction:column; background:var(--color-neutral-0); border:1px solid var(--color-neutral-300); border-radius:var(--radius-lg); box-shadow:var(--shadow-popover); font-family:var(--font-family-text); font-size:var(--font-size-text-xs); line-height:18px; color:var(--color-neutral-700);}
+.launcher > summary{list-style:none; cursor:pointer; padding:10px 14px; font-weight:var(--font-weight-bold); color:var(--color-neutral-900); display:flex; justify-content:space-between;}
+.launcher > summary::-webkit-details-marker{display:none;}
+.launcher > summary::after{content:'▾'; color:var(--color-neutral-450);}
+.launcher:not([open]) > summary::after{content:'▸';}
+.launcher-body{overflow:auto; padding:0 12px 12px;}
+.launcher h4{margin:10px 0 6px; font-size:9px; letter-spacing:.07em; text-transform:uppercase; color:var(--color-neutral-450);}
+.launcher .seg{display:flex; flex-wrap:wrap; gap:4px;}
+.launcher .seg button{border:1px solid var(--color-neutral-300); background:var(--color-neutral-0); border-radius:var(--radius-md); padding:3px 8px; font:inherit; color:var(--color-neutral-700); cursor:pointer;}
+.launcher .seg button.on{background:var(--color-brand-primary-light); border-color:var(--color-brand-primary-mid); color:var(--color-neutral-900); font-weight:var(--font-weight-semibold);}
+.launcher .seg button:disabled{opacity:.4; cursor:not-allowed;}
+.launcher .note{display:block; margin:8px 0 0; color:var(--color-neutral-500);}
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- ══ Nav / Navigation — components/ai-social-media/nav.css (Pulse, + Account group) ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../home/home.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item" href="../trends/trends.html"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item" href="../analytics/v2/analytics.html"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library-v3.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Account</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=members&amp;as=admin"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-settings.svg" alt=""></span><span>Settings</span></a>
+        <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-billing.svg" alt=""></span><span>Billing</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+    <!-- ══ Nav / App TopBar — nav-app-topbar.css + Nav / Credit Balance chip ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">Billing</div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="credit-chip" id="creditChip" onclick="setState({tab:'plan', modal:null})"></button>
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-col">
+        <h1 class="bl-title">Billing</h1>
+        <p class="bl-sub">Manage your subscription and credits.</p>
+
+        <div class="tab-bar" role="tablist">
+          <button type="button" class="tab-item" role="tab" data-tab="plan" onclick="setState({tab:'plan'})">Plan &amp; credits</button>
+          <button type="button" class="tab-item" role="tab" data-tab="activity" onclick="setState({tab:'activity'})">Credit activity</button>
+          <button type="button" class="tab-item" role="tab" data-tab="history" onclick="setState({tab:'history'})">Billing history</button>
+          <div class="tab-item tab-item--filler" aria-hidden="true"></div>
+        </div>
+
+        <!-- ============ Tab 1 — Plan & credits: Current plan / Credit balance / Payment method ============ -->
+        <div class="bl-panel" data-panel="plan">
+          <div class="bl-stack">
+            <div class="bl-container"><section class="bl-section" id="planSection"></section></div>
+            <div class="bl-container"><section class="bl-section" id="creditSection"></section></div>
+            <div class="bl-container" id="paymentCard"><section class="bl-section" id="paymentSection"></section></div>
+          </div>
+          <button type="button" class="bl-cancel-link" id="cancelLink" onclick="openModal('cancel')">Cancel subscription</button>
+        </div>
+
+        <!-- ============ Tab 2 — Credit activity ============ -->
+        <div class="bl-container bl-panel" data-panel="activity" hidden>
+          <section class="bl-section">
+            <div class="bl-section-head"><div><h2 class="bl-section-title">Credit activity</h2><p class="bl-section-desc">Track how your credits are being used.</p></div></div>
+            <table class="bl-table">
+              <colgroup><col style="width:22%"><col><col style="width:16%"><col style="width:16%"></colgroup>
+              <thead><tr><th>Date</th><th>Activity</th><th class="num">Credits</th><th class="num">Balance</th></tr></thead>
+              <tbody id="activityRows"></tbody>
+            </table>
+          </section>
+        </div>
+
+        <!-- ============ Tab 3 — Billing history ============ -->
+        <div class="bl-container bl-panel" data-panel="history" hidden>
+          <section class="bl-section">
+            <div class="bl-section-head"><div><h2 class="bl-section-title">Billing history</h2><p class="bl-section-desc">View your payments and invoices.</p></div></div>
+            <div id="historyBody"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <div class="toast" id="toast" hidden></div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" hidden onclick="if(event.target===this && S.result!=='processing') closeModal()">
+    <div class="modal bl-modal" id="modalBox" role="dialog" aria-modal="true"></div>
+  </div>
+</div>
+
+<a class="home-fab" href="../../../index.html" title="Back to all screens">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M2 7.2 8 2l6 5.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.3 6.2V13a.8.8 0 0 0 .8.8h3V10h1.8v3.8h3a.8.8 0 0 0 .8-.8V6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Home</span>
+</a>
+
+<!-- ══ states launcher — 프로토타입 탐색용, 제품 UI 아님 ══ -->
+<details class="launcher" id="launcher" open>
+  <summary>Billing states</summary>
+  <div class="launcher-body" id="launcherBody"></div>
+</details>
+
+<script>
+/* ---------------- icons — stroke icons that follow currentColor (lucide shapes) ---------------- */
+const SVG = {
+  zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" stroke="none"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  brand:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  member:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.66V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.66"/>',
+  card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  film:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/>',
+  refund:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  check:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  tick:'<path d="M20 6 9 17l-5-5"/>',
+  alert:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+  warn:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+  spinner:'<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  minus:'<path d="M5 12h14"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+};
+const ic = (name, cls='') => `<svg class="ic-svg ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SVG[name]}</svg>`;
+
+/* ---------------- policy (Abeer 10/08 pricing + 10/15 approved rules + 10/16 brand/member limits) ---------------- */
+const PLANS = {
+  free:     { id:'free',     name:'Free trial', price:0,   credits:40,   lengths:['8s'],                   res:'720p',  brands:1,  members:1 },
+  basic:    { id:'basic',    name:'Basic',      price:49,  credits:200,  lengths:['8s'],                   res:'720p',  brands:1,  members:1, yearly:{ month:41.65,  total:499.80 } },
+  standard: { id:'standard', name:'Standard',   price:129, credits:520,  lengths:['8s','16s'],             res:'1080p', brands:3,  members:3, yearly:{ month:109.65, total:1315.80 } },
+  premium:  { id:'premium',  name:'Premium',    price:299, credits:1200, lengths:['8s','16s','24s','32s'], res:'1080p', brands:10, members:5, yearly:{ month:254.15, total:3049.80 } },
+};
+// yearly = monthly × 12 × 0.85 — "Save 15%" is confirmed, these exact amounts are our calculation
+const PAID = ['basic','standard','premium'];
+const TOPUP = { credits:100, price:30 };
+const usd = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const usd0 = n => Number.isInteger(n) ? '$' + n.toLocaleString('en-US') : usd(n);
+const fmt = n => n.toLocaleString('en-US');
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const brandsMembers = p => `${plural(p.brands, 'brand', 'brands')} · ${plural(p.members, 'team member', 'team members')}`;
+const videoLine = p => p.id === 'free' ? `Videos up to ${p.lengths.at(-1)} · ${p.res}` : `${p.lengths.join(', ')} · up to ${p.res}`;
+const lowerPlan = id => { const i = PAID.indexOf(id); return i > 0 ? PAID[i - 1] : null; };
+const higherPlan = id => { if (id === 'free' || id === 'none') return 'standard'; const i = PAID.indexOf(id); return i < PAID.length - 1 ? PAID[i + 1] : null; };
+const isPaid = id => PAID.includes(id);
+
+/* ---------------- mock subscription (stands in for Stripe current_period_start / _end) ---------------- */
+const TODAY = new Date(2026, 9, 14);
+const SUB_DEFAULT = { periodStart: new Date(2026, 8, 28), periodEnd: new Date(2026, 9, 28) };
+const SUB = { ...SUB_DEFAULT };
+const YEAR_END = new Date(2027, 9, 28);   // Standard (yearly) renews Oct 28, 2027
+const TRIAL_GRANTED = new Date(2026, 9, 1);
+const fmtDate = d => d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+const fmtShort = d => d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, d.getDate());
+const daysLeft = () => Math.round((SUB.periodEnd - TODAY) / 864e5);   // 14 → Standard credit $60.20, Basic $22.87
+const unusedCredit = p => Math.round(p.price * daysLeft() / 30 * 100) / 100;
+
+const CARDS = {
+  visa:       { brand:'Visa',       last4:'4242', exp:'08/2028' },
+  mastercard: { brand:'Mastercard', last4:'5100', exp:'11/2029' }, // after a Customer Portal round trip
+  none:       null,
+};
+
+/* credits used this cycle per plan × balance state (Low = 80% used, Out = 100%) */
+const USED = {
+  free:     { full:0, normal:10,  low:32,  zero:40   },
+  basic:    { full:0, normal:80,  low:160, zero:200  },
+  standard: { full:0, normal:200, low:416, zero:520  },
+  premium:  { full:0, normal:450, low:960, zero:1200 },
+};
+const COSTS = { 10:'8s · 480p', 20:'8s · 720p', 40:'16s · 720p', 45:'8s · 1080p', 90:'16s · 1080p' };
+const PATTERN = { free:[10], basic:[20,20,40], standard:[45,20,90,45], premium:[90,45,90,40,45] };
+const NO_PLAN_CREDITS = 200;   // No plan: purchased credits left after the subscription ended
+
+/* ---------------- state ---------------- */
+const S = { plan:'standard', cycle:'monthly', bal:'normal', status:'active', tab:'plan', modal:null, target:null, result:null, view:'monthly',
+            qty:2, card:'visa', consent:false, purchased:0, topups:[], extraInvoices:[], pending:null, historyPlan:null, forceFail:false, lastKind:null };
+
+function parseHash(){
+  const p = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+  if (PLANS[p.plan] || p.plan === 'none') S.plan = p.plan;
+  S.cycle = p.cycle === 'yearly' && isPaid(S.plan) ? 'yearly' : 'monthly';
+  if (['full','normal','low','zero'].includes(p.bal)) S.bal = p.bal;
+  S.status = ['active','downgrade','cancel','payment'].includes(p.status) && isPaid(S.plan) ? p.status : 'active';
+  if (['plan','activity','history'].includes(p.tab)) S.tab = p.tab;
+  S.card = p.pm === 'none' ? 'none' : 'visa';
+  S.target = PLANS[p.target] ? p.target : null;
+  S.view = p.view === 'yearly' ? 'yearly' : S.cycle;
+  S.modal = p.modal || null; S.result = p.result || null;
+  if (S.status === 'downgrade') S.pending = lowerPlan(S.plan);
+  if (S.modal === 'keep' && S.status !== 'downgrade') S.modal = null;
+  if (S.modal === 'resume' && S.status !== 'cancel') S.modal = null;
+  if (S.modal === 'buy' && !isPaid(S.plan)) S.modal = null;   // Free trial / No plan: no Buy credits entry point
+  if (['upgrade','subscribe','downgrade'].includes(S.modal) && !S.target)
+    S.target = S.modal === 'downgrade' ? lowerPlan(S.plan) : higherPlan(S.plan);
+  if (['upgrade','subscribe','downgrade'].includes(S.modal) && !S.target) S.modal = null;
+}
+function writeHash(){
+  const q = { plan:S.plan, bal:S.bal, tab:S.tab };
+  if (S.cycle === 'yearly') q.cycle = 'yearly';
+  if (isPaid(S.plan) && S.status !== 'active') q.status = S.status;
+  if (isPaid(S.plan) && S.card === 'none') q.pm = 'none';
+  if (S.modal){ q.modal = S.modal; if (S.target) q.target = S.target; if (S.view !== S.cycle) q.view = S.view; }
+  if (S.result) q.result = S.result;
+  history.replaceState(null, '', '#' + new URLSearchParams(q).toString());
+}
+function setState(patch){
+  Object.assign(S, patch);
+  if (!isPaid(S.plan)){ S.status = 'active'; S.cycle = 'monthly'; }
+  if (S.status === 'downgrade' && !S.pending) S.pending = lowerPlan(S.plan);
+  if (S.status === 'downgrade' && !S.pending) S.status = 'active'; // Basic has nothing below it
+  render();
+}
+
+/* ---------------- derived credits ---------------- */
+function creditInfo(){
+  if (S.plan === 'none') return { plan:null, used:0, available:NO_PLAN_CREDITS + S.purchased, usedPct:0, level:'normal' };
+  const plan = PLANS[S.plan];
+  const used = USED[S.plan][S.bal];
+  const available = plan.credits - used + S.purchased;
+  const usedPct = Math.round(used / plan.credits * 100);
+  const level = available === 0 ? 'zero' : (S.bal === 'low' && !S.purchased ? 'low' : 'normal');
+  return { plan, used, available, usedPct, level };
+}
+
+/* ---------------- ledger: grant → generations (+ one failed render, refunded) → purchases ---------------- */
+function buildLedger(){
+  if (S.plan === 'none') return [{ date:new Date(2026, 9, 2), icon:'zap', delta:NO_PLAN_CREDITS, balance:NO_PLAN_CREDITS, label:'Credits purchased', sub:`${NO_PLAN_CREDITS / TOPUP.credits} × 100 credits` }];
+  const plan = PLANS[S.plan], used = USED[S.plan][S.bal], free = S.plan === 'free';
+  const start = free ? TRIAL_GRANTED : SUB.periodStart;
+  const rows = [{ date:start, icon:'zap', delta:plan.credits,
+    label: free ? 'Free trial credits' : 'Monthly credits added',
+    sub: free ? 'One-time trial grant' : `${plan.name} · ${fmtShort(SUB.periodStart)}–${fmtShort(SUB.periodEnd)}` }];
+  const allowed = Object.keys(COSTS).map(Number).filter(c => (S.plan === 'free' || S.plan === 'basic') ? c <= 40 && c !== 45 : true);
+  const gens = []; let left = used, i = 0;
+  const memo = {}, canMake = n => n === 0 || (n > 0 && (memo[n] ??= allowed.some(a => a <= n && canMake(n - a))));
+  while (left > 0 && gens.length < 200){
+    let c = PATTERN[S.plan][i++ % PATTERN[S.plan].length];
+    if (c > left || !canMake(left - c)) c = allowed.slice().sort((x, y) => y - x).find(a => a <= left && canMake(left - a));
+    if (!c) break;
+    gens.push(c); left -= c;
+  }
+  const span = Math.max(1, Math.round((TODAY - start) / 864e5) - 1);
+  gens.forEach((c, k) => {
+    const d = new Date(start.getTime() + Math.round((k + 1) * span / (gens.length + 1)) * 864e5);
+    rows.push({ date:d, label:'Video generation', sub:COSTS[c], icon:'film', delta:-c });
+    if (k === 1 && S.bal === 'normal'){ // a failed render is charged, then refunded in full
+      rows.push({ date:d, label:'Video generation', sub:COSTS[c] + ' · failed', icon:'film', delta:-c });
+      rows.push({ date:d, label:'Credit refund', sub:'Video generation failed', icon:'refund', delta:+c });
+    }
+  });
+  S.topups.forEach(t => rows.push({ date:TODAY, label:'Credits purchased', sub:`${t.qty} × 100 credits`, icon:'zap', delta:t.qty * TOPUP.credits }));
+  let run = 0; rows.forEach(r => { run += r.delta; r.balance = run; });
+  return rows.reverse();
+}
+function buildInvoices(){
+  const list = S.topups.map(t => ({ date:TODAY, desc:'Credits', sub:`${fmt(t.qty * TOPUP.credits)} credits`, amount:usd(t.qty * TOPUP.price) })).reverse();
+  list.push(...S.extraInvoices.slice().reverse());
+  if (S.plan === 'free') return list;
+  if (S.plan === 'none') list.push({ date:new Date(2026, 9, 2), desc:'Credits', sub:'200 credits', amount:usd(60) });
+  const past = PLANS[S.historyPlan || (S.plan === 'none' ? 'standard' : S.plan)];
+  if (S.cycle === 'yearly' && !S.historyPlan) list.push({ date:SUB.periodEnd, desc:past.name, sub:'Annual subscription', amount:usd(past.yearly.total) });
+  if (past.id !== 'free') for (let k = 0; k < 6; k++)
+    list.push({ date:addMonths(SUB.periodStart, -k), desc:past.name, sub:'Monthly subscription', amount:usd(past.price) });
+  return list;
+}
+
+/* ---------------- shared bits ---------------- */
+const btn = (label, cls, onclick, extra='') => `<button type="button" class="actions-btn actions-btn--${cls}" ${onclick ? `onclick="${onclick}"` : ''} ${extra}>${label}</button>`;
+const chip = (label, cls, icon) => `<span class="feedback-status-chip feedback-status-chip--${cls}${icon ? ' with-icon' : ''}">${icon ? ic(icon) : ''}${label}</span>`;
+const notice = (kind, icon, title, body, actions='') => `<div class="bl-notice bl-notice--${kind}">${icon ? ic(icon) : ''}<div class="bl-notice-text"><p class="bl-notice-title">${title}</p>${body ? `<p class="bl-notice-body">${body}</p>` : ''}</div>${actions ? `<div class="bl-actions">${actions}</div>` : ''}</div>`;
+
+/* ---------------- Tab 1: Current plan (Billing / Current Plan 13070:287505) ---------------- */
+function renderPlan(){
+  const el = document.getElementById('planSection');
+  if (S.plan === 'none'){
+    el.innerHTML = `
+      <div class="bl-section-head"><h2 class="bl-section-title">Current plan ${chip('Ended', 'secondary')}</h2><div class="bl-actions">${btn('Choose a plan', 'primary', "openModal('plans')")}</div></div>
+      <div class="bl-box">
+        <div class="bl-box-left"><p class="bl-plan-name">No active plan</p></div>
+        <ul class="bl-kv"><li>Last plan<span class="v">Standard · ended ${fmtDate(SUB.periodEnd)}</span></li><li>Purchased credits<span class="v">${fmt(NO_PLAN_CREDITS + S.purchased)} · never expire</span></li></ul>
+      </div>`;
+    return;
+  }
+  const p = PLANS[S.plan], free = p.id === 'free', yearly = S.cycle === 'yearly';
+  const end = fmtDate(SUB.periodEnd), renew = yearly ? fmtDate(YEAR_END) : end;
+  const statusChip = free || S.status === 'active' ? chip('Active', 'green', 'check')
+    : S.status === 'downgrade' ? chip('Change scheduled', 'orange')
+    : S.status === 'cancel' ? chip('Cancellation scheduled', 'orange')
+    : chip('Payment issue', 'error');
+  // Free trial: Upgrade plan. Paid plans: one Change plan button — Change and Upgrade opened the same popup (dev review 10/21)
+  const actions = free ? btn('Upgrade plan', 'primary', "openModal('plans')") : btn('Change plan', 'secondary', "openModal('plans')");
+  const kv = `<li>Credits<span class="v">${free ? '40 credits (one time)' : fmt(p.credits) + ' credits/month'}</span></li>
+    <li>Video<span class="v">${videoLine(p)}</span></li>
+    <li>Brands &amp; members<span class="v">${brandsMembers(p)}</span></li>
+    ${free ? '' : `<li>${S.status === 'cancel' ? 'Ends on' : 'Renews on'}<span class="v">${S.status === 'cancel' ? end : renew}</span></li>`}`;
+  let extra = '';
+  if (!free && S.status === 'downgrade'){
+    const t = PLANS[S.pending];
+    extra = notice('info', 'calendar', `Switching to ${t.name} Plan on ${end}`,
+      `You’ll stay on ${p.name} until ${end}. After that, ${t.name} costs ${usd0(t.price)}/month and includes ${fmt(t.credits)} credits/month.`,
+      btn(`Keep ${p.name}`, 'secondary', "openModal('keep')"));
+  } else if (!free && S.status === 'cancel'){
+    extra = notice('info', 'calendar', `Your plan ends on ${end}`,
+      `You can keep using ${p.name} and your monthly credits until then. Purchased credits stay in your account.`,
+      btn('Resume subscription', 'secondary', "openModal('resume')"));
+  } else if (!free && S.status === 'payment'){
+    extra = notice('failed', '', 'We couldn’t process your latest payment.', 'Update your payment method to keep your plan.',
+      btn('Update payment method', 'primary', "openPortal('retry')"));
+  }
+  el.innerHTML = `
+    <div class="bl-section-head"><h2 class="bl-section-title">Current plan ${statusChip}</h2><div class="bl-actions">${actions}</div></div>
+    <div class="bl-box">
+      <div class="bl-box-left">
+        <p class="bl-plan-name">${p.name}${yearly ? ' · Yearly' : ''}</p>
+        <div class="bl-price"><b>${yearly ? usd(p.yearly.total) : usd0(p.price)}</b>${free ? '' : `<span>/${yearly ? 'year' : 'month'}</span>`}</div>
+      </div>
+      <ul class="bl-kv">${kv}</ul>
+    </div>
+    ${extra}`;
+}
+
+/* ---------------- Tab 1: Credit balance (Billing / Credit Balance) ---------------- */
+function renderCredits(){
+  const c = creditInfo(), free = S.plan === 'free', none = S.plan === 'none';
+  let cta = '';
+  if (isPaid(S.plan)) cta = btn('Buy more credits', c.level === 'normal' ? 'secondary' : 'primary', "openModal('buy')");
+  else if (free && c.level !== 'normal') cta = btn('Upgrade plan', 'primary', "openModal('plans')"); // Free trial never buys credits
+  const caption = none ? '' : `${fmt(c.used)} of ${fmt(c.plan.credits)} credits used`;
+  const sub = none ? 'Purchased credits. Choose a plan to use them.' : free ? 'Trial credits don’t renew.' : `Monthly credits reset on ${fmtDate(SUB.periodEnd)}`;
+  let msg = '';
+  if (c.level === 'zero') msg = notice('error', 'alert', 'You’ve run out of credits.',
+    free ? 'Upgrade to a paid plan to keep generating content.' : 'Buy more credits to keep generating content.');
+  else if (c.level === 'low') msg = notice('warn', 'warn', 'You’re running low on credits.',
+    free ? 'Upgrade to a paid plan to get monthly credits.' : 'Add credits to keep generating videos.');
+  document.getElementById('creditSection').innerHTML = `
+    <div class="bl-section-head"><h2 class="bl-section-title">Credit balance</h2><div class="bl-actions">${cta}</div></div>
+    <div class="bl-box">
+      <div class="bl-box-left">
+        <div class="bl-avail"><b class="${c.available === 0 ? 'is-zero' : ''}">${fmt(c.available)}</b><span>Available credits</span></div>
+        <p class="bl-box-sub">${sub}</p>
+      </div>
+      ${none ? '' : `<div class="bl-meter">
+        <div class="bl-meter-top"><span>${caption}</span><span>${c.usedPct}%</span></div>
+        <div class="bl-track ${c.level !== 'normal' ? 'is-' + c.level : ''}" role="progressbar" aria-label="${caption}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${c.usedPct}"><div class="bl-fill" style="width:${c.usedPct}%"></div></div>
+      </div>`}
+    </div>
+    ${msg}`;
+  const chipEl = document.getElementById('creditChip');
+  chipEl.className = 'credit-chip' + (c.level !== 'normal' ? ' is-' + c.level : '');
+  chipEl.innerHTML = `Credits <b>${ic('zap')}${fmt(c.available)}</b>`;
+}
+
+/* ---------------- Tab 1: Payment method (Billing / Payment Method) — hidden for Free trial and No plan ---------------- */
+function renderPayment(){
+  const show = isPaid(S.plan), c = CARDS[S.card];
+  document.getElementById('paymentCard').hidden = !show;
+  document.getElementById('cancelLink').hidden = !show || S.status === 'cancel';
+  if (!show) return;
+  const action = c ? btn('Manage payment method', 'secondary', "openPortal('manage')") : btn('Add payment method', 'primary', "openPortal('add')");
+  const body = c
+    ? `<div class="bl-pm"><span class="bl-pm-ic">${ic('card')}</span><div class="bl-box-left"><p class="bl-pm-name">${c.brand} •••• ${c.last4}</p><p class="bl-box-sub">Expires ${c.exp}</p></div></div>`
+    : `<div class="bl-box-left"><p class="bl-pm-name">No payment method added</p><p class="bl-box-sub">Add a payment method for future payments.</p></div>`;
+  document.getElementById('paymentSection').innerHTML = `
+    <div class="bl-section-head"><h2 class="bl-section-title">Payment method</h2><div class="bl-actions">${action}</div></div>
+    <div class="bl-box bl-box--pm">${body}</div>
+    <p class="bl-fine">Your payment details are securely managed by Stripe.</p>`;
+}
+
+/* Stripe Customer Portal round trip: leave → change card → come back → re-fetch the default card */
+function openPortal(kind){
+  toast('Opening billing settings…');
+  setTimeout(() => {
+    S.card = S.card === 'visa' ? 'mastercard' : 'visa';
+    render();
+    toast(kind === 'retry' ? 'Payment method updated. We’ll retry your payment shortly.' : 'Payment method updated');
+  }, 1400);
+}
+/* popup actions finish inside the same popup (dev review 10/21) — no toast */
+function keepPlan(){ setState({ status:'active', pending:null, modal:'result', result:'kept' }); }
+function resumeSubscription(){ setState({ status:'active', modal:'result', result:'resumed' }); }
+
+/* ---------------- Tab 2 / 3 ---------------- */
+function renderActivity(){
+  document.getElementById('activityRows').innerHTML = buildLedger().map(a => `
+    <tr>
+      <td>${fmtDate(a.date)}</td>
+      <td><span class="bl-cell">${ic(a.icon)}<span>${a.label}<span class="bl-cell-sub">${a.sub}</span></span></span></td>
+      <td class="num"><span class="bl-credit ${a.delta > 0 ? 'plus' : 'minus'}">${a.delta > 0 ? '+' : '−'}${fmt(Math.abs(a.delta))}</span></td>
+      <td class="num">${fmt(a.balance)}</td>
+    </tr>`).join('');
+}
+function renderHistory(){
+  const inv = buildInvoices(), el = document.getElementById('historyBody');
+  if (!inv.length){
+    el.innerHTML = `<div class="bl-empty"><div class="empty-state"><span class="empty-state__glyph">${ic('card')}</span><div class="empty-state__text"><p class="empty-state__title">No payments yet</p><p class="empty-state__body">Invoices will show up here once you subscribe to a plan.</p></div>${btn('Upgrade plan', 'primary', "openModal('plans')")}</div></div>`;
+    return;
+  }
+  el.innerHTML = `<table class="bl-table"><colgroup><col style="width:22%"><col><col style="width:18%"><col style="width:14%"></colgroup>
+    <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th class="num">Invoice</th></tr></thead>
+    <tbody>${inv.map(i => `<tr><td>${fmtDate(i.date)}</td><td>${i.desc}<span class="bl-cell-sub">${i.sub}</span></td><td class="num">${i.amount}</td><td class="num"><a class="bl-link" href="#" onclick="event.preventDefault(); toast('Opens the Stripe invoice in a new tab')">View</a></td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------------- modals ---------------- */
+const head = (title, sub='') => `<div class="bl-m-head"><div><h3 class="bl-m-title">${title}</h3>${sub ? `<p class="bl-m-sub">${sub}</p>` : ''}</div><button type="button" class="bl-m-close" aria-label="Close" onclick="closeModal()">${ic('x')}</button></div>`;
+const foot = buttons => `<div class="bl-m-foot">${buttons}</div>`;
+const priceFor = (p, cycle) => cycle === 'yearly' ? `${usd(p.yearly.total)}/year` : `${usd(p.price)}/month`;
+
+function openModal(m, target){
+  if (m === 'subscribe') S.consent = false;
+  if (m === 'buy' && !isPaid(S.plan)) return;   // Free trial / No plan can't buy credits
+  setState({ modal:m, target: target || null, result:null, view: m === 'plans' ? S.cycle : S.view });
+}
+function closeModal(){ setState({ modal:null, result:null, target:null }); }
+
+function planCard(id){
+  const p = PLANS[id], yearly = S.view === 'yearly', noPlan = !isPaid(S.plan);
+  const cur = S.plan === id, from = noPlan ? -1 : PAID.indexOf(S.plan), idx = PAID.indexOf(id);
+  const scheduled = S.status === 'downgrade' && S.pending === id;
+  let cta;
+  if (cur && S.view === S.cycle) cta = btn('Current plan', 'inactive', '', 'disabled');
+  else if (cur) cta = btn(yearly ? 'Switch to yearly' : 'Switch to monthly', 'secondary', `switchCycle('${S.view}')`);
+  else if (scheduled) cta = btn('Starts ' + fmtDate(SUB.periodEnd), 'inactive', '', 'disabled');
+  else if (idx > from) cta = btn('Upgrade to ' + p.name, 'primary', `openModal('${noPlan ? 'subscribe' : 'upgrade'}', '${id}')`);
+  else cta = btn('Change to ' + p.name, 'secondary', `openModal('downgrade', '${id}')`);
+  return `<div class="bl-plan ${cur ? 'is-current' : ''}">
+    <div class="bl-plan-head"><h4 class="bl-plan-title">${p.name}</h4>${cur ? chip('Current', 'green', 'check') : ''}</div>
+    <div class="bl-price"><b>${yearly ? usd(p.yearly.month) : usd0(p.price)}</b><span>/month</span></div>
+    ${yearly ? `<p class="bl-plan-billed">Billed ${usd(p.yearly.total)} yearly</p>` : ''}
+    <ul class="bl-feats">
+      <li>${ic('zap')}${fmt(p.credits)} credits/month</li>
+      <li>${ic('clock')}Video length: ${p.lengths.join(', ')}</li>
+      <li>${ic('monitor')}Up to ${p.res}</li>
+      <li>${ic('brand')}${plural(p.brands, 'brand', 'brands')}</li>
+      <li>${ic('member')}${plural(p.members, 'team member', 'team members')}</li>
+    </ul>
+    ${cta}</div>`;
+}
+
+/* what a downgrade takes away, e.g. "16s videos and 1080p will be locked." */
+function lockedLine(cur, t){
+  const lost = cur.lengths.filter(l => !t.lengths.includes(l));
+  const parts = [];
+  if (lost.length) parts.push((lost.length > 1 ? lost.slice(0, -1).join(', ') + ' and ' + lost.at(-1) : lost[0]) + ' videos');
+  if (cur.res !== t.res) parts.push(cur.res);
+  return parts.length ? ` After that, ${parts.join(' and ')} will be locked.` : '';
+}
+
+function renderModal(){
+  const ov = document.getElementById('modalOverlay'), box = document.getElementById('modalBox');
+  if (!S.modal){ ov.hidden = true; return; }
+  ov.hidden = false;
+  const t = PLANS[S.target] || null, cur = PLANS[S.plan], next = fmtDate(SUB.periodEnd);
+  let cls = '', html = '';
+  switch (S.modal){
+    case 'plans': { // Change plan / Choose a plan — Monthly · Yearly (Save 15%), no Free trial card
+      cls = 'bl-modal--plans';
+      const choose = !isPaid(S.plan);
+      html = head(choose ? 'Choose a plan' : 'Change plan', S.view === 'yearly' ? 'Billed yearly in USD. Credits are still added every month.' : 'Billed monthly in USD.')
+        + `<div class="bl-m-body">
+            <div class="bl-cycle" role="tablist">
+              <button type="button" class="segment-chip ${S.view === 'monthly' ? 'segment-chip--active' : ''}" onclick="setState({view:'monthly'})">Monthly</button>
+              <button type="button" class="segment-chip ${S.view === 'yearly' ? 'segment-chip--active' : ''}" onclick="setState({view:'yearly'})">Yearly · Save 15%</button>
+            </div>
+            <div class="bl-plans">${PAID.map(planCard).join('')}</div>
+          </div>`;
+      break; }
+    case 'subscribe': { // Free trial / No plan → first paid plan (checkout)
+      const yearly = S.view === 'yearly', due = yearly ? t.yearly.total : t.price;
+      html = head(`Subscribe to ${t.name}?`)
+        + `<div class="bl-m-body">
+            <ul class="bl-rows"><li>Plan<span class="v">${t.name} · ${priceFor(t, S.view)}</span></li><li>Credits<span class="v">${fmt(t.credits)} credits/month</span></li><li>${yearly ? 'Renews on' : 'Next billing date'}<span class="v">${fmtDate(addMonths(TODAY, yearly ? 12 : 1))}</span></li><li class="total">Due today<span class="v">${usd(due)}</span></li></ul>
+            <label class="bl-consent" for="renewConsent"><input type="checkbox" class="checkbox" id="renewConsent" ${S.consent ? 'checked' : ''} onchange="S.consent=this.checked; const b=document.getElementById('payBtn'); b.disabled=!this.checked; b.className='actions-btn actions-btn--'+(this.checked?'primary':'inactive')"><span>${yearly ? 'I agree that my subscription will renew yearly until I cancel. Credits are added every month.' : 'I agree that my subscription will renew monthly until I cancel.'}</span></label>
+          </div>`
+        + foot(btn('Back', 'secondary', "setState({modal:'plans', target:null})") + btn('Continue to payment', S.consent ? 'primary' : 'inactive', "startPayment('subscribe')", `id="payBtn" ${S.consent ? '' : 'disabled'}`));
+      break; }
+    case 'upgrade': { // immediate, prorated, billing date resets to today (approved 10/15)
+      const yearly = S.view === 'yearly', credit = unusedCredit(cur), due = (yearly ? t.yearly.total : t.price) - credit;
+      html = head(`Upgrade to ${t.name}?`)
+        + `<div class="bl-m-body">
+            <ul class="bl-rows"><li>Your new plan<span class="v">${t.name} · ${priceFor(t, S.view)}</span></li><li>Starts<span class="v">Immediately</span></li><li>Next billing date<span class="v">${fmtDate(addMonths(TODAY, yearly ? 12 : 1))}</span></li><li class="total">Amount due today<span class="v">${usd(due)}</span></li></ul>
+            <p class="bl-fine">Includes a ${usd(credit)} credit for unused time on ${cur.name}. You’ll get ${fmt(t.credits)} credits right away, and purchased credits stay in your account.</p>
+          </div>`
+        + foot(btn('Back', 'secondary', "setState({modal:'plans', target:null})") + btn('Confirm upgrade', 'primary', "startPayment('upgrade')", 'id="payBtn"'));
+      break; }
+    case 'downgrade': // starts on the next billing date; the plan covers the whole company, so no brand picker
+      html = head(`Change to ${t.name}?`)
+        + `<div class="bl-m-body">
+            <p class="bl-m-text">Your ${t.name} plan starts on ${next}. Until then, you keep ${cur.name}.${lockedLine(cur, t)}</p>
+            <ul class="bl-rows"><li>Until ${next}<span class="v">${cur.name} · ${fmt(cur.credits)} credits/month</span></li><li>From ${next}<span class="v">${t.name} · ${usd0(t.price)}/month · ${fmt(t.credits)} credits/month</span></li><li>Video from ${next}<span class="v">${t.lengths.join(', ')} · up to ${t.res}</span></li></ul>
+          </div>`
+        + foot(btn('Keep current plan', 'secondary', 'closeModal()') + btn('Confirm change', 'primary', 'confirmDowngrade()'));
+      break;
+    case 'keep': { // undo a scheduled downgrade — asks first, like every other plan change
+      const t = PLANS[S.pending], renew = fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd);
+      html = head(`Keep ${cur.name}?`)
+        + `<div class="bl-m-body">
+            <p class="bl-m-text">Your switch to ${t.name} on ${next} will be canceled, and you’ll stay on ${cur.name}.</p>
+            <ul class="bl-rows"><li>From ${next}<span class="v">${cur.name} · ${fmt(cur.credits)} credits/month</span></li><li>Video from ${next}<span class="v">${cur.lengths.join(', ')} · up to ${cur.res}</span></li><li class="total">Next payment · ${renew}<span class="v">${S.cycle === 'yearly' ? usd(cur.yearly.total) : usd(cur.price)}</span></li></ul>
+          </div>`
+        + foot(btn('Back', 'secondary', 'closeModal()') + btn('Confirm change', 'primary', 'keepPlan()'));
+      break; }
+    case 'resume': { // undo a scheduled cancellation
+      const renew = fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd);
+      html = head('Resume subscription?')
+        + `<div class="bl-m-body">
+            <p class="bl-m-text">Your ${cur.name} plan will keep renewing ${S.cycle === 'yearly' ? 'every year' : 'every month'} until you cancel.</p>
+            <ul class="bl-rows"><li>Plan<span class="v">${cur.name} · ${priceFor(cur, S.cycle)}</span></li><li class="total">Next payment · ${renew}<span class="v">${S.cycle === 'yearly' ? usd(cur.yearly.total) : usd(cur.price)}</span></li></ul>
+          </div>`
+        + foot(btn('Back', 'secondary', 'closeModal()') + btn('Resume subscription', 'primary', 'resumeSubscription()'));
+      break; }
+    case 'buy': { // paid plans only; credits = qty × 100, total = qty × $30
+      const q = S.qty;
+      html = head('Buy more credits', 'Credits are added once payment is confirmed.')
+        + `<div class="bl-m-body">
+            <ul class="bl-rows">
+              <li>100 credits<span class="v">${usd(TOPUP.price)}</span></li>
+              <li>Quantity<span class="bl-qty"><button type="button" aria-label="Decrease" onclick="setQty(-1)" ${q <= 1 ? 'disabled' : ''}>${ic('minus')}</button><output>${q}</output><button type="button" aria-label="Increase" onclick="setQty(1)">${ic('plus')}</button></span></li>
+              <li>Credits to add<span class="v">${fmt(q * TOPUP.credits)}</span></li>
+              <li class="total">Total<span class="v">${usd(q * TOPUP.price)}</span></li>
+            </ul>
+            <p class="bl-fine">Purchased credits never expire and follow your plan’s limits. Payments are processed securely by Stripe.</p>
+          </div>`
+        + foot(btn('Cancel', 'secondary', 'closeModal()') + btn('Continue to payment', 'primary', "startPayment('topup')", 'id="payBtn"'));
+      break; }
+    case 'cancel': { // ends at the end of the billing period (approved 10/15)
+      const end = fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd);
+      html = head('Cancel subscription?')
+        + `<div class="bl-m-body">
+            <ul class="bl-rows"><li>Subscription ends<span class="v">${end}</span></li><li>Monthly credits usable until<span class="v">${next}</span></li></ul>
+            <p class="bl-fine">Monthly credits expire on ${next}. Purchased credits stay in your account, and you can use them if you subscribe again.</p>
+          </div>`
+        + foot(btn('Keep subscription', 'secondary', 'closeModal()') + btn('Cancel subscription', 'danger', 'confirmCancel()'));
+      break; }
+    case 'result':
+      html = renderResult();
+      break;
+  }
+  box.className = 'modal bl-modal ' + cls;
+  box.innerHTML = html;
+}
+
+function renderResult(){
+  const glyph = (kind, icon) => `<span class="bl-glyph bl-glyph--${kind}">${ic(icon)}</span>`;
+  const c = creditInfo(), p = PLANS[S.plan];
+  switch (S.result){
+    case 'processing': // webhook not confirmed yet — never show credits as granted here
+      return `<div class="bl-m-result">${glyph('processing', 'spinner')}<h3 class="bl-m-title">Processing payment…</h3><p class="bl-m-text">We’re confirming your payment. Please keep this window open.</p></div>`;
+    case 'success-sub': {
+      const yearly = S.cycle === 'yearly';
+      const nextLine = S.lastKind === 'subscribe' || S.lastKind === 'upgrade' || S.lastKind === 'switch' ? fmtDate(addMonths(TODAY, yearly ? 12 : 1)) : fmtDate(SUB.periodEnd);
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">Your subscription is active.</h3><p class="bl-m-text">${p.name} · ${priceFor(p, S.cycle)}</p><p class="bl-fine">Next billing date: ${nextLine}</p></div>` + foot(btn('Done', 'primary', 'closeModal()')); }
+    case 'scheduled': { // downgrade confirmed
+      const t = PLANS[S.pending || lowerPlan(S.plan)], end = fmtDate(SUB.periodEnd);
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">Your plan change is scheduled.</h3><p class="bl-m-text">${t.name} starts on ${end}. You’ll keep ${p.name} until then.</p></div>` + foot(btn('Done', 'primary', 'closeModal()')); }
+    case 'kept':
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">You’re staying on ${p.name}.</h3><p class="bl-m-text">Your plan renews on ${fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd)} at ${priceFor(p, S.cycle)}.</p></div>` + foot(btn('Done', 'primary', 'closeModal()'));
+    case 'canceled': {
+      const end = fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd);
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">Your subscription has been canceled.</h3><p class="bl-m-text">You can use ${p.name} and your monthly credits until ${end}.</p><p class="bl-fine">Purchased credits stay in your account.</p></div>` + foot(btn('Done', 'primary', 'closeModal()')); }
+    case 'resumed':
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">Your subscription is back on.</h3><p class="bl-m-text">${p.name} renews on ${fmtDate(S.cycle === 'yearly' ? YEAR_END : SUB.periodEnd)}.</p></div>` + foot(btn('Done', 'primary', 'closeModal()'));
+    case 'success-topup': {
+      const last = S.topups[S.topups.length - 1] || { qty:S.qty };
+      return `<div class="bl-m-result">${glyph('success', 'check')}<h3 class="bl-m-title">${fmt(last.qty * TOPUP.credits)} credits were added to your balance.</h3><p class="bl-m-text">Available credits: ${fmt(c.available)}</p></div>` + foot(btn('Done', 'primary', 'closeModal()')); }
+    case 'failed':
+      return `<div class="bl-m-result">${glyph('error', 'alert')}<h3 class="bl-m-title">Payment failed. Please try again.</h3><p class="bl-m-text">No credits were added and your plan hasn’t changed.</p></div>` + foot(btn('Close', 'secondary', 'closeModal()') + btn('Retry', 'primary', `startPayment('${S.lastKind || 'topup'}')`, 'id="payBtn"'));
+  }
+  return '';
+}
+
+/* ---------------- actions ---------------- */
+function setQty(d){ S.qty = Math.max(1, S.qty + d); renderModal(); }
+let payTimer = null;
+function startPayment(kind){
+  const b = document.getElementById('payBtn');
+  if (b){ // block double submit
+    if (b.disabled) return;
+    b.disabled = true; b.className = 'actions-btn actions-btn--loading';
+    b.innerHTML = `<img src="../../../components/ai-social-media/icons/actions/btn-spinner-white.svg" alt="">Redirecting to Stripe…`;
+  }
+  S.lastKind = kind;
+  const target = S.target, qty = S.qty, view = S.view;
+  setTimeout(() => {
+    setState({ modal:'result', result:'processing', target });
+    clearTimeout(payTimer);
+    payTimer = setTimeout(() => completePayment(kind, target, qty, view), 1600); // ← webhook confirmed
+  }, 600);
+}
+function completePayment(kind, target, qty, view){
+  if (S.forceFail){ S.forceFail = false; setState({ modal:'result', result:'failed', target }); return; }
+  if (kind === 'topup'){
+    S.topups.push({ qty }); S.purchased += qty * TOPUP.credits;
+    setState({ modal:'result', result:'success-topup' });
+  } else if (kind === 'subscribe' || kind === 'upgrade' || kind === 'switch'){
+    const t = PLANS[target || S.plan], yearly = view === 'yearly';
+    if (!S.historyPlan) S.historyPlan = S.plan === 'none' ? 'standard' : S.plan; // earlier invoices stay on the old plan
+    S.extraInvoices.push({ date:TODAY, desc:t.name, sub: yearly ? 'Annual subscription' : 'Monthly subscription',
+      amount: usd(kind === 'upgrade' ? (yearly ? t.yearly.total : t.price) - unusedCredit(PLANS[S.plan]) : (yearly ? t.yearly.total : t.price)) });
+    if (S.plan === 'none') S.purchased += NO_PLAN_CREDITS;   // purchased credits carry over into the new plan
+    SUB.periodStart = TODAY; SUB.periodEnd = addMonths(TODAY, 1);   // billing date resets to today
+    setState({ plan:t.id, cycle: yearly ? 'yearly' : 'monthly', bal: kind === 'switch' ? S.bal : 'full', status:'active', pending:null, modal:'result', result:'success-sub' });
+  }
+}
+function switchCycle(view){
+  if (view === 'yearly'){ S.target = S.plan; startPayment('switch'); return; }
+  closeModal(); toast(`You’ll switch to monthly billing on ${fmtDate(YEAR_END)}`);
+}
+function confirmDowngrade(){ const t = S.target; setState({ status:'downgrade', pending:t, target:null, modal:'result', result:'scheduled' }); }
+function confirmCancel(){ setState({ status:'cancel', modal:'result', result:'canceled' }); }
+let toastTimer;
+function toast(msg, alert = false){
+  const t = document.getElementById('toast');
+  t.innerHTML = (alert ? ic('warn', 'is-alert') : ic('check')) + `<span>${msg}</span>`;
+  t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2800);
+}
+
+/* ---------------- states launcher (prototype aid) ---------------- */
+function seg(label, key, opts, isDisabled = () => false){
+  return `<h4>${label}</h4><div class="seg">${opts.map(([v, l]) => `<button type="button" class="${String(S[key]) === String(v) ? 'on' : ''}" ${isDisabled(v) ? 'disabled' : ''} onclick="launch('${key}','${v}')">${l}</button>`).join('')}</div>`;
+}
+function resetPlanState(){ Object.assign(SUB, SUB_DEFAULT); Object.assign(S, { card:'visa', purchased:0, topups:[], extraInvoices:[], historyPlan:null, pending:null, status:'active', lastKind:null, cycle:'monthly' }); }
+function launch(key, v){
+  if (key === 'plan') resetPlanState();
+  if (key === 'open'){
+    clearTimeout(payTimer);
+    if (v === 'checkout-canceled'){ closeModal(); toast('Checkout canceled. You weren’t charged.', true); return; }
+    if (['processing','success-sub','success-topup','failed','scheduled','canceled','kept','resumed'].includes(v)){ setState({ modal:'result', result:v }); return; }
+    if (v === 'plans-yearly'){ openModal('plans'); setState({ view:'yearly' }); return; }
+    if (v === 'subscribe-yearly'){ openModal('subscribe', 'standard'); setState({ view:'yearly' }); return; }
+    const tgt = v === 'upgrade' ? higherPlan(S.plan) : v === 'subscribe' ? 'standard' : v === 'downgrade' ? lowerPlan(S.plan) : null;
+    openModal(v, tgt); return;
+  }
+  setState({ [key]:v });
+}
+function renderLauncher(){
+  const paid = isPaid(S.plan), top = S.plan === 'premium', bottom = S.plan === 'basic';
+  document.getElementById('launcherBody').innerHTML =
+      seg('Plan', 'plan', [['free','Free trial'],['basic','Basic'],['standard','Standard'],['premium','Premium'],['none','No plan']])
+    + seg('Billing cycle', 'cycle', [['monthly','Monthly'],['yearly','Yearly']], () => !paid)
+    + seg('Credit balance', 'bal', [['full','Just added'],['normal','Normal'],['low','Low (80%)'],['zero','Out (100%)']], () => S.plan === 'none')
+    + seg('Subscription', 'status', [['active','Active'],['downgrade','Downgrade scheduled'],['cancel','Cancellation scheduled'],['payment','Payment failed']],
+          v => !paid || (v === 'downgrade' && bottom))
+    + seg('Payment method', 'card', [['visa','Card saved'],['none','No card saved']], () => !paid)
+    + `<h4>Modals</h4><div class="seg">
+        <button type="button" onclick="launch('open','plans')">${paid ? 'Change plan' : 'Choose a plan'}</button>
+        <button type="button" onclick="launch('open','plans-yearly')">… Yearly</button>
+        ${paid ? `<button type="button" ${top ? 'disabled' : ''} onclick="launch('open','upgrade')">Upgrade</button><button type="button" ${bottom ? 'disabled' : ''} onclick="launch('open','downgrade')">Downgrade</button>`
+               : `<button type="button" onclick="launch('open','subscribe')">Subscribe</button><button type="button" onclick="launch('open','subscribe-yearly')">Subscribe · Yearly</button>`}
+        <button type="button" ${paid ? '' : 'disabled'} onclick="launch('open','buy')">Buy credits</button>
+        <button type="button" ${paid && S.status !== 'cancel' ? '' : 'disabled'} onclick="launch('open','cancel')">Cancel subscription</button>
+        <button type="button" ${S.status === 'downgrade' ? '' : 'disabled'} onclick="launch('open','keep')">Keep current plan</button>
+        <button type="button" ${S.status === 'cancel' ? '' : 'disabled'} onclick="launch('open','resume')">Resume subscription</button></div>`
+    + `<h4>Payment result</h4><div class="seg">
+        <button type="button" onclick="launch('open','processing')">Processing</button>
+        <button type="button" onclick="launch('open','success-sub')" ${S.plan === 'none' ? 'disabled' : ''}>Subscription active</button>
+        <button type="button" ${paid ? '' : 'disabled'} onclick="launch('open','success-topup')">Credits added</button>
+        <button type="button" onclick="launch('open','failed')">Payment failed</button>
+        <button type="button" ${S.status === 'downgrade' ? '' : 'disabled'} onclick="launch('open','scheduled')">Change scheduled</button>
+        <button type="button" ${S.status === 'cancel' ? '' : 'disabled'} onclick="launch('open','canceled')">Subscription canceled</button>
+        <button type="button" onclick="launch('open','checkout-canceled')">Checkout canceled</button></div>`
+    + `<label class="note"><input type="checkbox" ${S.forceFail ? 'checked' : ''} onchange="S.forceFail=this.checked"> Make the next payment fail</label>`
+    + `<p class="note">Keep Standard, Resume, Downgrade and Cancel each confirm in a popup and show the result in the same popup. Yearly prices are monthly × 12 × 0.85 — 15% is confirmed, the exact amounts are not.</p>`;
+}
+
+/* ---------------- render ---------------- */
+function render(){
+  document.querySelectorAll('.tab-item[data-tab]').forEach(t => { const on = t.dataset.tab === S.tab; t.classList.toggle('tab-item--selected', on); t.setAttribute('aria-selected', on); });
+  document.querySelectorAll('.bl-panel').forEach(p => p.hidden = p.dataset.panel !== S.tab);
+  renderPlan(); renderCredits(); renderPayment(); renderActivity(); renderHistory(); renderModal(); renderLauncher();
+  writeHash();
+}
+
+// ?shot — clean capture for review screenshots (no launcher / home button)
+if (new URLSearchParams(location.search).has('shot')) document.querySelectorAll('.launcher, .home-fab').forEach(el => el.remove());
+parseHash();
+render();
+window.addEventListener('hashchange', () => { parseHash(); render(); });
+
+/* ---------------- fit-to-viewport ---------------- */
+function fitScreenToViewport(){
+  const FRAME_MARGIN = 40;
+  const scale = Math.min((window.innerWidth - FRAME_MARGIN * 2) / 1920, (window.innerHeight - FRAME_MARGIN * 2) / 1162);
+  const frame = document.querySelector('.frame');
+  frame.style.transform = `scale(${scale})`;
+  document.body.style.width = (1920 * scale) + 'px';
+  document.body.style.height = (1162 * scale) + 'px';
+}
+window.addEventListener('resize', fitScreenToViewport);
+fitScreenToViewport();
+</script>
+</body>
+</html>
