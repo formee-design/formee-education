@@ -743,7 +743,7 @@ function renderModal(){
       html = head(`Keep ${cur.name}?`)
         + `<div class="bl-m-body">
             <p class="bl-m-text">Your switch to ${t.name} on ${next} will be canceled, and you’ll stay on ${cur.name}.</p>
-            <ul class="bl-rows"><li>From ${next}<span class="v">${cur.name} · ${fmt(cur.credits)} credits/month</span></li><li>Video from ${next}<span class="v">${cur.lengths.join(', ')} · up to ${cur.res}</span></li><li class="total">Next payment · ${renew}<span class="v">${S.cycle === 'yearly' ? usd(cur.yearly.total) : usd(cur.price)}</span></li></ul>
+            <ul class="bl-rows"><li>From ${next}<span class="v">${cur.name} · ${fmt(cur.credits)} credits/month</span></li><li>Video from ${next}<span class="v">${cur.lengths.join(', ')} · up to ${cur.res}</span></li><li>Next payment · ${renew}<span class="v">${S.cycle === 'yearly' ? usd(cur.yearly.total) : usd(cur.price)}</span></li></ul>
           </div>`
         + foot(btn('Back', 'secondary', 'closeModal()') + btn('Confirm change', 'primary', 'keepPlan()'));
       break; }
@@ -752,7 +752,7 @@ function renderModal(){
       html = head('Resume subscription?')
         + `<div class="bl-m-body">
             <p class="bl-m-text">Your ${cur.name} plan will keep renewing ${S.cycle === 'yearly' ? 'every year' : 'every month'} until you cancel.</p>
-            <ul class="bl-rows"><li>Plan<span class="v">${cur.name} · ${priceFor(cur, S.cycle)}</span></li><li class="total">Next payment · ${renew}<span class="v">${S.cycle === 'yearly' ? usd(cur.yearly.total) : usd(cur.price)}</span></li></ul>
+            <ul class="bl-rows"><li>Plan<span class="v">${cur.name} · ${priceFor(cur, S.cycle)}</span></li><li>Next payment · ${renew}<span class="v">${S.cycle === 'yearly' ? usd(cur.yearly.total) : usd(cur.price)}</span></li></ul>
           </div>`
         + foot(btn('Back', 'secondary', 'closeModal()') + btn('Resume subscription', 'primary', 'resumeSubscription()'));
       break; }
@@ -876,6 +876,7 @@ function launch(key, v){
   setState({ [key]:v });
 }
 function renderLauncher(){
+  if (!document.getElementById('launcherBody')) return;   // ?shot removes the panel
   const paid = isPaid(S.plan), top = S.plan === 'premium', bottom = S.plan === 'basic';
   document.getElementById('launcherBody').innerHTML =
       seg('Plan', 'plan', [['free','Free trial'],['basic','Basic'],['standard','Standard'],['premium','Premium'],['none','No plan']])
