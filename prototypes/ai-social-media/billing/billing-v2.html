@@ -826,7 +826,9 @@ function startPayment(kind){
   if (b){ // block double submit
     if (b.disabled) return;
     b.disabled = true; b.className = 'actions-btn actions-btn--loading';
-    b.innerHTML = `<img src="../../../components/ai-social-media/icons/actions/btn-spinner-white.svg" alt="">Redirecting to Stripe…`;
+    // upgrade / switch to yearly charge the saved card in place; subscribe / buy credits leave for the Stripe checkout page
+    const saved = kind === 'upgrade' || kind === 'switch';
+    b.innerHTML = `<img src="../../../components/ai-social-media/icons/actions/btn-spinner-white.svg" alt="">${saved ? 'Processing…' : 'Redirecting to Stripe…'}`;
   }
   S.lastKind = kind;
   const target = S.target, qty = S.qty, view = S.view;
