@@ -1853,7 +1853,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-pill{ display:inline-flex; align-items:center; gap:8px; height:28px; padding:0 12px; border-radius:999px; background:var(--neutral-150); font-size:13px; line-height:20px; font-weight:500; color:var(--neutral-900); white-space:nowrap; }
 .s3-pill.all{ padding-left:10px; }
 .s3-pill.all img{ width:16px; height:16px; }
-.s3-lt{ display:grid; place-items:center; flex:none; overflow:hidden; background:var(--neutral-100); }
+.s3-lt{ display:grid; place-items:center; flex:none; overflow:hidden; background:var(--neutral-100); border:1px solid var(--neutral-400); }   /* 10/22 개발(워크스페이스)과 같은 1px 테두리 — 업로드 로고가 흰 바탕일 수 있어서 */
 .s3-lt img{ max-width:72%; max-height:72%; }
 .s3-lt.s20{ width:20px; height:20px; border-radius:5px; }
 .s3-pill .s3-lt.s20{ background:var(--neutral-0); }
@@ -37709,7 +37709,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var sub = isBA() ? 'Brands you manage. Select a brand to choose who can work on it.' : isUser() ? 'Brands you work on. Ask a Brand Admin to change who has access.' : 'Every brand in this account. Select a brand to choose who can work on it.';
     var ro = isUser();
     var h = '<div class="s3-sec"><div class="s3-sechead"><div><p class="s3-sectitle">Brands</p><p class="s3-secsub">'+esc(sub)+'</p></div>'+
-      '</div>'+   /* Create / Rename / Delete 는 브랜드 워크스페이스(/brands) 몫 — 여기는 사람·권한만 */
+      (isBA()||ro ? '' : '<button type="button" class="s3-btn sec" data-s3="managebrands">Manage brands</button>')+   /* Create / Rename / Delete 는 브랜드 워크스페이스(/brands) 몫 — 여기서는 거기로 보내기만 */
+      '</div>'+
       '<div class="s3-card s3-split"><div class="s3-blist">';
     if (!isBA() && !ro) h += '<label class="s3-search"><img src="'+IC+'ui-search.svg" alt=""><input id="s3axq" placeholder="Search brands" value="'+esc(S.axQ)+'"></label>';
     list.forEach(function(n){ var c=count(n);
@@ -37834,6 +37835,11 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       OWNER = id; render(); toast((person(id).name||person(id).email)+' is now the account admin · '+prev.name+' stays as a member');
     });
   }
+  /* Manage brands → 브랜드 워크스페이스(같은 파일의 Brand 화면, 카드 목록) */
+  function openWorkspace(){
+    closeMenu(); history.replaceState(null,'',location.pathname);
+    showView('brand'); if (typeof backToWorkspace==='function') backToWorkspace();
+  }
   function renameModal(name){
     modal('Rename brand', 'Members and content stay the same.', '<div class="s3-field"><span class="s3-label">Brand name</span><input class="s3-input s3-dfull" id="s3rn" value="'+esc(name)+'"></div>', 'Save', function(){
       var n=$('#s3rn').value.trim(); if(!n||n===name) return true; if (brand(n)){ toast('A brand with that name already exists'); return false; }
@@ -37923,7 +37929,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       if ((t=e.target.closest('[data-s3mstatus]'))){ S.mStatus=t.dataset.s3mstatus; render(); return; }
       if ((t=e.target.closest('[data-s3brand]'))){ S.axBrand=t.dataset.s3brand; render(); return; }
       if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
-      if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='add') addPerson(); return; }
+      if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='add') addPerson(); return; }
     }
     root.addEventListener('click', onClick);
     var L=$('#s3Layer');
