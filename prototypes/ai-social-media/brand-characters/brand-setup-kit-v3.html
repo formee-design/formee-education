@@ -1899,6 +1899,11 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-phead .l > div{ display:flex; flex-direction:column; gap:2px; }
 .s3-solo{ font-size:13px; line-height:20px; }
 .s3-add.ro{ padding-top:0; }
+.s3-msearch{ padding:10px 12px; }
+.s3-msearch label{ display:flex; align-items:center; gap:10px; height:36px; padding:0 12px; border:1px solid var(--neutral-400); border-radius:var(--radius-md); background:var(--neutral-0); }
+.s3-msearch input{ flex:1; min-width:0; border:0; outline:0; font:inherit; font-size:14px; line-height:22px; color:var(--neutral-900); background:none; }
+.s3-msearch input::placeholder{ color:var(--neutral-500); }
+.s3-msearch img{ width:16px; height:16px; flex:none; }
 .s3-mi.dis, .s3-mi.dis:has(.opt span){ padding:0 8px; cursor:default; }
 .s3-mi.dis .opt{ gap:0; }
 .s3-mi.dis:hover{ background:none; }
@@ -37695,6 +37700,9 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var sc = scopeBrands();
     if (sc.indexOf(S.axBrand)<0) S.axBrand = sc[0];
     var b = brand(S.axBrand), ids = Object.keys(A[S.axBrand]||{});
+    /* 역할끼리 모은다: Brand Admin → User, 같은 역할 안에서는 활동중 → 초대중 */
+    var rk = function(id){ var p=person(id); return (A[S.axBrand][id]==='Brand Admin'?0:2) + (p&&p.status==='Invited'?1:0); };
+    ids = ids.map(function(id,i){ return [id,i]; }).sort(function(x,y){ return rk(x[0])-rk(y[0]) || x[1]-y[1]; }).map(function(x){ return x[0]; });
     var q = S.axQ.trim().toLowerCase();
     var list = sc.filter(function(n){ return !q || n.toLowerCase().indexOf(q)>=0; });
     var sub = isBA() ? 'Brands you manage. Select a brand to choose who can work on it.' : isUser() ? 'Brands you work on. Ask a Brand Admin to change who has access.' : 'Every brand in this account. Select a brand to choose who can work on it.';
@@ -37842,7 +37850,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (kind==='e'){ S.menu=k; return openMenu(t, roleItems(S.ed.d[id], 'edrole', id, 'edremovebrand'), 372); }
     if (kind==='eadd'){ S.menu=k; var left=scopeBrands().filter(function(n){ return !S.ed.d[n]; });
       return openMenu(t, left.map(function(n){ return '<button type="button" class="s3-mi" data-s3act="edadd" data-id="'+esc(n)+'">'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join(''), 260); }
-    if (kind==='ib'){ S.menu=k; return openMenu(t, scopeBrands().map(function(n){ var on=S.inv.brands.indexOf(n)>=0;
+    if (kind==='ib'){ S.menu=k; return openMenu(t, '<div class="s3-msearch"><label><input id="s3ibq" placeholder="Search brands" autocomplete="off"><img src="assets/search-700.svg" alt=""></label></div>'+   /* Voices 언어·억양 필터처럼 맨 위 검색칸 */
+      scopeBrands().map(function(n){ var on=S.inv.brands.indexOf(n)>=0;
       return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'>'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join('')+
       (isBA()?'<p class="s3-mhint">Only brands you manage are listed. Ask your account admin for other brands.</p>':''), t.offsetWidth); }
     if (kind==='ir'){ S.menu=k; return openMenu(t, roleItems(S.inv.role, 'invrole', 'x'), t.offsetWidth); }
@@ -37935,6 +37944,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     root.addEventListener('keydown', function(e){ if (e.target.id==='s3addq' && e.key==='Enter') addPerson(); });
     document.addEventListener('click', function(e){ var t=e.target.closest('#s3Menu [data-s3act]'); if (t){ e.stopPropagation(); act(t.dataset.s3act, t.dataset.id, t); } });
     document.addEventListener('keydown', function(e){ if (e.key==='Escape'){ if (S.menu) closeMenu(); else closeLayer(); } });
+    document.addEventListener('input', function(e){ if (e.target.id!=='s3ibq') return; var q=e.target.value.trim().toLowerCase();
+      document.querySelectorAll('#s3Menu [data-s3act="invbrand"]').forEach(function(x){ x.hidden = !!q && x.dataset.id.toLowerCase().indexOf(q)<0; }); });
     var nav=$('#navSettings'); if (nav) nav.addEventListener('click', function(){ if (!/^#view=settings/.test(location.hash)) history.replaceState(null,'','#view=settings&tab='+S.tab+'&as='+S.as); showView('settings'); });
   }
   function fromHash(){
