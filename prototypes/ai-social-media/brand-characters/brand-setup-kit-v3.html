@@ -1889,7 +1889,8 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-lock img{ width:12px; height:12px; }
 .s3-mi .ri{ width:16px; height:16px; margin-top:2px; flex:none; }
 .s3-mi.danger{ color:var(--badge-red-text); }
-.s3-mi .cb{ width:16px; height:16px; margin-top:2px; accent-color:var(--neutral-900); appearance:auto; -webkit-appearance:checkbox; flex:none; pointer-events:none; }
+.s3-mi .cb{ width:16px; height:16px; margin:0; flex:none; pointer-events:none; appearance:none; -webkit-appearance:none; border:1px solid var(--neutral-400); border-radius:4px; background:var(--neutral-0) no-repeat center / 12px; }   /* DS Checkbox sm */
+.s3-mi .cb:checked{ background-color:var(--neutral-900); border-color:var(--neutral-900); background-image:url("../../../components/ai-social-media/icons/wh-check.svg"); }
 .s3-menu{ z-index:400; }
 .s3-mhint{ font-size:12px; line-height:18px; color:var(--neutral-500); padding:6px 10px 4px; }
 .s3-phead{ justify-content:space-between; }
@@ -1903,7 +1904,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-msearch label{ display:flex; align-items:center; gap:10px; height:36px; padding:0 12px; border:1px solid var(--neutral-400); border-radius:var(--radius-md); background:var(--neutral-0); }
 .s3-msearch input{ flex:1; min-width:0; border:0; outline:0; font:inherit; font-size:14px; line-height:22px; color:var(--neutral-900); background:none; }
 .s3-msearch input::placeholder{ color:var(--neutral-500); }
-.s3-msearch img{ width:16px; height:16px; flex:none; }
+.s3-msearch img{ width:18px; height:18px; flex:none; }
 .s3-mi.dis, .s3-mi.dis:has(.opt span){ padding:0 8px; cursor:default; }
 .s3-mi.dis .opt{ gap:0; }
 .s3-mi.dis:hover{ background:none; }
@@ -37708,7 +37709,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var sub = isBA() ? 'Brands you manage. Select a brand to choose who can work on it.' : isUser() ? 'Brands you work on. Ask a Brand Admin to change who has access.' : 'Every brand in this account. Select a brand to choose who can work on it.';
     var ro = isUser();
     var h = '<div class="s3-sec"><div class="s3-sechead"><div><p class="s3-sectitle">Brands</p><p class="s3-secsub">'+esc(sub)+'</p></div>'+
-      (isBA()||ro?'':'<button type="button" class="s3-btn" data-s3="createbrand"><img class="plus" src="'+IC+'plus-16-grey.svg" alt="">Create brand</button>')+'</div>'+
+      '</div>'+   /* Create / Rename / Delete 는 브랜드 워크스페이스(/brands) 몫 — 여기는 사람·권한만 */
       '<div class="s3-card s3-split"><div class="s3-blist">';
     if (!isBA() && !ro) h += '<label class="s3-search"><img src="'+IC+'ui-search.svg" alt=""><input id="s3axq" placeholder="Search brands" value="'+esc(S.axQ)+'"></label>';
     list.forEach(function(n){ var c=count(n);
@@ -37716,7 +37717,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (!list.length) h += '<div class="s3-empty">No brands match.</div>';
     h += '</div><div class="s3-pane"><div class="s3-phead"><div class="l">'+mark(b,36)+'<div><div class="s3-nmline"><p class="s3-sectitle">'+esc(b.name)+'</p>'+(b.status==='Draft'?badge('Draft'):'')+'</div>'+
       '<p class="s3-em">'+ids.length+' '+(ids.length===1?'person has':'people have')+' access</p></div></div>'+
-      (ro?'':'<button type="button" class="s3-more" data-s3menu="b:'+esc(b.name)+'" aria-label="More actions"><img src="'+IC+'ui-ellipsis.svg" alt=""></button>')+'</div>'+
+      '</div>'+
       '<div class="s3-add'+(ro?' ro':'')+'">'+(ro?'':'<div class="s3-addrow"><input class="s3-input" id="s3addq" placeholder="Add people by name or email" autocomplete="off">'+
       dd('data-s3menu="a:x"', S.addRole, 'w160')+'<button type="button" class="s3-btn" data-s3="add">Add</button></div>')+
       '<div class="s3-guide">'+ROLES.map(function(r){ return '<span><img src="'+roleSrc(r)+'" alt=""><b>'+r+'</b>'+ROLE_DESC[r]+'</span>'; }).join('')+'</div></div>';
@@ -37852,7 +37853,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       return openMenu(t, left.map(function(n){ return '<button type="button" class="s3-mi" data-s3act="edadd" data-id="'+esc(n)+'">'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join(''), 260); }
     if (kind==='ib'){ S.menu=k; return openMenu(t, '<div class="s3-msearch"><label><input id="s3ibq" placeholder="Search brands" autocomplete="off"><img src="assets/search-700.svg" alt=""></label></div>'+   /* Voices 언어·억양 필터처럼 맨 위 검색칸 */
       scopeBrands().map(function(n){ var on=S.inv.brands.indexOf(n)>=0;
-      return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'>'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join('')+
+      return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'><span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join('')+
       (isBA()?'<p class="s3-mhint">Only brands you manage are listed. Ask your account admin for other brands.</p>':''), t.offsetWidth); }
     if (kind==='ir'){ S.menu=k; return openMenu(t, roleItems(S.inv.role, 'invrole', 'x'), t.offsetWidth); }
   }
