@@ -1762,14 +1762,15 @@ body.bk2-clean .s3-as{ display:none; }
 /* menus */
 .s3-menu{ position:absolute; z-index:40; background:var(--neutral-0); border:1px solid var(--neutral-400); border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,.10); padding:6px; display:flex; flex-direction:column; gap:2px; min-width:202px; }
 .s3-mi{ font:inherit; font-size:14px; line-height:22px; font-weight:500; text-align:left; border:0; background:none; color:var(--neutral-900); padding:7px 8px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:10px; }
-.s3-mi:has(.opt span){ padding:10px; align-items:flex-start; }
+.s3-mi:has(.opt span){ padding:0 8px; align-items:center; }   /* DS Menu / Option detail: 38px, 글자 두 줄 */
 .s3-mi:hover{ background:var(--neutral-100); }
 .s3-mi.danger{ color:var(--badge-red-text); }
 .s3-mi .opt{ flex:1; display:flex; flex-direction:column; gap:2px; }
-.s3-mi .opt b{ font-size:13px; line-height:20px; font-weight:600; }
-.s3-mi .opt span{ font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-mi .opt{ gap:0; }
+.s3-mi .opt b{ font-size:14px; line-height:22px; font-weight:500; }
+.s3-mi .opt span{ font-size:12px; line-height:18px; margin-top:-2px; color:var(--neutral-450); }
 .s3-mi.sel{ background:var(--neutral-100); }
-.s3-mi .ck{ width:16px; height:16px; margin-top:2px; }
+.s3-mi .ck{ width:14px; height:14px; margin-top:0; }
 .s3-div{ height:1px; background:var(--neutral-400); margin:0; }
 /* access */
 .s3-split{ display:flex; align-items:stretch; }
@@ -1898,6 +1899,11 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-phead .l > div{ display:flex; flex-direction:column; gap:2px; }
 .s3-solo{ font-size:13px; line-height:20px; }
 .s3-add.ro{ padding-top:0; }
+.s3-mi.dis, .s3-mi.dis:has(.opt span){ padding:0 8px; cursor:default; }
+.s3-mi.dis .opt{ gap:0; }
+.s3-mi.dis:hover{ background:none; }
+.s3-mi.dis .opt b{ font-size:14px; line-height:22px; font-weight:500; color:var(--neutral-450); }
+.s3-mi.dis .opt span{ line-height:18px; margin-top:-2px; color:var(--neutral-450); }
 .s3-lockt{ font-size:13px; line-height:20px; font-weight:600; color:var(--neutral-700); }
 .s3-search input::placeholder, .s3-input::placeholder{ color:var(--neutral-500); }
 /* modal (B안) */
@@ -37609,7 +37615,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   }
   function lockLine(t){ return '<span class="s3-lock"><img src="'+IC+'edit-lock.svg" alt="">'+esc(t)+'</span>'; }
   function toast(msg){ var t=$('#s3Toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true;},2200); }
-  function closeMenu(){ var m=$('#s3Menu'); if(m) m.remove(); document.querySelectorAll('.s3-more.on, .s3-dd.on').forEach(function(x){x.classList.remove('on');}); S.menu=null; }
+  function closeMenu(){ var m=$('#s3Menu'); if(m) m.remove(); document.querySelectorAll('.s3-more.on, .s3-dd.on').forEach(function(x){x.classList.remove('on');}); document.querySelectorAll('#setMain .s3-tr.hl').forEach(function(x){x.classList.remove('hl');}); S.menu=null; }
   function openMenu(anchor, html, width){
     closeMenu();
     var m=document.createElement('div'); m.className='s3-menu'; m.id='s3Menu'; m.innerHTML=html; if(width) m.style.width=width+'px';
@@ -37621,6 +37627,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (top+m.offsetHeight > fr.offsetHeight-8) top = a.top-6-m.offsetHeight;
     m.style.top=top+'px'; m.style.left=Math.max(8,left)+'px';
     anchor.classList.add('on');
+    var row=anchor.closest('.s3-tr'); if (row) row.classList.add('hl');   /* 메뉴가 열린 행은 피그마처럼 칠한다 */
     return m;
   }
   document.addEventListener('click', function(e){ if (S.menu && !e.target.closest('#s3Menu') && !e.target.closest('[data-s3menu]')) closeMenu(); });
@@ -37670,9 +37677,13 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   }
   function memberMenu(btn, pid){
     var p = person(pid), inv = p.status==='Invited', h='';
-    if (pid===OWNER){ S.menu='m:'+pid; return openMenu(btn, '<button type="button" class="s3-mi" data-s3act="transfer" data-id="'+pid+'">Transfer account admin</button>', 232); }
+    if (pid===OWNER){   /* Super Admin 만 연다 — DS Controls / Context Menu(Actions, 3칸). 계정 Admin 이라 안 되는 건 Menu / Option detail 로 흐리게 + 이유 */
+      var dis = function(t, why){ return '<button type="button" class="s3-mi dis" disabled><span class="opt"><b>'+t+'</b><span>'+why+'</span></span></button>'; };
+      S.menu='m:'+pid;
+      return openMenu(btn, dis('Edit access','Has every brand')+'<button type="button" class="s3-mi" data-s3act="transfer" data-id="'+pid+'">Transfer account admin</button>'+dis('Remove member','Transfer the admin role first'), 260);
+    }
     if (inv) h += '<button type="button" class="s3-mi" data-s3act="resend" data-id="'+pid+'">Resend invite</button>';
-    h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit access</button><div class="s3-div"></div>';
+    h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit access</button>';   /* DS Controls / Context Menu(Actions) — 구분선 없음 */
     if (inv) h += '<button type="button" class="s3-mi danger" data-s3act="cancelinvite" data-id="'+pid+'">Cancel invite</button>';
     else if (isBA()) h += '<button type="button" class="s3-mi danger" data-s3act="removemine" data-id="'+pid+'">Remove from my brands</button>';
     else h += '<button type="button" class="s3-mi danger" data-s3act="removemember" data-id="'+pid+'">Remove member</button>';
@@ -37717,13 +37728,13 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     return h + '</div></div></div>';
   }
   function roleItems(cur, act, id, withRemove){
-    var h = ROLES.map(function(r){ return '<button type="button" class="s3-mi'+(r===cur?' sel':'')+'" data-s3act="'+act+'" data-id="'+esc(id)+'" data-role="'+r+'">'+roleIc(r)+'<span class="opt"><b>'+r+'</b><span>'+ROLE_DESC[r]+'</span></span>'+(r===cur?'<img class="ck" src="'+IC+'check-blue.svg" alt="">':'')+'</button>'; }).join('');
-    if (withRemove) h += '<div class="s3-div"></div><button type="button" class="s3-mi danger" data-s3act="'+withRemove+'" data-id="'+esc(id)+'">Remove access</button>';
+    var h = ROLES.map(function(r){ return '<button type="button" class="s3-mi'+(r===cur?' sel':'')+'" data-s3act="'+act+'" data-id="'+esc(id)+'" data-role="'+r+'"><span class="opt"><b>'+r+'</b><span>'+ROLE_DESC[r]+'</span></span>'+(r===cur?'<img class="ck" src="'+IC+'check.svg" alt="">':'')+'</button>'; }).join('');
+    if (withRemove) h += '<button type="button" class="s3-mi danger" data-s3act="'+withRemove+'" data-id="'+esc(id)+'">Remove access</button>';
     return h;
   }
   function brandMenu(btn, name){
     var h = '<button type="button" class="s3-mi" data-s3act="rename" data-id="'+esc(name)+'">Rename</button>';
-    if (!isBA()) h += '<div class="s3-div"></div><button type="button" class="s3-mi danger" data-s3act="deletebrand" data-id="'+esc(name)+'">Delete brand</button>';
+    if (!isBA()) h += '<button type="button" class="s3-mi danger" data-s3act="deletebrand" data-id="'+esc(name)+'">Delete brand</button>';
     S.menu='b:'+name; openMenu(btn, h, 202);
   }
 
