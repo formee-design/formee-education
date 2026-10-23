@@ -37729,7 +37729,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       var dis = function(t, why){ return '<button type="button" class="s3-mi dis" disabled><span class="opt"><b>'+t+'</b><span>'+why+'</span></span></button>'; };
       S.menu='m:'+pid;
       return openMenu(btn, '<button type="button" class="s3-mi" data-s3act="transfer" data-id="'+pid+'">Transfer account admin</button>'+
-        '<button type="button" class="s3-mi dis" disabled title="Transfer the admin role first">Remove member</button>', 200);   /* Figma K2 — 핸드오프 메뉴와 같은 Context Menu · Actions(글자만, 폭 200) */
+        '<button type="button" class="s3-mi danger dis" disabled title="Transfer the admin role first">Remove member</button>', 200);   /* Figma K2 — 핸드오프 메뉴와 같은 Context Menu · Actions(글자만, 폭 200) */
     }
     if (inv) h += '<button type="button" class="s3-mi" data-s3act="resend" data-id="'+pid+'">Resend invite</button>';
     h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit access</button>';   /* DS Controls / Context Menu(Actions) — 구분선 없음 */
