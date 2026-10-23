@@ -1926,7 +1926,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-btn.sec{ color:var(--neutral-700); }
 .s3-dfoot .s3-fl{ margin-right:auto; }
 .s3-dfoot .s3-fl .s3-txtbtn{ color:var(--s3-danger); }
-.s3-dbody{ padding:8px 32px 24px; }
+.s3-dbody{ padding:0 32px 24px; }   /* 10/23 Figma Modal / Dialog — 설명 아래 바로 본문 */
 /* 10/23 Figma 동기화 — 13488:312072 최종본: Billing식 머리(제목 22 + 설명 + Tab / Item), 행 끝 휴지통 + 툴팁,
    초대 행 'Invited … ago' + Resend, 확인 모달(닫기 X 없음), Brands 패널 정리(역할 안내 줄 삭제 · 계정 Admin 은 자물쇠만), 빈 상태. */
 #setMain{ gap:20px; }
@@ -37875,12 +37875,15 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   /* Super Admin 만 — 계정 Admin 은 한 명. 넘기면 예전 Admin 은 브랜드 없는 멤버로 남는다 */
   function transferModal(){
     var cand = P.filter(function(p){ return p.id!==OWNER && p.status==='Active'; });
-    var body = '<div class="s3-field"><span class="s3-label">New account admin</span><select class="s3-rolesel s3-dfull" id="s3newadm">'+cand.map(function(p){ return '<option value="'+p.id+'">'+esc(p.name||p.email)+'</option>'; }).join('')+'</select>'+
-      '<span class="s3-hint">One account admin per account. '+esc(person(OWNER).name)+' stays as a member — set their brands in Edit access.</span></div>';
+    if (!S.xfer || !cand.some(function(p){ return p.id===S.xfer; })) S.xfer = (cand.find(function(p){ return p.id==='yejin'; }) || cand[0]).id;   /* Figma K3 기본값 */
+    var cur = person(S.xfer);
+    var body = '<div class="s3-field"><span class="s3-label">New account admin</span>'+
+      '<button type="button" class="s3-dd full" data-s3menu="xf:x"><span class="lb">'+esc(cur.name||cur.email)+'</span><img class="cv" src="assets/chevron-down-700.svg" alt=""></button>'+
+      '<span class="s3-hint">One account admin per account. '+esc(person(OWNER).name)+' stays as a member — set their brands on the Brands tab.</span></div>';
     modal('Transfer account admin', 'The account admin owns billing and every brand.', body, 'Transfer', function(){
-      var id = $('#s3newadm').value, prev = person(OWNER);
+      var id = S.xfer, prev = person(OWNER);
       Object.keys(A).forEach(function(b){ delete A[b][id]; });
-      OWNER = id; render(); toast((person(id).name||person(id).email)+' is now the account admin · '+prev.name+' stays as a member');
+      OWNER = id; S.xfer = null; render(); toast((person(id).name||person(id).email)+' is now the account admin · '+prev.name+' stays as a member');
     });
   }
   /* Manage brands → 브랜드 워크스페이스(같은 파일의 Brand 화면, 카드 목록) */
@@ -37910,6 +37913,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'><span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join('')+
       (isBA()?'<p class="s3-mhint">Only brands you manage are listed. Ask your account admin for other brands.</p>':''), t.offsetWidth); }
     if (kind==='ir'){ S.menu=k; return openMenu(t, roleItems(S.inv.role, 'invrole', 'x'), t.offsetWidth); }
+    if (kind==='xf'){ S.menu=k; return openMenu(t, P.filter(function(p){ return p.id!==OWNER && p.status==='Active'; }).map(function(p){
+      return '<button type="button" class="s3-mi'+(p.id===S.xfer?' sel':'')+'" data-s3act="xferpick" data-id="'+p.id+'"><span class="opt"><b>'+esc(p.name)+'</b></span>'+(p.id===S.xfer?'<img class="ck" src="'+IC+'check.svg" alt="">':'')+'</button>'; }).join(''), t.offsetWidth); }
   }
 
   /* ---------- actions ---------- */
@@ -37933,6 +37938,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (a==='invrole'){ S.inv.emails=$('#s3invEmail').value; S.inv.role=el.dataset.role; return inviteModal(); }
     if (a==='rename') return renameModal(id);
     if (a==='transfer') return transferModal();
+    if (a==='xferpick'){ S.xfer=id; return transferModal(); }
     if (a==='deletebrand') return confirmBox('Delete '+id+'?', 'Its library and scheduled posts go too. This can’t be undone.', 'Delete brand', function(){ B.splice(B.indexOf(brand(id)),1); delete A[id]; render(); toast(id+' deleted'); });
   }
   function addPerson(){
@@ -38024,7 +38030,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     else if (what==='invite'){ S.inv=null; inviteModal(); }
     else if (what==='menu'){ var b=document.querySelector('[data-s3menu="m:'+id+'"]'); if (b) memberMenu(b,id); }
     else if (what==='brand'){ S.tab='brands'; S.axBrand=id; render(); }
-    else if (what==='remove'){ act('removemember', id); }
+    else if (what==='remove'){ act(isBA()?'removemine':'removemember', id); }
+    else if (what==='transfer'){ transferModal(); }
     else if (what==='role'){ var r=document.querySelector('[data-s3menu="r:'+id+'"]'); if (r) openKind(r,'r:'+id); }
   };
 })();
