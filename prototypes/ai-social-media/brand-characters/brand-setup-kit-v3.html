@@ -37728,7 +37728,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (pid===OWNER){   /* Super Admin 만 연다 — DS Controls / Context Menu(Actions, 3칸). 계정 Admin 이라 안 되는 건 Menu / Option detail 로 흐리게 + 이유 */
       var dis = function(t, why){ return '<button type="button" class="s3-mi dis" disabled><span class="opt"><b>'+t+'</b><span>'+why+'</span></span></button>'; };
       S.menu='m:'+pid;
-      return openMenu(btn, dis('Edit access','Has every brand')+'<button type="button" class="s3-mi" data-s3act="transfer" data-id="'+pid+'">Transfer account admin</button>'+dis('Remove member','Transfer the admin role first'), 260);
+      return openMenu(btn, '<button type="button" class="s3-mi" data-s3act="transfer" data-id="'+pid+'">'+roleIc('User')+'Transfer account admin</button>'+dis('Remove member','Transfer the admin role first'), 260);   /* Figma K2 — 권한은 Brands 탭에서 바꾸니 Edit access 는 뺐다 */
     }
     if (inv) h += '<button type="button" class="s3-mi" data-s3act="resend" data-id="'+pid+'">Resend invite</button>';
     h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit access</button>';   /* DS Controls / Context Menu(Actions) — 구분선 없음 */
@@ -37772,7 +37772,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       var role = A[S.axBrand][id], self = p.id===me();
       h += '<div class="s3-person">'+ava(p)+'<div style="flex:1;min-width:0">'+nameLine(p, p.status==='Invited'?badge('Invited'):'')+'</div>';
       h += ro ? '<div class="s3-fixed"><span class="s3-lockt">'+role+'</span></div>'
-         : self ? '<div class="s3-fixed row"><span class="s3-lockt">'+role+'</span>'+lockOnly('You can’t change your own role')+'</div>'
+         : self ? '<div class="s3-fixed">'+lockOnly('You can’t change your own role')+'</div>'   /* Figma H3 — 본인 행도 자물쇠만 */
                 : dd('data-s3menu="r:'+p.id+'"', role);
       h += '</div>';
     });
