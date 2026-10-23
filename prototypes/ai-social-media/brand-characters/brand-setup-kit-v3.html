@@ -37583,19 +37583,18 @@ body{margin:auto;padding:0;background:#e5e5e5;}
 (function(){
   var IC = '../../../components/ai-social-media/icons/';
   var OWNER = 'abeer';                            /* 계정 Admin — 모든 브랜드. Super Admin 만 바꿀 수 있다 */
-  var ME_BA = 'jenny';                            /* Brand Admin 화면의 '나' */
-  var ME_USER = 'ahmed';                          /* User 화면의 '나' */
+  var ME_BA = 'yejin';                            /* Brand Admin 화면의 '나' — 10/23 Yejin(브랜드 어드민) · Jenny(유저)로 바꿈 */
+  var ME_USER = 'jenny';                          /* User 화면의 '나' */
   var SUPER = {id:'zubair', name:'Zubair', email:'zubair@formeeholdings.com', status:'Active'};   /* Formee 내부 — 계정 멤버가 아님 */
   var TONES = ['blue','violet','mint','rose','amber','teal'];   /* 이니셜 대체 표시 색 — 브랜드 생성 순서대로 돈다 */
   var P = [
     {id:'abeer',  name:'Abeer Ahmed', email:'abeer.ahmed@formeeholdings.com', status:'Active'},
-    {id:'yejin',  name:'Yejin Kim',   email:'yejin.kim@formeeholdings.com',   status:'Active'},
-    {id:'jenny',  name:'Jenny Jeong', email:'jenny.jeong@formeeholdings.com', status:'Active'},
-    {id:'norimi', name:'Norimi Muto', email:'norimi.muto@formeeholding.com',  status:'Active'},
     {id:'ahmed',  name:'Ahmed Abeer', email:'ahmedabeer961@yahoo.com',        status:'Active'},
+    {id:'yejin',  name:'Yejin Kim',   email:'yejin.kim@formeeholdings.com',   status:'Active'},
+    {id:'norimi', name:'Norimi Muto', email:'norimi.muto@formeeholding.com',  status:'Active'},
+    {id:'jenny',  name:'Jenny Jeong', email:'jenny.jeong@formeeholdings.com', status:'Active'},
     {id:'fdebbie',name:null,          email:'fdebbie.aquino@scei.edu.au',     status:'Invited', sent:'2 days ago'},
-    {id:'mia',    name:null,          email:'mia.park@formeeholdings.com',    status:'Invited', sent:'5 hours ago'}
-  ];
+    {id:'mia',    name:null,          email:'mia.park@formeeholdings.com',    status:'Invited', sent:'5 hours ago'}  ];
   var B = [
     {name:'Formee Express',      logo:'assets/logo-formee-express.svg', status:'Active'},
     {name:'SCEI',                logo:'assets/logo-scei.svg',           status:'Draft'},
@@ -37605,10 +37604,10 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     {name:'Northbridge College', ini:'NC', tone:'teal',  status:'Draft'}
   ];
   var A = {
-    'Formee Express':      {yejin:'Brand Admin', jenny:'Brand Admin', norimi:'Brand Admin', ahmed:'User', mia:'User'},
-    'SCEI':                {jenny:'Brand Admin', yejin:'User', ahmed:'User', fdebbie:'User'},
-    'SCHE':                {yejin:'User', norimi:'Brand Admin', ahmed:'User'},
-    'Meridian Business':   {yejin:'User', mia:'User'},
+    'Formee Express':      {ahmed:'Brand Admin', yejin:'Brand Admin', norimi:'Brand Admin', jenny:'User', mia:'User'},
+    'SCEI':                {yejin:'Brand Admin', ahmed:'User', jenny:'User', fdebbie:'User'},
+    'SCHE':                {ahmed:'User', norimi:'Brand Admin', jenny:'User'},
+    'Meridian Business':   {ahmed:'User', mia:'User'},
     'Coastline TAFE':      {norimi:'Brand Admin'},
     'Northbridge College': {}
   };
