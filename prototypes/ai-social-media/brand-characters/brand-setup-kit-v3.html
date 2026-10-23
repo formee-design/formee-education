@@ -37713,7 +37713,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       var rmAct = p.status==='Invited' ? 'cancelinvite' : isBA() ? 'removemine' : 'removemember';
       var rmTip = p.status==='Invited' ? 'Cancel invite' : isBA() ? 'Remove from my brands' : 'Remove member';
       var tail = locked ? ''
-        : (p.id===OWNER) ? '<button type="button" class="s3-more" data-s3menu="m:'+p.id+'" aria-label="More actions"><img src="'+IC+'ui-ellipsis.svg" alt=""></button>'   /* Super Admin 만: 계정 Admin 넘기기 */
+        : (p.id===OWNER) ? '<button type="button" class="s3-more s3-trash" data-s3xfer="1" aria-label="Transfer account admin"><img src="'+IC+'panel-swap.svg" alt=""><span class="tip">Transfer account admin</span></button>'   /* Super Admin 만 — Figma K1·K2: ⇄ 버튼 하나, 누르면 바로 넘기기 모달(메뉴 없음) */
         : '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'</span></button>';
       h += '<div class="s3-tr mrow'+(S.menu===('m:'+p.id)?' hl':'')+'"><div class="s3-cm">'+ava(p)+who+'</div>'+
         '<div class="s3-cs">'+badge(p.status)+'</div>'+cols+
@@ -37978,6 +37978,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       if ((t=e.target.closest('[data-s3brand]'))){ S.axBrand=t.dataset.s3brand; render(); return; }
       if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
       if ((t=e.target.closest('[data-s3rm]'))){ act(t.dataset.s3rm, t.dataset.id); return; }
+      if ((t=e.target.closest('[data-s3xfer]'))){ transferModal(); return; }
       if ((t=e.target.closest('[data-s3resend]'))){ var rp=person(t.dataset.s3resend); rp.sent='just now'; render(); toast('Invite sent again to '+rp.email); return; }
       if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='add') addPerson(); return; }
     }
