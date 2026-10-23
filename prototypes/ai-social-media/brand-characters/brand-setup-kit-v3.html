@@ -37771,7 +37771,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       var p = person(id); if (!p) return;
       var role = A[S.axBrand][id], self = p.id===me();
       h += '<div class="s3-person">'+ava(p)+'<div style="flex:1;min-width:0">'+nameLine(p, p.status==='Invited'?badge('Invited'):'')+'</div>';
-      h += ro ? '<div class="s3-fixed"><span class="s3-lockt">'+role+'</span></div>'
+      h += ro ? '<div class="s3-fixed">'+lockOnly('Ask a Brand Admin to change roles')+'</div>'   /* Figma L2 — 읽기 전용도 자물쇠만 */
          : self ? '<div class="s3-fixed">'+lockOnly('You can’t change your own role')+'</div>'   /* Figma H3 — 본인 행도 자물쇠만 */
                 : dd('data-s3menu="r:'+p.id+'"', role);
       h += '</div>';
