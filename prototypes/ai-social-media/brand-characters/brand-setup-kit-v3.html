@@ -37759,7 +37759,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     list.forEach(function(n){ var c=count(n);
       h += '<button type="button" class="s3-bi'+(n===S.axBrand?' on':'')+'" data-s3brand="'+esc(n)+'"><span class="l">'+mark(brand(n),24)+esc(n)+'</span><span class="n'+(c?'':' zero')+'">'+c+'</span></button>'; });
     if (!list.length) h += '<div class="s3-empty">No brands match.</div>';
-    h += '</div><div class="s3-pane"><div class="s3-phead"><div class="l">'+mark(b,36)+'<div><div class="s3-nmline"><p class="s3-sectitle">'+esc(b.name)+'</p>'+(b.status==='Draft'?badge('Draft'):'')+'</div>'+
+    h += '</div><div class="s3-pane"><div class="s3-phead"><div class="l">'+mark(b,36)+'<div><div class="s3-nmline"><p class="s3-sectitle">'+esc(b.name)+'</p></div>'+   /* 10/23 Draft 칩 뺌 — 브랜드 상태는 워크스페이스 몫 */
       '<p class="s3-em">'+ids.length+' '+(ids.length===1?'person has':'people have')+' access</p></div></div>'+
       '</div>'+
       '<div class="s3-add'+(ro?' ro':'')+'">'+(ro?'':'<div class="s3-addrow"><input class="s3-input" id="s3addq" placeholder="Add people by name or email" autocomplete="off">'+
