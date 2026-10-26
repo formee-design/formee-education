@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HR Tool Prototype — Index</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+<!--
+  HR Tool index — the HR team keeps this page. To list a new screen:
+    1. Put the file in prototypes/hr-tool/ (or a subfolder)
+    2. Add an <li> to the right group below — href is relative to this folder, e.g. "recruiting/create-a-job.html"
+    3. New group? Copy a <div class="group" id="..."> block, give it a new id, and add a matching
+       <a class="side-nav__item" href="#that-id"> to the left nav
+  The look and the left nav behaviour come from ../../index.css and ../../index.js (shared with the AI Social Media index).
+-->
+<nav class="side-nav" aria-label="Sections">
+  <div class="product-switch" aria-label="Product">
+    <a href="../../">AI Social Media</a>
+    <a class="is-current" href="./" aria-current="page">HR Tool</a>
+  </div>
+  <a class="side-nav__item" href="#screens"><img src="../../components/ai-social-media/icons/nav-library.svg" alt="">Screens</a>
+  <a class="side-nav__item" href="#components"><img src="../../components/ai-social-media/icons/view-grid-2x2.svg" alt="">Components</a>
+</nav>
+<div class="wrap">
+  <div class="product-switch product-switch--top" aria-label="Product">
+    <a href="../../">AI Social Media</a>
+    <a class="is-current" href="./" aria-current="page">HR Tool</a>
+  </div>
+  <h1>HR Tool Prototype</h1>
+  <p class="sub">HTML prototypes for the HR Tool — click a screen to view it.</p>
+
+  <div class="group" id="screens">
+    <h2>Screens</h2>
+    <p class="group-note">Screen prototypes live in prototypes/hr-tool/. How to add one: see the guide (README) in that folder.</p>
+    <p class="empty-note">No screens yet — they'll be listed here once they're uploaded.</p>
+  </div>
+
+  <div class="group" id="components">
+    <h2>Components</h2>
+    <p class="group-note">HR Tool components in components/hr-tool/ — each page shows the component and its variants.</p>
+    <ul>
+      <li><a href="../../components/hr-tool/create-a-job-demo.html"><span>Create a Job — composed screens (components put together)<span class="path">components/hr-tool/create-a-job-demo.html</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="../../components/hr-tool/sidebar-nav.html"><span>Nav / Sidebar<span class="path">components/hr-tool/sidebar-nav.html</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="../../components/hr-tool/page-header.html"><span>Page Header<span class="path">components/hr-tool/page-header.html</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="../../components/hr-tool/section-header.html"><span>Section Header<span class="path">components/hr-tool/section-header.html</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="../../components/hr-tool/flow-progress.html"><span>Flow Progress<span class="path">components/hr-tool/flow-progress.html</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="../../components/hr-tool/form-field.html"><span>Form Field<span class="path">components/hr-tool/form-field.html</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="../../components/hr-tool/form-footer.html"><span>Form Footer<span class="path">components/hr-tool/form-footer.html</span></span><span class="arrow">&rarr;</span></a></li>
+    </ul>
+  </div>
+</div>
+<script src="../../index.js"></script>
+</body>
+</html>

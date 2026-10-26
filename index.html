@@ -4,97 +4,14 @@
 <meta charset="UTF-8">
 <title>AI Social Media Prototype — Index</title>
 <link rel="stylesheet" href="tokens/tokens.css">
-<style>
-  *{box-sizing:border-box;}
-  body{
-    margin:0; font-family:var(--font-family-text, -apple-system, sans-serif);
-    background:var(--color-neutral-50); color:var(--color-neutral-900);
-    padding:48px 24px 96px;
-  }
-  .wrap{max-width:760px; margin:0 auto;}
-  h1{font-size:22px; font-weight:700; margin:0 0 4px;}
-  .sub{font-size:13px; color:var(--color-neutral-500); margin:0 0 40px;}
-  h2{font-size:14px; font-weight:700; color:var(--color-neutral-900); margin:0 0 4px; padding-top:8px;}
-  .group{margin-bottom:32px;}
-  .group-note{font-size:12px; color:var(--color-neutral-500); margin:0 0 12px;}
-  ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px;
-     background:var(--color-neutral-0); border:1px solid var(--color-neutral-200); border-radius:12px; overflow:hidden;}
-  li{border-bottom:1px solid var(--color-neutral-150);}
-  li:last-child{border-bottom:none;}
-  a{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:14px 16px; text-decoration:none; color:var(--color-neutral-900); font-size:13.5px; font-weight:500;
-  }
-  a:hover{background:var(--color-neutral-50);}
-  a .arrow{color:var(--color-neutral-400); font-size:13px; flex-shrink:0;}
-  a .path{font-size:11.5px; color:var(--color-neutral-500); font-weight:400; margin-top:2px; display:block;}
-  .badge{
-    font-size:10px; font-weight:700; letter-spacing:.02em; text-transform:uppercase;
-    padding:2px 7px; border-radius:999px; flex-shrink:0; margin-left:8px;
-  }
-  .badge.new{background:var(--color-brand-primary-light); color:var(--color-brand-primary-dark);}
-  .badge.legacy{background:var(--color-neutral-150); color:var(--color-neutral-500);}
-
-  details.group summary{
-    cursor:pointer; list-style:none; font-size:14px; font-weight:700; color:var(--color-neutral-500);
-    padding-top:8px; margin-bottom:4px; display:flex; align-items:center; gap:6px; user-select:none;
-  }
-  details.group summary::-webkit-details-marker{display:none;}
-  details.group summary::before{content:'▸'; color:var(--color-neutral-400); font-size:10px; width:10px; flex-shrink:0;}
-  details.group[open] summary::before{content:'▾';}
-  details.group .group-note{margin-top:0;}
-  details.group ul{margin-top:12px;}
-  .archive-sub-title{font-size:12px; font-weight:700; color:var(--color-neutral-700); margin:20px 0 8px;}
-  .group-note + .archive-sub-title, summary + .archive-sub-title{margin-top:0;}
-  /* Summary variant that shows its group-note description even while the <details> is
-     closed -- a plain <p class="group-note"> after </summary> is hidden until opened, so
-     this folds the description into the summary itself instead. */
-  details.group summary.summary-with-desc{align-items:flex-start;}
-  summary.summary-with-desc .summary-col{display:flex; flex-direction:column; gap:2px;}
-  summary.summary-with-desc .summary-title{font-size:14px; font-weight:700; color:var(--color-neutral-500);}
-  summary.summary-with-desc .summary-desc{font-size:12px; font-weight:400; color:var(--color-neutral-500);}
-  /* a superseded version folded inside its own group — grey rows, "v1" badges */
-  .group--legacy{margin:24px 0 0;}
-  .group--legacy ul{background:var(--color-neutral-50);}
-  .group--legacy a{color:var(--color-neutral-500);}
-  .group--legacy a .path{color:var(--color-neutral-400);}
-  /* States & cases — an accordion row at the end of a Pages card, folded by default */
-  .states-card summary{
-    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px;
-    cursor:pointer; list-style:none; user-select:none; font-size:13.5px; font-weight:500; color:var(--color-neutral-900);
-  }
-  .states-card summary::-webkit-details-marker{display:none;}
-  .states-card summary:hover{background:var(--color-neutral-50);}
-  .states-card summary .path{font-size:11.5px; color:var(--color-neutral-500); font-weight:400; margin-top:2px; display:block;}
-  .states-card__chevron{color:var(--color-neutral-400); font-size:11px; flex-shrink:0; transition:transform .15s ease;}
-  .states-card[open] .states-card__chevron{transform:rotate(90deg);}
-  .states-card ul{border:0; border-top:1px solid var(--color-neutral-150); border-radius:0; background:var(--color-neutral-50);}
-  .states-card ul a{padding-left:28px;}
-  .states-card ul a:hover{background:var(--color-neutral-100);}
-  /* Left nav — same order as the product sidebar (Home · Create · Content · Insights · Brand · Account); click scrolls to
-     the section, the one in view is highlighted. Hidden on narrow windows. */
-  html{scroll-behavior:smooth;}
-  .section-label{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--color-neutral-500); margin:8px 0 12px;}
-  .side-nav{position:fixed; top:48px; left:24px; width:200px; max-height:calc(100vh - 96px); overflow-y:auto; display:flex; flex-direction:column; gap:2px;}
-  .side-nav__head{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--color-neutral-500); margin:16px 0 4px; padding:0 12px;}
-  .side-nav__item{display:flex; align-items:center; justify-content:flex-start; gap:10px; padding:8px 12px; border-radius:8px; font-size:13.5px; font-weight:500; color:var(--color-neutral-700); text-decoration:none;}
-  .side-nav__item img{width:18px; height:18px; flex-shrink:0; opacity:.75;}
-  .side-nav__item:hover{background:var(--color-neutral-100);}
-  .side-nav__item.is-active{background:var(--color-brand-primary-light); color:var(--color-neutral-900);}
-  .side-nav__item.is-active img{opacity:1;}
-  /* the section picked in the left nav — outlined until another one is picked or it scrolls out of view */
-  /* the picked section lifts with a shadow (Figma shadow/lg) in a 12px-radius shape just outside it */
-  .group{position:relative;}
-  .group::before{content:''; position:absolute; inset:-12px; border-radius:12px; box-shadow:var(--shadow-popover); opacity:0; pointer-events:none; transition:opacity .2s ease;}
-  .group.is-target::before{opacity:1;}
-  .group .group::before{display:none;} /* only the picked section itself, never a group inside it */
-  .group--set > .group:last-child{margin-bottom:0;} /* a set of groups under one nav item (New content + Editing) */
-  .group, .section-label{scroll-margin-top:36px;}
-  @media (max-width:1180px){ .side-nav{display:none;} }
-</style>
+<link rel="stylesheet" href="index.css">
 </head>
 <body>
 <nav class="side-nav" aria-label="Sections">
+  <div class="product-switch" aria-label="Product">
+    <a class="is-current" href="./" aria-current="page">AI Social Media</a>
+    <a href="prototypes/hr-tool/">HR Tool</a>
+  </div>
   <a class="side-nav__item" href="#home"><img src="components/ai-social-media/icons/nav-home.svg" alt="">Home</a>
   <p class="side-nav__head">Create</p>
   <a class="side-nav__item" href="#new-content"><img src="components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt="">New content</a>
@@ -116,6 +33,10 @@
   <a class="side-nav__item" href="#archiving"><img src="components/ai-social-media/icons/nav-folder-closed.svg" alt="">Archiving</a>
 </nav>
 <div class="wrap">
+  <div class="product-switch product-switch--top" aria-label="Product">
+    <a class="is-current" href="./" aria-current="page">AI Social Media</a>
+    <a href="prototypes/hr-tool/">HR Tool</a>
+  </div>
   <h1>AI Social Media Prototype</h1>
   <p class="sub">A collection of HTML prototypes built on the design system — click a screen to view it.</p>
 
@@ -330,45 +251,6 @@
   </details>
 
 </div>
-<script>
-// Left nav — a click picks a section: it scrolls there, the nav item lights up and the section lifts with a shadow.
-// Clicking the picked item again (or scrolling on to another section) drops the pick. Archiving opens when picked.
-(() => {
-  const items = [...document.querySelectorAll('.side-nav__item')];
-  const byId = Object.fromEntries(items.map((a) => [a.getAttribute('href').slice(1), a]));
-  const groups = Object.keys(byId).map((id) => document.getElementById(id)).filter(Boolean);
-  let picked = null;
-  let lockUntil = 0; // ignore scroll while the smooth scroll to a picked section runs
-  const pick = (target) => {
-    picked = target;
-    items.forEach((a) => a.classList.toggle('is-active', !!target && a === byId[target.id]));
-    groups.forEach((g) => g.classList.toggle('is-target', g === target));
-  };
-  items.forEach((a) => a.addEventListener('click', (e) => {
-    const target = document.getElementById(a.getAttribute('href').slice(1));
-    if (!target) return;
-    if (target === picked) { // second click → unpick, stay where you are
-      e.preventDefault();
-      pick(null);
-      history.replaceState(null, '', location.pathname + location.search);
-      return;
-    }
-    if (target.tagName === 'DETAILS') target.open = true;
-    pick(target);
-    lockUntil = Date.now() + 1200;
-  }));
-  // scrolled on to another section → the pick drops (the last sections can't reach the top, so at the page bottom it
-  // only drops once the picked section is off screen)
-  window.addEventListener('scroll', () => {
-    if (!picked || Date.now() < lockUntil) return;
-    const r = picked.getBoundingClientRect();
-    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-    let current = groups[0];
-    for (const g of groups) if (g.getBoundingClientRect().top <= 140) current = g;
-    const stillHere = atBottom ? r.top < window.innerHeight && r.bottom > 0 : current === picked;
-    if (!stillHere) pick(null);
-  }, { passive: true });
-})();
-</script>
+<script src="index.js"></script>
 </body>
 </html>

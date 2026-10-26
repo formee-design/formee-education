@@ -2,7 +2,8 @@
 
 This folder holds the HTML screens for the HR Tool product. Anything pushed here can be viewed on GitHub Pages straight away.
 
-- Site: https://formee-design.github.io/formee-education/
+- Site: https://formee-design.github.io/formee-education/ (switch to **HR Tool** at the top left)
+- HR Tool index: https://formee-design.github.io/formee-education/hr-tool/
 - Files in this folder: https://formee-design.github.io/formee-education/prototypes/hr-tool/your-file.html
 
 ## Where things go
@@ -36,7 +37,7 @@ Paths that only exist on your computer (`C:\...`, `/Users/...`) or `file://` lin
 2. Put your files in this folder
 3. Commit and push: `git add prototypes/hr-tool` → `git commit -m "HR Tool: ..."` → `git push`
 4. Check the site after 1–2 minutes
-5. To list a page on the front page (index), send Yejin the file name — `index.html` is edited by several people, so this avoids conflicts
+5. List the page on the HR Tool index — `prototypes/hr-tool/index.html` is yours to edit: add an `<li>` to a group (how-to note at the top of that file). It opens from the **HR Tool** tab on the site, or straight at https://formee-design.github.io/formee-education/hr-tool/
 
 ## Please note
 
