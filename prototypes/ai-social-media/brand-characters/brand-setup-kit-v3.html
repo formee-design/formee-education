@@ -1940,7 +1940,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-resend{ font:inherit; font-size:12px; line-height:18px; font-weight:600; color:var(--neutral-700); background:var(--neutral-0); border:1px solid var(--neutral-400); border-radius:6px; padding:2px 7px; cursor:pointer; flex:none; margin-left:auto; }
 .s3-resend:hover{ background:var(--neutral-100); }
 .s3-trash{ position:relative; }
-.s3-trash .tip{ display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:30; background:var(--neutral-900); color:var(--neutral-0); border-radius:6px; padding:4px 8px; font-size:12px; line-height:18px; font-weight:500; white-space:nowrap; pointer-events:none; }
+.s3-trash .tip{ display:none; position:absolute; top:calc(100% + 8px); right:0; left:auto;   /* 행 끝 버튼 — 오른쪽 끝에 맞춰 왼쪽으로 펼침(잘림 방지) */ z-index:30; background:var(--neutral-900); color:var(--neutral-0); border-radius:6px; padding:4px 8px; font-size:12px; line-height:18px; font-weight:500; white-space:nowrap; pointer-events:none; }
 .s3-trash:hover .tip, .s3-trash:focus-visible .tip{ display:block; }
 .s3-lock.only img{ width:14px; height:14px; }
 .s3-fixed.row{ flex-direction:row; align-items:center; gap:6px; }
