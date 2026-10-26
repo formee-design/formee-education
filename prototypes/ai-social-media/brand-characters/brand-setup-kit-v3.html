@@ -1940,8 +1940,10 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-resend{ font:inherit; font-size:12px; line-height:18px; font-weight:600; color:var(--neutral-700); background:var(--neutral-0); border:1px solid var(--neutral-400); border-radius:6px; padding:2px 7px; cursor:pointer; flex:none; margin-left:auto; }
 .s3-resend:hover{ background:var(--neutral-100); }
 .s3-trash{ position:relative; }
-.s3-trash .tip{ display:none; position:absolute; top:calc(100% + 8px); right:0; left:auto;   /* 행 끝 버튼 — 오른쪽 끝에 맞춰 왼쪽으로 펼침(잘림 방지) */ z-index:30; background:var(--neutral-900); color:var(--neutral-0); border-radius:6px; padding:4px 8px; font-size:12px; line-height:18px; font-weight:500; white-space:nowrap; pointer-events:none; }
+.s3-trash .tip{ display:none; position:absolute; bottom:calc(100% + 6px); top:auto; right:0; left:auto;   /* 10/26 Figma C안 — 버튼 위, 오른쪽 끝 맞춤, 11px + 이유 한 줄 */ z-index:30; background:var(--neutral-900); color:var(--neutral-0); border-radius:6px; padding:4px 8px; font-size:12px; line-height:18px; font-weight:500; white-space:nowrap; pointer-events:none; }
 .s3-trash:hover .tip, .s3-trash:focus-visible .tip{ display:block; }
+.s3-trash .tip{ font-size:11px; line-height:15px; padding:5px 8px; border-radius:5px; text-align:left; }
+.s3-trash .tip i{ display:block; font-style:normal; font-weight:400; color:var(--neutral-450); }
 .s3-lock.only img{ width:14px; height:14px; }
 .s3-fixed.row{ flex-direction:row; align-items:center; gap:6px; }
 .s3-btn .chev{ width:16px; height:16px; flex:none; }
@@ -37719,9 +37721,10 @@ body{margin:auto;padding:0;background:#e5e5e5;}
         : nameLine(p);
       var rmAct = p.status==='Invited' ? 'cancelinvite' : isBA() ? 'removemine' : 'removemember';
       var rmTip = p.status==='Invited' ? 'Cancel invite' : isBA() ? 'Remove from my brands' : 'Remove member';
+      var rmWhy = p.status==='Invited' ? 'The invite link stops working' : isBA() ? 'They lose access to your brands' : 'They lose access to every brand';
       var tail = locked ? ''
-        : (p.id===OWNER) ? '<button type="button" class="s3-more s3-trash" data-s3xfer="1" aria-label="Transfer account admin"><img src="'+IC+'panel-swap.svg" alt=""><span class="tip">Transfer account admin</span></button>'   /* Super Admin 만 — Figma K1·K2: ⇄ 버튼 하나, 누르면 바로 넘기기 모달(메뉴 없음) */
-        : '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'</span></button>';
+        : (p.id===OWNER) ? '<button type="button" class="s3-resend" data-s3xfer="1">Transfer admin</button>'   /* Super Admin 만 — Figma K1(C안): Resend 와 같은 글자 버튼, 툴팁 없음, 누르면 바로 넘기기 모달 */
+        : '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'<i>'+rmWhy+'</i></span></button>';
       h += '<div class="s3-tr mrow'+(S.menu===('m:'+p.id)?' hl':'')+'"><div class="s3-cm">'+ava(p)+who+'</div>'+
         '<div class="s3-cs">'+badge(p.status)+'</div>'+cols+
         '<div class="s3-ca">'+tail+'</div></div>';
