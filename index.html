@@ -71,82 +71,49 @@
   .states-card ul{border:0; border-top:1px solid var(--color-neutral-150); border-radius:0; background:var(--color-neutral-50);}
   .states-card ul a{padding-left:28px;}
   .states-card ul a:hover{background:var(--color-neutral-100);}
+  /* Left nav — same order as the product sidebar (Home · Create · Content · Insights · Brand · Account); click scrolls to
+     the section, the one in view is highlighted. Hidden on narrow windows. */
+  html{scroll-behavior:smooth;}
+  .group, .section-label{scroll-margin-top:24px;}
+  .section-label{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--color-neutral-500); margin:8px 0 12px;}
+  .side-nav{position:fixed; top:48px; left:24px; width:200px; max-height:calc(100vh - 96px); overflow-y:auto; display:flex; flex-direction:column; gap:2px;}
+  .side-nav__head{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--color-neutral-500); margin:16px 0 4px; padding:0 12px;}
+  .side-nav__item{display:flex; align-items:center; justify-content:flex-start; gap:10px; padding:8px 12px; border-radius:8px; font-size:13.5px; font-weight:500; color:var(--color-neutral-700); text-decoration:none;}
+  .side-nav__item img{width:18px; height:18px; flex-shrink:0; opacity:.75;}
+  .side-nav__item:hover{background:var(--color-neutral-100);}
+  .side-nav__item.is-active{background:var(--color-brand-primary-light); color:var(--color-neutral-900);}
+  .side-nav__item.is-active img{opacity:1;}
+  @media (max-width:1180px){ .side-nav{display:none;} }
 </style>
 </head>
 <body>
+<nav class="side-nav" aria-label="Sections">
+  <a class="side-nav__item" href="#home"><img src="components/ai-social-media/icons/nav-home.svg" alt="">Home</a>
+  <p class="side-nav__head">Create</p>
+  <a class="side-nav__item" href="#new-content"><img src="components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt="">New content</a>
+  <a class="side-nav__item" href="#editing"><img src="components/ai-social-media/icons/edit-pencil.svg" alt="">Editing</a>
+  <p class="side-nav__head">Content</p>
+  <a class="side-nav__item" href="#library"><img src="components/ai-social-media/icons/nav-library.svg" alt="">Library</a>
+  <a class="side-nav__item" href="#schedule"><img src="components/ai-social-media/icons/nav-schedule.svg" alt="">Schedule</a>
+  <p class="side-nav__head">Insights</p>
+  <a class="side-nav__item" href="#trends"><img src="components/ai-social-media/icons/data-trending-up.svg" alt="">Trends</a>
+  <a class="side-nav__item" href="#analytics"><img src="components/ai-social-media/icons/nav-analytics.svg" alt="">Analytics</a>
+  <p class="side-nav__head">Brand</p>
+  <a class="side-nav__item" href="#workspace"><img src="components/ai-social-media/icons/nav-workspace-03.svg" alt="">Workspace</a>
+  <a class="side-nav__item" href="#characters"><img src="components/ai-social-media/icons/nav-characters.svg" alt="">Characters</a>
+  <a class="side-nav__item" href="#voices-music"><img src="components/ai-social-media/icons/nav-voices.svg" alt="">Voices &amp; Music</a>
+  <p class="side-nav__head">Account</p>
+  <a class="side-nav__item" href="#settings"><img src="components/ai-social-media/icons/nav-settings.svg" alt="">Settings</a>
+  <a class="side-nav__item" href="#billing"><img src="components/ai-social-media/icons/nav-billing.svg" alt="">Billing</a>
+  <p class="side-nav__head">Other</p>
+  <a class="side-nav__item" href="#components"><img src="components/ai-social-media/icons/view-grid-2x2.svg" alt="">Component demos</a>
+  <a class="side-nav__item" href="#archiving"><img src="components/ai-social-media/icons/nav-folder-closed.svg" alt="">Archiving</a>
+</nav>
 <div class="wrap">
   <h1>AI Social Media Prototype</h1>
   <p class="sub">A collection of HTML prototypes built on the design system — click a screen to view it.</p>
 
-  <div class="group">
-    <h2>New Content Generation · v4 (latest, unified)</h2>
-    <p class="group-note">A single file combining Image post + Carousel generation through Publish. Check this first for development reference.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/new-content-generation/v4/new-content-to-generate.html"><span>New Content — Image post / Carousel → Publish<span class="path">new-content-generation/v4/new-content-to-generate.html</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h2>Editing</h2>
-    <ul>
-      <li><a href="prototypes/ai-social-media/editing/image-editing.html"><span>Image editing<span class="path">editing/image-editing.html</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h2>Brand</h2>
-    <p class="group-note">Brand Setup and Brand Kit in one file — switch between them with the Setup / Brand Kit toggle.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span>Brand Setup ver2 — after dev feedback, updated<span class="path">brand-setup-kit-v2.html#view=brandsetup</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v2.html#view=brandkit&amp;brand=formee-express&amp;tab=overview"><span>Brand Kit ver2 — Generate logo, updated<span class="path">brand-setup-kit-v2.html#view=brandkit</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h2>Settings</h2>
-    <p class="group-note">Account Admin and Brand Admin views in one file — switch with "Prototype · viewing as" at the top right of Settings.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=members&amp;as=admin"><span>Settings ver3 — Account Admin · Members / Access / Brands<span class="path">brand-setup-kit-v3.html#view=settings&amp;as=admin</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=members&amp;as=brandadmin"><span>Settings ver3 — Brand Admin · only the brands you manage<span class="path">#view=settings&amp;as=brandadmin</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=access&amp;as=admin"><span>Access — who can work on each brand<span class="path">#tab=access</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=brands&amp;as=admin"><span>Brands — list, status, create brand<span class="path">#tab=brands</span></span><span class="arrow">&rarr;</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h2>Characters</h2>
-    <p class="group-note">Character Library — list, create character, detail and character sheet. The links below jump straight to each area.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v3.html"><span>Character Library ver3 — Styles removed · Character sheet: six angles in one image<span class="path">brand-characters/brand-setup-kit-character-library-v3.html</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v3.html#sheet=empty&amp;char=elena"><span>Detail &middot; sheet &mdash; empty<span class="path">#sheet=empty</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v3.html#sheet=generating&amp;char=elena"><span>Detail &middot; sheet &mdash; generating<span class="path">#sheet=generating</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html"><span>Character Library ver2 — List · Create character · Detail · Styles<span class="path">brand-characters/brand-setup-kit-character-library-v2.html</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h2>Content Library</h2>
-    <p class="group-note">Everything that has been generated, grouped by status. Card actions hand off to New Content v4 — Use as reference opens a brief with the reference attached, Edit &amp; Publish opens the Publish step with the caption loaded. Both come back with the Back to Library link in the top bar. It lives inside the Brand &amp; Characters file, so the links below open that file straight on this screen.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#view=library"><span>Content Library &mdash; grouped by status<span class="path">#view=library</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#libprev=published"><span>Preview &mdash; published post<span class="path">#libprev=published</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#libprev=draft"><span>Preview &mdash; draft, opens Edit &amp; Publish<span class="path">#libprev=draft</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#libempty=1"><span>Empty state<span class="path">#libempty=1</span></span><span class="arrow">&rarr;</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h2>Schedule</h2>
-    <p class="group-note">Calendar and List over the same data, plus every flow around them — schedule new, reschedule, unschedule, and the failed / no-results states. All 14 Figma screens are states of this one file; open the Screens panel at the bottom left to jump between them. Edit &amp; Publish is not duplicated here — it hands off to the v4 Publish step.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/schedule/schedule.html"><span>Schedule — Calendar &middot; List &middot; Reschedule &middot; Unschedule<span class="path">schedule/schedule.html</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/schedule/schedule.html#s=list"><span>List view &mdash; grouped by status<span class="path">#s=list</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/schedule/schedule.html#s=calendar&amp;sel=lip&amp;pop=1"><span>Reschedule &mdash; anchored popover, no scrim<span class="path">#s=calendar&amp;sel=lip&amp;pop=1</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/schedule/schedule.html#s=list&amp;failed=1&amp;sel=uk"><span>Exception &mdash; failed publish<span class="path">#s=list&amp;failed=1&amp;sel=uk</span></span><span class="arrow">&rarr;</span></a></li>
-    </ul>
-  </div>
-
-  <div class="group">
+  <div class="group" id="home">
     <h2>Home</h2>
     <p class="group-note">Dashboard — hero with stats, quick create, recent content and top content. Figma "home · states" (12427:416859), built from the shared components in components/ai-social-media/.</p>
     <ul>
@@ -158,7 +125,47 @@
     </ul>
   </div>
 
-  <div class="group">
+  <p class="section-label">Create</p>
+  <div class="group" id="new-content">
+    <h2>New Content Generation · v4 (latest, unified)</h2>
+    <p class="group-note">A single file combining Image post + Carousel generation through Publish. Check this first for development reference.</p>
+    <ul>
+      <li><a href="prototypes/ai-social-media/new-content-generation/v4/new-content-to-generate.html"><span>New Content — Image post / Carousel → Publish<span class="path">new-content-generation/v4/new-content-to-generate.html</span></span><span class="badge new">Open this</span></a></li>
+    </ul>
+  </div>
+
+  <div class="group" id="editing">
+    <h2>Editing</h2>
+    <ul>
+      <li><a href="prototypes/ai-social-media/editing/image-editing.html"><span>Image editing<span class="path">editing/image-editing.html</span></span><span class="badge new">Open this</span></a></li>
+    </ul>
+  </div>
+
+  <p class="section-label">Content</p>
+  <div class="group" id="library">
+    <h2>Content Library</h2>
+    <p class="group-note">Everything that has been generated, grouped by status. Card actions hand off to New Content v4 — Use as reference opens a brief with the reference attached, Edit &amp; Publish opens the Publish step with the caption loaded. Both come back with the Back to Library link in the top bar. It lives inside the Brand &amp; Characters file, so the links below open that file straight on this screen.</p>
+    <ul>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#view=library"><span>Content Library &mdash; grouped by status<span class="path">#view=library</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#libprev=published"><span>Preview &mdash; published post<span class="path">#libprev=published</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#libprev=draft"><span>Preview &mdash; draft, opens Edit &amp; Publish<span class="path">#libprev=draft</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html#libempty=1"><span>Empty state<span class="path">#libempty=1</span></span><span class="arrow">&rarr;</span></a></li>
+    </ul>
+  </div>
+
+  <div class="group" id="schedule">
+    <h2>Schedule</h2>
+    <p class="group-note">Calendar and List over the same data, plus every flow around them — schedule new, reschedule, unschedule, and the failed / no-results states. All 14 Figma screens are states of this one file; open the Screens panel at the bottom left to jump between them. Edit &amp; Publish is not duplicated here — it hands off to the v4 Publish step.</p>
+    <ul>
+      <li><a href="prototypes/ai-social-media/schedule/schedule.html"><span>Schedule — Calendar &middot; List &middot; Reschedule &middot; Unschedule<span class="path">schedule/schedule.html</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/schedule/schedule.html#s=list"><span>List view &mdash; grouped by status<span class="path">#s=list</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/schedule/schedule.html#s=calendar&amp;sel=lip&amp;pop=1"><span>Reschedule &mdash; anchored popover, no scrim<span class="path">#s=calendar&amp;sel=lip&amp;pop=1</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/schedule/schedule.html#s=list&amp;failed=1&amp;sel=uk"><span>Exception &mdash; failed publish<span class="path">#s=list&amp;failed=1&amp;sel=uk</span></span><span class="arrow">&rarr;</span></a></li>
+    </ul>
+  </div>
+
+  <p class="section-label">Insights</p>
+  <div class="group" id="trends">
     <h2>Trends</h2>
     <p class="group-note">What's working in your industry — stats, viral formats, hook patterns, hashtags, top posts and trending audio. Figma "Trends · default" (12427:415575), built from the shared components in components/ai-social-media/.</p>
     <ul>
@@ -170,7 +177,7 @@
     </ul>
   </div>
 
-  <div class="group">
+  <div class="group" id="analytics">
     <h2>Analytics</h2>
     <p class="group-note">v2 — the current direction: Meta Ads Spend | Published Posts, Meta Ads Performance (one row per post promoted from Pulse, follows the date range), Top Performing | Top Organic. Published Posts is the one list page. Content Performance is deferred (hidden). Everything below opens from Analytics v2.</p>
     <p class="archive-sub-title">Pages</p>
@@ -217,7 +224,28 @@
     </details>
   </div>
 
-  <div class="group">
+  <p class="section-label">Brand</p>
+  <div class="group" id="workspace">
+    <h2>Workspace (Brand)</h2>
+    <p class="group-note">Brand Setup and Brand Kit in one file — switch between them with the Setup / Brand Kit toggle.</p>
+    <ul>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span>Brand Setup ver2 — after dev feedback, updated<span class="path">brand-setup-kit-v2.html#view=brandsetup</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v2.html#view=brandkit&amp;brand=formee-express&amp;tab=overview"><span>Brand Kit ver2 — Generate logo, updated<span class="path">brand-setup-kit-v2.html#view=brandkit</span></span><span class="badge new">Open this</span></a></li>
+    </ul>
+  </div>
+
+  <div class="group" id="characters">
+    <h2>Characters</h2>
+    <p class="group-note">Character Library — list, create character, detail and character sheet. The links below jump straight to each area.</p>
+    <ul>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v3.html"><span>Character Library ver3 — Styles removed · Character sheet: six angles in one image<span class="path">brand-characters/brand-setup-kit-character-library-v3.html</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v3.html#sheet=empty&amp;char=elena"><span>Detail &middot; sheet &mdash; empty<span class="path">#sheet=empty</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v3.html#sheet=generating&amp;char=elena"><span>Detail &middot; sheet &mdash; generating<span class="path">#sheet=generating</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library-v2.html"><span>Character Library ver2 — List · Create character · Detail · Styles<span class="path">brand-characters/brand-setup-kit-character-library-v2.html</span></span><span class="badge new">Open this</span></a></li>
+    </ul>
+  </div>
+
+  <div class="group" id="voices-music">
     <h2>Voice &amp; Music</h2>
     <p class="group-note">Voice Library and Music live in the same file — switch between them with the left nav (Voice / Music).</p>
     <ul>
@@ -226,7 +254,19 @@
     </ul>
   </div>
 
-  <div class="group">
+  <p class="section-label">Account</p>
+  <div class="group" id="settings">
+    <h2>Settings</h2>
+    <p class="group-note">Account Admin and Brand Admin views in one file — switch with "Prototype · viewing as" at the top right of Settings.</p>
+    <ul>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=members&amp;as=admin"><span>Settings ver3 — Account Admin · Members / Access / Brands<span class="path">brand-setup-kit-v3.html#view=settings&amp;as=admin</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=members&amp;as=brandadmin"><span>Settings ver3 — Brand Admin · only the brands you manage<span class="path">#view=settings&amp;as=brandadmin</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=access&amp;as=admin"><span>Access — who can work on each brand<span class="path">#tab=access</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#view=settings&amp;tab=brands&amp;as=admin"><span>Brands — list, status, create brand<span class="path">#tab=brands</span></span><span class="arrow">&rarr;</span></a></li>
+    </ul>
+  </div>
+
+  <div class="group" id="billing">
     <h2>Billing</h2>
     <p class="group-note">Figma Billing_to be_261016. Plan &amp; credits / Credit activity / Billing history tabs. Every plan (Free trial, Basic, Standard, Premium, No plan), monthly or yearly, credit state and subscription status, plus Change plan (Monthly / Yearly), Subscribe, Upgrade, Downgrade, Keep current plan, Buy credits, Cancel and Resume (each finishes inside its popup, no toasts) and payment-result modals — switch between them with the Billing states panel at the bottom right.</p>
     <ul>
@@ -236,7 +276,16 @@
     </ul>
   </div>
 
-  <details class="group">
+  <p class="section-label">Other</p>
+  <div class="group" id="components">
+    <h2>Component demos (variant collection)</h2>
+    <p class="group-note">components/ai-social-media, components/shared — the sidebar there groups every component into 12 categories (Forms &amp; Inputs, Actions, Labels &amp; Status, Navigation, Overlays &amp; Menus, Images &amp; Icons, Data Display, Content Editor, Scene &amp; Storyboard, Generation Workflow, AI Assistant, Upload &amp; Destination).</p>
+    <ul>
+      <li><a href="components/ai-social-media/controls-field-ai-assisted-text.html"><span>All components<span class="path">components/ai-social-media/controls-field-ai-assisted-text.html</span></span><span class="badge new">Open this</span></a></li>
+    </ul>
+  </div>
+
+  <details class="group" id="archiving">
     <summary class="summary-with-desc"><span class="summary-col"><span class="summary-title">Archiving</span><span class="summary-desc">Previous versions and other supporting screens kept around for implementation reference — not the current working baseline.</span></span></summary>
     <ul>
       <li><a href="prototypes/ai-social-media/billing/billing.html"><span>Billing — previous build (before Figma 16 Oct 2026)<span class="path">billing/billing.html</span></span><span class="arrow">&rarr;</span></a></li>
@@ -264,16 +313,32 @@
     </ul>
   </details>
 
-  <div class="group">
-    <h2>Component demos (variant collection)</h2>
-    <p class="group-note">components/ai-social-media, components/shared — the sidebar there groups every component into 12 categories (Forms &amp; Inputs, Actions, Labels &amp; Status, Navigation, Overlays &amp; Menus, Images &amp; Icons, Data Display, Content Editor, Scene &amp; Storyboard, Generation Workflow, AI Assistant, Upload &amp; Destination).</p>
-    <ul>
-      <li><a href="components/ai-social-media/controls-field-ai-assisted-text.html"><span>All components<span class="path">components/ai-social-media/controls-field-ai-assisted-text.html</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
-  </div>
-
-
-
 </div>
+<script>
+// Left nav — highlight the section in view; Archiving (a folded <details>) opens when picked
+(() => {
+  const items = [...document.querySelectorAll('.side-nav__item')];
+  const byId = Object.fromEntries(items.map((a) => [a.getAttribute('href').slice(1), a]));
+  const setActive = (id) => items.forEach((a) => a.classList.toggle('is-active', a === byId[id]));
+  let lockUntil = 0; // a click keeps its item lit while the smooth scroll runs (the last sections can't reach the top)
+  items.forEach((a) => a.addEventListener('click', () => {
+    const target = document.getElementById(a.getAttribute('href').slice(1));
+    if (target && target.tagName === 'DETAILS') target.open = true;
+    setActive(target.id);
+    lockUntil = Date.now() + 1200;
+  }));
+  const groups = Object.keys(byId).map((id) => document.getElementById(id)).filter(Boolean);
+  const onScroll = () => {
+    if (Date.now() < lockUntil) return;
+    const y = window.innerHeight * 0.3;
+    let current = groups[0];
+    for (const g of groups) if (g.getBoundingClientRect().top <= y) current = g;
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = groups[groups.length - 1]; // page bottom → the last section
+    setActive(current.id);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
 </body>
 </html>
