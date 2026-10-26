@@ -37970,7 +37970,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var body = S.tab==='brands' ? renderBrands() : renderMembers();
     root.innerHTML = '<div class="s3-head"><div><p class="s3-title">Settings</p><p class="s3-hsub">Manage members and who can work on each brand.</p></div><div class="s3-as"><span>Prototype · viewing as</span><div class="s3-seg">'+[['superadmin','Super Admin'],['admin','Account Admin'],['brandadmin','Brand Admin'],['user','User']].map(function(o){ return '<button type="button" class="'+(S.as===o[0]?'on':'')+'" data-s3as="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div><label class="s3-failt" title="Prototype only — role changes fail and roll back"><input type="checkbox" data-s3fail'+(S.fail?' checked':'')+'>Fail saves</label></div></div>'+
       '<div class="s3-tabs">'+tabs.map(function(t){ return '<button type="button" class="s3-tab'+(S.tab===t[0]?' on':'')+'" data-s3tab="'+t[0]+'">'+t[1]+'</button>'; }).join('')+'</div>'+body;
-    var bill=$('#navBilling'); if (bill) bill.hidden = isBA() || isUser();
+    var bill=$('#navBilling'); if (bill) bill.hidden = false;   /* 10/26 모든 역할이 Billing 을 본다(주은님) */
     var u = person(me());
     document.querySelectorAll('#sideUser .su-ava, .topbar .avatar span').forEach(function(x){ x.textContent = initials(u); });
     var nm=document.querySelector('#sideUser .su-btn .su-nm'); if (nm) nm.textContent = u.name;
