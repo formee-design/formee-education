@@ -11,7 +11,7 @@ This folder holds the HTML screens for the HR Tool product. Anything pushed here
 | What | Where |
 |---|---|
 | HR Tool screens (pages) | `prototypes/hr-tool/` ← this folder |
-| HR Tool components | `components/hr-tool/` (14 components are already there) |
+| HR Tool components | `components/hr-tool/` (empty for now — create the folder with your first component) |
 | Components shared across products | `components/shared/` |
 | Design tokens (colour · spacing · type) | `tokens/tokens.css` |
 
