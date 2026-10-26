@@ -37927,8 +37927,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (a==='cancelinvite') return confirmBox('Cancel this invite?', p.email+' won’t be able to join with the link they received.', 'Cancel invite', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Invite cancelled'); }, 'Keep invite');
     if (a==='removemember') return confirmBox('Remove '+(p.name||p.email)+'?', 'They lose access to every brand in this account. Their content stays.', 'Remove member', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Member removed'); });
     if (a==='removemine') return confirmBox('Remove '+(p.name||p.email)+' from your brands?', 'They lose access to '+accessOf(id).map(function(x){return x.brand;}).join(' and ')+'. Other brands stay.', 'Remove', function(){ myBrands().forEach(function(b){ if (A[b]) delete A[b][id]; }); render(); toast('Removed from your brands'); });
-    if (a==='setrole'){ A[S.axBrand][id]=el.dataset.role; render(); toast((p.name||p.email)+' is now '+el.dataset.role+' in '+S.axBrand); return; }
-    if (a==='removeaccess'){ delete A[S.axBrand][id]; render(); toast('Access removed from '+S.axBrand); return; }
+    if (a==='setrole'){ A[S.axBrand][id]=el.dataset.role; render(); return; }   /* 핸드오프 노트: 고르면 바로 저장 — 확인 창·토스트 없음 */
+    if (a==='removeaccess'){ var bn=S.axBrand; return confirmBox('Remove '+(p.name||p.email)+' from '+bn+'?', 'They can’t work on this brand anymore. Their content stays.', 'Remove access', function(){ delete A[bn][id]; render(); toast('Access removed from '+bn); }); }   /* D2-1 · J3 확인 창 먼저 */
     if (a==='addrole'){ S.addRole=el.dataset.role; var q=$('#s3addq').value; render(); $('#s3addq').value=q; return; }
     if (a==='edrole'){ S.ed.d[id]=el.dataset.role; return editModal(S.ed.pid); }
     if (a==='edremovebrand'){ delete S.ed.d[id]; return editModal(S.ed.pid); }
