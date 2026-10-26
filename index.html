@@ -58,6 +58,19 @@
   .group--legacy ul{background:var(--color-neutral-50);}
   .group--legacy a{color:var(--color-neutral-500);}
   .group--legacy a .path{color:var(--color-neutral-400);}
+  /* States & cases — an accordion row at the end of a Pages card, folded by default */
+  .states-card summary{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px;
+    cursor:pointer; list-style:none; user-select:none; font-size:13.5px; font-weight:500; color:var(--color-neutral-900);
+  }
+  .states-card summary::-webkit-details-marker{display:none;}
+  .states-card summary:hover{background:var(--color-neutral-50);}
+  .states-card summary .path{font-size:11.5px; color:var(--color-neutral-500); font-weight:400; margin-top:2px; display:block;}
+  .states-card__chevron{color:var(--color-neutral-400); font-size:11px; flex-shrink:0; transition:transform .15s ease;}
+  .states-card[open] .states-card__chevron{transform:rotate(90deg);}
+  .states-card ul{border:0; border-top:1px solid var(--color-neutral-150); border-radius:0; background:var(--color-neutral-50);}
+  .states-card ul a{padding-left:28px;}
+  .states-card ul a:hover{background:var(--color-neutral-100);}
 </style>
 </head>
 <body>
@@ -166,20 +179,24 @@
       <li><a href="prototypes/ai-social-media/analytics/v2/campaign.html?id=c01"><span>Ad detail — one ad (click a post in the Meta Ads table)<span class="path">v2/campaign.html?id=c01</span></span><span class="arrow">&rarr;</span></a></li>
       <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=organic&amp;period=30d"><span>Published Posts — the one list page: posts, or the Meta Ads table on the Meta Ads filter (every &ldquo;View all&rdquo;, the chart)<span class="path">v2/posts.html</span></span><span class="arrow">&rarr;</span></a></li>
       <li><a href="prototypes/ai-social-media/analytics/v2/post.html?id=29&amp;period=30d"><span>Post detail — one organic post (click a Top Organic row or a post in Published Posts)<span class="path">v2/post.html?id=29</span></span><span class="arrow">&rarr;</span></a></li>
-    </ul>
-    <p class="archive-sub-title">States &amp; cases</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/analytics/v2/campaign.html?id=c03"><span>Ad detail — longer run (Daily / Weekly switch)<span class="path">?id=c03</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/campaign.html?id=c12"><span>Ad detail — In Draft<span class="path">?id=c12</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html?period=custom"><span>Analytics v2 — Custom period (Date Picker · without time)<span class="path">?period=custom</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html#state=empty"><span>Analytics v2 — Empty: new account (nothing published, Meta Ads not connected)<span class="path">#state=empty</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html#state=range-empty"><span>Analytics v2 — Empty: no posts in this date range<span class="path">#state=range-empty</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?period=custom&amp;from=2026-09-08&amp;to=2026-09-14&amp;base=30d&amp;platform=Instagram"><span>Published Posts — from a bar (Instagram · Sep 8 &ndash; 14, opens as Custom)<span class="path">?period=custom&amp;from=…&amp;base=30d&amp;platform=Instagram</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=paid&amp;period=30d"><span>Published Posts — Meta Ads (from the Meta Ads table &ldquo;View all&rdquo;, newest first)<span class="path">?view=paid</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=paid&amp;period=all&amp;adsort=results"><span>Published Posts — Meta Ads, All time, Results &darr; (from Top Performing &ldquo;View all&rdquo;)<span class="path">?view=paid&amp;adsort=results</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html?period=90d#state=deltas"><span>Analytics v2 — Top Performing change states (&darr; · no prior data · 0%)<span class="path">?period=90d#state=deltas</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=paid&amp;period=30d&amp;ads=disconnected"><span>Published Posts — Meta Ads, account not connected<span class="path">?view=paid&amp;ads=disconnected</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/analytics/v2/post.html?id=29&amp;period=30d"><span>Post detail — a range before the post went live (pick Custom 01/09 &ndash; 20/09)<span class="path">?id=29 → Custom</span></span><span class="arrow">&rarr;</span></a></li>
+      <li>
+        <details class="states-card">
+          <summary><span>States &amp; cases<span class="path">11 states and entry cases across the pages above — click to open</span></span><span class="states-card__chevron">&#9656;</span></summary>
+          <ul>
+            <li><a href="prototypes/ai-social-media/analytics/v2/campaign.html?id=c03"><span>Ad detail — longer run (Daily / Weekly switch)<span class="path">?id=c03</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/campaign.html?id=c12"><span>Ad detail — In Draft<span class="path">?id=c12</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html?period=custom"><span>Analytics v2 — Custom period (Date Picker · without time)<span class="path">?period=custom</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html#state=empty"><span>Analytics v2 — Empty: new account (nothing published, Meta Ads not connected)<span class="path">#state=empty</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html#state=range-empty"><span>Analytics v2 — Empty: no posts in this date range<span class="path">#state=range-empty</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?period=custom&amp;from=2026-09-08&amp;to=2026-09-14&amp;base=30d&amp;platform=Instagram"><span>Published Posts — from a bar (Instagram · Sep 8 &ndash; 14, opens as Custom)<span class="path">?period=custom&amp;from=…&amp;base=30d&amp;platform=Instagram</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=paid&amp;period=30d"><span>Published Posts — Meta Ads (from the Meta Ads table &ldquo;View all&rdquo;, newest first)<span class="path">?view=paid</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=paid&amp;period=all&amp;adsort=results"><span>Published Posts — Meta Ads, All time, Results &darr; (from Top Performing &ldquo;View all&rdquo;)<span class="path">?view=paid&amp;adsort=results</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/analytics.html?period=90d#state=deltas"><span>Analytics v2 — Top Performing change states (&darr; · no prior data · 0%)<span class="path">?period=90d#state=deltas</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/posts.html?view=paid&amp;period=30d&amp;ads=disconnected"><span>Published Posts — Meta Ads, account not connected<span class="path">?view=paid&amp;ads=disconnected</span></span><span class="arrow">&rarr;</span></a></li>
+            <li><a href="prototypes/ai-social-media/analytics/v2/post.html?id=29&amp;period=30d"><span>Post detail — a range before the post went live (pick Custom 01/09 &ndash; 20/09)<span class="path">?id=29 → Custom</span></span><span class="arrow">&rarr;</span></a></li>
+          </ul>
+        </details>
+      </li>
     </ul>
 
     <!-- previous version — kept for reference, greyed out and folded away -->
