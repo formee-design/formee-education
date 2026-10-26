@@ -83,8 +83,12 @@
   .side-nav__item.is-active{background:var(--color-brand-primary-light); color:var(--color-neutral-900);}
   .side-nav__item.is-active img{opacity:1;}
   /* the section picked in the left nav — outlined until another one is picked or it scrolls out of view */
-  .group{border-radius:4px; outline:1px solid transparent; outline-offset:12px; transition:outline-color .2s ease;}
-  .group.is-target{outline-color:var(--color-neutral-400);}
+  /* drawn as a frame 12px outside the section — an outline-offset would grow the corner radius with the offset */
+  .group{position:relative;}
+  .group::before{content:''; position:absolute; inset:-12px; border:1px solid var(--color-neutral-400); border-radius:4px; opacity:0; pointer-events:none; transition:opacity .2s ease;}
+  .group.is-target::before{opacity:1;}
+  .group .group::before{display:none;} /* only the picked section itself, never a group inside it */
+  .group--set > .group:last-child{margin-bottom:0;} /* a set of groups under one nav item (New content + Editing) */
   .group, .section-label{scroll-margin-top:36px;}
   @media (max-width:1180px){ .side-nav{display:none;} }
 </style>
@@ -94,7 +98,6 @@
   <a class="side-nav__item" href="#home"><img src="components/ai-social-media/icons/nav-home.svg" alt="">Home</a>
   <p class="side-nav__head">Create</p>
   <a class="side-nav__item" href="#new-content"><img src="components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt="">New content</a>
-  <a class="side-nav__item" href="#editing"><img src="components/ai-social-media/icons/edit-pencil.svg" alt="">Editing</a>
   <p class="side-nav__head">Content</p>
   <a class="side-nav__item" href="#library"><img src="components/ai-social-media/icons/nav-library.svg" alt="">Library</a>
   <a class="side-nav__item" href="#schedule"><img src="components/ai-social-media/icons/nav-schedule.svg" alt="">Schedule</a>
@@ -129,19 +132,22 @@
   </div>
 
   <p class="section-label">Create</p>
-  <div class="group" id="new-content">
-    <h2>New Content Generation · v4 (latest, unified)</h2>
-    <p class="group-note">A single file combining Image post + Carousel generation through Publish. Check this first for development reference.</p>
-    <ul>
-      <li><a href="prototypes/ai-social-media/new-content-generation/v4/new-content-to-generate.html"><span>New Content — Image post / Carousel → Publish<span class="path">new-content-generation/v4/new-content-to-generate.html</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
-  </div>
+  <!-- New content = generation v4 + Editing: one nav item, one outline -->
+  <div class="group group--set" id="new-content">
+    <div class="group">
+      <h2>New Content Generation · v4 (latest, unified)</h2>
+      <p class="group-note">A single file combining Image post + Carousel generation through Publish. Check this first for development reference.</p>
+      <ul>
+        <li><a href="prototypes/ai-social-media/new-content-generation/v4/new-content-to-generate.html"><span>New Content — Image post / Carousel → Publish<span class="path">new-content-generation/v4/new-content-to-generate.html</span></span><span class="badge new">Open this</span></a></li>
+      </ul>
+    </div>
 
-  <div class="group" id="editing">
-    <h2>Editing</h2>
-    <ul>
-      <li><a href="prototypes/ai-social-media/editing/image-editing.html"><span>Image editing<span class="path">editing/image-editing.html</span></span><span class="badge new">Open this</span></a></li>
-    </ul>
+    <div class="group">
+      <h2>Editing</h2>
+      <ul>
+        <li><a href="prototypes/ai-social-media/editing/image-editing.html"><span>Image editing<span class="path">editing/image-editing.html</span></span><span class="badge new">Open this</span></a></li>
+      </ul>
+    </div>
   </div>
 
   <p class="section-label">Content</p>
