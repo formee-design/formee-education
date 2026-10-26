@@ -37621,7 +37621,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   var ROLES = ['Brand Admin','User'];
   var ROLE_DESC = {'Brand Admin':'Edits Brand Setup and decides who has access', 'User':'Creates and publishes content for this brand'};
   var ROLE_IC = {'Brand Admin':'shield-check-500.svg', 'User':'circle-user-round.svg'};   /* shield 은 n500 색으로 다시 칠한 사본(assets) */
-  var S = { fail:false, as:'admin', tab:'members', mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null };
+  var S = { fail:/[#&]fail\b/.test(location.hash||''), as:'admin', tab:'members',   /* &fail 은 처음부터 읽는다 — 다른 스크립트가 먼저 그려 주소를 덮어써도 남게 */
+            mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null };
 
   function $(s,r){ return (r||document).querySelector(s); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
