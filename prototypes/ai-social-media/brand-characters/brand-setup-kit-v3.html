@@ -1956,6 +1956,11 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-es .t{ display:flex; flex-direction:column; gap:3px; }
 .s3-es b{ font-size:20px; line-height:28px; font-weight:700; color:var(--neutral-900); }
 .s3-es span{ font-size:14px; line-height:22px; color:var(--neutral-500); }
+.s3-es .s3-btn{ margin-top:4px; }
+/* 10/26 프로토타입 전용 — 저장 실패를 일부러 일으키는 스위치(#…&fail). 개발 데모용, clean 모드에선 숨김 */
+.s3-failt{ display:inline-flex; align-items:center; gap:6px; margin-left:8px; font-size:12px; font-weight:600; color:var(--neutral-700); cursor:pointer; }
+.s3-failt input{ width:14px; height:14px; accent-color:var(--s3-danger); appearance:auto; -webkit-appearance:checkbox; }
+.s3-toast.err{ background:var(--s3-danger); }
 </style>
 
 </head>
@@ -37615,7 +37620,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   var ROLES = ['Brand Admin','User'];
   var ROLE_DESC = {'Brand Admin':'Edits Brand Setup and decides who has access', 'User':'Creates and publishes content for this brand'};
   var ROLE_IC = {'Brand Admin':'shield-check-500.svg', 'User':'circle-user-round.svg'};   /* shield 은 n500 색으로 다시 칠한 사본(assets) */
-  var S = { as:'admin', tab:'members', mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null };
+  var S = { fail:false, as:'admin', tab:'members', mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null };
 
   function $(s,r){ return (r||document).querySelector(s); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -37653,7 +37658,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   function lockLine(t){ return '<span class="s3-lock"><img src="'+IC+'edit-lock.svg" alt="">'+esc(t)+'</span>'; }
   /* 바꿀 수 없는 칸 — 문구 없이 자물쇠만(주은님 10/23). 이유는 마우스를 올리면 */
   function lockOnly(why){ return '<span class="s3-lock only" title="'+esc(why)+'"><img src="'+IC+'edit-lock.svg" alt="'+esc(why)+'"></span>'; }
-  function toast(msg){ var t=$('#s3Toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true;},2200); }
+  function toast(msg, err){ var t=$('#s3Toast'); t.textContent=msg; t.classList.toggle('err', !!err); t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true;},err?3200:2200); }
   function closeMenu(){ var m=$('#s3Menu'); if(m) m.remove(); document.querySelectorAll('.s3-more.on, .s3-dd.on').forEach(function(x){x.classList.remove('on');}); document.querySelectorAll('#setMain .s3-tr.hl').forEach(function(x){x.classList.remove('hl');}); S.menu=null; }
   function openMenu(anchor, html, width){
     closeMenu();
@@ -37695,7 +37700,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       '</div><label class="s3-search"><img src="'+IC+'ui-search.svg" alt=""><input id="s3mq" placeholder="Search name or email" value="'+esc(S.mQ)+'"></label></div>'+
       '<div class="s3-card"><div class="s3-tr head"><div class="s3-cm">Member</div><div class="s3-cs">Status</div>'+
       '<div class="s3-cp"><img src="'+roleSrc('Brand Admin')+'" alt="">Brand Admin</div><div class="s3-cp"><img src="'+roleSrc('User')+'" alt="">User</div><div class="s3-ca"></div></div>';
-    if (!rows.length) h += '<div class="s3-empty">No one matches. Try another name or status.</div>';
+    if (!rows.length) h += '<div class="s3-es"><span class="g"><img src="'+IC+'ui-search.svg" alt=""></span><span class="t"><b>'+(q?'No results for “'+esc(S.mQ.trim())+'”':'No '+S.mStatus.toLowerCase()+' members')+'</b><span>Try a different keyword, or clear the filters to see everything.</span></span>'+
+      '<button type="button" class="s3-btn sec" data-s3="clearfilters">Clear filters</button></div>';   /* DS empty-state · No results */
     rows.forEach(function(p){
       var cols;
       if (p.id===OWNER) cols = '<div class="s3-cp">'+allPill()+'</div><div class="s3-cp"><span class="s3-dash">—</span></div>';
@@ -37926,7 +37932,11 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (a==='cancelinvite') return confirmBox('Cancel this invite?', p.email+' won’t be able to join with the link they received.', 'Cancel invite', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Invite cancelled'); }, 'Keep invite');
     if (a==='removemember') return confirmBox('Remove '+(p.name||p.email)+'?', 'They lose access to every brand in this account. Their content stays.', 'Remove member', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Member removed'); });
     if (a==='removemine') return confirmBox('Remove '+(p.name||p.email)+' from your brands?', 'They lose access to '+accessOf(id).map(function(x){return x.brand;}).join(' and ')+'. Other brands stay.', 'Remove', function(){ myBrands().forEach(function(b){ if (A[b]) delete A[b][id]; }); render(); toast('Removed from your brands'); });
-    if (a==='setrole'){ A[S.axBrand][id]=el.dataset.role; render(); return; }   /* 핸드오프 노트: 고르면 바로 저장 — 확인 창·토스트 없음 */
+    if (a==='setrole'){   /* 핸드오프 노트: 고르면 바로 저장 — 확인 창·토스트 없음. 저장 실패면 원래 역할로 되돌리고 오류 표시 */
+      var rb=S.axBrand, prev=A[rb][id], next=el.dataset.role; if (next===prev) return;
+      A[rb][id]=next; render();
+      if (S.fail) setTimeout(function(){ if (A[rb] && A[rb][id]===next){ A[rb][id]=prev; render(); } toast('Couldn’t change '+(p.name||p.email)+'’s role. Try again.', true); }, 700);
+      return; }
     if (a==='removeaccess'){ var bn=S.axBrand; return confirmBox('Remove '+(p.name||p.email)+' from '+bn+'?', 'They can’t work on this brand anymore. Their content stays.', 'Remove access', function(){ delete A[bn][id]; render(); toast('Access removed from '+bn); }); }   /* D2-1 · J3 확인 창 먼저 */
     if (a==='addrole'){ S.addRole=el.dataset.role; var q=$('#s3addq').value; render(); $('#s3addq').value=q; return; }
     if (a==='edrole'){ S.ed.d[id]=el.dataset.role; return editModal(S.ed.pid); }
@@ -37956,7 +37966,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (S.tab!=='brands') S.tab='members';
     var tabs = [['members','Members'],['brands','Brands']];
     var body = S.tab==='brands' ? renderBrands() : renderMembers();
-    root.innerHTML = '<div class="s3-head"><div><p class="s3-title">Settings</p><p class="s3-hsub">Manage members and who can work on each brand.</p></div><div class="s3-as"><span>Prototype · viewing as</span><div class="s3-seg">'+[['superadmin','Super Admin'],['admin','Account Admin'],['brandadmin','Brand Admin'],['user','User']].map(function(o){ return '<button type="button" class="'+(S.as===o[0]?'on':'')+'" data-s3as="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div></div></div>'+
+    root.innerHTML = '<div class="s3-head"><div><p class="s3-title">Settings</p><p class="s3-hsub">Manage members and who can work on each brand.</p></div><div class="s3-as"><span>Prototype · viewing as</span><div class="s3-seg">'+[['superadmin','Super Admin'],['admin','Account Admin'],['brandadmin','Brand Admin'],['user','User']].map(function(o){ return '<button type="button" class="'+(S.as===o[0]?'on':'')+'" data-s3as="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div><label class="s3-failt" title="Prototype only — role changes fail and roll back"><input type="checkbox" data-s3fail'+(S.fail?' checked':'')+'>Fail saves</label></div></div>'+
       '<div class="s3-tabs">'+tabs.map(function(t){ return '<button type="button" class="s3-tab'+(S.tab===t[0]?' on':'')+'" data-s3tab="'+t[0]+'">'+t[1]+'</button>'; }).join('')+'</div>'+body;
     var bill=$('#navBilling'); if (bill) bill.hidden = isBA() || isUser();
     var u = person(me());
@@ -37968,7 +37978,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   function writeHash(){
     if (!/^#view=settings/.test(location.hash||'')) return;
     var clean = /[#&]clean\b/.test(location.hash) ? '&clean' : '';
-    var h = '#view=settings&tab='+S.tab+'&as='+S.as+clean;
+    var h = '#view=settings&tab='+S.tab+'&as='+S.as+(S.fail?'&fail':'')+clean;
     if (location.hash!==h) history.replaceState(null,'',h);
   }
   window.renderS3 = render;
@@ -37977,6 +37987,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var root=$('#setMain'); if (!root) return;
     function onClick(e){
       var t;
+      if ((t=e.target.closest('[data-s3fail]'))){ S.fail=t.checked; writeHash(); return; }
       if ((t=e.target.closest('[data-s3as]'))){ S.as=t.dataset.s3as; closeMenu(); render(); return; }
       if ((t=e.target.closest('[data-s3tab]'))){ S.tab=t.dataset.s3tab; closeMenu(); render(); return; }
       if ((t=e.target.closest('[data-s3mstatus]'))){ S.mStatus=t.dataset.s3mstatus; render(); return; }
@@ -37985,7 +37996,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       if ((t=e.target.closest('[data-s3rm]'))){ act(t.dataset.s3rm, t.dataset.id); return; }
       if ((t=e.target.closest('[data-s3xfer]'))){ transferModal(); return; }
       if ((t=e.target.closest('[data-s3resend]'))){ var rp=person(t.dataset.s3resend); rp.sent='just now'; render(); toast('Invite sent again to '+rp.email); return; }
-      if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='add') addPerson(); return; }
+      if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='clearfilters'){ S.mQ=''; S.mStatus='All'; render(); } else if (a==='add') addPerson(); return; }
     }
     root.addEventListener('click', onClick);
     var L=$('#s3Layer');
@@ -38015,6 +38026,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var h=location.hash||''; if (!/^#view=settings/.test(h)) return;
     var g=function(k){ var m=new RegExp('[#&]'+k+'=([\\w-]+)').exec(h); return m?m[1]:null; };
     if (g('tab')) S.tab = g('tab')==='access' ? 'brands' : g('tab'); if (g('as')) S.as=['superadmin','brandadmin','user'].indexOf(g('as'))>=0 ? g('as') : 'admin';
+    S.fail = /[#&]fail\b/.test(h);
     if (/[#&]clean\b/.test(h)) document.body.classList.add('bk2-clean');
     if (typeof showView==='function') showView('settings');
   }
