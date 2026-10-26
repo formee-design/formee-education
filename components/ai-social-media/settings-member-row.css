@@ -1,0 +1,35 @@
+/* Settings / Member Row — AI Social Media component (components/ai-social-media/settings-member-row.html 참고)
+   Figma: FME_AI-Social-Media, ♻️ components › settings › "Settings / Member Row" (13914:12325).
+   One person in the Settings › Members table. Column layout comes from
+   settings-members-table-head.css (.settings-col--*), so link that file too.
+   Type = Admin (black "Admin" chip after the name, "All N brands" Icon pill, no row action) /
+   Active (green Active chip, trash Icon Button) / Invited (name Regular + "Invited … ago",
+   Resend Text Button Size=24 at the end of the Member cell, orange Invited chip, trash = cancel invite).
+   Show you (boolean) adds "(You)" after the name. Empty Brand Admin / User cells show "—".
+   Row: 16/16/16/20 padding, neutral-150 bottom border.
+   Built from: Avatar (avatar.css · md), Feedback / Status Chip, Access / Brand Pill,
+   Actions / Icon Button (sm), Actions / More Button (sm), Actions / Text Button (Size=24).
+   Token gap (Figma literal): 6px name-line gap. */
+
+.settings-member-row{
+  display:flex; align-items:center; gap:var(--spacing-lg); box-sizing:border-box;
+  padding:var(--spacing-lg) var(--spacing-lg) var(--spacing-lg) var(--spacing-xl);
+  background:var(--color-neutral-0); border-bottom:1px solid var(--color-neutral-150);
+  font-family:var(--font-family-text);
+}
+.settings-member-row__identity{ display:flex; flex-direction:column; gap:var(--spacing-2); min-width:0; flex:1 1 auto; }
+.settings-member-row__name-line{ display:flex; align-items:center; gap:6px; min-width:0; }
+.settings-member-row__name{
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold);
+  color:var(--color-neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.settings-member-row__you, .settings-member-row__email, .settings-member-row__none{
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap;
+}
+.settings-member-row__email{ overflow:hidden; text-overflow:ellipsis; }
+
+/* Type=Invited — name drops to Regular, second line is the invite age (12/16) */
+.settings-member-row--invited .settings-member-row__name{ font-weight:var(--font-weight-regular); }
+.settings-member-row__meta{
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-2xs); color:var(--color-neutral-500); white-space:nowrap;
+}

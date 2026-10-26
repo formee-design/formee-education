@@ -53,6 +53,22 @@
   --color-badge-yellow-text: #787331;
   --color-badge-yellow-bg: #ffeca8;
 
+  /* ---------- Color / Avatar (Figma "AI Social Media / Colors" avatar/*) ----------
+     Tones for initials fallbacks (Brand / Mark, member avatars) — a brand or person
+     without an image gets one tone, rotated in creation order. blue = brand-primary-mid / neutral-800. */
+  --color-avatar-blue-bg: var(--color-brand-primary-mid);
+  --color-avatar-blue-fg: var(--color-neutral-800);
+  --color-avatar-violet-bg: #d1bdf8;
+  --color-avatar-violet-fg: #402b5f;
+  --color-avatar-mint-bg: #9ed9b2;
+  --color-avatar-mint-fg: #004522;
+  --color-avatar-rose-bg: #f5b3cc;
+  --color-avatar-rose-fg: #5a203a;
+  --color-avatar-amber-bg: #e2c58a;
+  --color-avatar-amber-fg: #4d3300;
+  --color-avatar-teal-bg: #84dade;
+  --color-avatar-teal-fg: #00454a;
+
   /* ---------- Color / Semantic ---------- */
   --color-alert-text: #ffffff;
   --color-alert-bg: #b80000;

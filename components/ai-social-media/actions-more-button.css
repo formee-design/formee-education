@@ -1,0 +1,24 @@
+/* Actions / More Button — AI Social Media component (components/ai-social-media/actions-more-button.html 참고)
+   Figma: FME_AI-Social-Media, "Actions / More Button" (3538:58064).
+   The ··· trigger that opens a row/card's Context Menu. Surface=Light, 2 sizes:
+   MD 36px (radius-lg, white fill, neutral-400 border inside, the same 2-layer card-action
+   shadow as --shadow-cell-action) and SM 24px (radius-md, no shadow) — SM is the one rows
+   use (Settings / Member Row). States: Normal / Hover (neutral-500 border) / Selected
+   (menu open — neutral-200 fill, neutral-500 border). Figma only draws SM at Normal; Hover and
+   Selected reuse the MD rules.
+   Surface=Glass (the blurred white version that sits on photos) is not built here — it has
+   no matching tokens yet (white @68→46% gradient, 18px backdrop blur, #0f1729 @18% shadow). */
+
+.more-btn{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+  box-sizing:border-box; width:36px; height:36px; padding:0;
+  background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-cell-action); cursor:pointer;
+}
+.more-btn img{ display:block; width:16px; height:16px; }
+.more-btn:hover, .more-btn--hover{ border-color:var(--color-neutral-500); }
+.more-btn[aria-expanded="true"], .more-btn--selected{ background:var(--color-neutral-200); border-color:var(--color-neutral-500); }
+.more-btn:focus-visible{ outline:2px solid var(--color-brand-primary); outline-offset:1px; }
+
+/* Size=SM — 24px, used at the end of table rows */
+.more-btn--sm{ width:24px; height:24px; border-radius:var(--radius-md); box-shadow:none; }

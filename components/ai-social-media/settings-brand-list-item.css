@@ -1,0 +1,22 @@
+/* Settings / Brand List Item — AI Social Media component (components/ai-social-media/settings-brand-list-item.html 참고)
+   Figma: FME_AI-Social-Media, ♻️ components › settings › "Settings / Brand List Item" (13914:12860).
+   One brand in the left list of Settings › Brands: 24px Brand / Logo Tile (or Brand / Mark) +
+   name 13/20, member count 12/18 neutral-500 on the right. 40px, 8/10 padding, radius-lg.
+   State = Default / Selected (neutral-100 fill, name SemiBold). Hover uses neutral-75 like the
+   v3 Settings list. Token gap (Figma literal): 10px side padding and 10px gaps. */
+
+.settings-brand-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; box-sizing:border-box; height:40px; padding:var(--spacing-sm) 10px;
+  background:none; border:0; border-radius:var(--radius-lg); cursor:pointer; text-align:left;
+  font-family:var(--font-family-text);
+}
+.settings-brand-item:hover{ background:var(--color-neutral-75); }
+.settings-brand-item__label{ display:flex; align-items:center; gap:10px; min-width:0; }
+.settings-brand-item__name{
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-regular);
+  color:var(--color-neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.settings-brand-item__count{ font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); }
+.settings-brand-item.is-selected, .settings-brand-item[aria-current="true"]{ background:var(--color-neutral-100); }
+.settings-brand-item.is-selected .settings-brand-item__name, .settings-brand-item[aria-current="true"] .settings-brand-item__name{ font-weight:var(--font-weight-semibold); }

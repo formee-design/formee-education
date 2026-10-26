@@ -1,0 +1,18 @@
+/* Access / Brand Pill — AI Social Media component (components/ai-social-media/access-brand-pill.html 참고)
+   Figma: FME_AI-Social-Media, ♻️ components › settings › "Access / Brand Pill" (13514:334268).
+   A brand a person can work on, shown in the Brand Admin / User columns of Settings / Member Row.
+   28px tall, radius-full, neutral-150 fill, label 13/20 Medium neutral-900, 8px gap.
+   Leading = Initials (20px Brand / Mark, 12px sides) / Icon (16px panel-brand icon, 10px left —
+   the "All 6 brands" pill) / None (10px sides). A brand with a logo puts a 20px
+   Brand / Logo Tile (brand-logo-tile.css) in the same leading slot as Initials. */
+
+.brand-pill{
+  display:inline-flex; align-items:center; gap:var(--spacing-sm); flex-shrink:0;
+  box-sizing:border-box; height:28px; padding:var(--spacing-xs) var(--spacing-md);
+  background:var(--color-neutral-150); border-radius:var(--radius-full);
+  font-family:var(--font-family-text); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-900); white-space:nowrap;
+}
+.brand-pill > img{ display:block; width:16px; height:16px; flex-shrink:0; }
+.brand-pill--icon{ padding-left:10px; }
+.brand-pill--none{ padding-left:10px; padding-right:10px; }

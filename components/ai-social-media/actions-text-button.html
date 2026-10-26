@@ -57,6 +57,8 @@
         <a href="actions-button.html">Actions / Button</a>
         <a href="../shared/button.html">Button</a>
         <a href="actions-text-button.html" class="active">Actions / Text Button</a>
+        <a href="actions-more-button.html">Actions / More Button</a>
+        <a href="actions-icon-button.html">Actions / Icon Button</a>
       </div>
     </div>
     <div class="demo-sidebar-group collapsed" data-group="login">
@@ -209,12 +211,27 @@
         <a href="music-library-card.html">Music Library Card</a>
       </div>
     </div>
+    <div class="demo-sidebar-group collapsed" data-group="settings">
+      <button type="button" class="demo-sidebar-group-toggle" onclick="toggleDemoGroup(this)"><span>Settings</span><span class="demo-sidebar-group-caret">▾</span></button>
+      <div class="demo-sidebar-group-items">
+        <a href="brand-mark.html">Brand / Mark</a>
+        <a href="brand-logo-tile.html">Brand / Logo Tile</a>
+        <a href="access-brand-pill.html">Access / Brand Pill</a>
+        <a href="settings-members-table-head.html">Settings / Members Table Head</a>
+        <a href="settings-member-row.html">Settings / Member Row</a>
+        <a href="settings-access-row.html">Settings / Access Row</a>
+        <a href="settings-brand-list-item.html">Settings / Brand List Item</a>
+      </div>
+    </div>
   </nav>
   <main class="demo-main">
   <h1>Actions / Text Button</h1>
   <p class="demo-note">Figma "Actions / Text Button" (459:17). Borderless 36px text action for section links. The bordered icon + label look of the same Figma component still lives ad hoc in heading.css / ai-response-card.css.</p>
   <h2>Default</h2>
   <div class="demo-stage" style="flex-direction:row; gap:var(--spacing-lg)"><a class="text-btn" href="#">View all →</a><a class="text-btn" href="#">View analytics →</a></div>
+  <h2>Size=24 · bordered</h2>
+  <p class="demo-note">Figma Size=24 (9382:170313): 24px, white fill, neutral-400 border, Text/xs SemiBold. Hover darkens the border to neutral-500. Used for "Resend" on Settings / Member Row.</p>
+  <div class="demo-stage" style="flex-direction:row; gap:var(--spacing-lg)"><button type="button" class="text-btn text-btn--24">Resend</button><button type="button" class="text-btn text-btn--24">Re-brief</button></div>
   </main>
 </div>
 <script src="../demo-nav.js"></script>

@@ -1,0 +1,18 @@
+/* Brand / Logo Tile — AI Social Media component (components/ai-social-media/brand-logo-tile.html 참고)
+   Figma: FME_AI-Social-Media, ♻️ components › settings › "Brand / Logo Tile" (13527:603433).
+   A brand's uploaded logo in a bordered square. Brand (Formee Express / SCEI / SCHE) × Size
+   (20 / 24 / 36) = 9 variants; the brand only swaps the image, so in code it's one class +
+   a size modifier. neutral-400 border inside; fill neutral-100 at 24 and 36, neutral-0 at 20
+   (the 20 sits inside a neutral-150 Access / Brand Pill). Padding 2 / 3 / 5, radius 5 / 6 / 8.
+   Logo art: icons/brand/*.svg (the Figma Brand / Logo shapes). When the brand has no logo, use Brand / Mark (brand-mark.css) at the same size instead.
+   Differs from "logo" (logo.css · 4211:67526): that one is a single 36px tile with no fill.
+   Token gaps (Figma literals): radius 5 and padding 3 / 5. */
+
+.brand-logo-tile{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;
+  box-sizing:border-box; background:var(--color-neutral-100); border:1px solid var(--color-neutral-400);
+}
+.brand-logo-tile img{ display:block; max-width:100%; max-height:100%; object-fit:contain; }
+.brand-logo-tile--20{ width:20px; height:20px; padding:var(--spacing-2); border-radius:5px; background:var(--color-neutral-0); }
+.brand-logo-tile--24{ width:24px; height:24px; padding:3px; border-radius:var(--radius-md); }
+.brand-logo-tile--36{ width:36px; height:36px; padding:5px; border-radius:var(--radius-lg); }

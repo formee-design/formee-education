@@ -15,3 +15,13 @@
 }
 .text-btn:hover{background:var(--color-neutral-100);}
 .text-btn:focus-visible{outline:2px solid var(--color-brand-primary); outline-offset:1px;}
+
+/* Size=24 — the bordered small version (Figma State=Normal/Hover, Size=24 · 9382:170313):
+   24px tall, 8px side padding, radius-md, white fill + neutral-400 border inside, Text/xs
+   SemiBold. Used for in-row actions such as "Resend" on Settings / Member Row (Type=Invited). */
+.text-btn--24{
+  height:24px; padding:0 var(--spacing-sm); border:1px solid var(--color-neutral-400); border-radius:var(--radius-md);
+  background:var(--color-neutral-0);
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);
+}
+.text-btn--24:hover{ background:var(--color-neutral-0); border-color:var(--color-neutral-500); }

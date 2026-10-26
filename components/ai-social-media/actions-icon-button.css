@@ -1,0 +1,22 @@
+/* Actions / Icon Button — AI Social Media component (components/ai-social-media/actions-icon-button.html 참고)
+   Figma: FME_AI-Social-Media, "Actions / Icon Button" (2207:1390).
+   A square, borderless-fill button holding one 16px icon. 2 sizes: md 36px (radius-lg) and
+   sm 24px (radius-md) — sm is the row-end action in tables (Settings / Member Row's trash).
+   States: Normal (neutral-400 border inside, no fill) / Hover (neutral-500 border) /
+   Focused (neutral-150 fill, neutral-500 border) / Disabled (sm only; Figma draws it the same
+   as Normal, so only the cursor changes here).
+   Not the same component as Media Card Icon Button (media-card-icon-btn.css, 28px, Preview Top Row). */
+
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+  box-sizing:border-box; width:36px; height:36px; padding:0;
+  background:none; border:1px solid var(--color-neutral-400); border-radius:var(--radius-lg);
+  cursor:pointer;
+}
+.icon-btn img{ display:block; width:16px; height:16px; }
+.icon-btn:hover, .icon-btn--hover{ border-color:var(--color-neutral-500); }
+.icon-btn:focus-visible, .icon-btn--focused, .icon-btn[aria-expanded="true"]{ background:var(--color-neutral-150); border-color:var(--color-neutral-500); outline:none; }
+.icon-btn:disabled{ cursor:not-allowed; border-color:var(--color-neutral-400); background:none; }
+
+/* Size=sm — 24px */
+.icon-btn--sm{ width:24px; height:24px; border-radius:var(--radius-md); }

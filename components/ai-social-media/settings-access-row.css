@@ -1,0 +1,38 @@
+/* Settings / Access Row — AI Social Media component (components/ai-social-media/settings-access-row.html 참고)
+   Figma: FME_AI-Social-Media, ♻️ components › settings › "Settings / Access Row" (13914:12839).
+   One person inside a brand's access panel (Settings › Brands, right side). 12/24 padding,
+   12px gap, neutral-150 bottom border. Identity matches Settings / Member Row (32px Avatar,
+   name 13/20 SemiBold + optional "(You)" and black Admin chip, email 12/18 neutral-500).
+   Role = Locked (12px lock icon + "Can't change" note, the reason goes in a tooltip) /
+   Dropdown (188px Input Size=SM Dropdown with the role icon) / Text (read-only role, e.g.
+   "All brands" for the account admin, 13/20 SemiBold neutral-700).
+   Token gap (Figma literal): 6px name-line gap. */
+
+.settings-access-row{
+  display:flex; align-items:center; gap:var(--spacing-md); box-sizing:border-box;
+  padding:var(--spacing-md) var(--spacing-2xl);
+  background:var(--color-neutral-0); border-bottom:1px solid var(--color-neutral-150);
+  font-family:var(--font-family-text);
+}
+.settings-access-row__identity{ display:flex; flex-direction:column; gap:var(--spacing-2); flex:1 1 auto; min-width:0; }
+.settings-access-row__name-line{ display:flex; align-items:center; gap:6px; min-width:0; }
+.settings-access-row__name{
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold);
+  color:var(--color-neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.settings-access-row__you, .settings-access-row__email, .settings-access-row__lock{
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap;
+}
+.settings-access-row__email{ overflow:hidden; text-overflow:ellipsis; }
+
+/* Role=Locked */
+.settings-access-row__lock{ display:inline-flex; align-items:center; gap:var(--spacing-xs); flex-shrink:0; }
+.settings-access-row__lock img{ display:block; width:12px; height:12px; }
+/* Role=Dropdown — an Input (input.css) Size=SM Dropdown, fixed at 188px, leading role icon */
+.settings-access-row__role-select{ flex:0 0 188px; width:188px; cursor:pointer; }
+.settings-access-row__role-select .input-field__role-icon{ display:block; width:16px; height:16px; flex-shrink:0; }
+/* Role=Text */
+.settings-access-row__role{
+  flex-shrink:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-700); white-space:nowrap;
+}

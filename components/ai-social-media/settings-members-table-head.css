@@ -1,0 +1,28 @@
+/* Settings / Members Table Head — AI Social Media component (components/ai-social-media/settings-members-table-head.html 참고)
+   Figma: FME_AI-Social-Media, ♻️ components › settings › "Settings / Members Table Head" (13914:12016).
+   40px header row of the Settings › Members table: neutral-100 fill, neutral-200 top + bottom
+   border, 10/16/10/20 padding, 16px column gap, Text/xs SemiBold neutral-700 labels.
+   Brand Admin / User labels carry a 14px role icon (shield-check / circle-user-round, 6px gap).
+
+   The column classes below are shared with Settings / Member Row (settings-member-row.css),
+   so a page building the table links both files. Widths follow Figma: Member 380 ·
+   Status 120 · Brand Admin / User split the rest · actions 48 (right-aligned).
+   Token gaps (Figma literals): 10px top/bottom padding, 6px icon gap. */
+
+.settings-members-head{
+  display:flex; align-items:center; gap:var(--spacing-lg); box-sizing:border-box;
+  height:40px; padding:10px var(--spacing-lg) 10px var(--spacing-xl);
+  background:var(--color-neutral-100);
+  border-top:1px solid var(--color-neutral-200); border-bottom:1px solid var(--color-neutral-200);
+  font-family:var(--font-family-text); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);
+}
+.settings-members-head img{ display:block; width:14px; height:14px; flex-shrink:0; }
+
+/* columns — shared by head and rows */
+.settings-col{ display:flex; align-items:center; gap:var(--spacing-sm); min-width:0; }
+.settings-col--member{ flex:0 0 380px; gap:var(--spacing-md); }
+.settings-col--status{ flex:0 0 120px; }
+.settings-col--brand-admin, .settings-col--user{ flex:1 1 0; flex-wrap:wrap; }
+.settings-members-head .settings-col--brand-admin, .settings-members-head .settings-col--user{ gap:6px; flex-wrap:nowrap; }
+.settings-col--actions{ flex:0 0 48px; justify-content:flex-end; }
