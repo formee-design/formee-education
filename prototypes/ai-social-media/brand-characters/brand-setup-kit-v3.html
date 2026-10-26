@@ -37687,7 +37687,6 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     var ub = userBrands();
     var sub = isBA() ? 'People on the brands you manage — '+myBrands().join(' and ')+'.'
             : isUser() ? 'People on your brands — '+ub.slice(0,-1).join(', ')+(ub.length>1?' and ':'')+ub.slice(-1)+'.'
-            : isSA() ? 'Super Admin view — you can also change who the account admin is.'
             : 'Invite people to this account and choose which brands they can work on.';
     var h = '<div class="s3-sec"><div class="s3-sechead"><div><p class="s3-sectitle">Members</p><p class="s3-secsub">'+esc(sub)+'</p></div>'+
       (isUser()?'':'<button type="button" class="s3-btn" data-s3="invite"><img class="plus" src="'+IC+'plus-16-grey.svg" alt="">Invite members</button>')+'</div>'+
