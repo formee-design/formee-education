@@ -1,6 +1,6 @@
 # Analytics → Figma 이관 핸드오프
 
-기준: formee-education `main` c3d4506 (2026-10-12). 배포본은 https://yjkim9627-gif.github.io/formee-education/prototypes/ai-social-media/analytics/analytics.html
+기준: formee-education `main` c3d4506 (2026-10-12). 배포본은 https://formee-design.github.io/formee-education/prototypes/ai-social-media/analytics/analytics.html
 대상 Figma: FME_AI-Social-Media `N8AXYZVtz82rgHcCRHKzEl`, 섹션 **Analytics_to be_261012** `12576:448644` (이관 작업 영역: 하위 섹션 **new** `12616:521591`)
 캡처: `shots/` (1920 폭 전체 높이. 오른쪽 회색 띠는 캡처 과정에서 생긴 것으로 디자인과 무관)
 

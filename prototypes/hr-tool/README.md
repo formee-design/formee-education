@@ -2,8 +2,8 @@
 
 This folder holds the HTML screens for the HR Tool product. Anything pushed here can be viewed on GitHub Pages straight away.
 
-- Site: https://yjkim9627-gif.github.io/formee-education/
-- Files in this folder: https://yjkim9627-gif.github.io/formee-education/prototypes/hr-tool/your-file.html
+- Site: https://formee-design.github.io/formee-education/
+- Files in this folder: https://formee-design.github.io/formee-education/prototypes/hr-tool/your-file.html
 
 ## Where things go
 
