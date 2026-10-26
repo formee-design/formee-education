@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Super Admin · Pulse</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-text-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-more-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/tab-item.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/segment-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/data-card-content-type.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-menu.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/input.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/brand-mark.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/brand-logo-tile.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/access-brand-pill.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/settings-members-table-head.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/settings-member-row.css">
+<link rel="stylesheet" href="../../../components/shared/modal.css">
+<style>
+/* ============================================================================
+   Super Admin — Formee's own console for every customer account on Pulse.
+   Source: the staging Super Admin pages copied into Figma (FME_AI-Social-Media "As is",
+   13605:571413 — Dashboard / Accounts (+ Suspend) / Account details / Activity / Settings),
+   restyled onto the AI Social Media components so it reads like the v3 Settings screens
+   (brand-setup-kit-v3.html #view=settings): same sidebar + top bar, 22px page title over a
+   one-line description, white tables with a neutral-100 head, Feedback / Status Chip badges,
+   Brand / Mark + Brand / Logo Tile, row-end More Button menu, confirm modal without an X.
+   Dashboard follows the customer Home (Figma 12427:416860): hero banner with the glass Stats
+   summary, then "Needs attention" as Data / card / content type tiles, Recent accounts table and
+   Top spend list. Accounts are text only (no avatar/mark) — Super Admin can't change an account's
+   picture, so the list doesn't pretend it has one.
+   Separate console — it is not a scope of the customer app, so the sidebar shows a fixed
+   "Super Admin" label instead of the account switcher and only the four admin pages.
+   #view=dashboard|accounts|account|activity|settings  ·  &id=<account>  ·  &tab=overview|usage|generations|members
+   ============================================================================ */
+*{box-sizing:border-box;}
+html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+body{margin:0; overflow:hidden; color:var(--color-neutral-900); font-family:var(--font-family-text); font-optical-sizing:none; font-variation-settings:"opsz" 14;}
+button{font:inherit;}
+.frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; display:flex; align-items:stretch; background:var(--color-neutral-50); border:1px solid var(--color-neutral-300);}
+.frame > .sidebar{height:100%;}
+.right-col{position:relative; flex:1 0 0; min-width:1px; height:100%; display:flex; flex-direction:column;}
+.right-col > main{flex:1 0 0; min-height:0; overflow-y:auto; background:var(--color-neutral-75);}
+.home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:var(--color-neutral-900); border-radius:var(--radius-full); padding:var(--spacing-sm) var(--spacing-lg); box-shadow:var(--shadow-popover); color:var(--color-neutral-0); font-size:var(--font-size-text-xs); font-weight:var(--font-weight-semibold); text-decoration:none; white-space:nowrap;}
+
+/* ---------- sidebar: fixed console label instead of the account switcher ---------- */
+.sa-scope{display:flex; align-items:center; gap:var(--spacing-sm); height:36px; padding:0 var(--spacing-md); border:1px solid var(--color-neutral-300); border-radius:var(--radius-lg); background:var(--color-neutral-100); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.sa-scope img{width:16px; height:16px;}
+.sa-scope span:last-child{margin-left:auto; font-weight:var(--font-weight-regular); color:var(--color-neutral-500); font-size:var(--font-size-text-xs);}
+.sidebar{position:relative;}
+.sa-me{position:absolute; left:var(--spacing-md); right:var(--spacing-md); bottom:var(--spacing-lg); display:flex; align-items:center; gap:var(--spacing-sm); padding:var(--spacing-sm); border-radius:var(--radius-lg); border:0; background:none; cursor:pointer; text-align:left;}
+.sa-me:hover{background:var(--color-neutral-100);}
+.sa-me-txt{display:flex; flex-direction:column; min-width:0;}
+.sa-me-txt b{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.sa-me-txt span{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+/* ---------- page ---------- */
+.sa-page{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:28px 28px 60px; /* 토큰 없음: Figma Home Main Content 28 / 60 */}
+.sa-page[hidden]{display:none;}
+.sa-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-lg);}
+.sa-title{margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm); font-weight:var(--font-weight-display-sm); color:var(--color-neutral-900);}
+.sa-sub{margin:var(--spacing-xs) 0 0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.sa-back{display:inline-flex; align-items:center; gap:var(--spacing-xs); margin-bottom:var(--spacing-sm); padding:0; border:0; background:none; cursor:pointer; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+.sa-back:hover{color:var(--color-neutral-900);}
+.sa-back img{width:16px; height:16px;}
+.sa-titleline{display:flex; align-items:center; gap:var(--spacing-md);}
+.sa-titleline .sa-title{display:flex; align-items:center; gap:var(--spacing-sm);}
+
+/* section heads inside a page */
+.sa-sechead{display:flex; align-items:flex-end; justify-content:space-between; gap:var(--spacing-lg);}
+.sa-sectitle{margin:0; font-size:var(--font-size-text-lg); line-height:var(--line-height-text-lg); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.sa-secsub{margin:var(--spacing-2) 0 0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.sa-grid{display:grid; grid-template-columns:minmax(0, 1.6fr) minmax(0, 1fr); gap:var(--spacing-xl); align-items:start;}
+.sa-col{display:flex; flex-direction:column; gap:var(--spacing-xl); min-width:0;}
+.sa-grid2{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-xl); align-items:stretch;}
+
+/* card + table — same look as the Settings › Members table (settings-members-table-head.css) */
+.sa-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-200); border-radius:var(--radius-lg); overflow:hidden;}
+.sa-card-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); padding:var(--spacing-lg) var(--spacing-lg) var(--spacing-md) var(--spacing-xl);}
+.sa-card-body{padding:0 var(--spacing-xl) var(--spacing-xl);}
+.sa-tr{display:flex; align-items:center; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl); border-bottom:1px solid var(--color-neutral-150); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+.sa-tr.head{height:40px; padding-top:0; padding-bottom:0; background:var(--color-neutral-100); border-top:1px solid var(--color-neutral-200); border-bottom-color:var(--color-neutral-200); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+.sa-card > .sa-tr.head:first-child{border-top:0;}
+.sa-tr.link{cursor:pointer;}
+.sa-tr.link:hover, .sa-tr.hl{background:var(--color-neutral-75);}
+.sa-tr.is-suspended .sa-nm{color:var(--color-neutral-500);}
+.sa-tr.is-stuck{background:var(--color-badge-orange-bg);}
+.sa-card > .sa-tr:last-child{border-bottom:0;}
+.sa-c{display:flex; align-items:center; gap:var(--spacing-sm); min-width:0;}
+.sa-c.col{flex-direction:column; align-items:flex-start; gap:var(--spacing-2);}
+.sa-c.num{justify-content:flex-end; text-align:right; font-variant-numeric:tabular-nums;}
+.sa-c.end{justify-content:flex-end;}
+.sa-nm{font-weight:var(--font-weight-semibold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+.sa-mute{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+.sa-strong{font-weight:var(--font-weight-semibold);}
+.sa-mono{font-family:var(--font-family-mono); font-size:var(--font-size-mono-sm); line-height:var(--line-height-mono-sm); color:var(--color-neutral-700);}
+.sa-dash{color:var(--color-neutral-500);}
+.sa-foot{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl); border-top:1px solid var(--color-neutral-150); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.sa-pager{display:flex; align-items:center; gap:var(--spacing-sm);}
+.sa-err{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-error-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+.sa-empty{padding:var(--spacing-4xl) var(--spacing-xl); text-align:center; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+
+/* toolbar: segment filter + search */
+.sa-bar{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); flex-wrap:wrap;}
+.sa-seg{display:inline-flex; padding:var(--spacing-xs); background:var(--color-neutral-150); border-radius:var(--radius-xl);}
+.sa-seg .segment-chip{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.sa-seg .segment-chip--active{color:var(--color-neutral-900);}
+.sa-seg .segment-chip b{margin-left:var(--spacing-xs); font-weight:inherit; color:var(--color-neutral-500);}
+.sa-bar .search-field--expanded{width:320px;}
+.sa-bar .search-field__input{font-size:var(--font-size-text-sm);}
+
+/* account columns */
+.ac-account{flex:0 0 260px;} .ac-owner{flex:1 1 0;} .ac-n{flex:0 0 80px;} .ac-role{flex:0 0 116px;} .ac-gen{flex:0 0 110px;} .ac-spend{flex:0 0 110px;} .ac-status{flex:0 0 110px;} .ac-act{flex:0 0 40px;}
+/* activity columns */
+.av-account{flex:0 0 200px;} .av-brand{flex:0 0 190px;} .av-by{flex:0 0 300px;} .av-format{flex:0 0 100px;} .av-status{flex:0 0 150px;} .av-stage{flex:0 0 110px;} .av-updated{flex:0 0 100px;} .av-err{flex:1 1 0;} .av-act{flex:0 0 80px;}
+/* generations table (account details) */
+.gn-id{flex:0 0 150px;} .gn-brand{flex:1 1 0;} .gn-type{flex:0 0 200px;} .gn-req{flex:0 0 100px;} .gn-got{flex:0 0 100px;} .gn-status{flex:0 0 120px;} .gn-created{flex:0 0 190px;}
+
+/* dashboard — Home layout (12427:416860); stat icons from Figma Stats summary 14149:653678
+   (icon / building-complex · panel / brand · circle-user-round · nav / billing, all from components icons/). The hero frame's gradient and glow ellipses are Figma
+   literals with no tokens (same values as home/home.html); glow art copied to ./assets. */
+.sa-page[data-page="dashboard"]{gap:var(--spacing-4xl);}
+.hero{position:relative; overflow:hidden; display:flex; flex-direction:column; gap:var(--spacing-2xl); padding:28px; border:var(--border-width-1) solid rgba(255,255,255,.8); border-radius:var(--radius-xl); background:linear-gradient(to right, rgba(248,238,246,.27), #efeffb 50%, #e4edfd); margin-bottom:calc(var(--spacing-xl) - var(--spacing-4xl));}
+.hero__glow{position:absolute; pointer-events:none;}
+.hero__glow img{position:absolute; display:block; max-width:none;}
+.hero__glow--primary{left:1041px; top:-141px; width:520px; height:320px;}
+.hero__glow--primary img{inset:-37.5% -23.08%; width:calc(100% + 46.16%); height:calc(100% + 75%);}
+.hero__glow--accent{left:-81px; top:77px; width:420px; height:260px;}
+.hero__glow--accent img{inset:-46.15% -28.57%; width:calc(100% + 57.14%); height:calc(100% + 92.3%);}
+.hero > :not(.hero__glow){position:relative;}
+.hero__header{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-lg);}
+.hero__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs);}
+.hero__meta{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+.hero__title{margin:0; font-size:var(--font-size-display-md); line-height:var(--line-height-display-md); font-weight:var(--font-weight-bold); letter-spacing:-0.2px; /* 토큰 없음: Figma Display/md -0.2 */}
+.hero__actions{display:flex; align-items:center; gap:var(--spacing-sm);}
+.hero__actions a{text-decoration:none;}
+.home-section{display:flex; flex-direction:column; gap:var(--spacing-lg); min-width:0;}
+.header-row{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-md); height:48px;}
+.header-row > .trends-section-header{flex:none; width:auto;}
+.quick-row{display:flex; align-items:stretch; gap:var(--spacing-lg);}
+.content-type-card__icon img{width:24px; height:24px;}
+.split-row{display:flex; align-items:flex-start; gap:var(--spacing-2xl);}
+.split-row > .home-section{flex:1 0 0; min-width:1px;}
+.list-card{display:flex; flex-direction:column; overflow:hidden; background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-xl); box-shadow:var(--shadow-md);}
+.lc-head, .lc-row{display:flex; align-items:center; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl);}
+.lc-head{padding-top:10px; padding-bottom:10px; /* 토큰 없음: Figma 10 */ border-bottom:var(--border-width-1) solid var(--color-neutral-150); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}
+.lc-row{border-bottom:var(--border-width-1) solid var(--color-neutral-150); cursor:pointer; min-height:61px;}
+.lc-row:last-child{border-bottom:0;}
+.lc-row:hover{background:var(--color-neutral-100);}
+.cell-text{display:flex; flex-direction:column; gap:var(--spacing-2); min-width:0; white-space:nowrap;}
+.cell-main{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); overflow:hidden; text-overflow:ellipsis;}
+.cell-sub{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); overflow:hidden; text-overflow:ellipsis;}
+.cell-big{font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); font-variant-numeric:tabular-nums;}
+.ra-account{flex:1 0 0; min-width:1px;} .ra-brands{width:72px; flex-shrink:0; text-align:right;} .ra-created{width:120px; flex-shrink:0;} .ra-status{width:96px; flex-shrink:0; display:flex;}
+.ts-rank{width:12px; flex-shrink:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold);}
+.ts-account{flex:1 0 0; min-width:1px;} .ts-gens{width:112px; flex-shrink:0;} .ts-spend{width:88px; flex-shrink:0;}
+.lc-row.ts{padding-top:var(--spacing-lg); padding-bottom:var(--spacing-lg);}
+/* dashboard lists */
+.sa-list-row{display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-md) var(--spacing-xl); border-top:1px solid var(--color-neutral-150); cursor:pointer;}
+.sa-list-row:hover{background:var(--color-neutral-75);}
+.sa-list-row .grow{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-2);}
+.sa-rank{width:24px; flex:none; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500); text-align:center;}
+.sa-amt{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); font-variant-numeric:tabular-nums;}
+.sa-alert{display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-md) var(--spacing-xl); border-top:1px solid var(--color-neutral-150); cursor:pointer;}
+.sa-alert:hover{background:var(--color-neutral-75);}
+.sa-alert .grow{flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-2);}
+.sa-alert img.chev{width:16px; height:16px; flex:none;}
+.sa-dot{width:8px; height:8px; border-radius:var(--radius-full); flex:none;}
+.sa-dot.red{background:var(--color-error-text);} .sa-dot.orange{background:var(--color-warning-text);} .sa-dot.gray{background:var(--color-neutral-450);}
+
+/* bars (usage breakdowns) */
+.sa-bars{display:flex; flex-direction:column; gap:var(--spacing-md);}
+.sa-barrow{display:grid; grid-template-columns:140px 1fr 56px 44px; align-items:center; gap:var(--spacing-md); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+.sa-barrow .v{text-align:right; font-weight:var(--font-weight-semibold); font-variant-numeric:tabular-nums;}
+.sa-barrow .p{text-align:right; font-size:var(--font-size-text-xs); color:var(--color-neutral-500); font-variant-numeric:tabular-nums;}
+.sa-track{height:6px; border-radius:var(--radius-full); background:var(--color-neutral-150); overflow:hidden;}
+.sa-fill{height:100%; border-radius:var(--radius-full); background:var(--color-brand-primary);}
+.sa-fill.muted{background:var(--color-neutral-450);}
+.sa-fill.red{background:var(--color-error-text);}
+.sa-group-label{margin:var(--spacing-lg) 0 var(--spacing-sm); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+.sa-note{margin:var(--spacing-lg) 0 0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.sa-total{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+
+/* overview breakdowns — staging layout: two groups side by side in one card (13605:569277 / 569394) */
+.sa-kicker{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); letter-spacing:.06em; text-transform:uppercase; color:var(--color-neutral-500);}
+.sa-bd{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:var(--spacing-xl);}
+.sa-bd-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md);}
+.sa-bd-cols{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-3xl); align-items:start; flex:1;}
+.sa-bd-col{display:flex; flex-direction:column; gap:var(--spacing-md);}
+.sa-bd-col > .sa-group-label{margin:0;}
+.sa-srow{display:flex; flex-direction:column; gap:var(--spacing-sm);}
+.sa-srow-top{display:grid; grid-template-columns:1fr auto 44px; gap:var(--spacing-md); align-items:baseline; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-900);}
+.sa-srow-top b{font-weight:var(--font-weight-semibold); font-variant-numeric:tabular-nums;}
+.sa-srow-top .p{text-align:right; font-size:var(--font-size-text-xs); color:var(--color-neutral-500); font-variant-numeric:tabular-nums;}
+.sa-srow .sa-track{height:4px; background:var(--color-neutral-100);}
+.sa-bd .sa-note{margin:0;}
+/* cost table */
+.sa-kv{display:flex; flex-direction:column;}
+.sa-kv .r{display:grid; grid-template-columns:1fr 110px 110px; gap:var(--spacing-md); align-items:center; padding:var(--spacing-sm) 0; border-bottom:1px solid var(--color-neutral-150); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+.sa-kv .r > :not(:first-child){text-align:right; font-variant-numeric:tabular-nums;}
+.sa-kv .r.h{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+.sa-kv .r.sub{font-weight:var(--font-weight-semibold); background:var(--color-neutral-75); padding-left:var(--spacing-sm); padding-right:var(--spacing-sm);}
+.sa-kv .r.total{border-bottom:0; font-weight:var(--font-weight-bold);}
+.sa-kv .r.model{grid-template-columns:1fr 90px 90px 110px;}
+.sa-big{font-size:var(--font-size-display-md); line-height:var(--line-height-display-md); font-weight:var(--font-weight-display-md); color:var(--color-neutral-900); font-variant-numeric:tabular-nums;}
+
+/* settings */
+.sa-form{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:var(--spacing-2xl); max-width:560px;}
+.sa-field{display:flex; flex-direction:column; gap:var(--spacing-sm);}
+.sa-label{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+.sa-hint{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.input-field[disabled], .input-field.is-readonly{background:var(--color-neutral-100); color:var(--color-neutral-500);}
+.actions-btn:disabled{opacity:.45; cursor:default;}
+
+/* column sort — same as Analytics v2's Meta Ads table (analytics/v2/analytics-shared.css .ads-head / .ads-menu):
+   label + current sort arrow + caret; the caret opens a Controls / Context Menu with the sort options and Clear sort.
+   Sort only, no filters (the status segment above the table filters). One column at a time. */
+.sa-sort{display:inline-flex; align-items:center; gap:var(--spacing-xs); max-width:100%; border:0; background:none; padding:0; cursor:pointer; font:inherit; color:inherit; white-space:nowrap;}
+.sa-sort:hover, .sa-sort[aria-expanded="true"]{color:var(--color-neutral-900);}
+.sa-sort--active{color:var(--color-neutral-900);}
+.sa-sort__arrow{width:14px; height:14px;}
+.sa-sort__caret{width:12px; height:12px; opacity:.6;}
+.sa-menu .context-menu.sa-sortmenu{width:max-content; min-width:200px;}
+.sa-sortmenu .menu-item:hover{background:var(--color-neutral-75);}
+.sa-sortmenu__label{display:flex; align-items:center; gap:var(--spacing-sm);}
+.sa-sortmenu__check{visibility:hidden;}
+.menu-item--selected .sa-sortmenu__check{visibility:visible;}
+/* menus + modal + toast */
+.sa-menu{position:absolute; z-index:300;}
+.sa-menu .menu-item{height:36px;}
+.sa-menu .menu-item img{width:16px; height:16px;}
+.sa-layer[hidden]{display:none;}
+.sa-dlg.modal{max-width:480px; padding:0; gap:0; border-radius:var(--radius-2xl);}
+.sa-dlg-head{padding:var(--spacing-3xl) var(--spacing-3xl) var(--spacing-md);}
+.sa-dlg-title{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold);}
+.sa-dlg-body{padding:0 var(--spacing-3xl) var(--spacing-2xl); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-700);}
+.sa-dlg-body ul{margin:var(--spacing-md) 0 0; padding-left:var(--spacing-xl);}
+.sa-dlg-foot{display:flex; justify-content:flex-end; gap:var(--spacing-md); padding:var(--spacing-xl) var(--spacing-3xl); border-top:1px solid var(--color-neutral-300);}
+.sa-toast{position:absolute; left:50%; bottom:var(--spacing-3xl); transform:translateX(-50%); z-index:400; padding:var(--spacing-md) var(--spacing-lg); border-radius:var(--radius-lg); background:var(--color-neutral-900); color:var(--color-neutral-0); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); box-shadow:var(--shadow-popover);}
+.sa-toast[hidden]{display:none;}
+.tab-bar .tab-item{color:var(--color-neutral-500);}
+.tab-bar .tab-item--selected{color:var(--color-neutral-900);}
+.tab-bar .tab-item b{margin-left:var(--spacing-xs); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+</style>
+<style id="s3-base">
+/* ===== Settings — copied as-is from brand-setup-kit-v3.html (s3-css + s3b-css below). That file defines these base
+   variables in its own :root (values copied from it); the rest already match tokens.css names. ===== */
+:root{
+  --neutral-0:#ffffff; --neutral-50:#f8faff; --neutral-75:#f7faff; --neutral-100:#eef2fa; --neutral-150:#e9edf6; --neutral-200:#e3e8f2;
+  --neutral-300:#d6ddeb; --neutral-400:#c8d1e1; --neutral-450:#a9b2c5; --neutral-500:#8a93a8; --neutral-700:#475069; --neutral-800:#0b2b55; --neutral-900:#0f1729;
+  --badge-green-bg:#ecfdf3; --badge-green-text:#027a48; --badge-red-text:#c4271b;
+  --shadow-xs:0 1px 2px rgba(15,23,41,.05);
+}
+#setMain p, #s3Layer p, #s3Menu p{margin:0;}
+#setMain .s3-as{display:none;}   /* v3's "Prototype · viewing as" switch — this console is always Super Admin */
+</style>
+<style id="s3-css">
+/* Settings ver3 — Figma `setting` 13339:570620 (Account Admin view / Brand Admin view).
+   값은 Figma 변수 그대로: badge/* · brand/primary. 이 파일 :root 에 없던 것만 여기서 더한다. */
+:root{
+  --brand-primary:#4f6de6;
+  --badge-orange-bg:#fff4e5; --badge-orange-text:#b54708;
+  --badge-gray-bg:#f2f3f5;   --badge-gray-text:#5d6675;
+  --badge-blue-bg:#e8f0ff;   --badge-blue-text:#155eef;
+  --badge-red-bg:#fbe3e5;
+}
+#setMain{ flex:1 1 auto; min-width:0; overflow:auto; padding:28px 28px 60px; display:flex; flex-direction:column; gap:24px; align-items:stretch; }
+#setMain[hidden]{ display:none; }
+.s3-head{ display:flex; align-items:center; justify-content:space-between; gap:16px; height:28px; }
+.s3-title{ font-size:20px; line-height:28px; font-weight:700; color:var(--neutral-900); }
+.s3-as{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--neutral-500); }
+.s3-as .s3-seg{ display:flex; background:var(--neutral-100); border-radius:var(--radius-lg); padding:3px; }
+.s3-as button{ font:inherit; font-size:12px; font-weight:600; border:0; background:none; color:var(--neutral-700); padding:5px 10px; border-radius:6px; cursor:pointer; }
+.s3-as button.on{ background:var(--neutral-0); color:var(--neutral-900); box-shadow:var(--shadow-xs); }
+body.bk2-clean .s3-as{ display:none; }
+.s3-tabs{ display:flex; gap:24px; border-bottom:1px solid var(--neutral-200); margin-top:-8px; }
+.s3-tab{ font:inherit; font-size:13px; line-height:20px; background:none; border:0; padding:0 0 10px; color:var(--neutral-700); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:0; }
+.s3-tab.on{ color:var(--neutral-900); font-weight:600; border-bottom-color:var(--neutral-900); }
+.s3-sec{ display:flex; flex-direction:column; gap:16px; }
+.s3-sechead{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.s3-sectitle{ font-size:14px; line-height:22px; font-weight:600; color:var(--neutral-900); }
+.s3-secsub{ font-size:12px; line-height:18px; color:var(--neutral-500); margin-top:4px; }
+.s3-btn{ font:inherit; font-size:13px; font-weight:600; line-height:20px; display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border-radius:var(--radius-lg); border:0; background:var(--neutral-900); color:var(--neutral-0); cursor:pointer; white-space:nowrap; background:linear-gradient(180deg,#323232,#222222); box-shadow:inset 0 0.5px 1px rgba(255,255,255,.15), 0 1px 4px -3px rgba(13,13,13,.10), 0 0 0 1px rgba(51,51,51,.25); }
+.s3-btn.sec{ background:var(--neutral-0); color:var(--neutral-900); box-shadow:inset 0 0 0 1px var(--neutral-400); }
+.s3-btn.danger{ background:var(--s3-danger, var(--badge-red-text)); border-color:var(--s3-danger, var(--badge-red-text)); }
+.s3-btn:disabled{ opacity:.45; cursor:default; }
+.s3-btn .plus{ width:16px; height:16px; flex:none; }
+.s3-card{ background:var(--neutral-0); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:visible; }
+.s3-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; flex-wrap:wrap; }
+.s3-chips{ display:flex; gap:4px; }
+.s3-chip{ font:inherit; font-size:14px; line-height:20px; border:0; background:none; color:var(--neutral-700); padding:8px 14px; border-radius:var(--radius-lg); cursor:pointer; }
+.s3-chip.on{ background:var(--neutral-0); color:var(--neutral-900); font-weight:600; box-shadow:0 0 0 1px var(--neutral-150), var(--shadow-xs); }
+.s3-tools{ display:flex; align-items:center; gap:8px; }
+.s3-search{ display:flex; align-items:center; gap:8px; width:280px; height:36px; padding:0 12px; border:1px solid var(--neutral-400); border-radius:var(--radius-lg); background:var(--neutral-0); }
+.s3-search img{ width:16px; height:16px; }
+.s3-search input{ border:0; outline:0; font:inherit; font-size:13px; line-height:20px; font-weight:500; flex:1; min-width:0; color:var(--neutral-900); background:none; }
+.s3-select{ font:inherit; font-size:12px; font-weight:500; height:32px; padding:0 28px 0 12px; border:1px solid var(--neutral-300); border-radius:999px; background:var(--neutral-0) url("../../../components/ai-social-media/icons/chevron-down.svg") no-repeat right 10px center / 12px; color:var(--neutral-900); appearance:none; cursor:pointer; }
+.s3-tr{ display:flex; align-items:center; gap:16px; padding:12px 16px 12px 20px; border-top:1px solid var(--neutral-150); position:relative; }
+.s3-tr.head{ background:var(--neutral-100); border-top:0; border-bottom:1px solid var(--neutral-200); height:40px; padding-top:10px; padding-bottom:10px; font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-tr.head + .s3-tr{ border-top:0; }
+.s3-tr.hl{ background:var(--neutral-100); }
+.s3-c{ display:flex; align-items:center; gap:8px; min-width:0; }
+.s3-c.grow{ flex:1 1 auto; gap:12px; }
+.s3-c.col{ flex-direction:column; align-items:flex-start; gap:2px; }
+.s3-c.end{ justify-content:flex-end; }
+.s3-nm{ font-size:13px; line-height:20px; font-weight:600; color:var(--neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.s3-em{ font-size:12px; line-height:18px; color:var(--neutral-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.s3-tx{ font-size:14px; line-height:20px; color:var(--neutral-900); }
+.s3-tx.mute{ color:var(--neutral-500); }
+.s3-tx.dim{ color:var(--neutral-700); }
+.s3-ava{ width:32px; height:32px; border-radius:50%; background:var(--avatar-blue-bg, #a8cbff); color:var(--avatar-blue-fg, #0b2b55); display:grid; place-items:center; font-size:11px; line-height:16px; letter-spacing:.8px; font-weight:700; flex:none; }
+.s3-ava.sm{ width:20px; height:20px; font-size:8px; }
+.s3-avas{ display:flex; gap:2px; }
+.s3-logo{ width:32px; height:32px; border-radius:8px; display:grid; place-items:center; font-size:11px; font-weight:700; flex:none; }
+.s3-logo.sm{ width:24px; height:24px; border-radius:6px; font-size:9px; }
+.s3-logo.lg{ width:36px; height:36px; border-radius:9px; }
+.t-blue{ background:var(--badge-blue-bg); color:var(--badge-blue-text); }
+.t-green{ background:var(--badge-green-bg); color:var(--badge-green-text); }
+.t-gray{ background:var(--badge-gray-bg); color:var(--badge-gray-text); }
+.s3-badge{ display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; line-height:13px; font-weight:600; white-space:nowrap; }
+.b-green{ background:var(--badge-green-bg); color:var(--badge-green-text); }
+.b-orange{ background:var(--badge-orange-bg); color:var(--badge-orange-text); }
+.b-gray{ background:var(--neutral-400); color:var(--neutral-700); }
+.s3-more{ width:24px; height:24px; border:1px solid var(--neutral-400); border-radius:6px; background:var(--neutral-0); display:grid; place-items:center; cursor:pointer; padding:0; flex:none; }
+.s3-more img{ width:16px; height:16px; }
+.s3-more:hover, .s3-more.on{ background:var(--neutral-100); }
+.s3-social{ width:18px; height:18px; }
+.s3-info{ position:relative; display:inline-grid; place-items:center; width:14px; height:14px; border:1.5px solid var(--neutral-500); border-radius:50%; font-size:9px; font-weight:700; color:var(--neutral-500); cursor:help; }
+.s3-info .tip{ display:none; position:absolute; top:calc(100% + 8px); left:-12px; z-index:30; background:var(--neutral-900); color:var(--neutral-0); border-radius:8px; padding:10px 12px; font-size:12px; line-height:18px; font-weight:400; white-space:nowrap; text-align:left; box-shadow:0 4px 12px rgba(15,23,41,.12); }
+.s3-info:hover .tip, .s3-info:focus .tip{ display:block; }
+.s3-info .tip b{ font-weight:600; }
+.s3-foot{ display:flex; align-items:center; justify-content:space-between; padding:10px 16px 10px 20px; border-top:1px solid var(--neutral-150); font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-pager{ display:flex; gap:8px; }
+.s3-pager button{ width:28px; height:28px; border:1px solid var(--neutral-200); border-radius:6px; background:var(--neutral-0); display:grid; place-items:center; cursor:pointer; }
+.s3-pager button:disabled{ opacity:.35; cursor:default; }
+.s3-pager img{ width:16px; height:16px; }
+.s3-empty{ padding:40px 20px; text-align:center; font-size:13px; color:var(--neutral-500); }
+/* menus */
+.s3-menu{ position:absolute; z-index:40; background:var(--neutral-0); border:1px solid var(--neutral-400); border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,.10); padding:6px; display:flex; flex-direction:column; gap:2px; min-width:202px; }
+.s3-mi{ font:inherit; font-size:14px; line-height:22px; font-weight:500; text-align:left; border:0; background:none; color:var(--neutral-900); padding:7px 8px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:10px; }
+.s3-mi:has(.opt span){ padding:0 8px; align-items:center; }   /* DS Menu / Option detail: 38px, 글자 두 줄 */
+.s3-mi:hover{ background:var(--neutral-100); }
+.s3-mi.danger{ color:var(--badge-red-text); }
+.s3-mi .opt{ flex:1; display:flex; flex-direction:column; gap:2px; }
+.s3-mi .opt{ gap:0; }
+.s3-mi .opt b{ font-size:14px; line-height:22px; font-weight:500; }
+.s3-mi .opt span{ font-size:12px; line-height:18px; margin-top:-2px; color:var(--neutral-450); }
+.s3-mi.sel{ background:var(--neutral-100); }
+.s3-mi .ck{ width:14px; height:14px; margin-top:0; }
+.s3-div{ height:1px; background:var(--neutral-400); margin:0; }
+/* access */
+.s3-split{ display:flex; align-items:stretch; }
+.s3-blist{ width:300px; flex:none; border-right:1px solid var(--neutral-200); padding:12px; display:flex; flex-direction:column; gap:2px; }
+.s3-blist .s3-search{ width:auto; }
+.s3-blab{ font-size:10px; line-height:16px; font-weight:700; letter-spacing:.06em; color:var(--neutral-500); padding:4px 10px 6px; }
+.s3-bi{ font:inherit; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border:0; background:none; border-radius:8px; cursor:pointer; text-align:left; }
+.s3-bi:hover{ background:var(--neutral-75); }
+.s3-bi.on{ background:var(--neutral-100); }
+.s3-bi .l{ display:flex; align-items:center; gap:10px; font-size:13px; line-height:20px; color:var(--neutral-900); }
+.s3-bi.on .l{ font-weight:600; }
+.s3-bi .n{ font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-pane{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; }
+.s3-phead{ display:flex; align-items:center; gap:12px; padding:20px 24px 16px; }
+.s3-add{ padding:0 24px 16px; display:flex; flex-direction:column; gap:8px; border-bottom:1px solid var(--neutral-150); }
+.s3-addrow{ display:flex; gap:8px; align-items:center; }
+.s3-input{ font:inherit; font-size:14px; line-height:22px; height:36px; padding:0 12px; border:1px solid var(--neutral-400); border-radius:var(--radius-lg); color:var(--neutral-900); background:var(--neutral-0); outline:0; }
+.s3-input:focus{ border-color:var(--brand-primary); }
+.s3-addrow .s3-input{ flex:1; min-width:0; }
+.s3-rolesel{ font:inherit; font-size:14px; height:36px; width:160px; padding:0 34px 0 12px; border:1px solid var(--neutral-300); border-radius:var(--radius-lg); background:var(--neutral-0) url("../../../components/ai-social-media/icons/chevron-down.svg") no-repeat right 12px center / 16px; color:var(--neutral-900); appearance:none; cursor:pointer; text-align:left; }
+.s3-rolesel.on{ border-color:var(--brand-primary); }
+.s3-guide{ display:flex; gap:24px; font-size:12px; line-height:18px; color:var(--neutral-500); flex-wrap:wrap; }
+.s3-guide b{ color:var(--neutral-700); font-weight:600; margin-right:4px; }
+.s3-person{ display:flex; align-items:center; gap:12px; padding:12px 24px; border-bottom:1px solid var(--neutral-150); position:relative; }
+.s3-person:last-child{ border-bottom:0; }
+.s3-fixed{ text-align:right; display:flex; flex-direction:column; gap:2px; }
+/* modal */
+.s3-layer{ position:absolute; inset:0; z-index:200; display:grid; place-items:center; }
+.s3-layer[hidden]{ display:none; }
+.s3-scrim{ position:absolute; inset:0; background:rgba(0,0,0,.38); }
+.s3-dlg{ position:relative; width:560px; max-width:calc(100vw - 32px); background:var(--neutral-0); border-radius:16px; box-shadow:0 20px 48px rgba(0,0,0,.18); display:flex; flex-direction:column; }
+.s3-dhead{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:28px 28px 20px 32px; }
+.s3-dtitle{ font-size:16px; line-height:24px; font-weight:700; color:var(--neutral-900); }
+.s3-ddesc{ font-size:13px; line-height:20px; color:var(--neutral-500); margin-top:2px; }
+.s3-x{ width:36px; height:36px; border:0; background:none; cursor:pointer; display:grid; place-items:center; border-radius:8px; margin-top:5px; flex:none; }
+.s3-x:hover{ background:var(--neutral-100); }
+.s3-x img{ width:24px; height:24px; }
+.s3-dbody{ padding:8px 24px 24px; display:flex; flex-direction:column; gap:20px; }
+.s3-field{ display:flex; flex-direction:column; gap:8px; }
+.s3-label{ font-size:12px; line-height:18px; font-weight:600; color:var(--neutral-700); }
+.s3-checks{ display:flex; flex-direction:column; gap:10px; max-height:220px; overflow:auto; }
+.s3-check{ display:flex; align-items:center; gap:10px; font-size:14px; font-weight:600; color:var(--neutral-900); cursor:pointer; }
+.s3-check input{ width:16px; height:16px; accent-color:var(--neutral-900); appearance:auto; -webkit-appearance:checkbox; flex:none; }
+.s3-hint{ font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-dfoot{ display:flex; align-items:center; justify-content:flex-end; gap:12px; padding:17px 28px 18px 32px; border-top:1px solid var(--neutral-200); }
+.s3-dfull{ width:100%; }
+/* toast */
+.s3-toast{ position:fixed; left:50%; bottom:32px; transform:translateX(-50%); z-index:300; background:var(--neutral-900); color:var(--neutral-0); font-size:13px; line-height:20px; padding:10px 16px; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,41,.2); }
+.s3-toast[hidden]{ display:none; }
+.nav-item.active .s3-navlbl{ font-weight:600; }
+</style>
+
+<style id="s3b-css">
+/* Settings B안 — Figma `Admin · B안 — 개발 구조 유지` 13488:312072 · `Brand Admin` 13470:310489 (2026-10-21).
+   위 s3 규칙을 그대로 쓰고, B안에서 새로 생긴 것(세그먼트 트랙·브랜드 알약·로고 타일·이니셜 대체 표시·역할 드롭다운)만 더한다. */
+:root{
+  --s3-danger:#b80000;
+  --avatar-blue-bg:#a8cbff;   --avatar-blue-fg:#0b2b55;
+  --avatar-violet-bg:#d1bdf8; --avatar-violet-fg:#402b5f;
+  --avatar-mint-bg:#9ed9b2;   --avatar-mint-fg:#004522;
+  --avatar-rose-bg:#f5b3cc;   --avatar-rose-fg:#5a203a;
+  --avatar-amber-bg:#e2c58a;  --avatar-amber-fg:#4d3300;
+  --avatar-teal-bg:#84dade;   --avatar-teal-fg:#00454a;
+}
+.s3-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.s3-segc{ display:flex; gap:0; padding:4px; background:var(--neutral-100); border-radius:12px; }
+.s3-segc button{ font:inherit; font-size:14px; line-height:22px; font-weight:500; border:0; background:none; color:var(--neutral-700); padding:8px 20px; border-radius:8px; cursor:pointer; }
+.s3-segc button.on{ background:var(--neutral-0); color:var(--neutral-900); font-weight:600; box-shadow:0 1px 3px rgba(15,23,41,.1); }
+.s3-tr.head{ color:var(--neutral-700); font-weight:600; }
+.s3-tr.head img{ width:14px; height:14px; }
+.s3-tr.head .s3-cp{ gap:6px; }
+.s3-tr.mrow{ align-items:center; padding:16px 16px 16px 20px; }
+.s3-cm{ flex:0 0 380px; min-width:0; display:flex; align-items:center; gap:12px; }
+.s3-cs{ width:120px; flex:none; display:flex; align-items:center; }
+.s3-cp{ flex:1 1 0; min-width:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.s3-ca{ width:48px; flex:none; display:flex; justify-content:flex-end; }
+.s3-dash{ font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-you{ font-size:12px; line-height:18px; color:var(--neutral-500); font-weight:400; }
+.s3-adm{ display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; background:#000; color:var(--neutral-0); font-size:11px; line-height:13px; font-weight:600; }
+/* brand pill · logo tile · initials fallback */
+.s3-pill{ display:inline-flex; align-items:center; gap:8px; height:28px; padding:0 12px; border-radius:999px; background:var(--neutral-150); font-size:13px; line-height:20px; font-weight:500; color:var(--neutral-900); white-space:nowrap; }
+.s3-pill.all{ padding-left:10px; }
+.s3-pill.all img{ width:16px; height:16px; }
+.s3-lt{ display:grid; place-items:center; flex:none; overflow:hidden; background:var(--neutral-100); border:1px solid var(--neutral-400); }   /* 10/22 개발(워크스페이스)과 같은 1px 테두리 — 업로드 로고가 흰 바탕일 수 있어서 */
+.s3-lt img{ max-width:72%; max-height:72%; }
+.s3-lt.s20{ width:20px; height:20px; border-radius:5px; }
+.s3-pill .s3-lt.s20{ background:var(--neutral-0); }
+.s3-lt.s20 img{ max-width:16px; max-height:16px; }
+.s3-lt.s24 img{ max-width:18px; max-height:18px; }
+.s3-lt.s36 img{ max-width:26px; max-height:26px; }
+.s3-lt.s24{ width:24px; height:24px; border-radius:var(--radius-md); }
+.s3-lt.s36{ width:36px; height:36px; border-radius:var(--radius-lg); }
+.s3-mk{ display:grid; place-items:center; flex:none; font-weight:700; letter-spacing:.02em; }
+.s3-mk.s20{ width:20px; height:20px; border-radius:5px; font-size:8px; }
+.s3-mk.s24{ width:24px; height:24px; border-radius:var(--radius-md); font-size:9px; }
+.s3-mk.s36{ width:36px; height:36px; border-radius:var(--radius-lg); font-size:12px; }
+.tn-blue{ background:var(--avatar-blue-bg); color:var(--avatar-blue-fg); }
+.tn-violet{ background:var(--avatar-violet-bg); color:var(--avatar-violet-fg); }
+.tn-mint{ background:var(--avatar-mint-bg); color:var(--avatar-mint-fg); }
+.tn-rose{ background:var(--avatar-rose-bg); color:var(--avatar-rose-fg); }
+.tn-amber{ background:var(--avatar-amber-bg); color:var(--avatar-amber-fg); }
+.tn-teal{ background:var(--avatar-teal-bg); color:var(--avatar-teal-fg); }
+.s3-bi .n.zero{ color:var(--badge-orange-text); }
+/* role dropdown (icon + role) */
+.s3-dd{ font:inherit; font-size:14px; line-height:22px; display:flex; align-items:center; gap:12px; height:36px; width:188px; padding:0 12px; border:1px solid var(--neutral-400); border-radius:var(--radius-lg); background:var(--neutral-0); color:var(--neutral-900); cursor:pointer; text-align:left; flex:none; }
+.s3-dd .ri{ width:16px; height:16px; flex:none; }
+.s3-dd .lb{ flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.s3-dd .cv{ width:24px; height:24px; flex:none; }
+.s3-dd.on{ border-color:var(--brand-primary); }
+.s3-dd.w160{ width:160px; }
+.s3-dd.w200{ width:200px; }
+.s3-dd.full{ width:100%; }
+.s3-dd .ph{ color:var(--neutral-500); }
+.s3-guide span{ display:inline-flex; align-items:center; gap:6px; }
+.s3-guide img{ width:14px; height:14px; }
+.s3-lock{ display:inline-flex; align-items:center; gap:4px; font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3-lock img{ width:12px; height:12px; }
+.s3-mi .ri{ width:16px; height:16px; margin-top:2px; flex:none; }
+.s3-mi.danger{ color:var(--badge-red-text); }
+.s3-mi .cb{ width:16px; height:16px; margin:0; flex:none; pointer-events:none; appearance:none; -webkit-appearance:none; border:1px solid var(--neutral-400); border-radius:4px; background:var(--neutral-0) no-repeat center / 12px; }   /* DS Checkbox sm */
+.s3-mi .cb:checked{ background-color:var(--neutral-900); border-color:var(--neutral-900); background-image:url("../../../components/ai-social-media/icons/wh-check.svg"); }
+.s3-menu{ z-index:400; }
+.s3-mhint{ font-size:12px; line-height:18px; color:var(--neutral-500); padding:6px 10px 4px; }
+.s3-phead{ justify-content:space-between; }
+.s3-phead .l{ display:flex; align-items:center; gap:12px; }
+.s3-nmline{ display:flex; align-items:center; gap:6px; }
+.s3-phead .s3-nmline{ gap:8px; }
+.s3-phead .l > div{ display:flex; flex-direction:column; gap:2px; }
+.s3-solo{ font-size:13px; line-height:20px; }
+.s3-add.ro{ padding-top:0; }
+.s3-msearch{ padding:10px 12px; }
+.s3-msearch label{ display:flex; align-items:center; gap:10px; height:36px; padding:0 12px; border:1px solid var(--neutral-400); border-radius:var(--radius-md); background:var(--neutral-0); }
+.s3-msearch input{ flex:1; min-width:0; border:0; outline:0; font:inherit; font-size:14px; line-height:22px; color:var(--neutral-900); background:none; }
+.s3-msearch input::placeholder{ color:var(--neutral-500); }
+.s3-msearch img{ width:18px; height:18px; flex:none; }
+.s3-mi.dis, .s3-mi.dis:has(.opt span){ padding:0 8px; cursor:default; }
+.s3-mi.dis .opt{ gap:0; }
+.s3-mi.dis:hover{ background:none; }
+.s3-mi.dis .opt b{ font-size:14px; line-height:22px; font-weight:500; color:var(--neutral-450); }
+.s3-mi.dis .opt span{ line-height:18px; margin-top:-2px; color:var(--neutral-450); }
+.s3-mi.dis:not(:has(.opt)){ padding:7px 8px; opacity:.4; }   /* 글자만 있는 비활성 항목 — Figma K2 Menu / Item 36px · 40% */
+.s3-lockt{ font-size:13px; line-height:20px; font-weight:600; color:var(--neutral-700); }
+.s3-search input::placeholder, .s3-input::placeholder{ color:var(--neutral-500); }
+/* modal (B안) */
+.s3-dhead{ border-bottom:0; }
+.s3-ebody{ padding:8px 32px 24px; display:flex; flex-direction:column; gap:24px; }
+.s3-egrp{ display:flex; flex-direction:column; gap:12px; }
+.s3-erow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.s3-erow .l{ display:flex; align-items:center; gap:10px; font-size:13px; line-height:20px; color:var(--neutral-900); }
+.s3-ro{ width:200px; padding-left:12px; font-size:14px; color:var(--neutral-700); }
+.s3-txtbtn{ font:inherit; font-size:14px; font-weight:600; line-height:20px; display:inline-flex; align-items:center; gap:6px; border:0; background:none; color:var(--neutral-900); padding:8px 0; cursor:pointer; align-self:flex-start; }
+.s3-egrp .s3-txtbtn{ height:36px; margin:8px 0 0; padding:0 12px; font-size:13px; color:var(--neutral-700); border:1px solid var(--neutral-400); border-radius:var(--radius-lg); background:var(--neutral-0); }
+.s3-txtbtn img{ width:16px; height:16px; }
+.s3-btn.sec{ color:var(--neutral-700); }
+.s3-dfoot .s3-fl{ margin-right:auto; }
+.s3-dfoot .s3-fl .s3-txtbtn{ color:var(--s3-danger); }
+.s3-dbody{ padding:0 32px 24px; }   /* 10/23 Figma Modal / Dialog — 설명 아래 바로 본문 */
+/* 10/23 Figma 동기화 — 13488:312072 최종본: Billing식 머리(제목 22 + 설명 + Tab / Item), 행 끝 휴지통 + 툴팁,
+   초대 행 'Invited … ago' + Resend, 확인 모달(닫기 X 없음), Brands 패널 정리(역할 안내 줄 삭제 · 계정 Admin 은 자물쇠만), 빈 상태. */
+#setMain{ gap:20px; }
+.s3-head{ height:auto; align-items:flex-start; }
+.s3-title{ font-size:22px; line-height:30px; }
+.s3-hsub{ font-size:13px; line-height:20px; color:var(--neutral-500); margin-top:4px; }
+.s3-tabs{ gap:0; margin-top:0; }
+.s3-tab{ font-size:14px; line-height:22px; font-weight:500; color:var(--neutral-500); padding:7px 16px; }
+.s3-tab.on{ font-weight:700; color:var(--neutral-900); }
+.s3-cm .s3-c.col{ flex:1 1 auto; }
+.s3-resend{ font:inherit; font-size:12px; line-height:18px; font-weight:600; color:var(--neutral-700); background:var(--neutral-0); border:1px solid var(--neutral-400); border-radius:6px; padding:2px 7px; cursor:pointer; flex:none; margin-left:auto; }
+.s3-resend:hover{ background:var(--neutral-100); }
+.s3-trash{ position:relative; }
+.s3-trash .tip{ display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:30; background:var(--neutral-900); color:var(--neutral-0); border-radius:6px; padding:4px 8px; font-size:12px; line-height:18px; font-weight:500; white-space:nowrap; pointer-events:none; }
+.s3-trash:hover .tip, .s3-trash:focus-visible .tip{ display:block; }
+.s3-lock.only img{ width:14px; height:14px; }
+.s3-fixed.row{ flex-direction:row; align-items:center; gap:6px; }
+.s3-btn .chev{ width:16px; height:16px; flex:none; }
+.s3-mi:has(.opt span) .ri{ align-self:flex-start; margin-top:3px; }
+.s3-mi.danger .ri{ opacity:1; }
+.s3-dlg.cf .s3-dhead{ padding:28px 32px 20px; }
+.s3-cbody{ padding:0 32px 24px; font-size:14px; line-height:22px; color:var(--neutral-700); }
+.s3-dfoot .s3-btn.sec{ color:var(--neutral-700); }
+.s3-es{ display:flex; flex-direction:column; align-items:center; gap:12px; padding:64px 20px 72px; text-align:center; }
+.s3-es .g{ width:80px; height:80px; border-radius:50%; background:var(--neutral-100); display:grid; place-items:center; }
+.s3-es .g img{ width:48px; height:48px; }
+.s3-es .t{ display:flex; flex-direction:column; gap:3px; }
+.s3-es b{ font-size:20px; line-height:28px; font-weight:700; color:var(--neutral-900); }
+.s3-es span{ font-size:14px; line-height:22px; color:var(--neutral-500); }
+</style>
+
+</head>
+<body>
+<div class="frame" id="frame">
+
+  <!-- ══ Nav / Navigation — nav.css; fixed "Super Admin" label instead of the account switcher ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="sa-scope"><img src="../../../components/ai-social-media/icons/nav-admin.svg" alt=""><span>Super Admin</span><span>Formee</span></div>
+    </div>
+    <nav class="nav-items" id="nav">
+      <a class="nav-item" data-nav="dashboard" href="#view=dashboard"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Dashboard</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Customers</div>
+        <a class="nav-item" data-nav="accounts" href="#view=accounts"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Accounts</span></a>
+        <a class="nav-item" data-nav="activity" href="#view=activity"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-analytics.svg" alt=""></span><span>Activity</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Console</div>
+        <a class="nav-item" data-nav="settings" href="#view=settings"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-settings.svg" alt=""></span><span>Settings</span></a>
+      </div>
+    </nav>
+    <button type="button" class="sa-me" id="meBtn"><span class="ai-avatar md">SS</span><span class="sa-me-txt"><b id="meName">Supreet Singh</b><span>supreet.singh@formeeholdings.com</span></span></button>
+  </aside>
+
+  <div class="right-col">
+    <header class="app-topbar">
+      <div class="app-topbar__crumb" id="crumb">Dashboard</div>
+      <div class="app-topbar__spacer"></div>
+      <div class="app-topbar__actions"><div class="ai-avatar md">SS</div></div>
+    </header>
+    <main id="main">
+      <section class="sa-page" data-page="dashboard"></section>
+      <section class="sa-page" data-page="accounts" hidden></section>
+      <section class="sa-page" data-page="account" hidden></section>
+      <section class="sa-page" data-page="activity" hidden></section>
+      <section class="sa-page" id="setMain" data-page="settings" hidden></section>
+    </main>
+  </div>
+
+  <div class="sa-menu" id="menu" hidden></div>
+  <div class="modal-overlay sa-layer" id="layer" hidden></div>
+  <div class="sa-toast" id="toast" hidden></div>
+  <div class="s3-layer" id="s3Layer" hidden></div>
+  <div class="s3-toast" id="s3Toast" hidden></div>
+</div>
+
+<a class="home-fab" href="../../../index.html" title="Back to all screens">⌂ Home</a>
+
+<script id="s3-js">
+/* ===== Copied as-is from prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html (s3-js, another designer's Settings ver3 — #view=settings&as=superadmin). Only changes: opens as Super Admin, renders without that file's
+   showView(), and "Manage brands" shows a toast (no brand workspace in this console). Merge back when that design is final. ===== */
+/* Settings ver3 — Account Admin / Brand Admin.
+   한 데이터(A: 브랜드 → 사람 → 역할)에서 Members·Brands 를 모두 계산한다.
+   그래서 한 탭에서 권한을 바꾸면 다른 탭 숫자도 같이 바뀐다.
+   2026-10-21 B안으로 교체: Figma `Admin · B안 — 개발 구조 유지` 13488:312072 / `Brand Admin` 13470:310489.
+   탭은 Members·Brands 두 개(Access 는 Brands 오른쪽 패널로 합침). 계정 Admin(Abeer)은 A 에 넣지 않고 늘 All brands.
+   10/22 Super Admin(Admin 화면 + 계정 Admin 넘기기) · User(읽기 전용) 추가 — Figma `Super Admin` 13789:25 / `User` 13789:26.
+   10/23 Figma 최종본에 맞춤 — 행 끝 ··· 메뉴 대신 휴지통(권한은 Brands 탭에서만 바꾼다), 초대 행 Resend, 확인 모달 X 없음,
+   Brands 패널 역할 안내 줄 삭제(설명은 역할 메뉴 안), 계정 Admin 행은 자물쇠만, Manage brands = Secondary + ›.
+   #view=settings&tab=members|brands&as=superadmin|admin|brandadmin|user */
+(function(){
+  var IC = '../../../components/ai-social-media/icons/';
+  var OWNER = 'abeer';                            /* 계정 Admin — 모든 브랜드. Super Admin 만 바꿀 수 있다 */
+  var ME_BA = 'yejin';                            /* Brand Admin 화면의 '나' — 10/23 Yejin(브랜드 어드민) · Jenny(유저)로 바꿈 */
+  var ME_USER = 'jenny';                          /* User 화면의 '나' */
+  var SUPER = {id:'zubair', name:'Zubair', email:'zubair@formeeholdings.com', status:'Active'};   /* Formee 내부 — 계정 멤버가 아님 */
+  var TONES = ['blue','violet','mint','rose','amber','teal'];   /* 이니셜 대체 표시 색 — 브랜드 생성 순서대로 돈다 */
+  var P = [
+    {id:'abeer',  name:'Abeer Ahmed', email:'abeer.ahmed@formeeholdings.com', status:'Active'},
+    {id:'ahmed',  name:'Ahmed Abeer', email:'ahmedabeer961@yahoo.com',        status:'Active'},
+    {id:'yejin',  name:'Yejin Kim',   email:'yejin.kim@formeeholdings.com',   status:'Active'},
+    {id:'norimi', name:'Norimi Muto', email:'norimi.muto@formeeholding.com',  status:'Active'},
+    {id:'jenny',  name:'Jenny Jeong', email:'jenny.jeong@formeeholdings.com', status:'Active'},
+    {id:'fdebbie',name:null,          email:'fdebbie.aquino@scei.edu.au',     status:'Invited', sent:'2 days ago'},
+    {id:'mia',    name:null,          email:'mia.park@formeeholdings.com',    status:'Invited', sent:'5 hours ago'}  ];
+  var B = [
+    {name:'Formee Express',      logo:'assets/logo-formee-express.svg', status:'Active'},
+    {name:'SCEI',                logo:'assets/logo-scei.svg',           status:'Draft'},
+    {name:'SCHE',                logo:'assets/logo-sche.svg',           status:'Active'},
+    {name:'Meridian Business',   ini:'MB', tone:'rose',  status:'Active'},
+    {name:'Coastline TAFE',      ini:'CT', tone:'amber', status:'Draft'},
+    {name:'Northbridge College', ini:'NC', tone:'teal',  status:'Draft'}
+  ];
+  var A = {
+    'Formee Express':      {ahmed:'Brand Admin', yejin:'Brand Admin', norimi:'Brand Admin', jenny:'User', mia:'User'},
+    'SCEI':                {yejin:'Brand Admin', ahmed:'User', jenny:'User', fdebbie:'User'},
+    'SCHE':                {ahmed:'User', norimi:'Brand Admin', jenny:'User'},
+    'Meridian Business':   {ahmed:'User', mia:'User'},
+    'Coastline TAFE':      {norimi:'Brand Admin'},
+    'Northbridge College': {}
+  };
+  var ROLES = ['Brand Admin','User'];
+  var ROLE_DESC = {'Brand Admin':'Edits Brand Setup and decides who has access', 'User':'Creates and publishes content for this brand'};
+  var ROLE_IC = {'Brand Admin':'shield-check-500.svg', 'User':'circle-user-round.svg'};   /* shield 은 n500 색으로 다시 칠한 사본(assets) */
+  var S = { as:'superadmin', tab:'members', mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null };
+
+  function $(s,r){ return (r||document).querySelector(s); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function isBA(){ return S.as==='brandadmin'; }
+  function isSA(){ return S.as==='superadmin'; }
+  function isUser(){ return S.as==='user'; }
+  function me(){ return isBA() ? ME_BA : isUser() ? ME_USER : isSA() ? SUPER.id : OWNER; }
+  function person(id){ return id===SUPER.id ? SUPER : P.find(function(p){return p.id===id;}); }
+  function brand(n){ return B.find(function(b){return b.name===n;}); }
+  function myBrands(){ return B.filter(function(b){ return (A[b.name]||{})[ME_BA]==='Brand Admin'; }).map(function(b){return b.name;}); }
+  function userBrands(){ return B.filter(function(b){ return (A[b.name]||{})[ME_USER]; }).map(function(b){return b.name;}); }
+  function scopeBrands(){ return isBA() ? myBrands() : isUser() ? userBrands() : B.map(function(b){return b.name;}); }
+  function inScope(bn){ return scopeBrands().indexOf(bn)>=0; }
+  function accessOf(pid, within){ var out=[]; (within||scopeBrands()).forEach(function(bn){ var r=(A[bn]||{})[pid]; if(r) out.push({brand:bn, role:r}); }); return out; }
+  function count(bn){ return Object.keys(A[bn]||{}).length; }
+  function initials(p){ if (p.name) return p.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); return p.email[0].toUpperCase(); }
+  function ava(p){ return '<span class="s3-ava">'+esc(initials(p))+'</span>'; }
+  /* 로고 있으면 로고 타일, 없으면 이니셜 대체 표시(fallback) — 크기 20(알약) · 24(목록) · 36(헤더) */
+  function mark(b, size){
+    if (b.logo) return '<span class="s3-lt s'+size+'"><img src="'+b.logo+'" alt=""></span>';
+    return '<span class="s3-mk s'+size+' tn-'+b.tone+'">'+esc(b.ini)+'</span>';
+  }
+  function pill(bn){ return '<span class="s3-pill">'+mark(brand(bn),20)+esc(bn)+'</span>'; }
+  function allPill(){ return '<span class="s3-pill all"><img src="'+IC+'panel-brand.svg" alt="">All '+B.length+' brands</span>'; }
+  function roleSrc(r){ return (r==='Brand Admin' ? 'assets/' : IC) + ROLE_IC[r]; }
+  function roleIc(r){ return '<img class="ri" src="'+roleSrc(r)+'" alt="">'; }
+  function dd(attr, role, cls){ return '<button type="button" class="s3-dd'+(cls?' '+cls:'')+'" '+attr+'>'+roleIc(role)+'<span class="lb">'+esc(role)+'</span><img class="cv" src="assets/chevron-down-700.svg" alt=""></button>'; }
+  function badge(t){ var c = t==='Active'?'b-green':(t==='Invited'?'b-orange':'b-gray'); return '<span class="s3-badge '+c+'">'+esc(t)+'</span>'; }
+  function nameLine(p, extra){
+    var you = p.id===me() ? '<span class="s3-you">(You)</span>' : '';
+    var adm = p.id===OWNER ? '<span class="s3-adm">Admin</span>' : '';
+    if (p.name) return '<div class="s3-c col" style="min-width:0"><div class="s3-nmline"><span class="s3-nm">'+esc(p.name)+'</span>'+you+adm+(extra||'')+'</div><span class="s3-em">'+esc(p.email)+'</span></div>';
+    return '<div class="s3-nmline"><span class="s3-tx s3-solo">'+esc(p.email)+'</span>'+you+(extra||'')+'</div>';
+  }
+  function lockLine(t){ return '<span class="s3-lock"><img src="'+IC+'edit-lock.svg" alt="">'+esc(t)+'</span>'; }
+  /* 바꿀 수 없는 칸 — 문구 없이 자물쇠만(주은님 10/23). 이유는 마우스를 올리면 */
+  function lockOnly(why){ return '<span class="s3-lock only" title="'+esc(why)+'"><img src="'+IC+'edit-lock.svg" alt="'+esc(why)+'"></span>'; }
+  function toast(msg){ var t=$('#s3Toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true;},2200); }
+  function closeMenu(){ var m=$('#s3Menu'); if(m) m.remove(); document.querySelectorAll('.s3-more.on, .s3-dd.on').forEach(function(x){x.classList.remove('on');}); document.querySelectorAll('#setMain .s3-tr.hl').forEach(function(x){x.classList.remove('hl');}); S.menu=null; }
+  function openMenu(anchor, html, width){
+    closeMenu();
+    var m=document.createElement('div'); m.className='s3-menu'; m.id='s3Menu'; m.innerHTML=html; if(width) m.style.width=width+'px';
+    /* 프레임은 창 크기에 맞춰 scale 된다 — 메뉴도 프레임 안에 넣어야 같은 배율로 보인다 */
+    var fr=document.querySelector('.frame'); fr.appendChild(m);
+    var fb=fr.getBoundingClientRect(), k=fb.width/fr.offsetWidth, r=anchor.getBoundingClientRect();
+    var a={top:(r.top-fb.top)/k, bottom:(r.bottom-fb.top)/k, right:(r.right-fb.left)/k};
+    var top=a.bottom+6, left=a.right-m.offsetWidth;
+    if (top+m.offsetHeight > fr.offsetHeight-8) top = a.top-6-m.offsetHeight;
+    m.style.top=top+'px'; m.style.left=Math.max(8,left)+'px';
+    anchor.classList.add('on');
+    var row=anchor.closest('.s3-tr'); if (row) row.classList.add('hl');   /* 메뉴가 열린 행은 피그마처럼 칠한다 */
+    return m;
+  }
+  document.addEventListener('click', function(e){ if (S.menu && !e.target.closest('#s3Menu') && !e.target.closest('[data-s3menu]')) closeMenu(); });
+
+  /* ---------- Members ---------- */
+  function memberRows(){
+    var sc = scopeBrands();
+    var whole = !isBA() && !isUser();               /* 계정 Admin·Super Admin 은 브랜드 없는 멤버까지 다 본다 */
+    var rows = P.filter(function(p){ return whole || p.id===OWNER || p.id===me() || accessOf(p.id, sc).length>0; });
+    var rank = function(p){ return p.id===me() ? 0 : p.id===OWNER ? 1 : 2; };   /* 나 → 계정 Admin → 나머지 */
+    return rows.map(function(p,i){ return [p,i]; }).sort(function(x,y){ return rank(x[0])-rank(y[0]) || x[1]-y[1]; }).map(function(x){ return x[0]; });
+  }
+  function renderMembers(){
+    var all = memberRows();
+    var cnt = {All:all.length, Active:all.filter(function(p){return p.status==='Active';}).length, Invited:all.filter(function(p){return p.status==='Invited';}).length};
+    var q = S.mQ.trim().toLowerCase();
+    var rows = all.filter(function(p){ return (S.mStatus==='All'||p.status===S.mStatus) && (!q || (p.name||'').toLowerCase().indexOf(q)>=0 || p.email.toLowerCase().indexOf(q)>=0); });
+    var ub = userBrands();
+    var sub = isBA() ? 'People on the brands you manage — '+myBrands().join(' and ')+'.'
+            : isUser() ? 'People on your brands — '+ub.slice(0,-1).join(', ')+(ub.length>1?' and ':'')+ub.slice(-1)+'.'
+            : isSA() ? 'Super Admin view — you can also change who the account admin is.'
+            : 'Invite people to this account and choose which brands they can work on.';
+    var h = '<div class="s3-sec"><div class="s3-sechead"><div><p class="s3-sectitle">Members</p><p class="s3-secsub">'+esc(sub)+'</p></div>'+
+      (isUser()?'':'<button type="button" class="s3-btn" data-s3="invite"><img class="plus" src="'+IC+'plus-16-grey.svg" alt="">Invite members</button>')+'</div>'+
+      '<div class="s3-bar"><div class="s3-segc">'+
+      ['All','Active','Invited'].map(function(k){ return '<button type="button" class="'+(S.mStatus===k?'on':'')+'" data-s3mstatus="'+k+'">'+k+' '+cnt[k]+'</button>'; }).join('')+
+      '</div><label class="s3-search"><img src="'+IC+'ui-search.svg" alt=""><input id="s3mq" placeholder="Search name or email" value="'+esc(S.mQ)+'"></label></div>'+
+      '<div class="s3-card"><div class="s3-tr head"><div class="s3-cm">Member</div><div class="s3-cs">Status</div>'+
+      '<div class="s3-cp"><img src="'+roleSrc('Brand Admin')+'" alt="">Brand Admin</div><div class="s3-cp"><img src="'+roleSrc('User')+'" alt="">User</div><div class="s3-ca"></div></div>';
+    if (!rows.length) h += '<div class="s3-empty">No one matches. Try another name or status.</div>';
+    rows.forEach(function(p){
+      var cols;
+      if (p.id===OWNER) cols = '<div class="s3-cp">'+allPill()+'</div><div class="s3-cp"><span class="s3-dash">—</span></div>';
+      else {
+        var a = accessOf(p.id), ba = a.filter(function(x){return x.role==='Brand Admin';}), us = a.filter(function(x){return x.role==='User';});
+        var cell = function(list){ return '<div class="s3-cp">'+(list.length?list.map(function(x){return pill(x.brand);}).join(''):'<span class="s3-dash">—</span>')+'</div>'; };
+        cols = cell(ba)+cell(us);
+      }
+      var locked = isUser() || p.id===me() || (p.id===OWNER && !isSA());
+      var who = (!p.name && p.status==='Invited')
+        ? '<div class="s3-c col" style="min-width:0"><span class="s3-tx s3-solo">'+esc(p.email)+'</span><span class="s3-em">Invited '+esc(p.sent||'just now')+'</span></div>'+
+          (isUser()?'':'<button type="button" class="s3-resend" data-s3resend="'+p.id+'">Resend</button>')
+        : nameLine(p);
+      var rmAct = p.status==='Invited' ? 'cancelinvite' : isBA() ? 'removemine' : 'removemember';
+      var rmTip = p.status==='Invited' ? 'Cancel invite' : isBA() ? 'Remove from my brands' : 'Remove member';
+      var tail = locked ? ''
+        : (p.id===OWNER) ? '<button type="button" class="s3-more s3-trash" data-s3xfer="1" aria-label="Transfer account admin"><img src="'+IC+'panel-swap.svg" alt=""><span class="tip">Transfer account admin</span></button>'   /* Super Admin 만 — Figma K1·K2: ⇄ 버튼 하나, 누르면 바로 넘기기 모달(메뉴 없음) */
+        : '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'</span></button>';
+      h += '<div class="s3-tr mrow'+(S.menu===('m:'+p.id)?' hl':'')+'"><div class="s3-cm">'+ava(p)+who+'</div>'+
+        '<div class="s3-cs">'+badge(p.status)+'</div>'+cols+
+        '<div class="s3-ca">'+tail+'</div></div>';
+    });
+    var inv = all.filter(function(p){return p.status==='Invited';}).length;
+    h += '<div class="s3-foot"><span>'+all.length+' members'+(inv?' · '+inv+' pending invitation'+(inv>1?'s':''):'')+'</span></div>';
+    return h + '</div></div>';
+  }
+  function memberMenu(btn, pid){
+    var p = person(pid), inv = p.status==='Invited', h='';
+    if (pid===OWNER){   /* Super Admin 만 연다 — DS Controls / Context Menu(Actions, 3칸). 계정 Admin 이라 안 되는 건 Menu / Option detail 로 흐리게 + 이유 */
+      var dis = function(t, why){ return '<button type="button" class="s3-mi dis" disabled><span class="opt"><b>'+t+'</b><span>'+why+'</span></span></button>'; };
+      S.menu='m:'+pid;
+      return openMenu(btn, '<button type="button" class="s3-mi" data-s3act="transfer" data-id="'+pid+'">Transfer account admin</button>'+
+        '<button type="button" class="s3-mi danger dis" disabled title="Transfer the admin role first">Remove member</button>', 200);   /* Figma K2 — 핸드오프 메뉴와 같은 Context Menu · Actions(글자만, 폭 200) */
+    }
+    if (inv) h += '<button type="button" class="s3-mi" data-s3act="resend" data-id="'+pid+'">Resend invite</button>';
+    h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit access</button>';   /* DS Controls / Context Menu(Actions) — 구분선 없음 */
+    if (inv) h += '<button type="button" class="s3-mi danger" data-s3act="cancelinvite" data-id="'+pid+'">Cancel invite</button>';
+    else if (isBA()) h += '<button type="button" class="s3-mi danger" data-s3act="removemine" data-id="'+pid+'">Remove from my brands</button>';
+    else h += '<button type="button" class="s3-mi danger" data-s3act="removemember" data-id="'+pid+'">Remove member</button>';
+    S.menu='m:'+pid; openMenu(btn, h, 202);
+  }
+
+  /* ---------- Brands (목록 + 오른쪽 권한 패널) ---------- */
+  function renderBrands(){
+    var sc = scopeBrands();
+    if (sc.indexOf(S.axBrand)<0) S.axBrand = sc[0];
+    var b = brand(S.axBrand), ids = Object.keys(A[S.axBrand]||{});
+    /* 역할끼리 모은다: Brand Admin → User, 같은 역할 안에서는 활동중 → 초대중 */
+    var rk = function(id){ var p=person(id); return (A[S.axBrand][id]==='Brand Admin'?0:2) + (p&&p.status==='Invited'?1:0); };
+    ids = ids.map(function(id,i){ return [id,i]; }).sort(function(x,y){ return rk(x[0])-rk(y[0]) || x[1]-y[1]; }).map(function(x){ return x[0]; });
+    var q = S.axQ.trim().toLowerCase();
+    var list = sc.filter(function(n){ return !q || n.toLowerCase().indexOf(q)>=0; });
+    var sub = isBA() ? 'Brands you manage. Select a brand to choose who can work on it.' : isUser() ? 'Brands you work on. Ask a Brand Admin to change who has access.' : 'Every brand in this account. Select a brand to choose who can work on it.';
+    var ro = isUser();
+    var h = '<div class="s3-sec"><div class="s3-sechead"><div><p class="s3-sectitle">Brands</p><p class="s3-secsub">'+esc(sub)+'</p></div>'+
+      (isBA()||ro ? '' : '<button type="button" class="s3-btn sec" data-s3="managebrands">Manage brands<img class="chev" src="'+IC+'chevron-right.svg" alt=""></button>')+   /* Create / Rename / Delete 는 브랜드 워크스페이스(/brands) 몫 — 여기서는 거기로 보내기만 */
+      '</div>'+
+      '<div class="s3-card s3-split"><div class="s3-blist">';
+    if (!isBA() && !ro) h += '<label class="s3-search"><img src="'+IC+'ui-search.svg" alt=""><input id="s3axq" placeholder="Search brands" value="'+esc(S.axQ)+'"></label>';
+    list.forEach(function(n){ var c=count(n);
+      h += '<button type="button" class="s3-bi'+(n===S.axBrand?' on':'')+'" data-s3brand="'+esc(n)+'"><span class="l">'+mark(brand(n),24)+esc(n)+'</span><span class="n'+(c?'':' zero')+'">'+c+'</span></button>'; });
+    if (!list.length) h += '<div class="s3-empty">No brands match.</div>';
+    h += '</div><div class="s3-pane"><div class="s3-phead"><div class="l">'+mark(b,36)+'<div><div class="s3-nmline"><p class="s3-sectitle">'+esc(b.name)+'</p></div>'+   /* 10/23 Draft 칩 뺌 — 브랜드 상태는 워크스페이스 몫 */
+      '<p class="s3-em">'+ids.length+' '+(ids.length===1?'person has':'people have')+' access</p></div></div>'+
+      '</div>'+
+      '<div class="s3-add'+(ro?' ro':'')+'">'+(ro?'':'<div class="s3-addrow"><input class="s3-input" id="s3addq" placeholder="Add people by name or email" autocomplete="off">'+
+      dd('data-s3menu="a:x"', S.addRole, 'w160')+'<button type="button" class="s3-btn" data-s3="add">Add</button></div>')+'</div>';   /* 역할 설명은 역할 메뉴 안에만 */
+    /* 계정 Admin 은 늘 맨 위, 잠금 */
+    var owner = person(OWNER);
+    h += '<div class="s3-person">'+ava(owner)+'<div style="flex:1;min-width:0">'+nameLine(owner)+'</div><div class="s3-fixed">'+lockOnly('Account admin has every brand')+'</div></div>';
+    if (!ids.length) h += '<div class="s3-es"><span class="g"><img src="'+IC+'nav-characters.svg" alt=""></span><span class="t"><b>No one on this brand yet</b><span>Only the account admin has access. Add people above.</span></span></div>';   /* DS empty-state · No members */
+    ids.forEach(function(id){
+      var p = person(id); if (!p) return;
+      var role = A[S.axBrand][id], self = p.id===me();
+      h += '<div class="s3-person">'+ava(p)+'<div style="flex:1;min-width:0">'+nameLine(p, p.status==='Invited'?badge('Invited'):'')+'</div>';
+      h += ro ? '<div class="s3-fixed">'+lockOnly('Ask a Brand Admin to change roles')+'</div>'   /* Figma L2 — 읽기 전용도 자물쇠만 */
+         : self ? '<div class="s3-fixed">'+lockOnly('You can’t change your own role')+'</div>'   /* Figma H3 — 본인 행도 자물쇠만 */
+                : dd('data-s3menu="r:'+p.id+'"', role);
+      h += '</div>';
+    });
+    return h + '</div></div></div>';
+  }
+  function roleItems(cur, act, id, withRemove){
+    var h = ROLES.map(function(r){ return '<button type="button" class="s3-mi'+(r===cur?' sel':'')+'" data-s3act="'+act+'" data-id="'+esc(id)+'" data-role="'+r+'">'+roleIc(r)+'<span class="opt"><b>'+r+'</b><span>'+ROLE_DESC[r]+'</span></span>'+(r===cur?'<img class="ck" src="'+IC+'check.svg" alt="">':'')+'</button>'; }).join('');
+    if (withRemove) h += '<button type="button" class="s3-mi danger" data-s3act="'+withRemove+'" data-id="'+esc(id)+'"><img class="ri" src="assets/trash-danger.svg" alt="">Remove access</button>';
+    return h;
+  }
+  function brandMenu(btn, name){
+    var h = '<button type="button" class="s3-mi" data-s3act="rename" data-id="'+esc(name)+'">Rename</button>';
+    if (!isBA()) h += '<button type="button" class="s3-mi danger" data-s3act="deletebrand" data-id="'+esc(name)+'">Delete brand</button>';
+    S.menu='b:'+name; openMenu(btn, h, 202);
+  }
+
+  /* ---------- modals ---------- */
+  function layer(title, desc, body, foot){
+    var L=$('#s3Layer');
+    L.innerHTML='<div class="s3-scrim" data-s3close></div><div class="s3-dlg" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><div class="s3-dhead"><div><p class="s3-dtitle">'+esc(title)+'</p>'+(desc?'<p class="s3-ddesc">'+esc(desc)+'</p>':'')+'</div><button type="button" class="s3-x" data-s3close aria-label="Close"><img src="assets/close-x-700.svg" alt=""></button></div>'+
+      body+'<div class="s3-dfoot">'+foot+'</div></div>';
+    L.hidden=false;
+    return L;
+  }
+  function closeLayer(){ closeMenu(); var L=$('#s3Layer'); L.hidden=true; S.ed=null; S.inv=null; }
+  function modal(title, desc, body, primary, onOk, danger, secondary){
+    var L = layer(title, desc, body?'<div class="s3-dbody">'+body+'</div>':'', '<button type="button" class="s3-btn sec" data-s3close>'+esc(secondary||'Cancel')+'</button><button type="button" class="s3-btn'+(danger?' danger':'')+'" id="s3ok">'+esc(primary)+'</button>');
+    $('#s3ok').onclick=function(){ if (onOk()!==false) closeLayer(); };
+    var f=L.querySelector('input'); if (f) setTimeout(function(){f.focus();},30);
+  }
+  function confirmBox(title, desc, primary, onOk, secondary){   /* 라이브러리 Modal / Dialog Size=S — 닫기 X 없이 제목 + 본문 한 줄 */
+    var L=$('#s3Layer');
+    L.innerHTML='<div class="s3-scrim" data-s3close></div><div class="s3-dlg cf" role="alertdialog" aria-modal="true" aria-label="'+esc(title)+'"><div class="s3-dhead"><p class="s3-dtitle">'+esc(title)+'</p></div>'+
+      '<p class="s3-cbody">'+esc(desc)+'</p><div class="s3-dfoot"><button type="button" class="s3-btn sec" data-s3close>'+esc(secondary||'Cancel')+'</button><button type="button" class="s3-btn danger" id="s3ok">'+esc(primary)+'</button></div></div>';
+    L.hidden=false;
+    $('#s3ok').onclick=function(){ if (onOk()!==false) closeLayer(); };
+  }
+
+  /* Edit access — 브랜드마다 역할. Brand Admin 은 내 브랜드만 바꾸고, 다른 브랜드는 읽기 전용 */
+  function editModal(pid){
+    if (!S.ed || S.ed.pid!==pid){ var d={}; accessOf(pid, B.map(function(b){return b.name;})).forEach(function(x){ d[x.brand]=x.role; }); S.ed={pid:pid, d:d}; }
+    var p = person(pid), d = S.ed.d, names = Object.keys(d);
+    var mine = names.filter(inScope), other = names.filter(function(n){ return !inScope(n); });
+    var left = scopeBrands().filter(function(n){ return !d[n]; });
+    var row = function(n, edit){ return '<div class="s3-erow"><span class="l">'+mark(brand(n),24)+esc(n)+'</span>'+(edit?dd('data-s3menu="e:'+esc(n)+'"', d[n], 'w200'):'<span class="s3-ro">'+d[n]+'</span>')+'</div>'; };
+    var body = '<div class="s3-ebody"><div class="s3-egrp"><span class="s3-label">'+(isBA()?'Brands you manage':'Brand access')+'</span>'+
+      (mine.length?mine.map(function(n){return row(n,true);}).join(''):'<span class="s3-hint">No access to '+(isBA()?'your brands':'any brand')+' yet.</span>')+
+      (left.length?'<button type="button" class="s3-txtbtn" data-s3menu="eadd:x"><img src="'+IC+'plus-16-grey.svg" alt="">Add to a brand</button>':'')+'</div>';
+    if (isBA() && other.length) body += '<div class="s3-egrp"><span class="s3-label">Other brands</span>'+other.map(function(n){return row(n,false);}).join('')+
+      '<span class="s3-hint">Managed by your account admin. You can see these but not change them.</span></div>';
+    body += '</div>';
+    var foot = (isBA()?'<div class="s3-fl"><button type="button" class="s3-txtbtn" data-s3do="edremove">Remove from my brands</button></div>':'')+
+      '<button type="button" class="s3-btn sec" data-s3close>Cancel</button><button type="button" class="s3-btn" data-s3do="edsave">Save changes</button>';
+    layer('Edit access', (p.name?p.name+' · ':'')+p.email, body, foot);
+  }
+  function saveEdit(){
+    var pid=S.ed.pid, d=S.ed.d, p=person(pid);
+    scopeBrands().forEach(function(n){ A[n]=A[n]||{}; if (d[n]) A[n][pid]=d[n]; else delete A[n][pid]; });
+    closeLayer(); render(); toast('Access updated for '+(p.name||p.email));
+  }
+
+  /* Invite — 이메일 여러 개, 브랜드 여러 개, 역할 하나 (기본 User) */
+  function inviteModal(){
+    if (!S.inv) S.inv = {emails:'', brands:[], role:'User'};
+    var I = S.inv;
+    var bl = I.brands.length ? esc(I.brands.join(', ')) : '<span class="ph">Choose brands</span>';
+    var body = '<div class="s3-field"><span class="s3-label">Emails</span><input class="s3-input s3-dfull" id="s3invEmail" placeholder="name@example.com, another@example.com" value="'+esc(I.emails)+'">'+
+      '<span class="s3-hint">Separate emails with commas to invite several people at once.</span></div>'+
+      '<div class="s3-field"><span class="s3-label">Brand</span><button type="button" class="s3-dd full" data-s3menu="ib:x"><span class="lb">'+bl+'</span><img class="cv" src="assets/chevron-down-700.svg" alt=""></button>'+
+      (isBA()?'<span class="s3-hint">Only brands you manage are listed. Ask your account admin for other brands.</span>':'')+'</div>'+
+      '<div class="s3-field"><span class="s3-label">Role</span>'+dd('data-s3menu="ir:x"', I.role, 'full')+
+      '<span class="s3-hint">Brand Admin can edit Brand Setup and manage who has access. Change it per brand later.</span></div>';
+    layer('Invite members', isBA()?'Add people to the brands you manage.':'Add people to this account and choose their brands.', '<div class="s3-dbody">'+body+'</div>',
+      '<button type="button" class="s3-btn sec" data-s3close>Cancel</button><button type="button" class="s3-btn" data-s3do="invsend">Send invite</button>');
+  }
+  function sendInvite(){
+    var I=S.inv; I.emails=$('#s3invEmail').value;
+    var ems = I.emails.split(',').map(function(s){return s.trim();}).filter(Boolean);
+    if (!ems.length || ems.some(function(em){ return !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em); })){ $('#s3invEmail').style.borderColor='var(--s3-danger)'; return; }
+    if (!I.brands.length){ toast('Pick at least one brand'); return; }
+    ems.forEach(function(em){
+      var p = P.find(function(x){return x.email===em;});
+      if (!p){ p={id:'u'+Date.now()+Math.random().toString(36).slice(2,5), name:null, email:em, status:'Invited', sent:'just now'}; P.push(p); }
+      I.brands.forEach(function(b){ A[b]=A[b]||{}; A[b][p.id]=I.role; });
+    });
+    closeLayer(); S.mStatus='All'; render(); toast(ems.length>1 ? ems.length+' invites sent' : 'Invite sent to '+ems[0]);
+  }
+  function createBrandModal(){
+    var body = '<div class="s3-field"><span class="s3-label">Brand name</span><input class="s3-input s3-dfull" id="s3bName" placeholder="e.g. Acme Studio"></div>'+
+      '<div class="s3-field"><span class="s3-label">Industry</span><select class="s3-rolesel s3-dfull" id="s3bInd"><option>Education</option><option>Technology &amp; SaaS</option><option>Fashion &amp; Lifestyle</option><option>Other</option></select></div>';
+    modal('Create brand', 'You can finish the rest in Brand Setup.', body, 'Create brand', function(){
+      var n = $('#s3bName').value.trim(); if (!n){ $('#s3bName').style.borderColor='var(--s3-danger)'; return false; }
+      if (brand(n)){ toast('A brand with that name already exists'); return false; }
+      var ini = n.split(/\s+/).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); if (ini.length<2) ini = n.slice(0,2).toUpperCase();
+      B.push({name:n, ini:ini, tone:TONES[B.length % TONES.length], status:'Draft'}); A[n]={};
+      S.axBrand=n; render(); toast(n+' created');
+    });
+  }
+  /* Super Admin 만 — 계정 Admin 은 한 명. 넘기면 예전 Admin 은 브랜드 없는 멤버로 남는다 */
+  function transferModal(){
+    var cand = P.filter(function(p){ return p.id!==OWNER && p.status==='Active'; });
+    if (!S.xfer || !cand.some(function(p){ return p.id===S.xfer; })) S.xfer = (cand.find(function(p){ return p.id==='yejin'; }) || cand[0]).id;   /* Figma K3 기본값 */
+    var cur = person(S.xfer);
+    var body = '<div class="s3-field"><span class="s3-label">New account admin</span>'+
+      '<button type="button" class="s3-dd full" data-s3menu="xf:x"><span class="lb">'+esc(cur.name||cur.email)+'</span><img class="cv" src="assets/chevron-down-700.svg" alt=""></button>'+
+      '<span class="s3-hint">One account admin per account. '+esc(person(OWNER).name)+' stays as a member — set their brands on the Brands tab.</span></div>';
+    modal('Transfer account admin', 'The account admin owns billing and every brand.', body, 'Transfer', function(){
+      var id = S.xfer, prev = person(OWNER);
+      Object.keys(A).forEach(function(b){ delete A[b][id]; });
+      OWNER = id; S.xfer = null; render(); toast((person(id).name||person(id).email)+' is now the account admin · '+prev.name+' stays as a member');
+    });
+  }
+  /* Manage brands → 브랜드 워크스페이스(같은 파일의 Brand 화면, 카드 목록) */
+  function openWorkspace(){
+    closeMenu();
+    if (typeof showView!=='function'){ toast('Manage brands opens the brand workspace in the customer app'); return; }   /* Super Admin console: no brand workspace view here */
+    history.replaceState(null,'',location.pathname);
+    showView('brand'); if (typeof backToWorkspace==='function') backToWorkspace();
+  }
+  function renameModal(name){
+    modal('Rename brand', 'Members and content stay the same.', '<div class="s3-field"><span class="s3-label">Brand name</span><input class="s3-input s3-dfull" id="s3rn" value="'+esc(name)+'"></div>', 'Save', function(){
+      var n=$('#s3rn').value.trim(); if(!n||n===name) return true; if (brand(n)){ toast('A brand with that name already exists'); return false; }
+      brand(name).name=n; A[n]=A[name]||{}; delete A[name]; if (S.axBrand===name) S.axBrand=n; render(); toast('Renamed to '+n);
+    });
+  }
+
+  /* ---------- menus that open from a [data-s3menu] ---------- */
+  function openKind(t, k){
+    var i=k.indexOf(':'), kind=k.slice(0,i), id=k.slice(i+1);
+    if (kind==='m') return memberMenu(t,id);
+    if (kind==='b') return brandMenu(t,id);
+    if (kind==='r'){ S.menu=k; return openMenu(t, roleItems(A[S.axBrand][id], 'setrole', id, 'removeaccess'), 360); }
+    if (kind==='a'){ S.menu=k; return openMenu(t, roleItems(S.addRole, 'addrole', 'x'), 360); }
+    if (kind==='e'){ S.menu=k; return openMenu(t, roleItems(S.ed.d[id], 'edrole', id, 'edremovebrand'), 372); }
+    if (kind==='eadd'){ S.menu=k; var left=scopeBrands().filter(function(n){ return !S.ed.d[n]; });
+      return openMenu(t, left.map(function(n){ return '<button type="button" class="s3-mi" data-s3act="edadd" data-id="'+esc(n)+'">'+mark(brand(n),20)+'<span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join(''), 260); }
+    if (kind==='ib'){ S.menu=k; return openMenu(t, '<div class="s3-msearch"><label><input id="s3ibq" placeholder="Search brands" autocomplete="off"><img src="assets/search-700.svg" alt=""></label></div>'+   /* Voices 언어·억양 필터처럼 맨 위 검색칸 */
+      scopeBrands().map(function(n){ var on=S.inv.brands.indexOf(n)>=0;
+      return '<button type="button" class="s3-mi" data-s3act="invbrand" data-id="'+esc(n)+'"><input type="checkbox" class="cb" tabindex="-1"'+(on?' checked':'')+'><span class="opt"><b style="font-weight:400">'+esc(n)+'</b></span></button>'; }).join('')+
+      (isBA()?'<p class="s3-mhint">Only brands you manage are listed. Ask your account admin for other brands.</p>':''), t.offsetWidth); }
+    if (kind==='ir'){ S.menu=k; return openMenu(t, roleItems(S.inv.role, 'invrole', 'x'), t.offsetWidth); }
+    if (kind==='xf'){ S.menu=k; return openMenu(t, P.filter(function(p){ return p.id!==OWNER && p.status==='Active'; }).map(function(p){
+      return '<button type="button" class="s3-mi'+(p.id===S.xfer?' sel':'')+'" data-s3act="xferpick" data-id="'+p.id+'"><span class="opt"><b>'+esc(p.name)+'</b></span>'+(p.id===S.xfer?'<img class="ck" src="'+IC+'check.svg" alt="">':'')+'</button>'; }).join(''), t.offsetWidth); }
+  }
+
+  /* ---------- actions ---------- */
+  function act(a, id, el){
+    var keep = a==='invbrand';
+    if (!keep) closeMenu();
+    var p = person(id);
+    if (a==='resend'){ toast('Invite sent again to '+p.email); return; }
+    if (a==='editaccess'){ S.ed=null; return editModal(id); }
+    if (a==='cancelinvite') return confirmBox('Cancel this invite?', p.email+' won’t be able to join with the link they received.', 'Cancel invite', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Invite cancelled'); }, 'Keep invite');
+    if (a==='removemember') return confirmBox('Remove '+(p.name||p.email)+'?', 'They lose access to every brand in this account. Their content stays.', 'Remove member', function(){ Object.keys(A).forEach(function(b){ delete A[b][id]; }); P.splice(P.indexOf(p),1); render(); toast('Member removed'); });
+    if (a==='removemine') return confirmBox('Remove '+(p.name||p.email)+' from your brands?', 'They lose access to '+accessOf(id).map(function(x){return x.brand;}).join(' and ')+'. Other brands stay.', 'Remove', function(){ myBrands().forEach(function(b){ if (A[b]) delete A[b][id]; }); render(); toast('Removed from your brands'); });
+    if (a==='setrole'){ A[S.axBrand][id]=el.dataset.role; render(); toast((p.name||p.email)+' is now '+el.dataset.role+' in '+S.axBrand); return; }
+    if (a==='removeaccess'){ delete A[S.axBrand][id]; render(); toast('Access removed from '+S.axBrand); return; }
+    if (a==='addrole'){ S.addRole=el.dataset.role; var q=$('#s3addq').value; render(); $('#s3addq').value=q; return; }
+    if (a==='edrole'){ S.ed.d[id]=el.dataset.role; return editModal(S.ed.pid); }
+    if (a==='edremovebrand'){ delete S.ed.d[id]; return editModal(S.ed.pid); }
+    if (a==='edadd'){ S.ed.d[id]='User'; return editModal(S.ed.pid); }
+    if (a==='invbrand'){ S.inv.emails=$('#s3invEmail').value; var i=S.inv.brands.indexOf(id); if (i>=0) S.inv.brands.splice(i,1); else S.inv.brands.push(id);
+      el.querySelector('.cb').checked = i<0; var lb=document.querySelector('#s3Layer [data-s3menu="ib:x"] .lb'); lb.innerHTML = S.inv.brands.length?esc(S.inv.brands.join(', ')):'<span class="ph">Choose brands</span>'; return; }
+    if (a==='invrole'){ S.inv.emails=$('#s3invEmail').value; S.inv.role=el.dataset.role; return inviteModal(); }
+    if (a==='rename') return renameModal(id);
+    if (a==='transfer') return transferModal();
+    if (a==='xferpick'){ S.xfer=id; return transferModal(); }
+    if (a==='deletebrand') return confirmBox('Delete '+id+'?', 'Its library and scheduled posts go too. This can’t be undone.', 'Delete brand', function(){ B.splice(B.indexOf(brand(id)),1); delete A[id]; render(); toast(id+' deleted'); });
+  }
+  function addPerson(){
+    var q = $('#s3addq').value.trim(), r = S.addRole; if (!q) return;
+    var ql=q.toLowerCase();
+    var p = P.find(function(x){ return x.email.toLowerCase()===ql || (x.name||'').toLowerCase()===ql; });
+    var invited=false;
+    if (p && p.id===OWNER){ toast('The account admin already has every brand'); return; }
+    if (!p){ if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(q)){ toast('No one by that name — enter an email to invite them'); return; } p={id:'u'+Date.now(), name:null, email:q, status:'Invited', sent:'just now'}; P.push(p); invited=true; }
+    A[S.axBrand]=A[S.axBrand]||{}; A[S.axBrand][p.id]=r; render(); toast(invited?('Invite sent to '+q):((p.name||p.email)+' added to '+S.axBrand));
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var root=$('#setMain'); if (!root) return;
+    if (S.tab!=='brands') S.tab='members';
+    var tabs = [['members','Members'],['brands','Brands']];
+    var body = S.tab==='brands' ? renderBrands() : renderMembers();
+    root.innerHTML = '<div class="s3-head"><div><p class="s3-title">Settings</p><p class="s3-hsub">Manage members and who can work on each brand.</p></div><div class="s3-as"><span>Prototype · viewing as</span><div class="s3-seg">'+[['superadmin','Super Admin'],['admin','Account Admin'],['brandadmin','Brand Admin'],['user','User']].map(function(o){ return '<button type="button" class="'+(S.as===o[0]?'on':'')+'" data-s3as="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div></div></div>'+
+      '<div class="s3-tabs">'+tabs.map(function(t){ return '<button type="button" class="s3-tab'+(S.tab===t[0]?' on':'')+'" data-s3tab="'+t[0]+'">'+t[1]+'</button>'; }).join('')+'</div>'+body;
+    var bill=$('#navBilling'); if (bill) bill.hidden = isBA() || isUser();
+    var u = person(me());
+    document.querySelectorAll('#sideUser .su-ava, .topbar .avatar span').forEach(function(x){ x.textContent = initials(u); });
+    var nm=document.querySelector('#sideUser .su-btn .su-nm'); if (nm) nm.textContent = u.name;
+    var em=document.querySelector('#sideUser .su-btn .su-em'); if (em) em.textContent = u.email;
+    writeHash();
+  }
+  function writeHash(){
+    if (!/^#view=settings/.test(location.hash||'')) return;
+    var clean = /[#&]clean\b/.test(location.hash) ? '&clean' : '';
+    var h = '#view=settings&tab='+S.tab+'&as='+S.as+clean;
+    if (location.hash!==h) history.replaceState(null,'',h);
+  }
+  window.renderS3 = render;
+
+  function bind(){
+    var root=$('#setMain'); if (!root) return;
+    function onClick(e){
+      var t;
+      if ((t=e.target.closest('[data-s3as]'))){ S.as=t.dataset.s3as; closeMenu(); render(); return; }
+      if ((t=e.target.closest('[data-s3tab]'))){ S.tab=t.dataset.s3tab; closeMenu(); render(); return; }
+      if ((t=e.target.closest('[data-s3mstatus]'))){ S.mStatus=t.dataset.s3mstatus; render(); return; }
+      if ((t=e.target.closest('[data-s3brand]'))){ S.axBrand=t.dataset.s3brand; render(); return; }
+      if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
+      if ((t=e.target.closest('[data-s3rm]'))){ act(t.dataset.s3rm, t.dataset.id); return; }
+      if ((t=e.target.closest('[data-s3xfer]'))){ transferModal(); return; }
+      if ((t=e.target.closest('[data-s3resend]'))){ var rp=person(t.dataset.s3resend); rp.sent='just now'; render(); toast('Invite sent again to '+rp.email); return; }
+      if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='add') addPerson(); return; }
+    }
+    root.addEventListener('click', onClick);
+    var L=$('#s3Layer');
+    L.addEventListener('click', function(e){
+      var t;
+      if (e.target.closest('[data-s3close]')){ closeLayer(); return; }
+      if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
+      if ((t=e.target.closest('[data-s3do]'))){ var d=t.dataset.s3do;
+        if (d==='edsave') saveEdit();
+        else if (d==='invsend') sendInvite();
+        else if (d==='edremove'){ var pid=S.ed.pid; closeLayer(); act('removemine', pid); }
+      }
+    });
+    root.addEventListener('input', function(e){
+      var id=e.target.id, pos=e.target.selectionStart;
+      if (id==='s3mq'){ S.mQ=e.target.value; render(); var n=$('#s3mq'); n.focus(); n.setSelectionRange(pos,pos); }
+      if (id==='s3axq'){ S.axQ=e.target.value; render(); var n3=$('#s3axq'); n3.focus(); n3.setSelectionRange(pos,pos); }
+    });
+    root.addEventListener('keydown', function(e){ if (e.target.id==='s3addq' && e.key==='Enter') addPerson(); });
+    document.addEventListener('click', function(e){ var t=e.target.closest('#s3Menu [data-s3act]'); if (t){ e.stopPropagation(); act(t.dataset.s3act, t.dataset.id, t); } });
+    document.addEventListener('keydown', function(e){ if (e.key==='Escape'){ if (S.menu) closeMenu(); else closeLayer(); } });
+    document.addEventListener('input', function(e){ if (e.target.id!=='s3ibq') return; var q=e.target.value.trim().toLowerCase();
+      document.querySelectorAll('#s3Menu [data-s3act="invbrand"]').forEach(function(x){ x.hidden = !!q && x.dataset.id.toLowerCase().indexOf(q)<0; }); });
+    var nav=$('#navSettings'); if (nav) nav.addEventListener('click', function(){ if (!/^#view=settings/.test(location.hash)) history.replaceState(null,'','#view=settings&tab='+S.tab+'&as='+S.as); showView('settings'); });
+  }
+  function fromHash(){
+    var h=location.hash||''; if (!/^#view=settings/.test(h)) return;
+    var g=function(k){ var m=new RegExp('[#&]'+k+'=([\\w-]+)').exec(h); return m?m[1]:null; };
+    if (g('tab')) S.tab = g('tab')==='access' ? 'brands' : g('tab'); if (g('as')) S.as=['superadmin','admin','brandadmin','user'].indexOf(g('as'))>=0 ? g('as') : 'superadmin';
+    if (/[#&]clean\b/.test(h)) document.body.classList.add('bk2-clean');
+    if (typeof showView==='function') showView('settings'); else render();
+  }
+  function init(){ var fr=document.querySelector('.frame'), L=$('#s3Layer'); if (fr && L) fr.appendChild(L); bind(); fromHash(); }
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.addEventListener('hashchange', fromHash);
+  /* 아바타 메뉴의 Settings 도 새 화면으로 연다 (My account 는 예전 화면 그대로) */
+  window.openSettingsV3 = function(){ history.replaceState(null,'','#view=settings&tab='+S.tab+'&as='+S.as); showView('settings'); };
+  /* 확인용: 화면 상태를 바로 연다 — s3Debug('edit','yejin') · s3Debug('invite') · s3Debug('menu','fdebbie') */
+  window.s3Debug = function(what, id){
+    if (what==='edit'){ S.ed=null; editModal(id); }
+    else if (what==='invite'){ S.inv=null; inviteModal(); }
+    else if (what==='menu'){ var b=document.querySelector('[data-s3menu="m:'+id+'"]'); if (b) memberMenu(b,id); }
+    else if (what==='brand'){ S.tab='brands'; S.axBrand=id; render(); }
+    else if (what==='remove'){ act(isBA()?'removemine':'removemember', id); }
+    else if (what==='transfer'){ transferModal(); }
+    else if (what==='role'){ var r=document.querySelector('[data-s3menu="r:'+id+'"]'); if (r) openKind(r,'r:'+id); }
+  };
+})();
+</script>
+
+<script>
+const IC = '../../../components/ai-social-media/icons/';
+const TONES = ['blue','violet','mint','rose','amber','teal'];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const usd = n => '$' + n.toFixed(2);
+const fmt = n => n.toLocaleString('en-US');
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const initials = s => s.replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
+
+/* ---------------- data — staging values (Figma "As is", captured 2026-10-21) ---------------- */
+const ACCOUNTS = [
+  {id:'code-black-coffee', name:'Code Black Coffee', owner:'Code Black Coffee', email:'hello@codeblack.coffee', created:'Oct 8, 2026', brands:1, admins:1, ba:0, users:0, gens:0, spend:0, status:'active'},
+  {id:'formeeholdings', name:'FormeeHoldings', owner:'Chenxiao Ding', email:'chenxiao.ding@formeeholdings.com', created:'Aug 31, 2026', brands:1, admins:1, ba:0, users:0, gens:0, spend:0, status:'active'},
+  {id:'tiktok', name:'TikTok', owner:'TikTok', email:'pulse-test@tiktok.com', created:'Aug 28, 2026', brands:1, admins:1, ba:0, users:0, gens:0, spend:0, status:'active'},
+  {id:'formee', name:'Formee', owner:'Tiffany Cheung', email:'tiffany.cheung@formeeholdings.com', created:'Aug 26, 2026', brands:1, admins:1, ba:0, users:0, gens:0, spend:0, status:'active'},
+  {id:'norimi', name:'norimi', owner:'Norimi Muto', email:'norimi.muto@formeeholdings.com', created:'Aug 19, 2026', brands:1, admins:1, ba:1, users:0, gens:8, spend:0, status:'active'},
+  {id:'facebook', name:'Facebook', owner:'Facebook Testing', email:'testingfacebook@maildrop.cc', created:'Aug 18, 2026', brands:1, admins:1, ba:0, users:0, gens:1, spend:0, status:'active'},
+  {id:'my-org-norimi', name:'My Organization', owner:'Norimi', email:'norimi@formeeholdings.com', created:'Aug 17, 2026', brands:1, admins:1, ba:0, users:0, gens:0, spend:0, status:'active'},
+  {id:'my-org-nmuto', name:'My Organization', owner:'nmuto1237@gmail.com', email:'nmuto1237@gmail.com', created:'Aug 17, 2026', brands:1, admins:1, ba:0, users:0, gens:0, spend:0, status:'suspended', suspendedOn:'Oct 2, 2026'},
+  {id:'moodys', name:'Moody’s', owner:'Abeer T', email:'abeer.t@moodys.com', created:'Aug 17, 2026', brands:1, admins:1, ba:1, users:2, gens:3, spend:0, status:'active'},
+  {id:'subhash', name:'Subhash Company', owner:'Aditya Kulkarni', email:'aditya.kulkarni@subhash.co', created:'Aug 14, 2026', brands:2, admins:1, ba:2, users:2, gens:9, spend:0, status:'active'},
+  {id:'my-org-formee', name:'My Organization', owner:'norimi.muto@formeeholdings.com', email:'norimi.muto@formeeholdings.com', created:'Aug 14, 2026', brands:2, admins:1, ba:0, users:0, gens:0, spend:0, status:'active'},
+  {id:'formee-express-abeer', name:'Formee Express', owner:'Abeer Ahmed', email:'abeer.ahmed@formeeholdings.com', created:'Aug 14, 2026', brands:4, admins:1, ba:6, users:4, gens:49, spend:3.25, status:'active'},
+  {id:'formee-express-demo', name:'Formee Express', owner:'demo@reelforge.app', email:'demo@reelforge.app', created:'Aug 13, 2026', brands:24, admins:1, ba:9, users:10, gens:477, spend:2.41, status:'active', rich:true},
+];
+ACCOUNTS.forEach((a, i) => { a.tone = TONES[(ACCOUNTS.length - 1 - i) % TONES.length]; });
+const byId = id => ACCOUNTS.find(a => a.id === id);
+/* duplicate account names are told apart by the owner, everywhere an account is listed */
+const dupName = a => ACCOUNTS.filter(b => b.name === a.name).length > 1;
+/* accounts are text only (Super Admin can't change an account's picture) — mark() kept for brands */
+const mark = (a, size) => `<span class="brand-mark brand-mark--${size}${a.tone === 'blue' ? '' : ' brand-mark--' + a.tone}">${esc(initials(a.name))}</span>`;
+
+const LOGOS = { 'Formee Express':'formee-education.svg', 'SCEI':'scei.svg', 'SCHE':'sche.svg' };
+const brandPill = name => LOGOS[name]
+  ? `<span class="brand-pill"><span class="brand-logo-tile brand-logo-tile--20"><img src="${IC}brand/${LOGOS[name]}" alt=""></span>${esc(name)}</span>`
+  : `<span class="brand-pill"><span class="brand-mark brand-mark--20 brand-mark--${TONES[(name.length) % TONES.length]}">${esc(initials(name))}</span>${esc(name)}</span>`;
+
+/* generations — staging Activity rows (minutes ago) */
+const ACT = [
+  {acc:'formee-express-demo', brand:'Srikrishna Testing', by:'demo@reelforge.app', role:'Admin', format:'Reel', status:'ready', clips:[3,3], min:5283},
+  {acc:'formee-express-demo', brand:'Srikrishna Testing', by:'demo@reelforge.app', role:'Admin', format:'Reel', status:'ready', clips:[1,1], min:5350},
+  {acc:'formee-express-demo', brand:'Formee Express', by:'norimi.muto@formeeholdings.com', role:'Brand Admin', format:'Image', status:'ready', min:7261},
+  {acc:'formee-express-demo', brand:'Formee Express', by:'norimi.muto@formeeholdings.com', role:'Brand Admin', format:'Reel', status:'skipped', min:7386},
+  {acc:'formee-express-demo', brand:'SCEI', by:'demo@reelforge.app', role:'Admin', format:'Image', status:'ready', min:7565},
+  {acc:'formee-express-demo', brand:'SCEI', by:'demo@reelforge.app', role:'Admin', format:'Reel', status:'skipped', min:8916},
+  {acc:'formee-express-demo', brand:'Formee Express', by:'norimi.muto@formeeholdings.com', role:'Brand Admin', format:'Reel', status:'failed', clips:[0,1], min:17302, err:'Video provider refused the request (403)', raw:'chunk_failed: poll_failed_403: { "error": { "code": 403 } }'},
+  {acc:'formee-express-demo', brand:'OutKast', by:'demo@reelforge.app', role:'Admin', format:'Carousel', status:'ready', min:17481},
+  {acc:'formee-express-abeer', brand:'Formee Express', by:'abeer.ahmed@formeeholdings.com', role:'Admin', format:'Carousel', status:'failed', min:18958, err:'Image provider credits ran out (402)', raw:'{"error":{"code":402,"message":"Your prepayment credits are depleted."}}'},
+  {acc:'formee-express-demo', brand:'AERLA', by:'demo@reelforge.app', role:'Admin', format:'Image', status:'ready', min:24445},
+  {acc:'formee-express-demo', brand:'apple', by:'demo@reelforge.app', role:'Admin', format:'Reel', status:'rendering', clips:[0,1], min:24461, stuck:true},
+  {acc:'formee-express-demo', brand:'Formee Express', by:'norimi.muto@formeeholdings.com', role:'Brand Admin', format:'Reel', status:'ready', clips:[1,1], min:26096},
+  {acc:'facebook', brand:'Testing', by:'testingfacebook@maildrop.cc', role:'Admin', format:'Image', status:'ready', min:28470},
+  {acc:'norimi', brand:'Mercantile suit', by:'norimi.muto@formeeholdings.com', role:'Brand Admin', format:'Reel', status:'skipped', min:28880},
+  {acc:'formee-express-demo', brand:'Steel X', by:'demo@reelforge.app', role:'Admin', format:'Reel', status:'ready', clips:[2,2], min:30026},
+  {acc:'formee-express-demo', brand:'test', by:'demo@reelforge.app', role:'Admin', format:'Reel', status:'failed', clips:[0,1], min:34165, err:'Couldn’t join the clips into one video', raw:'concat_failed: spawn ffmpeg ENOENT'},
+  {acc:'moodys', brand:'Moody’s', by:'abeer.t@moodys.com', role:'User', format:'Image', status:'ready', min:37768},
+  {acc:'subhash', brand:'Blaq', by:'aditya.kulkarni@subhash.co', role:'Admin', format:'Story video', status:'ready', min:38716},
+  {acc:'formee-express-demo', brand:'Runway', by:'yejin.kim@formeeholdings.com', role:'Brand Admin', format:'Reel', status:'failed', clips:[1,3], min:46315, err:'Blocked by the provider’s safety filter', raw:'chunk_failed: rai_filtered: Sorry, we can’t create videos from this prompt.'},
+  {acc:'formee-express-demo', brand:'SCEI', by:'fdebbie.aquino@scei.edu.au', role:'User', format:'Story image', status:'ready', min:54740},
+];
+const FEED = { kept:200, progress:1, failed:25 };   /* staging header counts — the rows below are a sample of the 200 */
+/* Open → jumps to the last screen that content reached in the customer app (staging behaviour):
+   still generating / failed / skipped → the Generate step; finished images & carousels → the editor;
+   finished videos → Publish (no video editor prototype yet). Opens in a new tab so the console stays put. */
+const FLOW = '../new-content-generation/v4/new-content-to-generate.html', EDITOR = '../editing/image-editing.html';
+const TYPE = { 'Reel':['reel'], 'Story video':['reel', 1], 'Image':['image'], 'Story image':['image', 1], 'Carousel':['carousel'] };
+function lastScreen(g){
+  const [type, story] = TYPE[g.format] || ['reel'];
+  const q = (view) => `${FLOW}?view=${view}&contentType=${type}${story ? '&story=1' : ''}`;
+  if (g.status !== 'ready') return [q('generate'), 'Generate'];
+  if (type === 'reel') return [q('publish'), 'Publish'];
+  return [EDITOR, 'Editing'];
+}
+const ago = m => m < 60 ? m + 'm ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : Math.round(m / 1440) + ' days ago';
+const STATUS = { ready:['green','Ready'], skipped:['disabled','Skipped'], failed:['error','Failed'], rendering:['blue','Rendering'], progress:['blue','In progress'], preview:['secondary','Preview only'] };
+const chip = s => `<span class="feedback-status-chip feedback-status-chip--${STATUS[s][0]}">${STATUS[s][1]}</span>`;
+const acctChip = a => a.status === 'active' ? '<span class="feedback-status-chip feedback-status-chip--green">Active</span>' : '<span class="feedback-status-chip feedback-status-chip--error">Suspended</span>';
+
+/* account details — Formee Express (demo@reelforge.app), staging numbers */
+const RICH = {
+  lifetime:{ total:477, images:153, carousels:75, videos:249 },
+  cards:[['1-card',20],['2-card',3],['3-card',28],['4-card',1],['5-card',2],['6-card',3]], cardsNot:[['Failed',11],['In progress',7]],
+  lengths:[['8 sec',28],['16 sec',20],['24 sec',4],['30 sec',0]], lengthsNot:[['Length not recorded',108],['Preview only',43],['Failed',32],['In progress',11],['Skipped',3]],
+  period:{ video:[19,19], image:[7,7], carousel:[0,0], req:[['8 sec',10],['16 sec',1],['24 sec',1],['30 sec',0]] },
+  models:[ ['Veo 3.1 Fast','veo-3.1-fast-generate-preview','19 clips','152 s','$0.100/s'], ['Nano Banana','gemini-3.1-flash-image-preview','48 images','—','$0.067/image'], ['GPT Image 2','gpt-image-2','22 images','—','$0.047/image'] ],
+  cost:{ rows:[['Veo 3.1 Fast',15.20,21.76,'v'],['Videos subtotal',15.20,21.76,'sub'],['Nano Banana',3.22,4.60,'i'],['GPT Image 2',1.47,2.10,'i'],['Images subtotal',4.69,6.71,'sub'],['Other AI services · text, voice, embeddings',0.41,0.59,'o'],['Total',20.30,29.06,'total']] },
+  gens:[
+    ['deb8ce4b','SCEI','Image','—','—','ready','Oct 13, 2026 · 11:29 AM'], ['07203cb7','SCEI','Video','8 s','—','skipped','Oct 13, 2026 · 11:28 AM'],
+    ['1dffc421','apple','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Oct 2, 2026 · 3:27 PM'], ['8571f09e','apple','Video · Veo 3.1 Fast','8 s','—','progress','Oct 2, 2026 · 3:23 PM'],
+    ['8694267f','Formee Express','Video','8 s','—','skipped','Sep 30, 2026 · 2:13 PM'], ['8f2e374e','Formee Express','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Sep 30, 2026 · 11:07 AM'],
+    ['57175bf6','Supi Brand','Image','—','—','ready','Sep 28, 2026 · 7:20 PM'], ['951afa49','RealMe Phone','Video · Veo 3.1 Fast','24 s','23.2 s','ready','Sep 28, 2026 · 7:03 PM'],
+    ['5cd95d35','Steel X','Video · Veo 3.1 Fast','16 s','15.6 s','ready','Sep 28, 2026 · 6:35 PM'], ['7cce5f2a','Srikrishna Testing','Video · Veo 3.1 Fast','8 s','—','failed','Sep 25, 2026 · 9:35 PM'],
+    ['3a0fc241','RealMe Phone','Video · Veo 3.1 Fast','16 s','—','failed','Sep 25, 2026 · 9:21 PM'], ['7ff829f6','Formee Express','Video','8 s','—','preview','Sep 22, 2026 · 5:22 PM'],
+  ],
+  members:[
+    ['demo@reelforge.app','demo@reelforge.app','admin'], ['Norimi Muto','norimi.muto@formeeholdings.com','ba',['Formee Express','SCEI','Runway']],
+    ['Yejin Kim','yejin.kim@formeeholdings.com','ba',['Runway','SCEI']], ['Srikrishna R','srikrishna@reelforge.app','ba',['Srikrishna Testing']],
+    ['Debbie Aquino','fdebbie.aquino@scei.edu.au','user',['SCEI']], ['Jenny Jeong','jenny.jeong@formeeholdings.com','user',['Formee Express','SCHE']],
+    ['mia.park@formeeholdings.com','','invited',['Formee Express']],
+  ],
+};
+
+/* ---------------- state ---------------- */
+const S = { sort:{ accounts:null, activity:null }, view:'dashboard', id:null, tab:'overview', filter:'all', q:'', afilter:'all', aq:'', period:'30d', name:'Supreet Singh', draft:null };
+function readHash(){
+  const h = new URLSearchParams(location.hash.slice(1));
+  S.view = h.get('view') || 'dashboard'; S.id = h.get('id'); S.tab = h.get('tab') || 'overview';
+  if (h.get('filter')){ if (S.view === 'activity') S.afilter = h.get('filter'); if (S.view === 'accounts') S.filter = h.get('filter'); }
+  if (S.view === 'account' && !byId(S.id)) S.view = 'accounts';
+}
+const go = (view, extra = '') => { location.hash = 'view=' + view + extra; };
+const openAccount = (id, tab = 'overview') => go('account', '&id=' + id + (tab !== 'overview' ? '&tab=' + tab : ''));
+
+/* ---------------- shared bits ---------------- */
+const head = (title, sub, right = '') => `<div class="sa-head"><div><h1 class="sa-title">${title}</h1><p class="sa-sub">${sub}</p></div>${right}</div>`;
+const seg = (opts, cur, act) => `<div class="sa-seg" role="group">${opts.map(([k, l, n]) => `<button type="button" class="segment-chip${k === cur ? ' segment-chip--active' : ''}" data-act="${act}" data-k="${k}">${l}${n != null ? `<b>${n}</b>` : ''}</button>`).join('')}</div>`;
+const search = (ph, val, id) => `<label class="search-field search-field--expanded"><img src="${IC}ui-search.svg" alt=""><input class="search-field__input" id="${id}" type="search" placeholder="${ph}" value="${esc(val)}" autocomplete="off"></label>`;
+const more = (id, label = 'Account actions') => `<button type="button" class="more-btn more-btn--sm" data-menu="${id}" aria-label="${label}" aria-expanded="false"><img src="${IC}ui-ellipsis.svg" alt=""></button>`;
+const totals = () => {
+  const t = { accounts:ACCOUNTS.length, active:0, suspended:0, brands:0, admins:0, ba:0, users:0, spend:0 };
+  ACCOUNTS.forEach(a => { t[a.status]++; t.brands += a.brands; t.admins += a.admins; t.ba += a.ba; t.users += a.users; t.spend += a.spend; });
+  return t;
+};
+
+/* ---------------- column sort ---------------- */
+const UP = 'arrow-up.svg', DOWN = 'ui-arrow-down.svg';
+const MENUS = {
+  az:   [['asc', 'Sort A to Z', UP], ['desc', 'Sort Z to A', DOWN]],
+  num:  [['desc', 'Sort highest to lowest', DOWN], ['asc', 'Sort lowest to highest', UP]],
+  date: [['desc', 'Sort newest to oldest', DOWN], ['asc', 'Sort oldest to newest', UP]],
+};
+const SORTS = {
+  accounts: {
+    account:{ menu:'az', get:a => a.name.toLowerCase() }, brands:{ menu:'num', get:a => a.brands }, admins:{ menu:'num', get:a => a.admins },
+    ba:{ menu:'num', get:a => a.ba }, users:{ menu:'num', get:a => a.users }, gens:{ menu:'num', get:a => a.gens }, spend:{ menu:'num', get:a => a.spend },
+  },
+  activity: {
+    account:{ menu:'az', get:g => byId(g.acc).name.toLowerCase() }, brand:{ menu:'az', get:g => g.brand.toLowerCase() }, updated:{ menu:'date', get:g => -g.min },
+  },
+};
+function sorted(table, list){
+  const s = S.sort[table]; if (!s) return list;   /* nothing sorted = default order (newest first) */
+  const get = SORTS[table][s.key].get, k = s.dir === 'asc' ? 1 : -1;
+  return [...list].sort((a, b) => { const x = get(a), y = get(b); return (x > y ? 1 : x < y ? -1 : 0) * k; });
+}
+function sortHead(table, key, label){
+  const s = S.sort[table], on = s && s.key === key;
+  const opt = on ? MENUS[SORTS[table][key].menu].find(o => o[0] === s.dir) : null;
+  return `<button type="button" class="sa-sort${on ? ' sa-sort--active' : ''}" data-sort="${table}:${key}" aria-haspopup="menu" aria-expanded="false">${label}${opt ? `<img class="sa-sort__arrow" src="${IC}${opt[2]}" alt="">` : ''}<img class="sa-sort__caret" src="${IC}caret-down-filled.svg" alt=""></button>`;
+}
+function openSort(btn){
+  const [table, key] = btn.dataset.sort.split(':'), cur = S.sort[table] && S.sort[table].key === key ? S.sort[table] : null;
+  const html = MENUS[SORTS[table][key].menu].map(([dir, label, icon]) => `<button type="button" class="menu-item${cur && cur.dir === dir ? ' menu-item--selected' : ''}" role="menuitem" data-sortset="${table}:${key}:${dir}"><span class="sa-sortmenu__label"><img src="${IC}${icon}" alt="">${label}</span><img class="sa-sortmenu__check" src="${IC}panel-check.svg" alt=""></button>`).join('')
+    + (cur ? `<button type="button" class="menu-item" role="menuitem" data-sortset="${table}::"><span class="sa-sortmenu__label"><img src="${IC}close-x.svg" alt="">Clear sort</span></button>` : '');
+  const m = $('#menu'), fr = $('#frame').getBoundingClientRect(), r = btn.getBoundingClientRect(), k = fr.width / 1920;
+  m.innerHTML = `<div class="context-menu sa-sortmenu" role="menu">${html}</div>`; m.hidden = false;
+  const left = (r.left - fr.left) / k, right = btn.closest('.num') != null;
+  m.style.top = ((r.bottom - fr.top) / k + 6) + 'px';
+  m.style.left = (right ? left + r.width / k - m.firstChild.offsetWidth : left) + 'px';
+  btn.setAttribute('aria-expanded', 'true');
+}
+
+/* ---------------- Dashboard — Home layout (12427:416860) ---------------- */
+function renderDashboard(){
+  const t = totals(), stuck = ACT.filter(g => g.stuck).length, susp = ACCOUNTS.filter(a => a.status === 'suspended');
+  const stat = (icon, value, label, cap) => `<div class="stats-summary__stat"><div class="stats-summary__icon"><img src="${IC}${icon}" alt=""></div><div class="stats-summary__text"><p class="stats-summary__value">${value}</p><p class="stats-summary__label">${label}</p><p class="stats-summary__caption">${cap}</p></div></div>`;
+  const sectionHead = (title, link, lg = true) => `<div class="header-row"><div class="trends-section-header${lg ? ' trends-section-header--lg' : ''}"><div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">${title}</h2></div></div></div>${link || ''}</div>`;
+  const attention = [
+    ['stat-circle-alert-20.svg', `${FEED.failed} failed generations`, `Out of the latest ${FEED.kept} · provider and render errors`, '#view=activity&filter=failed'],
+    ['stat-spinner-20.svg', `${stuck} render may be stuck`, 'Rendering for over 16 days', '#view=activity&filter=progress'],
+    ['nav-admin.svg', `${susp.length} suspended ${susp.length === 1 ? 'account' : 'accounts'}`, susp.map(a => `${a.name} · since ${a.suspendedOn}`).join(', ') || 'None right now', '#view=accounts&filter=suspended'],
+  ].map(([icon, title, hint, href]) => `<a class="content-type-card" href="${href}"><span class="content-type-card__icon"><img src="${IC}${icon}" alt=""></span><span class="content-type-card__text"><p class="content-type-card__title">${title}</p><p class="content-type-card__hint">${esc(hint)}</p></span><img class="content-type-card__chevron" src="${IC}chevron-right-20-grey.svg" alt=""></a>`).join('');
+  const recent = ACCOUNTS.slice(0, 6).map(a => `<div class="lc-row" data-open="${a.id}"><div class="ra-account cell-text"><span class="cell-main">${esc(a.name)}</span><span class="cell-sub">${esc(a.owner)}</span></div><span class="ra-brands cell-main">${a.brands}</span><div class="ra-created cell-text"><span class="cell-sub">${a.created}</span></div><span class="ra-status">${acctChip(a)}</span></div>`).join('');
+  const top = ACCOUNTS.filter(a => a.spend > 0).sort((a, b) => b.spend - a.spend).slice(0, 5);
+  const topRows = top.map((a, i) => `<div class="lc-row ts" data-open="${a.id}"><span class="ts-rank">${i + 1}</span><div class="ts-account cell-text"><span class="cell-main">${esc(a.name)}</span><span class="cell-sub">${esc(a.owner)}</span></div><div class="ts-gens cell-text"><span class="cell-big">${fmt(a.gens)}</span><span class="cell-sub">generations</span></div><div class="ts-spend cell-text"><span class="cell-big">${usd(a.spend)}</span><span class="cell-sub">MTD</span></div></div>`).join('');
+  return `<section class="hero">
+      <div class="hero__glow hero__glow--primary"><img src="assets/glow-primary.svg" alt=""></div>
+      <div class="hero__glow hero__glow--accent"><img src="assets/glow-accent.svg" alt=""></div>
+      <div class="hero__header">
+        <div class="hero__title-block"><p class="hero__meta">Monday, October 26, 2026</p><h1 class="hero__title">Platform overview</h1><p class="hero__meta">${t.accounts} customer accounts · ${t.active} active · ${t.suspended} suspended</p></div>
+        <div class="hero__actions"><a class="actions-btn actions-btn--primary" href="#view=accounts">Manage accounts</a><a class="actions-btn actions-btn--secondary" href="#view=activity">View activity</a></div>
+      </div>
+      <div class="stats-summary stats-summary--glass">
+        ${stat('building-complex.svg', t.accounts, 'Accounts', `${t.active} active · ${t.suspended} suspended`)}<div class="stats-summary__divider stats-summary__divider--strong"></div>
+        ${stat('panel-brand.svg', t.brands, 'Brands', 'Across all accounts')}<div class="stats-summary__divider"></div>
+        ${stat('circle-user-round.svg', t.admins + t.ba + t.users, 'Members', `${t.admins} Admins · ${t.ba} Brand Admins · ${t.users} Users`)}<div class="stats-summary__divider"></div>
+        ${stat('nav-billing.svg', usd(t.spend), 'Compute spend · MTD', 'This month')}
+      </div>
+    </section>
+    <section class="home-section">${sectionHead('Needs attention')}<div class="quick-row">${attention}</div></section>
+    <div class="split-row">
+      <section class="home-section">${sectionHead('Recent accounts', `<a class="text-btn" href="#view=accounts">View all →</a>`)}
+        <div class="list-card"><div class="lc-head"><span class="ra-account">Account</span><span class="ra-brands">Brands</span><span class="ra-created">Created</span><span class="ra-status">Status</span></div>${recent}</div></section>
+      <section class="home-section">${sectionHead('Top spend this month', `<a class="text-btn" href="#view=accounts">View accounts →</a>`, false)}
+        <div class="list-card">${topRows || '<p class="sa-empty">No spend yet this month.</p>'}</div></section>
+    </div>`;
+}
+
+/* ---------------- Accounts ---------------- */
+function accountRows(){
+  const q = S.q.trim().toLowerCase();
+  return sorted('accounts', ACCOUNTS.filter(a => (S.filter === 'all' || a.status === S.filter) && (!q || (a.name + ' ' + a.owner + ' ' + a.email).toLowerCase().includes(q))));
+}
+function renderAccounts(){
+  const t = totals(), rows = accountRows();
+  const tr = a => `<div class="sa-tr link${a.status === 'suspended' ? ' is-suspended' : ''}" data-open="${a.id}">
+      <div class="sa-c col ac-account"><span class="sa-nm">${esc(a.name)}</span><span class="sa-mute">Created ${a.created}</span></div>
+      <div class="sa-c col ac-owner"><span class="sa-nm" style="font-weight:var(--font-weight-medium)">${esc(a.owner)}</span>${a.owner !== a.email ? `<span class="sa-mute">${esc(a.email)}</span>` : ''}</div>
+      <div class="sa-c num ac-n">${a.brands}</div>
+      <div class="sa-c num ac-role">${a.admins}</div><div class="sa-c num ac-role">${a.ba}</div><div class="sa-c num ac-role">${a.users}</div>
+      <div class="sa-c num ac-gen">${fmt(a.gens)}</div>
+      <div class="sa-c num ac-spend sa-strong">${usd(a.spend)}</div>
+      <div class="sa-c ac-status">${acctChip(a)}</div>
+      <div class="sa-c end ac-act">${more(a.id)}</div>
+    </div>`;
+  return head('Accounts', 'Every customer account on the platform. Suspending an account blocks sign-in for everyone in it — reversible, no data is deleted.') +
+    `<div class="sa-bar">${seg([['all', 'All', t.accounts], ['active', 'Active', t.active], ['suspended', 'Suspended', t.suspended]], S.filter, 'filter')}${search('Search by account, owner or email', S.q, 'accQ')}</div>
+    <div class="sa-card">
+      <div class="sa-tr head"><div class="sa-c ac-account">${sortHead('accounts', 'account', 'Account')}</div><div class="sa-c ac-owner">Owner</div><div class="sa-c num ac-n">${sortHead('accounts', 'brands', 'Brands')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'admins', 'Admins')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'ba', 'Brand Admins')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'users', 'Users')}</div><div class="sa-c num ac-gen">${sortHead('accounts', 'gens', 'Generations')}</div><div class="sa-c num ac-spend">${sortHead('accounts', 'spend', 'Spend MTD')}</div><div class="sa-c ac-status">Status</div><div class="sa-c ac-act"></div></div>
+      ${rows.length ? rows.map(tr).join('') : '<p class="sa-empty">No accounts match your search.</p>'}
+      <div class="sa-foot"><span>${rows.length} of ${t.accounts} accounts</span></div>
+    </div>`;
+}
+
+/* ---------------- Account details ---------------- */
+function bars(list, total, cls = ''){
+  return `<div class="sa-bars">${list.map(([l, v]) => `<div class="sa-barrow"><span>${l}</span><div class="sa-track"><div class="sa-fill ${cls}" style="width:${pct(v, total)}%"></div></div><span class="v">${v}</span><span class="p">${pct(v, total)}%</span></div>`).join('')}</div>`;
+}
+function renderAccount(){
+  const a = byId(S.id), R = a.rich ? RICH : null;
+  const tabs = [['overview', 'Overview'], ['usage', 'Usage & cost'], ['generations', 'Generations', a.gens], ['members', 'Members', a.admins + a.ba + a.users]];
+  const action = a.status === 'active'
+    ? `<button type="button" class="actions-btn actions-btn--secondary" onclick="ask('suspend','${a.id}')">Suspend account</button>`
+    : `<button type="button" class="actions-btn actions-btn--primary" onclick="ask('reinstate','${a.id}')">Reinstate account</button>`;
+  let body = '';
+  const periodBar = `<div class="sa-sechead"><div><h2 class="sa-sectitle">${S.tab === 'usage' ? 'Usage in this period' : 'Generations in this period'}</h2><p class="sa-secsub">${S.tab === 'usage' ? 'Counts every billed provider call — including retries, failed renders and unpicked previews.' : 'Every version, newest first.'}</p></div>${seg([['today', 'Today'], ['7d', 'Past 7 days'], ['30d', 'Past 30 days'], ['3m', 'Past 3 months'], ['custom', 'Custom']], S.period, 'period')}</div>`;
+  if (S.tab === 'overview'){
+    const L = R ? R.lifetime : { total:a.gens, images:0, carousels:0, videos:0 };
+    const stat = (icon, v, l, c) => `<div class="stats-summary__stat"><div class="stats-summary__icon"><img src="${IC}${icon}" alt=""></div><div class="stats-summary__text"><p class="stats-summary__value">${fmt(v)}</p><p class="stats-summary__label">${l}</p><p class="stats-summary__caption">${c}</p></div></div>`;
+    body = `<div class="stats-summary">${stat('stat-library-20.svg', L.total, 'Total generations', 'Every version, all statuses')}<div class="stats-summary__divider"></div>${stat('stat-scan-square-20.svg', L.images, 'Images', pct(L.images, L.total) + '% of all generations')}<div class="stats-summary__divider"></div>${stat('stat-scan-square-20.svg', L.carousels, 'Carousels', pct(L.carousels, L.total) + '% of all generations')}<div class="stats-summary__divider"></div>${stat('stat-duration-20.svg', L.videos, 'Videos', pct(L.videos, L.total) + '% of all generations')}</div>`;
+    const srow = ([l, v], total, cls = '') => `<div class="sa-srow"><div class="sa-srow-top"><span>${l}</span><b>${v}</b><span class="p">${pct(v, total)}%</span></div><div class="sa-track"><div class="sa-fill ${cls}" style="width:${pct(v, total)}%"></div></div></div>`;
+    const bd = (title, total, leftLabel, left, rightLabel, right, note) => `<div class="sa-card sa-bd"><div class="sa-bd-head"><p class="sa-kicker">${title}</p><span class="sa-total">${total} total</span></div>
+      <div class="sa-bd-cols"><div class="sa-bd-col"><p class="sa-group-label">${leftLabel}</p>${left.map(r => srow(r, total)).join('')}</div><div class="sa-bd-col"><p class="sa-group-label">${rightLabel}</p>${right.map(r => srow(r, total, 'muted')).join('')}</div></div>
+      <p class="sa-note">${note}</p></div>`;
+    body += R ? `<div class="sa-grid2">
+        ${bd('Carousels by cards generated', L.carousels, 'Cards generated', R.cards, 'Not generated', R.cardsNot, '20 came back with fewer cards than requested — counted at the cards actually generated.')}
+        ${bd('Videos by generated length', L.videos, 'Generated length', R.lengths, 'No usable video', R.lengthsNot, '23 edited after generation — counted at their original length.')}
+      </div>` : `<div class="sa-card"><p class="sa-empty">This account hasn’t generated anything yet.</p></div>`;
+  } else if (S.tab === 'usage'){
+    body = periodBar;
+    if (!R) body += `<div class="sa-card"><p class="sa-empty">No generations or billed calls in this period.</p></div>`;
+    else {
+      const P = R.period, tot = P.video[0] + P.image[0] + P.carousel[0], reqTot = P.req.reduce((s, r) => s + r[1], 0);
+      body += `<div class="sa-grid2">
+        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Generations by type</h2><p class="sa-secsub">${tot} versions · ${P.video[1] + P.image[1]} campaigns</p></div></div><div class="sa-card-body">${bars([['Video', P.video[0]], ['Image', P.image[0]], ['Carousel', P.carousel[0]]], tot)}</div></div>
+        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Videos by requested length</h2><p class="sa-secsub">${reqTot} videos generated</p></div></div><div class="sa-card-body">${bars(P.req, reqTot)}</div></div>
+        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Model usage</h2><p class="sa-secsub">Billed provider calls</p></div></div><div class="sa-card-body"><div class="sa-kv"><div class="r model h"><span>Model</span><span>Calls</span><span>Seconds</span><span>Rate</span></div>${R.models.map(m => `<div class="r model"><span class="sa-c col"><span class="sa-strong">${m[0]}</span><span class="sa-mono">${m[1]}</span></span><span>${m[2]}</span><span>${m[3]}</span><span>${m[4]}</span></div>`).join('')}</div><p class="sa-note">19 GPT Image 2 calls made before real token cost was recorded use a flat estimate.</p></div></div>
+        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Cost by model</h2><p class="sa-secsub">USD and AUD</p></div><span class="sa-big">$20.30</span></div><div class="sa-card-body"><div class="sa-kv"><div class="r h"><span>Model</span><span>USD</span><span>AUD</span></div>${R.cost.rows.map(r => `<div class="r ${r[3] === 'sub' ? 'sub' : r[3] === 'total' ? 'total' : ''}"><span>${r[0]}</span><span>${usd(r[1])}</span><span>A${usd(r[2])}</span></div>`).join('')}</div><p class="sa-note">1 USD = 1.4317 AUD · ECB reference rate, Oct 20, 2026. Actual spend is likely a little higher than the estimates.</p></div></div>
+      </div>`;
+    }
+  } else if (S.tab === 'generations'){
+    body = periodBar;
+    const rows = R ? R.gens : [];
+    body += `<div class="sa-card"><div class="sa-tr head"><div class="sa-c gn-id">Campaign</div><div class="sa-c gn-brand">Brand</div><div class="sa-c gn-type">Type</div><div class="sa-c num gn-req">Requested</div><div class="sa-c num gn-got">Generated</div><div class="sa-c gn-status">Status</div><div class="sa-c num gn-created">Created</div></div>
+      ${rows.length ? rows.map(g => `<div class="sa-tr"><div class="sa-c gn-id"><span class="sa-mono">${g[0]} · v1</span></div><div class="sa-c gn-brand">${brandPill(g[1])}</div><div class="sa-c gn-type">${g[2]}</div><div class="sa-c num gn-req">${g[3] === '—' ? '<span class="sa-dash">—</span>' : g[3]}</div><div class="sa-c num gn-got sa-strong">${g[4] === '—' ? '<span class="sa-dash">—</span>' : g[4]}</div><div class="sa-c gn-status">${chip(g[5])}</div><div class="sa-c num gn-created sa-mute">${g[6]}</div></div>`).join('') : '<p class="sa-empty">No generations in this period.</p>'}
+      <div class="sa-foot"><span>${rows.length ? '1–' + rows.length + ' of 26' : '0 of 0'}</span><span class="sa-pager"><button type="button" class="text-btn text-btn--24" disabled>← Prev</button><span>Page 1 of ${rows.length ? 3 : 1}</span><button type="button" class="text-btn text-btn--24"${rows.length ? '' : ' disabled'}>Next →</button></span></div></div>`;
+  } else {
+    const M = R ? R.members : [[a.owner, a.email === a.owner ? '' : a.email, 'admin']];
+    const none = '<span class="settings-member-row__none">—</span>';
+    const row = m => {
+      const [name, email, kind, brands = []] = m;
+      if (kind === 'invited') return `<div class="settings-member-row settings-member-row--invited"><div class="settings-col settings-col--member"><span class="ai-avatar md">${initials(name)}</span><div class="settings-member-row__identity"><span class="settings-member-row__name">${esc(name)}</span><span class="settings-member-row__meta">Invited 5 hours ago</span></div></div><div class="settings-col settings-col--status"><span class="feedback-status-chip feedback-status-chip--orange">Invited</span></div><div class="settings-col settings-col--brand-admin">${none}</div><div class="settings-col settings-col--user">${brands.map(brandPill).join('')}</div><div class="settings-col settings-col--actions"></div></div>`;
+      const ba = kind === 'admin' ? `<span class="brand-pill brand-pill--icon"><img src="${IC}panel-brand.svg" alt="">All ${a.brands} brands</span>` : kind === 'ba' ? brands.map(brandPill).join('') : none;
+      const us = kind === 'user' ? brands.map(brandPill).join('') : none;
+      return `<div class="settings-member-row"><div class="settings-col settings-col--member"><span class="ai-avatar md">${initials(name)}</span><div class="settings-member-row__identity"><div class="settings-member-row__name-line"><span class="settings-member-row__name">${esc(name)}</span>${kind === 'admin' ? '<span class="feedback-status-chip feedback-status-chip--primary">Admin</span>' : ''}</div><span class="settings-member-row__email">${esc(email || name)}</span></div></div><div class="settings-col settings-col--status"><span class="feedback-status-chip feedback-status-chip--green">Active</span></div><div class="settings-col settings-col--brand-admin">${ba}</div><div class="settings-col settings-col--user">${us}</div><div class="settings-col settings-col--actions">${kind === 'admin' ? `<button type="button" class="more-btn more-btn--sm" data-menu="admin:${a.id}" aria-label="Account admin actions" aria-expanded="false"><img src="${IC}ui-ellipsis.svg" alt=""></button>` : ''}</div></div>`;
+    };
+    body = `<div class="sa-sechead"><div><h2 class="sa-sectitle">Members</h2><p class="sa-secsub">Read-only. The account's own Admin manages members in Settings; only Super Admin can change who the account admin is.</p></div></div>
+      <div class="sa-card"><div class="settings-members-head" style="border-top:0"><div class="settings-col settings-col--member">Member</div><div class="settings-col settings-col--status">Status</div><div class="settings-col settings-col--brand-admin"><img src="${IC}data-shield-check.svg" alt="">Brand Admin</div><div class="settings-col settings-col--user"><img src="${IC}circle-user-round.svg" alt="">User</div><div class="settings-col settings-col--actions"></div></div>${M.map(row).join('')}
+      ${R ? `<div class="sa-foot"><span>Showing ${M.length} of ${a.admins + a.ba + a.users + 1} · ${a.admins} Admin · ${a.ba} Brand Admins · ${a.users} Users · 1 pending invitation</span></div>` : ''}</div>`;
+  }
+  return `<div class="sa-head"><div><button type="button" class="sa-back" onclick="go('accounts')"><img src="${IC}chevron-left.svg" alt="">Accounts</button>
+      <div class="sa-titleline"><div><h1 class="sa-title">${esc(a.name)} ${acctChip(a)}</h1><p class="sa-sub">${esc(a.owner)}${a.owner !== a.email ? ' · ' + esc(a.email) : ''} · Created ${a.created} · ${a.brands} ${a.brands === 1 ? 'brand' : 'brands'}${a.status === 'suspended' ? ' · Suspended ' + a.suspendedOn : ''}</p></div></div></div>${action}</div>
+    <div class="tab-bar" role="tablist">${tabs.map(([k, l, n]) => `<button type="button" class="tab-item${k === S.tab ? ' tab-item--selected' : ''}" role="tab" onclick="openAccount('${a.id}','${k}')">${l}${n != null ? `<b>${fmt(n)}</b>` : ''}</button>`).join('')}<div class="tab-item tab-item--filler" aria-hidden="true"></div></div>
+    ${body}`;
+}
+
+/* ---------------- Activity ---------------- */
+function renderActivity(){
+  const q = S.aq.trim().toLowerCase();
+  const list = sorted('activity', ACT.filter(g => (S.afilter === 'all' || (S.afilter === 'failed' && g.status === 'failed') || (S.afilter === 'progress' && g.status === 'rendering'))
+    && (!q || (byId(g.acc).name + ' ' + g.brand + ' ' + g.by).toLowerCase().includes(q))));
+  const stage = g => !g.clips ? '<span class="sa-dash">—</span>' : g.status === 'rendering' ? `Clip ${g.clips[0] + 1} of ${g.clips[1]}` : `${g.clips[0]} of ${g.clips[1]} ${g.clips[1] === 1 ? 'clip' : 'clips'}`;
+  const tr = g => { const a = byId(g.acc); return `<div class="sa-tr${g.stuck ? ' is-stuck' : ''}">
+      <div class="sa-c av-account"><div class="sa-c col"><span class="sa-nm">${esc(a.name)}</span>${dupName(a) ? `<span class="sa-mute">${esc(a.owner)}</span>` : ''}</div></div>
+      <div class="sa-c av-brand">${brandPill(g.brand)}</div>
+      <div class="sa-c av-by"><span class="sa-nm" style="font-weight:var(--font-weight-regular)">${esc(g.by)}</span><span class="feedback-status-chip feedback-status-chip--secondary">${g.role}</span></div>
+      <div class="sa-c av-format">${g.format}</div>
+      <div class="sa-c av-status">${chip(g.status)}${g.stuck ? '<span class="feedback-status-chip feedback-status-chip--orange">Stuck?</span>' : ''}</div>
+      <div class="sa-c av-stage">${stage(g)}</div>
+      <div class="sa-c av-updated sa-mute" title="${g.min} minutes ago">${ago(g.min)}</div>
+      <div class="sa-c av-err">${g.err ? `<span class="sa-err" title="${esc(g.raw)}">${esc(g.err)}</span>` : '<span class="sa-dash">—</span>'}</div>
+      <div class="sa-c end av-act">${(([href, step]) => `<a class="text-btn text-btn--24" href="${href}" target="_blank" rel="noopener" title="Opens where it stopped: ${step}">Open →</a>`)(lastScreen(g))}</div>
+    </div>`; };
+  return head('Activity', 'Every generation across all accounts and brands, newest first. Open shows the content where it stopped — Generate, Editing or Publish.', '') +
+    `<div class="sa-bar">${seg([['all', 'All', FEED.kept], ['progress', 'In progress', FEED.progress], ['failed', 'Failed', FEED.failed]], S.afilter, 'afilter')}${search('Search by account, brand or email', S.aq, 'actQ')}</div>
+    <div class="sa-card">
+      <div class="sa-tr head"><div class="sa-c av-account">${sortHead('activity', 'account', 'Account')}</div><div class="sa-c av-brand">${sortHead('activity', 'brand', 'Brand')}</div><div class="sa-c av-by">Created by</div><div class="sa-c av-format">Format</div><div class="sa-c av-status">Status</div><div class="sa-c av-stage">Progress</div><div class="sa-c av-updated">${sortHead('activity', 'updated', 'Updated')}</div><div class="sa-c av-err">Last error</div><div class="sa-c av-act"></div></div>
+      ${list.length ? list.map(tr).join('') : '<p class="sa-empty">No generations match.</p>'}
+      <div class="sa-foot"><span>${list.length} shown · latest 200 kept</span></div>
+    </div>`;
+}
+
+/* ---------------- menus / modal / toast ---------------- */
+const $ = s => document.querySelector(s);
+function closeMenu(){ $('#menu').hidden = true; document.querySelectorAll('[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false')); document.querySelectorAll('.sa-tr.hl').forEach(r => r.classList.remove('hl')); }
+function openMenu(btn){
+  const key = btn.dataset.menu, frame = $('#frame'), fr = frame.getBoundingClientRect(), r = btn.getBoundingClientRect(), k = fr.width / 1920;
+  let html;
+  if (key.startsWith('admin:')){
+    html = `<a class="menu-item" style="text-decoration:none" href="#view=settings">Transfer account admin</a>`;
+  } else {
+    const a = byId(key);
+    html = `<button type="button" class="menu-item" onclick="openAccount('${a.id}')">View details</button>
+      <button type="button" class="menu-item" onclick="openAccount('${a.id}','members')">View members</button>
+      <div class="menu-divider"></div>` +
+      (a.status === 'active' ? `<button type="button" class="menu-item menu-item--danger" onclick="ask('suspend','${a.id}')">Suspend account</button>` : `<button type="button" class="menu-item" onclick="ask('reinstate','${a.id}')">Reinstate account</button>`);
+  }
+  const m = $('#menu');
+  m.innerHTML = `<div class="context-menu">${html}</div>`; m.hidden = false;
+  m.style.left = ((r.right - fr.left) / k - 200) + 'px'; m.style.top = ((r.bottom - fr.top) / k + 4) + 'px';
+  btn.setAttribute('aria-expanded', 'true'); const row = btn.closest('.sa-tr'); if (row) row.classList.add('hl');
+}
+function ask(kind, id){
+  closeMenu();
+  const a = byId(id), who = `${a.admins} Admin, ${a.ba} Brand ${a.ba === 1 ? 'Admin' : 'Admins'} and ${a.users} ${a.users === 1 ? 'User' : 'Users'}`;
+  const label = dupName(a) ? `${a.name} (${a.owner})` : a.name;
+  const L = $('#layer');
+  L.innerHTML = kind === 'suspend'
+    ? `<div class="modal sa-dlg" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Suspend ${esc(label)}?</h3></div><div class="sa-dlg-body">${who} lose access across ${a.brands} ${a.brands === 1 ? 'brand' : 'brands'}.<ul><li>Scheduled posts stop publishing.</li><li>Nothing is deleted — you can reinstate at any time.</li></ul></div><div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--danger" onclick="setStatus('${a.id}','suspended')">Suspend account</button></div></div>`
+    : `<div class="modal sa-dlg" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Reinstate ${esc(label)}?</h3></div><div class="sa-dlg-body">${who} can sign in again, and their brands and content come back as they were.</div><div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--primary" onclick="setStatus('${a.id}','active')">Reinstate account</button></div></div>`;
+  L.hidden = false;
+}
+function closeLayer(){ $('#layer').hidden = true; }
+function setStatus(id, st){
+  const a = byId(id); a.status = st; a.suspendedOn = st === 'suspended' ? 'Oct 26, 2026' : null;
+  closeLayer(); render(); toast(st === 'suspended' ? `${a.name} suspended` : `${a.name} reinstated`);
+}
+let tt; function toast(msg){ closeMenu(); const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2400); }
+
+/* ---------------- render ---------------- */
+const CRUMB = { dashboard:'Dashboard', accounts:'Accounts', account:'Accounts', activity:'Activity', settings:'Settings' };
+function render(){
+  closeMenu();
+  const navKey = S.view === 'account' ? 'accounts' : S.view;
+  document.querySelectorAll('[data-nav]').forEach(n => n.classList.toggle('active', n.dataset.nav === navKey));
+  $('#crumb').textContent = S.view === 'account' ? 'Accounts / ' + byId(S.id).name : CRUMB[S.view];
+  document.querySelectorAll('.sa-page').forEach(p => p.hidden = p.dataset.page !== S.view);
+  const page = document.querySelector(`.sa-page[data-page="${S.view}"]`);
+  if (S.view === 'settings'){ if (window.renderS3) window.renderS3(); }   /* Settings = v3 Settings ver3 (s3-js) */
+  else page.innerHTML = ({ dashboard:renderDashboard, accounts:renderAccounts, account:renderAccount, activity:renderActivity })[S.view]();
+  $('#meName').textContent = S.name;
+}
+function rerenderKeepFocus(id){ const el = document.getElementById(id), pos = el ? el.selectionStart : 0; render(); const n = document.getElementById(id); if (n){ n.focus(); n.setSelectionRange(pos, pos); } }
+
+document.addEventListener('click', e => {
+  const sh = e.target.closest('[data-sort]');
+  if (sh){ e.stopPropagation(); const open = sh.getAttribute('aria-expanded') === 'true'; closeMenu(); if (!open) openSort(sh); return; }
+  const si = e.target.closest('[data-sortset]');
+  if (si){ const [table, key, dir] = si.dataset.sortset.split(':'); S.sort[table] = key ? { key, dir } : null; render(); return; }
+  const m = e.target.closest('[data-menu]');
+  if (m){ e.stopPropagation(); const open = m.getAttribute('aria-expanded') === 'true'; closeMenu(); if (!open) openMenu(m); return; }
+  if (!e.target.closest('#menu')) closeMenu();
+  const s = e.target.closest('[data-act]');
+  if (s){ const k = s.dataset.k; if (s.dataset.act === 'filter') S.filter = k; if (s.dataset.act === 'afilter') S.afilter = k; if (s.dataset.act === 'period') S.period = k; render(); return; }
+  const o = e.target.closest('[data-open]');
+  if (o && !e.target.closest('button')) openAccount(o.dataset.open);
+  if (e.target.id === 'layer') closeLayer();
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'accQ'){ S.q = e.target.value; rerenderKeepFocus('accQ'); }
+  if (e.target.id === 'actQ'){ S.aq = e.target.value; rerenderKeepFocus('actQ'); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeMenu(); closeLayer(); } });
+$('#meBtn').addEventListener('click', () => toast('Signed in as Super Admin · Sign out lives here'));
+window.addEventListener('hashchange', () => { readHash(); render(); $('#main').scrollTop = 0; });
+
+if (new URLSearchParams(location.search).has('shot')) document.querySelector('.home-fab').remove();
+readHash(); render();
+
+/* ---------------- fit-to-viewport ---------------- */
+function fit(){
+  const M = 40, k = Math.min((innerWidth - M * 2) / 1920, (innerHeight - M * 2) / 1162);
+  $('#frame').style.transform = `scale(${k})`;
+  document.body.style.width = (1920 * k) + 'px'; document.body.style.height = (1162 * k) + 'px';
+}
+addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>
