@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Trends v2 — AI Social Media</title>
+<!-- Figma: FME_AI-Social-Media "Trends_to be_261023 (refresh)" (N8AXYZVtz82rgHcCRHKzEl, section 14018:277609).
+     v2 adds the manual Fetch / Refresh policy (Harsh, 22 Oct), the Instagram / TikTok tabs, the Trend Detail
+     modal and the first-fetch screens. The previous build stays at trends.html (Archiving on the index).
+     All UI pieces are the shared components in components/ai-social-media/ — this file only lays them out. -->
+<!-- Font: DM Sans (Figma uses the variable font at optical size 14 — see body rule) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<!-- Google's default DM Sans subsets leave out "→" (U+2192); fetch that one glyph so "Use in new content →" renders in DM Sans like Figma -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/stats-summary.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-section-header.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/selector-video-card.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/preview-top-row.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/scene-tile.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/controls-misc.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/trends-hook-card.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/feedback-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/schedule.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/post-status-chip.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/music-library-card.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/actions-button.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/access-brand-pill.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/editor-panel-chrome.css">
+<link rel="stylesheet" href="../../../components/shared/modal.css">
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; overflow:hidden; color:var(--color-neutral-900);
+    font-family:var(--font-family-text);
+    /* Figma renders DM Sans at optical size 14 ("opsz" 14) on every text layer */
+    font-optical-sizing:none; font-variation-settings:"opsz" 14;
+  }
+  button{font:inherit;}
+
+  /* ── frame: Nav / Navigation (262) + right-col (1658) ── */
+  .trends-frame{display:flex; align-items:stretch;}
+  /* 1920 × 1162 frame scaled to the window (same as the other prototypes); Main Content scrolls inside */
+  html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
+  .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
+  .frame > .sidebar{height:100%;}
+  .frame .right-col{height:100%; min-height:0;}
+  .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
+  .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+
+  /* ── Main Content: 28 / 28 / 60 padding, 20 between header · tabs · body ── */
+  .trends-main{
+    display:flex; flex-direction:column; gap:var(--spacing-xl);
+    padding:28px 28px 60px; /* 토큰 없음: Figma 28 / 60 */
+    background:var(--color-neutral-75);
+  }
+
+  /* page header — title block bottom-aligned with the Refresh Control */
+  .page-header{display:flex; align-items:flex-end; justify-content:space-between; gap:var(--spacing-2xl);}
+  .page-header__title-block{display:flex; flex-direction:column; gap:var(--spacing-xs); overflow:hidden; white-space:nowrap;}
+  .page-header__title{
+    margin:0; font-size:var(--font-size-display-sm); line-height:var(--line-height-display-sm);
+    font-weight:var(--font-weight-display-sm); letter-spacing:-0.1px; /* 토큰 없음: Figma Display/sm -0.1 */
+  }
+  .page-header__sub{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+
+  /* ── Trends / Refresh Control (14047:291780) — status text + Actions / Button, 16 apart ──
+     States: Fetch · Refresh · Fetching · Cooldown (tooltip on hover) · Success · Error (tooltip on hover).
+     Hidden for the User role (Admin / Brand Admin only). */
+  .refresh-control{display:flex; align-items:center; gap:var(--spacing-lg); flex-shrink:0;}
+  .refresh-status{position:relative; display:flex; flex-direction:column; align-items:flex-end; gap:2px; text-align:right; white-space:nowrap;} /* 토큰 없음: Figma 2 */
+  .refresh-status__line{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-700);}
+  .refresh-status__reason{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .refresh-control__btn{position:relative;}
+  .refresh-control .editor-tooltip{position:absolute; top:calc(100% + var(--spacing-sm)); right:0; z-index:5; display:none;}
+  .refresh-control__btn:hover .editor-tooltip,
+  .refresh-status:hover .editor-tooltip{display:inline-flex;}
+
+  /* ── platform tabs — Controls / Segmented Control + Segment Chip with Show icon on (14209:301355) ── */
+  .platform-tabs{align-self:flex-start;}
+  .platform-tabs .controls-segment-chip{gap:var(--spacing-sm);}
+  .platform-tabs .controls-segment-chip img{width:18px; height:18px; flex-shrink:0;} /* 토큰 없음: Figma 18 */
+
+  /* body sections, 40 apart */
+  .trends-body{display:flex; flex-direction:column; gap:var(--spacing-4xl);}
+  .trends-section{display:flex; flex-direction:column; gap:var(--spacing-lg);}
+  .trends-section--stack{gap:var(--spacing-2xl);} /* hook patterns ↔ hashtags */
+
+  /* Viral right now — carousel */
+  .carousel{position:relative; height:486px; overflow:hidden;}
+  .carousel__track{display:flex; align-items:flex-start; gap:var(--spacing-xl); transition:transform .3s ease;}
+  .carousel__fade{
+    position:absolute; top:0; right:0; width:120px; height:380px; pointer-events:none;
+    background:linear-gradient(to right, rgba(247,250,255,0), var(--color-neutral-75)); /* Figma fade: neutral-75 at 0% → 100% */
+  }
+  .carousel .controls-carousel-arrow{position:absolute; top:174px; right:var(--spacing-sm);}
+  .carousel .controls-carousel-arrow[hidden]{display:none;}
+  .selector-video-card-frame{cursor:pointer;}
+
+  /* Hook patterns grid — 2 × 793, 16 gap */
+  .hook-grid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--spacing-lg);}
+  /* Hashtags */
+  .tag-row{display:flex; flex-wrap:wrap; gap:var(--spacing-sm);}
+
+  [hidden]{display:none !important;}
+  /* empty / first-fetch screens: the empty block fills the rest of Main Content */
+  body.state-empty .trends-main{flex:1 0 0;}
+  .trends-empty{flex:1 0 0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .trends-empty .empty-state__glyph img.spin{animation:actions-btn-spin 0.9s linear infinite;}
+
+  /* ── Modal · Trend Detail — Modal / Dialog Size=L (1120 × 822) + _Modal / Body · Trend Detail (14031:613140) ──
+     Header, footer and media stay put; only the right column scrolls, with a fade when it overflows. */
+  .frame > .modal-overlay{position:absolute;}
+  .trend-modal{
+    width:1120px; height:822px; display:flex; flex-direction:column;
+    background:var(--color-neutral-0); border-radius:var(--radius-2xl); box-shadow:var(--shadow-modal); overflow:hidden;
+  }
+  .trend-modal__header{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); padding:28px 28px 20px 32px;} /* 토큰 없음: Figma Modal / Header 28 / 20 / 32 */
+  .trend-modal__title{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold);}
+  .trend-modal__close{width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-lg); cursor:pointer;}
+  .trend-modal__close:hover{background:var(--color-neutral-100);}
+  .trend-modal__close img{width:20px; height:20px;}
+  .trend-modal__body{flex:1 0 0; min-height:0; display:flex; gap:var(--spacing-2xl); padding:0 32px var(--spacing-2xl);} /* 토큰 없음: modal/body-padding-x 32 */
+  .trend-modal__media{position:relative; flex-shrink:0; height:640px; border-radius:var(--radius-xl); overflow:hidden; background:var(--color-neutral-150);}
+  .trend-modal__media > img{width:100%; height:100%; object-fit:cover; display:block;}
+  .trend-modal__media .preview-top-row{position:absolute; top:var(--spacing-lg); right:var(--spacing-lg); width:auto;} /* Figma: ratio badge top-right */
+  .trend-modal__media .scene-tile-play-btn{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);}
+  .trend-modal__media .scene-tile-scrubber{position:absolute; left:var(--spacing-lg); right:var(--spacing-lg); bottom:var(--spacing-lg);}
+  .trend-modal__counter{position:absolute; right:var(--spacing-lg); bottom:var(--spacing-lg);}
+  .trend-modal__media .controls-carousel-arrow{position:absolute; top:50%; transform:translateY(-50%);}
+  .trend-modal__media .controls-carousel-arrow--prev{left:var(--spacing-lg);}
+  .trend-modal__media .controls-carousel-arrow--next{right:var(--spacing-lg);}
+  .trend-modal__media .controls-carousel-arrow--prev img{transform:scaleX(-1);}
+  .trend-detail-wrap{position:relative; flex:1 0 0; min-width:0;}
+  .trend-detail{height:100%; overflow-y:auto; display:flex; flex-direction:column; gap:var(--spacing-2xl);}
+  .trend-detail__fade{position:absolute; left:0; right:0; bottom:0; height:64px; pointer-events:none; background:linear-gradient(to bottom, rgba(255,255,255,0), var(--color-neutral-0));} /* 토큰 없음: Figma 64 */
+  /* platforms row sits on the column edge; every text block below starts 16 in */
+  .trend-detail__platforms{display:flex; gap:var(--spacing-sm); padding-right:var(--spacing-lg);}
+  /* Trends / Platform Chip (14054:291469) — Brand Pill look, 28 tall, 12px label */
+  .trend-detail__platforms .brand-pill{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-700); gap:6px;} /* 토큰 없음: Figma 6 */
+  .trend-detail__box{display:flex; flex-direction:column; gap:6px; padding:var(--spacing-lg); background:var(--color-neutral-100); border-radius:var(--radius-lg);} /* 토큰 없음: Figma 6 */
+  .trend-detail__divider{height:1px; flex-shrink:0; background:var(--color-neutral-200);}
+  .trend-detail__section{display:flex; flex-direction:column; gap:6px; padding:0 var(--spacing-lg);} /* 토큰 없음: Figma 6 */
+  .trend-detail__label{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+  .trend-detail__text{margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-700);}
+  .trend-modal__footer{display:flex; justify-content:flex-end; gap:var(--spacing-md); padding:18px 28px 18px 32px; border-top:1px solid var(--color-neutral-200);} /* 토큰 없음: Figma Modal / Footer 18 / 28 / 32 */
+  .trend-modal__footer a{text-decoration:none;}
+
+  /* home-fab — prototype navigation, not product UI: bottom-left pill back to all screens */
+  .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
+  .home-fab:hover{background:rgba(15,23,41,1);}
+  .home-fab svg{width:14px; height:14px; flex-shrink:0;}
+  /* proto-role — prototype-only switch (not product UI): view the page as Admin or User */
+  .proto-role{position:fixed; left:110px; bottom:16px; z-index:9999; display:flex; gap:2px; padding:3px; background:rgba(15,23,41,.92); border-radius:9999px; box-shadow:0 6px 20px rgba(0,0,0,.28); font-family:var(--font-family-text);}
+  .proto-role button{border:none; background:transparent; color:rgba(255,255,255,.7); font-size:12px; font-weight:600; padding:5px 12px; border-radius:9999px; cursor:pointer;}
+  .proto-role button.on{background:#fff; color:#0f1729;}
+</style>
+</head>
+<body>
+<div class="trends-frame frame" id="frame">
+
+  <!-- ══ Nav / Navigation — components/ai-social-media/nav.css ══ -->
+  <aside class="sidebar">
+    <div class="nav-account">
+      <div class="brand">
+        <span class="link">
+          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
+          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
+        </span>
+        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      </div>
+      <div class="acct acct--filled"><span>Formee Express</span>
+        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item" href="../home/home.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Create</div>
+        <a class="nav-item" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Content</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library-v2.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
+        <a class="nav-item" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
+        <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
+        <a class="nav-item" href="../analytics/analytics.html"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
+        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library-v2.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
+        <a class="nav-item" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="right-col">
+
+    <!-- ══ Nav / App TopBar — nav-app-topbar.css ══ -->
+    <header class="app-topbar">
+      <div class="app-topbar__crumb">Trends</div>
+      <div class="app-topbar__spacer"></div>
+      <label class="search-field search-field--expanded">
+        <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+        <input class="search-field__input search-field__label" type="search" placeholder="Search" aria-label="Search">
+      </label>
+      <div class="app-topbar__actions">
+        <button type="button" class="app-topbar__bell" aria-label="Notifications">
+          <img src="../../../components/ai-social-media/icons/nav-bell.svg" alt="">
+          <img class="app-topbar__bell-dot" src="../../../components/ai-social-media/icons/notification-dot-8.svg" alt="">
+        </button>
+        <div class="ai-avatar md">DV</div>
+      </div>
+    </header>
+
+    <main class="trends-main" id="trendsMain">
+      <div class="page-header">
+        <div class="page-header__title-block">
+          <h1 class="page-header__title">What's working in AU education</h1>
+          <p class="page-header__sub">Insights from trending posts in your industry.</p>
+        </div>
+        <div class="refresh-control" id="refreshControl"></div>
+      </div>
+
+      <!-- Instagram / TikTok — the data on the page follows the selected platform -->
+      <div class="controls-segmented-control platform-tabs" id="platformTabs" role="tablist">
+        <button type="button" class="controls-segment-chip controls-segment-chip--selected" role="tab" data-platform="instagram"><img src="../../../components/ai-social-media/icons/social-instagram.svg" alt="">Instagram</button>
+        <button type="button" class="controls-segment-chip" role="tab" data-platform="tiktok"><img src="../../../components/ai-social-media/icons/social-tiktok.svg" alt="">TikTok</button>
+      </div>
+
+      <!-- first fetch · states — empty-state.css, filled by renderEmpty() -->
+      <div class="trends-empty" id="trendsEmpty" hidden></div>
+
+      <div class="trends-body" id="trendsBody">
+
+        <!-- Stats summary — stats-summary.css -->
+        <div class="stats-summary">
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-scan-square-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">60</p><p class="stats-summary__label">Posts scanned</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">261K</p><p class="stats-summary__label">Avg views per post</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-duration-20.svg" alt=""></div>
+            <div class="stats-summary__text"><p class="stats-summary__value">93s</p><p class="stats-summary__label">Avg duration</p></div>
+          </div>
+          <div class="stats-summary__divider"></div>
+          <div class="stats-summary__stat">
+            <div class="stats-summary__icon"><img src="../../../components/ai-social-media/icons/stat-trending-up-20.svg" alt=""></div>
+            <div class="stats-summary__text">
+              <div class="stats-summary__value-row"><p class="stats-summary__value">84</p><span class="stats-summary__delta">↑ 600%</span></div>
+              <p class="stats-summary__label">Posting velocity</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viral right now — thumbnail opens Modal · Trend Detail, the link goes straight to New content -->
+        <section class="trends-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left">
+              <div class="trends-section-header__title-row">
+                <h2 class="trends-section-header__title">Viral right now</h2>
+                <span class="trends-section-header__badge">General</span>
+              </div>
+              <p class="trends-section-header__desc">Trending formats and content patterns across platforms.</p>
+            </div>
+            <p class="trends-section-header__meta">Web scan · 26 October</p>
+          </div>
+
+          <div class="carousel">
+            <div class="carousel__track" id="carouselTrack"></div>
+            <div class="carousel__fade" id="carouselFade"></div>
+            <button type="button" class="controls-carousel-arrow" id="carouselNext" aria-label="Next">
+              <img src="../../../components/ai-social-media/icons/chevron-right.svg" alt="">
+            </button>
+          </div>
+        </section>
+
+        <!-- Hook patterns + Hashtags -->
+        <section class="trends-section trends-section--stack">
+          <div class="trends-section">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Hook patterns</h2></div></div>
+            </div>
+            <div class="hook-grid" id="hookGrid"></div>
+          </div>
+          <div class="trends-section">
+            <div class="trends-section-header">
+              <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Hashtags</h2></div></div>
+            </div>
+            <div class="tag-row" id="tagRow"></div>
+          </div>
+        </section>
+
+        <!-- Top performing posts — schedule.css list, fluid variant -->
+        <section class="trends-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Top performing posts</h2></div></div>
+          </div>
+          <div class="empty-state-panel" id="postsEmpty" hidden>
+            <div class="empty-state empty-state--section">
+              <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/trending-up-18.svg" alt=""></span>
+              <div class="empty-state__text"><p class="empty-state__title">No top posts yet.</p><p class="empty-state__body">Top posts will show up here after the next refresh.</p></div>
+            </div>
+          </div>
+          <div class="sc-list sc-list--fluid" id="postsTable">
+            <div class="sc-list-colhead">
+              <span class="sc-col--post">Post</span>
+              <span class="sc-col--when">Views · posted</span>
+              <span class="sc-col--platforms">Platform</span>
+            </div>
+            <div id="postRows"></div>
+          </div>
+        </section>
+
+        <!-- Trending audio — music-library-card.css -->
+        <section class="trends-section">
+          <div class="trends-section-header">
+            <div class="trends-section-header__left">
+              <div class="trends-section-header__title-row"><h2 class="trends-section-header__title">Trending audio</h2></div>
+              <p class="trends-section-header__desc">Similar tracks from your Audio library are available when the original isn’t licensed.</p>
+            </div>
+          </div>
+          <div class="empty-state-panel" id="audioEmpty" hidden>
+            <div class="empty-state empty-state--section">
+              <span class="empty-state__glyph"><img src="../../../components/ai-social-media/icons/nav-audio-18.svg" alt=""></span>
+              <div class="empty-state__text"><p class="empty-state__title">No trending audio yet.</p><p class="empty-state__body">Sounds used in trending posts will show up here.</p></div>
+            </div>
+          </div>
+          <div class="music-library-list" id="audioList"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal · Trend Detail (filled by openModal) -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="trend-modal" id="trendModal" role="dialog" aria-modal="true"></div>
+  </div>
+</div>
+
+<a class="home-fab" href="../../../index.html" title="Back to all screens">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M2 7.2 8 2l6 5.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.3 6.2V13a.8.8 0 0 0 .8.8h3V10h1.8v3.8h3a.8.8 0 0 0 .8-.8V6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Home</span>
+</a>
+<div class="proto-role" id="protoRole" title="Prototype only — view as">
+  <button type="button" data-role="admin">Admin</button>
+  <button type="button" data-role="user">User</button>
+</div>
+
+<script>
+const ICON = '../../../components/ai-social-media/icons/';
+const NEW_CONTENT = '../new-content-generation/v4/new-content-to-generate.html';
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ── Viral right now — Selector / Video Card (trend variant) ×6, each with its Trend Detail copy ──
+const viral = [
+  { img: 'viral-1.png', ratio: '9:16', format: 'reel', title: 'Main Character Energy',
+    desc: 'Creators showcase their daily lives with a cinematic flair, often set to dramatic music.',
+    use: 'Film a "day in my life" from your customer\'s point of view, with your product as the quiet hero of each scene.',
+    why: 'It turns ordinary routines into a story viewers want to step into, so people watch to the end and save it.',
+    example: 'A Reel following a morning routine shot like a film opening, with slow pans and a voice-over.' },
+  { img: 'viral-2.png', ratio: '4:5', format: 'image', title: 'Silent Reels with Text Overlays',
+    desc: 'Videos that convey messages or stories solely through text overlays on a static or minimal background.',
+    use: 'Brands can use this format for quick tips, tutorials, or product highlights, making information easily accessible.',
+    why: 'Viewers can follow along with the sound off, so the message lands even while scrolling quickly.',
+    example: 'A static campus photo with three lines of text revealing one tip at a time, set to a soft trending track.' },
+  { img: 'viral-3.png', ratio: '1:1', format: 'carousel', title: 'Photo Dump Reels',
+    desc: 'Compiling a series of casual, unfiltered photos into a single Reel, often set to trending music.',
+    use: 'Brands can create ‘behind-the-scenes’ Reels, offering an authentic glimpse into their processes or culture.',
+    why: 'It feels personal rather than polished, which makes people trust it and swipe through every photo.',
+    example: 'A five-photo dump from a student’s first week abroad: the flat, the campus, a first coffee and new friends.' },
+  { img: 'viral-4.png', ratio: '9:16', format: 'reel', title: 'Everything Hallelujah',
+    desc: 'Short clips highlighting small, joyful moments set to Justin Bieber’s ‘Everything Hallelujah.’',
+    use: 'Collect small wins from your students — an offer letter, a first day, a visa approved — and cut them to the track.',
+    why: 'The song is instantly recognisable, so the joyful mood is set before the first clip ends.',
+    example: 'Eight one-second clips of students opening acceptance emails, each landing on the beat.' },
+  { img: 'viral-5.png', ratio: '4:5', format: 'image', title: 'Main Character Edits',
+    desc: 'Videos where creators edit themselves into iconic movie scenes, portraying themselves as the protagonist.',
+    use: 'Show a student as the lead of their own study-abroad film, with your service as the turning point of the story.',
+    why: 'Movie references are easy to recognise and share, and people tag friends who would play the same role.',
+    example: 'A poster-style image of a student on a London street, titled like a film release.' },
+  { img: 'viral-6.png', ratio: '1:1', format: 'carousel', title: 'Carousels with Music',
+    desc: 'Traditional photo carousels enhanced with background music to increase engagement.',
+    use: 'Turn a step-by-step guide, such as a visa checklist, into a carousel with a calm trending track behind it.',
+    why: 'Music keeps people on the post longer while they swipe, which helps the carousel reach more people.',
+    example: 'A six-card visa checklist with one step per card and a lo-fi track playing in the background.' },
+];
+// Long copy for the scroll state (#modal=long) — Figma "Modal · Trend Detail · long (scroll)" 14018:656898
+const LONG = {
+  use: 'Film a "day in my life" from your customer\'s point of view, with your product as the quiet hero of each scene. Open on a slow, cinematic shot, cut to the moment your product shows up, and close on a line your audience would say about their own day. Keep it under 15 seconds so the music carries the mood.',
+  desc: 'Creators showcase their daily lives with a cinematic flair, often set to dramatic music. Everyday moments such as making coffee, walking to class or getting ready are filmed like scenes from a film, with slow motion, warm colour grading and a voice-over that narrates the creator as the lead character.',
+  why: 'It turns ordinary routines into a story viewers want to step into, so people watch to the end and save it. The format is easy to copy, which drives more creators to join in, and the familiar audio makes each new post feel part of a trend people already recognise. Comments often ask for the products shown. Brands that join early tend to see higher saves than their usual posts, because the trend audio is still being pushed by the algorithm.',
+  example: 'A Reel following a morning routine shot like a film opening, with slow pans and a voice-over. The creator wakes up, opens the curtains, makes a matcha and steps outside while the caption reads "POV: you finally became the main character". It reached 1.2M views in four days. Most of the comments asked where the mug and the jacket were from, and the creator pinned a reply with the product links.',
+};
+
+document.getElementById('carouselTrack').innerHTML = viral.map((v, i) => `
+  <div class="selector-video-card selector-video-card--trend">
+    <div class="selector-video-card-frame" data-modal="${i}">
+      <img class="selector-video-card-thumb" src="assets/${v.img}" alt="">
+      <div class="selector-video-card-preview">
+        <div class="preview-top-row">
+          <span class="preview-top-row-format-badge preview-top-row-format-badge--glass"><span class="preview-top-row-format-badge-icon"><span></span></span><span class="preview-top-row-format-badge-label">${v.ratio}</span></span>
+        </div>
+        ${v.format === 'reel' ? `<div class="scene-tile-scrubber">
+          <div class="scene-tile-scrubber-row">
+            <span class="scene-tile-scrubber-time">0:03 / 0:08</span>
+            <div class="scene-tile-scrubber-controls"><img class="volume" src="${ICON}audio-volume-off.svg" alt=""><img class="maximize-sm" src="${ICON}maximize.svg" alt=""></div>
+          </div>
+          <div class="scene-tile-scrubber-bar"><div class="scene-tile-scrubber-bar-fill"></div></div>
+        </div>` : ''}
+      </div>
+      ${v.format === 'reel' ? `<button type="button" class="scene-tile-play-btn scene-tile-play-btn--glass" aria-label="Play"><img class="play" src="${ICON}video-play-glyph.svg" alt=""></button>` : ''}
+    </div>
+    <div class="selector-video-card-meta">
+      <span class="selector-video-card-title">${esc(v.title)}</span>
+      <p class="selector-video-card-desc">${esc(v.desc)}</p>
+      <a class="selector-video-card-link" href="${NEW_CONTENT}">Use in new content →</a>
+    </div>
+  </div>`).join('');
+
+// carousel: one card (304 + 20 gap) per click until the last card is fully in view
+(() => {
+  const track = document.getElementById('carouselTrack');
+  const next = document.getElementById('carouselNext');
+  const fade = document.getElementById('carouselFade');
+  const step = 324;
+  let x = 0;
+  next.addEventListener('click', () => {
+    const max = track.scrollWidth - track.parentElement.clientWidth;
+    x = Math.min(x + step, max);
+    track.style.transform = `translateX(${-x}px)`;
+    if (x >= max) { next.hidden = true; fade.hidden = true; }
+  });
+})();
+
+// ── Hook patterns — Trends / Hook Card ×4 ──
+const hooks = [
+  ['Question hook — "Should you study abroad in 2026?"', '7 posts', '"People who studied abroad, do you feel like this?? #studyabroad #americanabroad #budgettravel"'],
+  ['Number-led hook — "3 things I wish I knew about studying abroad"', '4 posts', '"please tell me y\'all had to watch those videos from 1970 #nurse #healthcare #fyp"'],
+  ['Money / outcome hook — "How I went from $0 to a $90k offer"', '2 posts', '"I miss my study abroad 🥲 #studytok #studyabroad #exchange #university"'],
+  ['Scarcity hook — "Last 48h to apply for January intake"', '2 posts', '"important to note that this is all my own money! #studyabroad #college #london"'],
+];
+document.getElementById('hookGrid').innerHTML = hooks.map(([title, count, quote]) => `
+  <div class="trends-hook-card">
+    <div class="trends-hook-card__title-row">
+      <p class="trends-hook-card__title">${esc(title)}</p>
+      <span class="feedback-status-chip feedback-status-chip--secondary">${count}</span>
+    </div>
+    <div class="trends-hook-card__quote"><p>${esc(quote)}</p></div>
+    <a class="trends-hook-card__link" href="${NEW_CONTENT}">Use in new content →</a>
+  </div>`).join('');
+
+// ── Hashtags — Feedback / Status Chip (Secondary) ×6 ──
+document.getElementById('tagRow').innerHTML =
+  ['#nursingstudent · 18', '#studyabroad · 17', '#nursingschool · 15', '#australia · 11', '#fyp · 6', '#college · 5']
+    .map((t) => `<span class="feedback-status-chip feedback-status-chip--secondary">${t}</span>`).join('');
+
+// ── Top performing posts — Schedule / List Row ×6 ──
+const P = { ig: 'social-instagram', tt: 'social-tiktok', yt: 'social-youtube', meta: 'social-meta', li: 'social-linkedin' };
+const posts = [
+  ['viral-1.png', 'This New Lip Tint Is Everything', 'Reel · Formee Express', '2.5M views', 'Aug 26, 2026', ['ig', 'tt', 'yt']],
+  ['viral-2.png', 'Study in the UK — Applications Open', 'Image · Formee Express', '2.3M views', 'Aug 24, 2026', ['ig', 'meta']],
+  ['viral-3.png', 'UK Applications — January Intake', 'Carousel · Formee Express', '1.3M views', 'Aug 21, 2026', ['ig', 'li']],
+  ['viral-4.png', 'A Day on Campus in the UK', 'Reel · Formee Express', '1.1M views', 'Aug 26, 2026', ['ig', 'tt', 'yt']],
+  ['post-5.png',  'Your Visa Checklist, Step by Step', 'Image · Formee Express', '938K views', 'Aug 24, 2026', ['ig', 'meta']],
+  ['viral-6.png', 'Free 1:1 Counselling, Book Anytime', 'Carousel · Formee Express', '922K views', 'Aug 21, 2026', ['ig', 'li']],
+];
+document.getElementById('postRows').innerHTML = posts.map(([img, title, sub, views, date, platforms]) => `
+  <div class="sc-list-row">
+    <div class="sc-col--post sc-list-row__post">
+      <img class="sc-list-row__thumb sc-list-row__thumb--img" src="assets/${img}" alt="">
+      <div class="sc-list-row__text"><span class="sc-list-row__title">${esc(title)}</span><span class="sc-list-row__sub">${esc(sub)}</span></div>
+    </div>
+    <div class="sc-col--when"><span class="sc-list-row__when-main">${views}</span><span class="sc-list-row__sub">${date}</span></div>
+    <div class="sc-col--platforms"><div class="post-status-chip">${platforms.map((p) => `<img src="${ICON}${P[p]}.svg" alt="">`).join('')}</div></div>
+  </div>`).join('');
+
+// ── Trending audio — Music Library Card ×4 ──
+const audio = [
+  ['original sound', '4 creators · original audio', '7 uses', 'Upbeat'],
+  ['Everything Hallelujah', 'Justin Bieber', '2 uses', 'Joyful'],
+  ['nhạc nền – Old Songs Old Memories', '1 creator · original audio', '1 use', 'Nostalgic'],
+  ['Photo dump beat (sped up)', '1 creator · original audio', '1 use', 'Hype'],
+];
+document.getElementById('audioList').innerHTML = audio.map(([name, sub, uses, mood]) => `
+  <div class="music-library-card">
+    <button type="button" class="music-library-card__play" aria-label="Play ${esc(name)}"><img src="${ICON}audio-row-play-triangle.svg" alt=""></button>
+    <div class="music-library-card__body">
+      <div class="music-library-card__title"><p class="music-library-card__name">${esc(name)}</p><p class="music-library-card__sub">${esc(sub)}</p></div>
+      <div class="music-library-card__meta"><span>${uses}</span><span>${mood}</span></div>
+    </div>
+    <div class="music-library-card__buttons">
+      <button type="button" class="music-library-card__btn" aria-label="Add"><img src="${ICON}plus-16-grey.svg" alt=""></button>
+      <button type="button" class="music-library-card__btn" aria-label="Favorite"><img src="${ICON}favorite-star-16.svg" alt=""></button>
+      <button type="button" class="music-library-card__btn" aria-label="More"><img src="${ICON}ui-ellipsis.svg" alt=""></button>
+    </div>
+  </div>`).join('');
+
+// ── platform tabs ──
+document.getElementById('platformTabs').addEventListener('click', (e) => {
+  const chip = e.target.closest('.controls-segment-chip'); if (!chip) return;
+  document.querySelectorAll('#platformTabs .controls-segment-chip').forEach((c) => c.classList.toggle('controls-segment-chip--selected', c === chip));
+});
+
+// ── Trends / Refresh Control — 6 states (Figma 14047:291780) ──
+// Policy (Harsh, 22 Oct): no automatic updates; one fetch per 24 hours per Industry + Market;
+// the fetch runs in the background; a failed fetch keeps the previous trends; Admin / Brand Admin only.
+const btn = (style, label, icon) =>
+  `<button type="button" class="actions-btn actions-btn--${style}" data-action="${style === 'inactive' ? '' : 'refresh'}"${style === 'inactive' || style === 'loading' ? ' aria-disabled="true"' : ''}><img src="${ICON}${icon}" alt="">${label}</button>`;
+const CONTROL = {
+  fetch:    () => `<div class="refresh-control__btn">${btn('primary', 'Fetch trends', 'refresh-ccw-white.svg')}</div>`,
+  refresh:  () => `<div class="refresh-status"><p class="refresh-status__line">Updated 26 Oct</p></div>
+                   <div class="refresh-control__btn">${btn('secondary', 'Refresh trends', 'refresh-ccw-secondary.svg')}</div>`,
+  fetching: () => `<div class="refresh-status"><p class="refresh-status__line">Takes a few minutes</p></div>
+                   <div class="refresh-control__btn">${btn('loading', 'Fetching trends…', 'actions/btn-spinner-white.svg')}</div>`,
+  cooldown: () => `<div class="refresh-status"><p class="refresh-status__line">Updated 26 Oct</p></div>
+                   <div class="refresh-control__btn">${btn('inactive', 'Refresh trends', 'refresh-ccw-inactive.svg')}<span class="editor-tooltip">Next refresh 27 Oct, 9:12 AM</span></div>`,
+  success:  () => `<div class="refresh-status"><span class="feedback-status-chip feedback-status-chip--green">Updated just now</span></div>
+                   <div class="refresh-control__btn">${btn('inactive', 'Refresh trends', 'refresh-ccw-inactive.svg')}<span class="editor-tooltip">Next refresh 27 Oct, 9:12 AM</span></div>`,
+  error:    () => `<div class="refresh-status"><span class="feedback-status-chip feedback-status-chip--error">Last attempt failed</span><p class="refresh-status__reason">Scan limit reached. Try again later.</p><span class="editor-tooltip">Showing trends from 26 Oct</span></div>
+                   <div class="refresh-control__btn">${btn('secondary', 'Refresh trends', 'refresh-ccw-secondary.svg')}</div>`,
+};
+
+// first fetch · states — empty-state.css (Figma 14054:660609 / 660809 / 661009 / 661209)
+const EMPTY = {
+  admin:    { glyph: 'data-trending-up.svg', title: 'No trends yet', body: "Fetch trends to see what's working in AU education right now. It takes a few minutes.", btn: 'Fetch trends' },
+  fetching: { glyph: 'ui-spinner.svg', spin: true, title: 'Fetching trends…', body: 'This can take a few minutes. You can leave this page and come back — it keeps running in the background.' },
+  failed:   { glyph: 'stat-circle-alert-20.svg', title: "Couldn't fetch trends", body: "The data source didn't respond. Try again in a few minutes.", btn: 'Try again' },
+  user:     { glyph: 'data-trending-up.svg', title: 'No trends yet', body: 'Your Brand Admin can fetch trends for AU education.' },
+};
+function renderEmpty(kind) {
+  const e = EMPTY[kind];
+  document.getElementById('trendsEmpty').innerHTML = `
+    <div class="empty-state">
+      <span class="empty-state__glyph"><img class="${e.spin ? 'spin' : ''}" src="${ICON}${e.glyph}" alt=""></span>
+      <div class="empty-state__text"><p class="empty-state__title">${esc(e.title)}</p><p class="empty-state__body">${esc(e.body)}</p></div>
+      ${e.btn ? `<button type="button" class="actions-btn actions-btn--primary" data-action="first-fetch"><img src="${ICON}refresh-ccw-white.svg" alt="">${e.btn}</button>` : ''}
+    </div>`;
+}
+
+// ── page state: #state=… & role=admin|user & modal=0-5|long ──
+let view = { state: 'refresh', role: 'admin' };
+let timer = null;
+function render() {
+  const s = view.state, user = view.role === 'user';
+  const first = s.startsWith('first-');
+  // first-fetch screens: no data yet, so no tabs and no header control
+  const emptyKind = !first ? null : (user ? 'user' : ({ 'first-fetch': 'admin', 'first-fetching': 'fetching', 'first-failed': 'failed' }[s] || 'admin'));
+  document.body.classList.toggle('state-empty', !!emptyKind);
+  document.getElementById('trendsBody').hidden = !!emptyKind;
+  document.getElementById('platformTabs').hidden = !!emptyKind;
+  document.getElementById('trendsEmpty').hidden = !emptyKind;
+  if (emptyKind) renderEmpty(emptyKind);
+  const ctl = document.getElementById('refreshControl');
+  const ctlState = emptyKind ? null : (CONTROL[s] ? s : 'refresh');
+  // User role: the button is hidden (not disabled); the date line stays
+  ctl.innerHTML = !ctlState ? '' : (user ? `<div class="refresh-status"><p class="refresh-status__line">Updated 26 Oct</p></div>` : CONTROL[ctlState]());
+  // pinned review states kept from v1
+  document.querySelectorAll('.is-hover').forEach((el) => el.classList.remove('is-hover'));
+  if (s === 'row-hover') {
+    document.querySelectorAll('#postRows .sc-list-row')[1].classList.add('is-hover');
+    document.querySelectorAll('#audioList .music-library-card')[0].classList.add('is-hover');
+  }
+  if (s === 'hook-hover') document.querySelectorAll('.trends-hook-card')[0].classList.add('is-hover');
+  const sectionEmpty = s === 'section-empty';
+  document.getElementById('postsTable').hidden = sectionEmpty;
+  document.getElementById('postsEmpty').hidden = !sectionEmpty;
+  document.getElementById('audioList').hidden = sectionEmpty;
+  document.getElementById('audioEmpty').hidden = !sectionEmpty;
+  document.querySelectorAll('#protoRole button').forEach((b) => b.classList.toggle('on', b.dataset.role === view.role));
+}
+function setState(state) { clearTimeout(timer); view.state = state; render(); }
+
+// Refresh → Fetching (background, a few minutes — 3s here) → Updated just now → Cooldown
+// First fetch → first-fetching → the page with data, Updated just now
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-action]'); if (!a || !a.dataset.action) return;
+  if (a.dataset.action === 'refresh') {
+    setState('fetching');
+    timer = setTimeout(() => { setState('success'); timer = setTimeout(() => setState('cooldown'), 4000); }, 3000);
+  }
+  if (a.dataset.action === 'first-fetch') {
+    setState('first-fetching');
+    timer = setTimeout(() => { setState('success'); timer = setTimeout(() => setState('cooldown'), 4000); }, 3000);
+  }
+});
+document.getElementById('protoRole').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  view.role = b.dataset.role; render();
+});
+
+// ── Modal · Trend Detail ──
+const PLATFORM_CHIPS = `<div class="trend-detail__platforms">
+  <span class="brand-pill brand-pill--icon"><img src="${ICON}social-tiktok.svg" alt="">TikTok</span>
+  <span class="brand-pill brand-pill--icon"><img src="${ICON}social-instagram.svg" alt="">Instagram</span></div>`;
+const MEDIA_W = { reel: 360, image: 512, carousel: 640 };
+function openModal(key) {
+  const long = key === 'long';
+  const v = viral[long ? 0 : Number(key)]; if (!v) return;
+  const c = long ? { ...v, ...LONG } : v;
+  const media = `
+    <div class="trend-modal__media" style="width:${MEDIA_W[v.format]}px">
+      <img src="assets/${v.img}" alt="">
+      <div class="preview-top-row"><span class="preview-top-row-format-badge preview-top-row-format-badge--glass"><span class="preview-top-row-format-badge-icon"><span></span></span><span class="preview-top-row-format-badge-label">${v.ratio}</span></span></div>
+      ${v.format === 'reel' ? `<button type="button" class="scene-tile-play-btn scene-tile-play-btn--glass" aria-label="Play"><img class="play" src="${ICON}video-play-glyph.svg" alt=""></button>
+        <div class="scene-tile-scrubber"><div class="scene-tile-scrubber-row"><span class="scene-tile-scrubber-time">0:03 / 0:08</span><div class="scene-tile-scrubber-controls"><img class="volume" src="${ICON}audio-volume-off.svg" alt=""><img class="maximize-sm" src="${ICON}maximize.svg" alt=""></div></div><div class="scene-tile-scrubber-bar"><div class="scene-tile-scrubber-bar-fill"></div></div></div>` : ''}
+      ${v.format === 'carousel' ? `<button type="button" class="controls-carousel-arrow controls-carousel-arrow--prev" aria-label="Previous"><img src="${ICON}chevron-right.svg" alt=""></button>
+        <button type="button" class="controls-carousel-arrow controls-carousel-arrow--next" aria-label="Next"><img src="${ICON}chevron-right.svg" alt=""></button>
+        <span class="trend-modal__counter feedback-status-chip feedback-status-chip--primary">1 / 5</span>` : ''}
+    </div>`;
+  document.getElementById('trendModal').innerHTML = `
+    <div class="trend-modal__header">
+      <h2 class="trend-modal__title">${esc(v.title)}</h2>
+      <button type="button" class="trend-modal__close" aria-label="Close" data-close><img src="${ICON}button-x-dark.svg" alt=""></button>
+    </div>
+    <div class="trend-modal__body">
+      ${media}
+      <div class="trend-detail-wrap">
+        <div class="trend-detail" id="trendDetail">
+          ${PLATFORM_CHIPS}
+          <div class="trend-detail__box"><p class="trend-detail__label">How your brand can use it</p><p class="trend-detail__text">${esc(c.use)}</p></div>
+          <div class="trend-detail__divider"></div>
+          <div class="trend-detail__section"><p class="trend-detail__label">What it is</p><p class="trend-detail__text">${esc(c.desc)}</p></div>
+          <div class="trend-detail__section"><p class="trend-detail__label">Why it works</p><p class="trend-detail__text">${esc(c.why)}</p></div>
+          <div class="trend-detail__section"><p class="trend-detail__label">Real example</p><p class="trend-detail__text">${esc(c.example)}</p></div>
+        </div>
+        <div class="trend-detail__fade" id="trendFade" hidden></div>
+      </div>
+    </div>
+    <div class="trend-modal__footer">
+      <button type="button" class="actions-btn actions-btn--secondary">View original post</button>
+      <a class="actions-btn actions-btn--primary" href="${NEW_CONTENT}">Use in new content</a>
+    </div>`;
+  document.getElementById('modalOverlay').hidden = false;
+  const d = document.getElementById('trendDetail'), fade = document.getElementById('trendFade');
+  const updateFade = () => { fade.hidden = d.scrollHeight - d.clientHeight - d.scrollTop < 2; };
+  d.addEventListener('scroll', updateFade); updateFade();
+}
+function closeModal() { document.getElementById('modalOverlay').hidden = true; }
+document.getElementById('carouselTrack').addEventListener('click', (e) => {
+  const f = e.target.closest('.selector-video-card-frame'); if (f) openModal(f.dataset.modal);
+});
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay' || e.target.closest('[data-close]')) closeModal();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+function applyHash() {
+  const q = new URLSearchParams(location.hash.slice(1));
+  view.role = q.get('role') === 'user' ? 'user' : 'admin';
+  setState(q.get('state') || 'refresh');
+  if (q.get('modal') !== null) openModal(q.get('modal')); else closeModal();
+}
+applyHash();
+window.addEventListener('hashchange', applyHash);
+
+// 1920×1162 프레임을 창 크기에 맞춰 축소 — 다른 화면(schedule 등)의 fitFrameToViewport()와 같은 방식.
+function fitFrameToViewport() {
+  const M = 40, frame = document.querySelector('.frame');
+  const scale = Math.min(1, (window.innerWidth - M * 2) / 1920, (window.innerHeight - M * 2) / 1162);
+  frame.style.transform = 'scale(' + scale + ')';
+  document.body.style.width = Math.round(1920 * scale) + 'px';
+  document.body.style.height = Math.round(1162 * scale) + 'px';
+}
+window.addEventListener('resize', fitFrameToViewport);
+fitFrameToViewport();
+</script>
+</body>
+</html>

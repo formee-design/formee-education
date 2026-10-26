@@ -176,13 +176,19 @@
   <p class="section-label">Insights</p>
   <div class="group" id="trends">
     <h2>Trends</h2>
-    <p class="group-note">What's working in your industry — stats, viral formats, hook patterns, hashtags, top posts and trending audio. Figma "Trends · default" (12427:415575), built from the shared components in components/ai-social-media/.</p>
+    <p class="group-note">What's working in your industry — stats, viral formats, hook patterns, hashtags, top posts and trending audio. v2 follows the Figma section "Trends_to be_261023 (refresh)" (14018:277609): trends never update on their own, so Admin and Brand Admin fetch or refresh them with a button (once every 24 hours), the fetch runs in the background, and a failed refresh keeps the previous trends. Click a Viral thumbnail for the trend detail. The pill at the bottom left switches between Admin and User.</p>
     <ul>
-      <li><a href="prototypes/ai-social-media/trends/trends.html"><span>Trends — default<span class="path">trends/trends.html</span></span><span class="badge new">Open this</span></a></li>
-      <li><a href="prototypes/ai-social-media/trends/trends.html#state=row-hover"><span>Row hover &mdash; post row + audio row<span class="path">#state=row-hover</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/trends/trends.html#state=hook-hover"><span>Hook card hover<span class="path">#state=hook-hover</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/trends/trends.html#state=empty"><span>Empty &mdash; no trends yet (reference)<span class="path">#state=empty</span></span><span class="arrow">&rarr;</span></a></li>
-      <li><a href="prototypes/ai-social-media/trends/trends.html#state=section-empty"><span>Section empty &mdash; top posts &amp; audio (reference)<span class="path">#state=section-empty</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html"><span>Trends v2 — default (Admin)<span class="path">trends/trends-v2.html</span></span><span class="badge new">Open this</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=fetching"><span>Refreshing &mdash; runs in the background, trends stay on screen<span class="path">#state=fetching</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=cooldown"><span>24-hour limit &mdash; button off, hover for the next time<span class="path">#state=cooldown</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=success"><span>Updated just now<span class="path">#state=success</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=error"><span>Last attempt failed &mdash; previous trends kept<span class="path">#state=error</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#role=user"><span>User &mdash; read-only, no refresh button<span class="path">#role=user</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#modal=0"><span>Trend detail &mdash; reel 9:16<span class="path">#modal=0 · 1 image · 2 carousel</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#modal=long"><span>Trend detail &mdash; long copy, right side scrolls<span class="path">#modal=long</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=first-fetch"><span>First fetch &mdash; no trends yet (Admin)<span class="path">#state=first-fetch · first-fetching · first-failed</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=first-fetch&amp;role=user"><span>First fetch &mdash; no trends yet (User)<span class="path">#state=first-fetch&amp;role=user</span></span><span class="arrow">&rarr;</span></a></li>
+      <li><a href="prototypes/ai-social-media/trends/trends-v2.html#state=row-hover"><span>Row hover &mdash; post row + audio row<span class="path">#state=row-hover · hook-hover · section-empty</span></span><span class="arrow">&rarr;</span></a></li>
     </ul>
   </div>
 
@@ -297,6 +303,7 @@
   <details class="group" id="archiving">
     <summary class="summary-with-desc"><span class="summary-col"><span class="summary-title">Archiving</span><span class="summary-desc">Previous versions and other supporting screens kept around for implementation reference — not the current working baseline.</span></span></summary>
     <ul>
+      <li><a href="prototypes/ai-social-media/trends/trends.html"><span>Trends — previous build (before Figma 23 Oct 2026, automatic weekly scan)<span class="path">trends/trends.html</span></span><span class="arrow">&rarr;</span></a></li>
       <li><a href="prototypes/ai-social-media/billing/billing.html"><span>Billing — previous build (before Figma 16 Oct 2026)<span class="path">billing/billing.html</span></span><span class="arrow">&rarr;</span></a></li>
       <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library.html"><span>Character Library — previous build (before 18 Sep 2026)<span class="path">brand-setup-kit-character-library.html</span></span><span class="arrow">&rarr;</span></a></li>
       <li><a href="prototypes/ai-social-media/brand-characters/brand-setup-kit-character-library.html#view=brandsetup&amp;brand=formee-express"><span>Brand Setup — Brand list · Brand workspace<span class="path">superseded by ver2</span></span><span class="arrow">&rarr;</span></a></li>
