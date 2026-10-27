@@ -1,0 +1,22 @@
+/* ============================================================================
+   Table / Pagination  (Figma FME_AI-Social-Media 14451:337027)
+   Table footer pager: first, last and the current page ±1, the rest collapse into "…".
+   Few pages = every page fits (no …). Prev is disabled on the first page, Next on the last.
+   Items = Table / Pagination Item (14451:336948): 28px square, radius-sm,
+   Page Default / Hover / Selected, Prev / Next Default / Disabled, Ellipsis.
+   Icons: icons/chevron-left-18(-disabled).svg · chevron-right-18(-disabled).svg
+   ============================================================================ */
+.table-pagination{display:flex; align-items:center; gap:var(--spacing-sm);}
+.table-pagination__item{
+  display:flex; align-items:center; justify-content:center; box-sizing:border-box;
+  width:28px; height:28px; padding:0; flex-shrink:0;
+  border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-sm);
+  background:var(--color-neutral-0); cursor:pointer;
+  font-family:var(--font-family-text); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);
+  font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);
+}
+.table-pagination__item img{width:18px; height:18px; display:block;}
+.table-pagination__item:hover:not(:disabled):not(.table-pagination__item--selected){background:var(--color-neutral-100);}
+.table-pagination__item--selected{background:var(--color-neutral-150); border-color:var(--color-neutral-500); color:var(--color-neutral-900); cursor:default;}
+.table-pagination__item:disabled{cursor:default;}
+.table-pagination__ellipsis{width:28px; text-align:center; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}

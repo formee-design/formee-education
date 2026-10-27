@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="../../../components/ai-social-media/controls-menu.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/input.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/empty-state.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/table-pagination.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/brand-mark.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/brand-logo-tile.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/access-brand-pill.css">
@@ -42,7 +43,7 @@
    picture, so the list doesn't pretend it has one.
    Separate console — it is not a scope of the customer app, so the sidebar shows a fixed
    "Super Admin" label instead of the account switcher and only the four admin pages.
-   #view=dashboard|accounts|account|activity|settings  ·  &id=<account>  ·  &tab=overview|usage|generations|members
+   #view=dashboard|accounts|account|activity|settings  ·  &id=<account>  ·  &tab=overview|usage|generations
    ============================================================================ */
 *{box-sizing:border-box;}
 html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
@@ -54,16 +55,10 @@ button{font:inherit;}
 .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto; background:var(--color-neutral-75);}
 .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:var(--color-neutral-900); border-radius:var(--radius-full); padding:var(--spacing-sm) var(--spacing-lg); box-shadow:var(--shadow-popover); color:var(--color-neutral-0); font-size:var(--font-size-text-xs); font-weight:var(--font-weight-semibold); text-decoration:none; white-space:nowrap;}
 
-/* ---------- sidebar: fixed console label instead of the account switcher ---------- */
-.sa-scope{display:flex; align-items:center; gap:var(--spacing-sm); height:36px; padding:0 var(--spacing-md); border:1px solid var(--color-neutral-300); border-radius:var(--radius-lg); background:var(--color-neutral-100); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
-.sa-scope img{width:16px; height:16px;}
-.sa-scope span:last-child{margin-left:auto; font-weight:var(--font-weight-regular); color:var(--color-neutral-500); font-size:var(--font-size-text-xs);}
-.sidebar{position:relative;}
-.sa-me{position:absolute; left:var(--spacing-md); right:var(--spacing-md); bottom:var(--spacing-lg); display:flex; align-items:center; gap:var(--spacing-sm); padding:var(--spacing-sm); border-radius:var(--radius-lg); border:0; background:none; cursor:pointer; text-align:left;}
-.sa-me:hover{background:var(--color-neutral-100);}
-.sa-me-txt{display:flex; flex-direction:column; min-width:0;}
-.sa-me-txt b{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
-.sa-me-txt span{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* topbar breadcrumb — Nav / Stepper/Nav/Breadcrumb: parent Medium neutral-500 · › neutral-300 · current SemiBold */
+.sa-crumb-parent{font-weight:var(--font-weight-medium); color:var(--color-neutral-500); text-decoration:none;}
+.sa-crumb-parent:hover{color:var(--color-neutral-900);}
+.sa-crumb-sep{font-weight:var(--font-weight-medium); color:var(--color-neutral-300);}
 
 /* ---------- page ---------- */
 .sa-page{display:flex; flex-direction:column; gap:var(--spacing-xl); padding:28px 28px 60px; /* 토큰 없음: Figma Home Main Content 28 / 60 */}
@@ -83,19 +78,21 @@ button{font:inherit;}
 .sa-secsub{margin:var(--spacing-2) 0 0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
 .sa-grid{display:grid; grid-template-columns:minmax(0, 1.6fr) minmax(0, 1fr); gap:var(--spacing-xl); align-items:start;}
 .sa-col{display:flex; flex-direction:column; gap:var(--spacing-xl); min-width:0;}
-.sa-grid2{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-xl); align-items:stretch;}
+.sa-grid2{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-4xl) var(--spacing-2xl); align-items:stretch;}
 
 /* card + table — same look as the Settings › Members table (settings-members-table-head.css) */
-.sa-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-200); border-radius:var(--radius-lg); overflow:hidden;}
+.sa-card{background:var(--color-neutral-0); border:1px solid var(--color-neutral-400); border-radius:var(--radius-xl); overflow:hidden;}
 .sa-card-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); padding:var(--spacing-lg) var(--spacing-lg) var(--spacing-md) var(--spacing-xl);}
 .sa-card-body{padding:0 var(--spacing-xl) var(--spacing-xl);}
 .sa-tr{display:flex; align-items:center; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl); border-bottom:1px solid var(--color-neutral-150); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
-.sa-tr.head{height:40px; padding-top:0; padding-bottom:0; background:var(--color-neutral-100); border-top:1px solid var(--color-neutral-200); border-bottom-color:var(--color-neutral-200); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
+.sa-tr.head{height:40px; padding-top:0; padding-bottom:0; background:var(--color-neutral-100); border-top:1px solid var(--color-neutral-400); border-bottom-color:var(--color-neutral-400); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);}
 .sa-card > .sa-tr.head:first-child{border-top:0;}
 .sa-tr.link{cursor:pointer;}
 .sa-tr.link:hover, .sa-tr.hl{background:var(--color-neutral-75);}
-.sa-tr.is-suspended .sa-nm{color:var(--color-neutral-500);}
-.sa-tr.is-stuck{background:var(--color-badge-orange-bg);}
+.sa-tr.is-suspended .ac-account .sa-nm{color:var(--color-neutral-500);}
+.sa-tr.is-stuck, .sa-tr.link.is-stuck:hover{background:var(--color-badge-orange-bg);}
+.sa-open{display:inline-flex; align-items:center; gap:var(--spacing-xs); text-decoration:none;}
+.sa-open img{width:16px; height:16px;}
 .sa-card > .sa-tr:last-child{border-bottom:0;}
 .sa-c{display:flex; align-items:center; gap:var(--spacing-sm); min-width:0;}
 .sa-c.col{flex-direction:column; align-items:flex-start; gap:var(--spacing-2);}
@@ -106,26 +103,31 @@ button{font:inherit;}
 .sa-strong{font-weight:var(--font-weight-semibold);}
 .sa-mono{font-family:var(--font-family-mono); font-size:var(--font-size-mono-sm); line-height:var(--line-height-mono-sm); color:var(--color-neutral-700);}
 .sa-dash{color:var(--color-neutral-500);}
-.sa-foot{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl); border-top:1px solid var(--color-neutral-150); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.sa-foot{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-lg); padding:var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl); border-top:1px solid var(--color-neutral-400); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
 .sa-pager{display:flex; align-items:center; gap:var(--spacing-sm);}
+.sa-empty-state{display:flex; justify-content:center; padding:var(--spacing-4xl) 0;}
 .sa-err{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-error-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+/* empty period / account (Figma 14383:668393): neutral-100 panel, 56 top & bottom, Text/md neutral-500 */
+.sa-empty-panel{padding:var(--spacing-6xl) 0; border-radius:var(--radius-xl); background:var(--color-neutral-100); text-align:center; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-500);}
 .sa-empty{padding:var(--spacing-4xl) var(--spacing-xl); text-align:center; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
 
 /* toolbar: segment filter + search */
 .sa-bar{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); flex-wrap:wrap;}
-.sa-seg{display:inline-flex; padding:var(--spacing-xs); background:var(--color-neutral-150); border-radius:var(--radius-xl);}
-.sa-seg .segment-chip{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
-.sa-seg .segment-chip--active{color:var(--color-neutral-900);}
-.sa-seg .segment-chip b{margin-left:var(--spacing-xs); font-weight:inherit; color:var(--color-neutral-500);}
+.sa-seg{display:inline-flex; padding:var(--spacing-xs); background:var(--color-neutral-100); border-radius:var(--radius-xl);}
+.sa-seg .segment-chip b{margin-left:var(--spacing-sm); font-weight:inherit; color:inherit;}
 .sa-bar .search-field--expanded{width:320px;}
 .sa-bar .search-field__input{font-size:var(--font-size-text-sm);}
 
 /* account columns */
-.ac-account{flex:0 0 260px;} .ac-owner{flex:1 1 0;} .ac-n{flex:0 0 80px;} .ac-role{flex:0 0 116px;} .ac-gen{flex:0 0 110px;} .ac-spend{flex:0 0 110px;} .ac-status{flex:0 0 110px;} .ac-act{flex:0 0 40px;}
+.ac-account{flex:0 0 260px;} .ac-owner{flex:1 1 0;} .ac-n{flex:0 0 80px;} .ac-role{flex:0 0 116px;} .ac-gen{flex:0 0 110px;} .ac-spend{flex:0 0 110px;} .ac-status{flex:0 0 136px; padding-left:56px; /* 토큰 없음: Figma col · status pl 56 */} .ac-act{flex:0 0 40px;}
 /* activity columns */
 .av-account{flex:0 0 200px;} .av-brand{flex:0 0 190px;} .av-by{flex:0 0 300px;} .av-format{flex:0 0 100px;} .av-status{flex:0 0 150px;} .av-stage{flex:0 0 110px;} .av-updated{flex:0 0 100px;} .av-err{flex:1 1 0;} .av-act{flex:0 0 80px;}
 /* generations table (account details) */
-.gn-id{flex:0 0 150px;} .gn-brand{flex:1 1 0;} .gn-type{flex:0 0 200px;} .gn-req{flex:0 0 100px;} .gn-got{flex:0 0 100px;} .gn-status{flex:0 0 120px;} .gn-created{flex:0 0 190px;}
+.gn-id{flex:0 0 150px;} .gn-brand{flex:1 1 0;} .gn-type{flex:0 0 200px;} .gn-req{flex:0 0 100px;} .gn-got{flex:0 0 100px;} .gn-status{flex:0 0 136px; padding-left:48px; /* 토큰 없음: Figma col · status pl 48 */} .gn-created{flex:0 0 190px;}
+.sa-ellipsis{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* table head stays put while the page scrolls (Figma notes: "Table head stays fixed while scrolling") */
+.sa-card--sticky{overflow:visible;}
+.sa-card--sticky > .sa-tr.head{position:sticky; top:0; z-index:2; border-radius:var(--radius-xl) var(--radius-xl) 0 0;}
 
 /* dashboard — Home layout (12427:416860); stat icons from Figma Stats summary 14149:653678
    (icon / building-complex · panel / brand · circle-user-round · nav / billing, all from components icons/). The hero frame's gradient and glow ellipses are Figma
@@ -162,7 +164,7 @@ button{font:inherit;}
 .cell-main{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); overflow:hidden; text-overflow:ellipsis;}
 .cell-sub{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500); overflow:hidden; text-overflow:ellipsis;}
 .cell-big{font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); font-variant-numeric:tabular-nums;}
-.ra-account{flex:1 0 0; min-width:1px;} .ra-brands{width:72px; flex-shrink:0; text-align:right;} .ra-created{width:120px; flex-shrink:0;} .ra-status{width:96px; flex-shrink:0; display:flex;}
+.ra-account{flex:1 0 0; min-width:1px;} .ra-brands{width:120px; flex-shrink:0;} .ra-created{width:120px; flex-shrink:0;} .ra-status{width:88px; flex-shrink:0; display:flex;}
 .ts-rank{width:12px; flex-shrink:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold);}
 .ts-account{flex:1 0 0; min-width:1px;} .ts-gens{width:112px; flex-shrink:0;} .ts-spend{width:88px; flex-shrink:0;}
 .lc-row.ts{padding-top:var(--spacing-lg); padding-bottom:var(--spacing-lg);}
@@ -198,13 +200,53 @@ button{font:inherit;}
 .sa-bd-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md);}
 .sa-bd-cols{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-3xl); align-items:start; flex:1;}
 .sa-bd-col{display:flex; flex-direction:column; gap:var(--spacing-md);}
-.sa-bd-col > .sa-group-label{margin:0;}
+.sa-bd-col > .sa-group-label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+.sa-grid2 > .home-section{min-width:0;}
 .sa-srow{display:flex; flex-direction:column; gap:var(--spacing-sm);}
 .sa-srow-top{display:grid; grid-template-columns:1fr auto 44px; gap:var(--spacing-md); align-items:baseline; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-900);}
 .sa-srow-top b{font-weight:var(--font-weight-semibold); font-variant-numeric:tabular-nums;}
 .sa-srow-top .p{text-align:right; font-size:var(--font-size-text-xs); color:var(--color-neutral-500); font-variant-numeric:tabular-nums;}
-.sa-srow .sa-track{height:4px; background:var(--color-neutral-100);}
 .sa-bd .sa-note{margin:0;}
+/* period bar (Figma 14369:337823) */
+.sa-period{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-lg);}
+.sa-period > .sa-bar{align-self:stretch;}
+.sa-period__title--lg{font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl);}
+.sa-period__title{margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.sa-period__sub{margin:var(--spacing-xs) 0 0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.sa-bd--split{justify-content:space-between;}
+.sa-grid2 > .home-section > .sa-card{flex:1 0 auto;}
+/* donut + legend (Videos by requested length 14383:668609) */
+.sa-donut-card{display:flex; align-items:center; gap:var(--spacing-4xl); padding:var(--spacing-2xl);}
+.sa-donut{position:relative; width:160px; height:160px; flex-shrink:0;}
+.sa-donut svg{display:block;}
+.sa-donut__center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.sa-donut__center b{font-size:var(--font-size-display-lg); line-height:var(--line-height-display-lg); font-weight:var(--font-weight-bold); letter-spacing:-0.3px; /* 토큰 없음: Figma Display/lg -0.3 */ color:var(--color-neutral-900);}
+.sa-donut__center span{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
+.sa-legend{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
+.sa-legend__row{display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-md) 0; border-bottom:1px solid var(--color-neutral-300); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-900);}
+.sa-legend__row:last-child{border-bottom:0;}
+.sa-legend__label{flex:1 0 0; min-width:1px; display:flex; align-items:center; gap:var(--spacing-md);}
+.sa-legend__label i{width:12px; height:12px; flex-shrink:0; border-radius:var(--radius-xs);}
+.sa-legend__row b{font-weight:var(--font-weight-semibold);}
+.sa-legend__p{width:48px; text-align:right; color:var(--color-neutral-500);}
+/* model usage table (Super Admin / Model Usage Row) */
+.sa-mu-group{display:flex; flex-direction:column; gap:var(--spacing-md);}
+.sa-mu-group > .sa-group-label{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+.sa-mu{display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-sm); border-bottom:1px solid var(--color-neutral-300); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+.sa-mu:last-child{border-bottom:0;}
+.sa-mu--head{border-bottom-color:var(--color-neutral-400); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}
+.sa-mu__model{flex:1 0 0; min-width:1px; display:flex; flex-direction:column; gap:var(--spacing-2); white-space:nowrap;}
+.sa-mu__model b{font-weight:var(--font-weight-semibold);}
+.sa-mu__model small{font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); color:var(--color-neutral-700);}
+.sa-mu__n{width:90px; flex-shrink:0; text-align:right; white-space:nowrap;}
+.sa-mu__rate{width:110px; flex-shrink:0; text-align:right; white-space:nowrap;}
+/* cost by model (Super Admin / Cost Row) */
+.sa-cost{display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-sm); border-bottom:1px solid var(--color-neutral-300); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-900);}
+.sa-cost > span:first-child{flex:1 0 0; min-width:1px;}
+.sa-cost > span:not(:first-child){width:110px; flex-shrink:0; text-align:right; font-variant-numeric:tabular-nums;}
+.sa-cost--head{border-bottom-color:var(--color-neutral-400); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-500);}
+.sa-cost--sub{padding-left:var(--spacing-lg); background:var(--color-neutral-75); font-weight:var(--font-weight-semibold);}
+.sa-cost--total{border-bottom:0; font-weight:var(--font-weight-bold);}
 /* cost table */
 .sa-kv{display:flex; flex-direction:column;}
 .sa-kv .r{display:grid; grid-template-columns:1fr 110px 110px; gap:var(--spacing-md); align-items:center; padding:var(--spacing-sm) 0; border-bottom:1px solid var(--color-neutral-150); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
@@ -241,17 +283,26 @@ button{font:inherit;}
 .sa-menu .menu-item{height:36px;}
 .sa-menu .menu-item img{width:16px; height:16px;}
 .sa-layer[hidden]{display:none;}
-.sa-dlg.modal{max-width:480px; padding:0; gap:0; border-radius:var(--radius-2xl);}
-.sa-dlg-head{padding:var(--spacing-3xl) var(--spacing-3xl) var(--spacing-md);}
+/* Modal · Confirm (Figma 14364:689255): 560 wide, title row with the Actions / Close Button (36, icon 24),
+   body 32 / 24, footer border-top neutral-200. 28 / 18 paddings have no token (Figma literals). */
+.sa-dlg.modal{max-width:560px; padding:0; gap:0; border:0; border-radius:var(--radius-2xl);}
+.sa-dlg-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); padding:28px 28px var(--spacing-xl) var(--spacing-3xl);}
 .sa-dlg-title{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold);}
+.sa-dlg-close{display:flex; align-items:center; justify-content:center; width:36px; height:36px; flex-shrink:0; padding:0; border:0; border-radius:var(--radius-lg); background:none; cursor:pointer;}
+.sa-dlg-close:hover{background:var(--color-neutral-100);}
+.sa-dlg-close img{width:24px; height:24px; display:block;}
 .sa-dlg-body{padding:0 var(--spacing-3xl) var(--spacing-2xl); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-700);}
-.sa-dlg-body ul{margin:var(--spacing-md) 0 0; padding-left:var(--spacing-xl);}
-.sa-dlg-foot{display:flex; justify-content:flex-end; gap:var(--spacing-md); padding:var(--spacing-xl) var(--spacing-3xl); border-top:1px solid var(--color-neutral-300);}
-.sa-toast{position:absolute; left:50%; bottom:var(--spacing-3xl); transform:translateX(-50%); z-index:400; padding:var(--spacing-md) var(--spacing-lg); border-radius:var(--radius-lg); background:var(--color-neutral-900); color:var(--color-neutral-0); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); box-shadow:var(--shadow-popover);}
+.sa-dlg-body p{margin:0;}
+.sa-dlg-foot{display:flex; justify-content:flex-end; gap:var(--spacing-md); padding:18px 28px 18px var(--spacing-3xl); border-top:1px solid var(--color-neutral-200);}
+/* Feedback / Toast (Figma 14364:336408): circle-check 18 + Text/sm Medium, centred under the main column (nav 262 / 2 = 131).
+   10 / 14 paddings and the 0 8 24 shadow are Figma literals (no token). */
+.sa-toast{position:absolute; left:calc(50% + 131px); bottom:var(--spacing-4xl); transform:translateX(-50%); z-index:400; display:flex; align-items:center; gap:var(--spacing-sm); padding:10px var(--spacing-lg) 10px 14px; border-radius:var(--radius-lg); background:var(--color-neutral-900); color:var(--color-neutral-0); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); white-space:nowrap; box-shadow:0 8px 24px rgba(15,23,41,.24);}
+.sa-toast img{width:18px; height:18px; display:block;}
 .sa-toast[hidden]{display:none;}
 .tab-bar .tab-item{color:var(--color-neutral-500);}
 .tab-bar .tab-item--selected{color:var(--color-neutral-900);}
 .tab-bar .tab-item b{margin-left:var(--spacing-xs); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+.tab-bar .tab-item--filler{height:auto; align-self:stretch;}   /* Figma tab bar = 36 + underline; the component filler is 40 */
 </style>
 <style id="s3-base">
 /* ===== Settings — copied as-is from brand-setup-kit-v3.html (s3-css + s3b-css below). That file defines these base
@@ -296,7 +347,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-btn.danger{ background:var(--s3-danger, var(--badge-red-text)); border-color:var(--s3-danger, var(--badge-red-text)); }
 .s3-btn:disabled{ opacity:.45; cursor:default; }
 .s3-btn .plus{ width:16px; height:16px; flex:none; }
-.s3-card{ background:var(--neutral-0); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:visible; }
+.s3-card{ background:var(--neutral-0); border:1px solid var(--neutral-400); border-radius:var(--radius-xl); overflow:visible; }
 .s3-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; flex-wrap:wrap; }
 .s3-chips{ display:flex; gap:4px; }
 .s3-chip{ font:inherit; font-size:14px; line-height:20px; border:0; background:none; color:var(--neutral-700); padding:8px 14px; border-radius:var(--radius-lg); cursor:pointer; }
@@ -558,7 +609,7 @@ body.bk2-clean .s3-as{ display:none; }
 <body>
 <div class="frame" id="frame">
 
-  <!-- ══ Nav / Navigation — nav.css; fixed "Super Admin" label instead of the account switcher ══ -->
+  <!-- ══ Nav / Navigation — nav.css; the account switcher reads "Super Admin" (Figma 14359:331922) ══ -->
   <aside class="sidebar">
     <div class="nav-account">
       <div class="brand">
@@ -568,21 +619,22 @@ body.bk2-clean .s3-as{ display:none; }
         </span>
         <button type="button" class="brand-collapse" aria-label="Collapse navigation"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
       </div>
-      <div class="sa-scope"><img src="../../../components/ai-social-media/icons/nav-admin.svg" alt=""><span>Super Admin</span><span>Formee</span></div>
+      <div class="acct acct--filled"><span>Super Admin</span>
+        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      </div>
     </div>
     <nav class="nav-items" id="nav">
       <a class="nav-item" data-nav="dashboard" href="#view=dashboard"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Dashboard</span></a>
       <div class="nav-section">
         <div class="nav-sec-head nav-sec-head--fit">Customers</div>
-        <a class="nav-item" data-nav="accounts" href="#view=accounts"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Accounts</span></a>
-        <a class="nav-item" data-nav="activity" href="#view=activity"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-analytics.svg" alt=""></span><span>Activity</span></a>
+        <a class="nav-item" data-nav="accounts" href="#view=accounts"><span class="ic"><img src="../../../components/ai-social-media/icons/building-complex.svg" alt=""></span><span>Accounts</span></a>
+        <a class="nav-item" data-nav="activity" href="#view=activity"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Activity</span></a>
       </div>
       <div class="nav-section">
         <div class="nav-sec-head nav-sec-head--fit">Console</div>
         <a class="nav-item" data-nav="settings" href="#view=settings"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-settings.svg" alt=""></span><span>Settings</span></a>
       </div>
     </nav>
-    <button type="button" class="sa-me" id="meBtn"><span class="ai-avatar md">SS</span><span class="sa-me-txt"><b id="meName">Supreet Singh</b><span>supreet.singh@formeeholdings.com</span></span></button>
   </aside>
 
   <div class="right-col">
@@ -710,7 +762,7 @@ body.bk2-clean .s3-as{ display:none; }
     var row=anchor.closest('.s3-tr'); if (row) row.classList.add('hl');   /* 메뉴가 열린 행은 피그마처럼 칠한다 */
     return m;
   }
-  document.addEventListener('click', function(e){ if (S.menu && !e.target.closest('#s3Menu') && !e.target.closest('[data-s3menu]')) closeMenu(); });
+  document.addEventListener('click', function(e){ if (S.menu && !e.target.closest('#s3Menu') && !e.target.closest('[data-s3menu], [data-s3msort]')) closeMenu(); });
 
   /* ---------- Members ---------- */
   function memberRows(){
@@ -725,6 +777,8 @@ body.bk2-clean .s3-as{ display:none; }
     var cnt = {All:all.length, Active:all.filter(function(p){return p.status==='Active';}).length, Invited:all.filter(function(p){return p.status==='Invited';}).length};
     var q = S.mQ.trim().toLowerCase();
     var rows = all.filter(function(p){ return (S.mStatus==='All'||p.status===S.mStatus) && (!q || (p.name||'').toLowerCase().indexOf(q)>=0 || p.email.toLowerCase().indexOf(q)>=0); });
+    if (S.mSort){ var k=S.mSort.key, d=S.mSort.dir==='asc'?1:-1, val=function(p){ return k==='name' ? (p.name||p.email).toLowerCase() : p.status; };
+      rows = rows.slice().sort(function(a,b){ var x=val(a), y=val(b); return (x>y?1:x<y?-1:0)*d; }); }
     var ub = userBrands();
     var sub = isBA() ? 'People on the brands you manage — '+myBrands().join(' and ')+'.'
             : isUser() ? 'People on your brands — '+ub.slice(0,-1).join(', ')+(ub.length>1?' and ':'')+ub.slice(-1)+'.'
@@ -734,7 +788,7 @@ body.bk2-clean .s3-as{ display:none; }
       '<div class="s3-bar"><div class="s3-segc">'+
       ['All','Active','Invited'].map(function(k){ return '<button type="button" class="'+(S.mStatus===k?'on':'')+'" data-s3mstatus="'+k+'">'+k+' '+cnt[k]+'</button>'; }).join('')+
       '</div><label class="s3-search"><img src="'+IC+'ui-search.svg" alt=""><input id="s3mq" placeholder="Search name or email" value="'+esc(S.mQ)+'"></label></div>'+
-      '<div class="s3-card"><div class="s3-tr head"><div class="s3-cm">Member</div><div class="s3-cs">Status</div>'+
+      '<div class="s3-card"><div class="s3-tr head"><div class="s3-cm">'+mSortHead('name','Member')+'</div><div class="s3-cs">'+mSortHead('status','Status')+'</div>'+
       '<div class="s3-cp"><img src="'+roleSrc('Brand Admin')+'" alt="">Brand Admin</div><div class="s3-cp"><img src="'+roleSrc('User')+'" alt="">User</div><div class="s3-ca"></div></div>';
     if (!rows.length) h += '<div class="s3-es"><span class="g"><img src="'+IC+'ui-search.svg" alt=""></span><span class="t"><b>'+(q?'No results for “'+esc(S.mQ.trim())+'”':'No '+S.mStatus.toLowerCase()+' members')+'</b><span>Try a different keyword, or clear the filters to see everything.</span></span>'+
       '<button type="button" class="s3-btn sec" data-s3="clearfilters">Clear filters</button></div>';   /* DS empty-state · No results */
@@ -764,6 +818,17 @@ body.bk2-clean .s3-as{ display:none; }
     var inv = all.filter(function(p){return p.status==='Invited';}).length;
     h += '<div class="s3-foot"><span>'+all.length+' members'+(inv?' · '+inv+' pending invitation'+(inv>1?'s':''):'')+'</span></div>';
     return h + '</div></div>';
+  }
+  /* column sort for Member / Status — same caret + Context Menu as the console tables */
+  function mSortHead(key, label){
+    var on = S.mSort && S.mSort.key===key, arrow = on ? (S.mSort.dir==='asc' ? 'ui-arrow-down.svg' : 'arrow-up.svg') : '';
+    return '<button type="button" class="sa-sort'+(on?' sa-sort--active':'')+'" data-s3msort="'+key+'">'+label+(arrow?'<img class="sa-sort__arrow" src="'+IC+arrow+'" alt="">':'')+'<img class="sa-sort__caret" src="'+IC+'caret-down-filled.svg" alt=""></button>';
+  }
+  function mSortMenu(btn, key){
+    var cur = S.mSort && S.mSort.key===key ? S.mSort.dir : null;
+    var opt = function(dir, label, ic){ return '<button type="button" class="s3-mi'+(cur===dir?' sel':'')+'" data-s3msortset="'+key+':'+dir+'"><img class="ri" src="'+IC+ic+'" alt="">'+label+(cur===dir?'<img class="ck" src="'+IC+'check.svg" alt="">':'')+'</button>'; };
+    var h = opt('asc','Sort A to Z','ui-arrow-down.svg') + opt('desc','Sort Z to A','arrow-up.svg') + (cur ? '<button type="button" class="s3-mi" data-s3msortset="'+key+':"><img class="ri" src="'+IC+'close-x.svg" alt="">Clear sort</button>' : '');
+    S.menu='sort:'+key; openMenu(btn, h, 200);
   }
   function memberMenu(btn, pid){
     var p = person(pid), inv = p.status==='Invited', h='';
@@ -1030,6 +1095,7 @@ body.bk2-clean .s3-as{ display:none; }
       if ((t=e.target.closest('[data-s3as]'))){ S.as=t.dataset.s3as; closeMenu(); render(); return; }
       if ((t=e.target.closest('[data-s3tab]'))){ S.tab=t.dataset.s3tab; closeMenu(); render(); return; }
       if ((t=e.target.closest('[data-s3mstatus]'))){ S.mStatus=t.dataset.s3mstatus; render(); return; }
+      if ((t=e.target.closest('[data-s3msort]'))){ var k=t.dataset.s3msort; if (S.menu==='sort:'+k){ closeMenu(); return; } mSortMenu(t, k); return; }
       if ((t=e.target.closest('[data-s3brand]'))){ S.axBrand=t.dataset.s3brand; render(); return; }
       if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
       if ((t=e.target.closest('[data-s3rm]'))){ act(t.dataset.s3rm, t.dataset.id); return; }
@@ -1056,6 +1122,7 @@ body.bk2-clean .s3-as{ display:none; }
     });
     root.addEventListener('keydown', function(e){ if (e.target.id==='s3addq' && e.key==='Enter') addPerson(); });
     document.addEventListener('click', function(e){ var t=e.target.closest('#s3Menu [data-s3act]'); if (t){ e.stopPropagation(); act(t.dataset.s3act, t.dataset.id, t); } });
+    document.addEventListener('click', function(e){ var t=e.target.closest('#s3Menu [data-s3msortset]'); if (t){ e.stopPropagation(); var kv=t.dataset.s3msortset.split(':'); S.mSort = kv[1] ? {key:kv[0], dir:kv[1]} : null; closeMenu(); render(); } });
     document.addEventListener('keydown', function(e){ if (e.key==='Escape'){ if (S.menu) closeMenu(); else closeLayer(); } });
     document.addEventListener('input', function(e){ if (e.target.id!=='s3ibq') return; var q=e.target.value.trim().toLowerCase();
       document.querySelectorAll('#s3Menu [data-s3act="invbrand"]').forEach(function(x){ x.hidden = !!q && x.dataset.id.toLowerCase().indexOf(q)<0; }); });
@@ -1147,7 +1214,18 @@ const ACT = [
   {acc:'formee-express-demo', brand:'Runway', by:'yejin.kim@formeeholdings.com', role:'Brand Admin', format:'Reel', status:'failed', clips:[1,3], min:46315, err:'Blocked by the provider’s safety filter', raw:'chunk_failed: rai_filtered: Sorry, we can’t create videos from this prompt.'},
   {acc:'formee-express-demo', brand:'SCEI', by:'fdebbie.aquino@scei.edu.au', role:'User', format:'Story image', status:'ready', min:54740},
 ];
-const FEED = { kept:200, progress:1, failed:25 };   /* staging header counts — the rows below are a sample of the 200 */
+/* The latest 200 are kept (Figma Activity · All shows 1–50 of 200): the 20 staging rows above, then older ones
+   filled in by repeating them a day apart. Running renders aren't repeated, and failures past 25 read as Ready
+   so the list agrees with the staging counts (25 failed · 1 in progress). */
+(() => {
+  const base = ACT.filter(g => g.status !== 'rendering'); let i = 0, failed = ACT.filter(g => g.status === 'failed').length;
+  while (ACT.length < 200){
+    const g = { ...base[i % base.length], stuck:false, min:ACT[ACT.length - 1].min + 1440 }; i++;
+    if (g.status === 'failed' && ++failed > 25){ g.status = 'ready'; g.err = null; g.raw = null; }
+    ACT.push(g);
+  }
+})();
+const FEED = { kept:ACT.length, progress:ACT.filter(g => g.status === 'rendering').length, failed:ACT.filter(g => g.status === 'failed').length };
 /* Open → jumps to the last screen that content reached in the customer app (staging behaviour):
    still generating / failed / skipped → the Generate step; finished images & carousels → the editor;
    finished videos → Publish (no video editor prototype yet). Opens in a new tab so the console stays put. */
@@ -1161,7 +1239,7 @@ function lastScreen(g){
   return [EDITOR, 'Editing'];
 }
 const ago = m => m < 60 ? m + 'm ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : Math.round(m / 1440) + ' days ago';
-const STATUS = { ready:['green','Ready'], skipped:['disabled','Skipped'], failed:['error','Failed'], rendering:['blue','Rendering'], progress:['blue','In progress'], preview:['secondary','Preview only'] };
+const STATUS = { ready:['green','Ready'], skipped:['disabled','Skipped'], failed:['error','Failed'], rendering:['blue','Rendering'], progress:['blue','In progress'], preview:['disabled','Preview only'] };   /* Skipped / Preview only = Disabled chip (Super Admin / Activity Row) */
 const chip = s => `<span class="feedback-status-chip feedback-status-chip--${STATUS[s][0]}">${STATUS[s][1]}</span>`;
 const acctChip = a => a.status === 'active' ? '<span class="feedback-status-chip feedback-status-chip--green">Active</span>' : '<span class="feedback-status-chip feedback-status-chip--error">Suspended</span>';
 
@@ -1171,7 +1249,8 @@ const RICH = {
   cards:[['1-card',20],['2-card',3],['3-card',28],['4-card',1],['5-card',2],['6-card',3]], cardsNot:[['Failed',11],['In progress',7]],
   lengths:[['8 sec',28],['16 sec',20],['24 sec',4],['30 sec',0]], lengthsNot:[['Length not recorded',108],['Preview only',43],['Failed',32],['In progress',11],['Skipped',3]],
   period:{ video:[19,19], image:[7,7], carousel:[0,0], req:[['8 sec',10],['16 sec',1],['24 sec',1],['30 sec',0]] },
-  models:[ ['Veo 3.1 Fast','veo-3.1-fast-generate-preview','19 clips','152 s','$0.100/s'], ['Nano Banana','gemini-3.1-flash-image-preview','48 images','—','$0.067/image'], ['GPT Image 2','gpt-image-2','22 images','—','$0.047/image'] ],
+  models:{ Videos:[ ['Veo 3.1 Fast','veo-3.1-fast-generate-preview','19 clips','152 s','$0.100/s'], ['music_v2_5','','6 clips','138 s','$0.002/s'] ],
+            Images:[ ['Nano Banana','gemini-3.1-flash-image-preview','48 images','—','$0.067/image'], ['GPT Image 2','gpt-image-2','22 images','—','$0.047/image'] ] },
   cost:{ rows:[['Veo 3.1 Fast',15.20,21.76,'v'],['Videos subtotal',15.20,21.76,'sub'],['Nano Banana',3.22,4.60,'i'],['GPT Image 2',1.47,2.10,'i'],['Images subtotal',4.69,6.71,'sub'],['Other AI services · text, voice, embeddings',0.41,0.59,'o'],['Total',20.30,29.06,'total']] },
   gens:[
     ['deb8ce4b','SCEI','Image','—','—','ready','Oct 13, 2026 · 11:29 AM'], ['07203cb7','SCEI','Video','8 s','—','skipped','Oct 13, 2026 · 11:28 AM'],
@@ -1180,6 +1259,13 @@ const RICH = {
     ['57175bf6','Supi Brand','Image','—','—','ready','Sep 28, 2026 · 7:20 PM'], ['951afa49','RealMe Phone','Video · Veo 3.1 Fast','24 s','23.2 s','ready','Sep 28, 2026 · 7:03 PM'],
     ['5cd95d35','Steel X','Video · Veo 3.1 Fast','16 s','15.6 s','ready','Sep 28, 2026 · 6:35 PM'], ['7cce5f2a','Srikrishna Testing','Video · Veo 3.1 Fast','8 s','—','failed','Sep 25, 2026 · 9:35 PM'],
     ['3a0fc241','RealMe Phone','Video · Veo 3.1 Fast','16 s','—','failed','Sep 25, 2026 · 9:21 PM'], ['7ff829f6','Formee Express','Video','8 s','—','preview','Sep 22, 2026 · 5:22 PM'],
+    ['75f9df1b','Formee Express','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Sep 22, 2026 · 4:58 PM'], ['b278ab12','Formee Express','Image','—','—','ready','Sep 21, 2026 · 2:40 PM'],
+    ['d3378413','Formee Express','Image','—','—','ready','Sep 21, 2026 · 2:12 PM'], ['a2e8af35','test','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Sep 19, 2026 · 10:05 AM'],
+    ['3999762d','AERLA','Image','—','—','ready','Sep 18, 2026 · 6:31 PM'], ['e304d249','AERLA','Image','—','—','ready','Sep 18, 2026 · 6:02 PM'],
+    ['268ec696','OutKast','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Sep 16, 2026 · 1:47 PM'], ['38795792','Formee Express','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Sep 15, 2026 · 11:20 AM'],
+    ['c41d0e77','SCEI','Image','—','—','ready','Sep 12, 2026 · 9:14 AM'], ['5b9e2a10','SCHE','Video · Veo 3.1 Fast','16 s','15.8 s','ready','Sep 10, 2026 · 4:36 PM'],
+    ['f07a3c58','Formee Express','Carousel','—','—','failed','Sep 9, 2026 · 3:02 PM'], ['91c6d4e2','apple','Image','—','—','ready','Sep 6, 2026 · 12:48 PM'],
+    ['2ad8b7f3','Steel X','Video · Veo 3.1 Fast','8 s','8.0 s','ready','Sep 3, 2026 · 10:27 AM'], ['6e15fa09','SCEI','Video','8 s','—','skipped','Sep 1, 2026 · 8:55 AM'],
   ],
   members:[
     ['demo@reelforge.app','demo@reelforge.app','admin'], ['Norimi Muto','norimi.muto@formeeholdings.com','ba',['Formee Express','SCEI','Runway']],
@@ -1190,10 +1276,10 @@ const RICH = {
 };
 
 /* ---------------- state ---------------- */
-const S = { sort:{ accounts:null, activity:null }, view:'dashboard', id:null, tab:'overview', filter:'all', q:'', afilter:'all', aq:'', period:'30d', name:'Supreet Singh', draft:null };
+const S = { sort:{ accounts:null, activity:null, gens:null }, page:{ accounts:1, activity:1, gens:1 }, gq:'', view:'dashboard', id:null, tab:'overview', filter:'all', q:'', afilter:'all', aq:'', period:'30d', name:'Supreet Singh', draft:null };
 function readHash(){
   const h = new URLSearchParams(location.hash.slice(1));
-  S.view = h.get('view') || 'dashboard'; S.id = h.get('id'); S.tab = h.get('tab') || 'overview';
+  S.view = h.get('view') || 'dashboard'; S.id = h.get('id'); S.tab = ['usage', 'generations'].includes(h.get('tab')) ? h.get('tab') : 'overview';
   if (h.get('filter')){ if (S.view === 'activity') S.afilter = h.get('filter'); if (S.view === 'accounts') S.filter = h.get('filter'); }
   if (S.view === 'account' && !byId(S.id)) S.view = 'accounts';
 }
@@ -1205,6 +1291,24 @@ const head = (title, sub, right = '') => `<div class="sa-head"><div><h1 class="s
 const seg = (opts, cur, act) => `<div class="sa-seg" role="group">${opts.map(([k, l, n]) => `<button type="button" class="segment-chip${k === cur ? ' segment-chip--active' : ''}" data-act="${act}" data-k="${k}">${l}${n != null ? `<b>${n}</b>` : ''}</button>`).join('')}</div>`;
 const search = (ph, val, id) => `<label class="search-field search-field--expanded"><img src="${IC}ui-search.svg" alt=""><input class="search-field__input" id="${id}" type="search" placeholder="${ph}" value="${esc(val)}" autocomplete="off"></label>`;
 const more = (id, label = 'Account actions') => `<button type="button" class="more-btn more-btn--sm" data-menu="${id}" aria-label="${label}" aria-expanded="false"><img src="${IC}ui-ellipsis.svg" alt=""></button>`;
+/* empty-state · No results inside the table card (Figma 14361:333755) — Clear search keeps the status filter */
+const noResults = (title, body, clearId) => `<div class="sa-empty-state"><div class="empty-state"><span class="empty-state__glyph"><img src="${IC}ui-search.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">${title}</p><p class="empty-state__body">${body}</p></div>${clearId ? `<button type="button" class="actions-btn actions-btn--secondary" data-clear="${clearId}">Clear search</button>` : ''}</div></div>`;
+/* Super Admin / Table Footer (14351:331569) + Table / Pagination (14451:337027): 50 rows a page (Generations 20);
+   the pager shows up once a list runs past a page — first, last and current ±1, the rest collapse into … */
+const PER_PAGE = { accounts:50, activity:50, gens:20 };
+const pageCount = (n, table) => Math.max(1, Math.ceil(n / PER_PAGE[table]));
+const page = (list, table) => { const per = PER_PAGE[table], p = Math.min(S.page[table], pageCount(list.length, table)); S.page[table] = p; return list.slice((p - 1) * per, p * per); };
+function pager(n, table){
+  const total = pageCount(n, table), cur = S.page[table];
+  if (total < 2) return '';
+  const nums = [...new Set([1, cur - 1, cur, cur + 1, total])].filter(x => x >= 1 && x <= total).sort((a, b) => a - b);
+  const btn = x => `<button type="button" class="table-pagination__item${x === cur ? ' table-pagination__item--selected' : ''}" data-pg="${table}:${x}"${x === cur ? ' aria-current="page"' : ''}>${x}</button>`;
+  let cells = '', prev = 0;
+  nums.forEach(x => { if (x - prev === 2) cells += btn(prev + 1); else if (x - prev > 2) cells += '<span class="table-pagination__ellipsis">…</span>'; cells += btn(x); prev = x; });   /* a gap of one page shows the page instead of … */
+  const arrow = (dir, to, off) => `<button type="button" class="table-pagination__item" data-pg="${table}:${to}" aria-label="${dir === 'left' ? 'Previous page' : 'Next page'}"${off ? ' disabled' : ''}><img src="${IC}chevron-${dir}-18${off ? '-disabled' : ''}.svg" alt=""></button>`;
+  return `<div class="table-pagination">${arrow('left', cur - 1, cur === 1)}${cells}${arrow('right', cur + 1, cur === total)}</div>`;
+}
+const tableFoot = (n, table, label) => { const per = PER_PAGE[table], p = pageCount(n, table) > 1 ? `${(S.page[table] - 1) * per + 1}–${Math.min(S.page[table] * per, n)} of ${n}` : label; return `<div class="sa-foot"><span>${p}</span>${pager(n, table)}</div>`; };
 const totals = () => {
   const t = { accounts:ACCOUNTS.length, active:0, suspended:0, brands:0, admins:0, ba:0, users:0, spend:0 };
   ACCOUNTS.forEach(a => { t[a.status]++; t.brands += a.brands; t.admins += a.admins; t.ba += a.ba; t.users += a.users; t.spend += a.spend; });
@@ -1214,17 +1318,20 @@ const totals = () => {
 /* ---------------- column sort ---------------- */
 const UP = 'arrow-up.svg', DOWN = 'ui-arrow-down.svg';
 const MENUS = {
-  az:   [['asc', 'Sort A to Z', UP], ['desc', 'Sort Z to A', DOWN]],
+  az:   [['asc', 'Sort A to Z', DOWN], ['desc', 'Sort Z to A', UP]],   /* Figma Sort menu (Context Menu · Actions) 14417:648130: A→Z = move-down */
   num:  [['desc', 'Sort highest to lowest', DOWN], ['asc', 'Sort lowest to highest', UP]],
   date: [['desc', 'Sort newest to oldest', DOWN], ['asc', 'Sort oldest to newest', UP]],
 };
 const SORTS = {
   accounts: {
     account:{ menu:'az', get:a => a.name.toLowerCase() }, brands:{ menu:'num', get:a => a.brands }, admins:{ menu:'num', get:a => a.admins },
-    ba:{ menu:'num', get:a => a.ba }, users:{ menu:'num', get:a => a.users }, gens:{ menu:'num', get:a => a.gens }, spend:{ menu:'num', get:a => a.spend },
+    ba:{ menu:'num', get:a => a.ba }, users:{ menu:'num', get:a => a.users }, gens:{ menu:'num', get:a => a.gens }, spend:{ menu:'num', get:a => a.spend }, status:{ menu:'az', get:a => a.status },
+  },
+  gens: {
+    campaign:{ menu:'az', get:g => g[0] }, brand:{ menu:'az', get:g => g[1].toLowerCase() }, type:{ menu:'az', get:g => g[2] }, status:{ menu:'az', get:g => STATUS[g[5]][1] }, created:{ menu:'date', get:g => -RICH.gens.indexOf(g) },
   },
   activity: {
-    account:{ menu:'az', get:g => byId(g.acc).name.toLowerCase() }, brand:{ menu:'az', get:g => g.brand.toLowerCase() }, updated:{ menu:'date', get:g => -g.min },
+    account:{ menu:'az', get:g => byId(g.acc).name.toLowerCase() }, brand:{ menu:'az', get:g => g.brand.toLowerCase() },
   },
 };
 function sorted(table, list){
@@ -1255,9 +1362,9 @@ function renderDashboard(){
   const stat = (icon, value, label, cap) => `<div class="stats-summary__stat"><div class="stats-summary__icon"><img src="${IC}${icon}" alt=""></div><div class="stats-summary__text"><p class="stats-summary__value">${value}</p><p class="stats-summary__label">${label}</p><p class="stats-summary__caption">${cap}</p></div></div>`;
   const sectionHead = (title, link, lg = true) => `<div class="header-row"><div class="trends-section-header${lg ? ' trends-section-header--lg' : ''}"><div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">${title}</h2></div></div></div>${link || ''}</div>`;
   const attention = [
-    ['stat-circle-alert-20.svg', `${FEED.failed} failed generations`, `Out of the latest ${FEED.kept} · provider and render errors`, '#view=activity&filter=failed'],
-    ['stat-spinner-20.svg', `${stuck} render may be stuck`, 'Rendering for over 16 days', '#view=activity&filter=progress'],
-    ['nav-admin.svg', `${susp.length} suspended ${susp.length === 1 ? 'account' : 'accounts'}`, susp.map(a => `${a.name} · since ${a.suspendedOn}`).join(', ') || 'None right now', '#view=accounts&filter=suspended'],
+    ['circle-alert-24.svg', `${FEED.failed} failed generations`, `Out of the latest ${FEED.kept} · provider and render errors`, '#view=activity&filter=failed'],
+    ['spinner-24.svg', `${stuck} render may be stuck`, 'Rendering for over 16 days', '#view=activity&filter=progress'],
+    ['ban-24.svg', `${susp.length} suspended ${susp.length === 1 ? 'account' : 'accounts'}`, susp.map(a => `${a.name} · since ${a.suspendedOn}`).join(', ') || 'None right now', '#view=accounts&filter=suspended'],
   ].map(([icon, title, hint, href]) => `<a class="content-type-card" href="${href}"><span class="content-type-card__icon"><img src="${IC}${icon}" alt=""></span><span class="content-type-card__text"><p class="content-type-card__title">${title}</p><p class="content-type-card__hint">${esc(hint)}</p></span><img class="content-type-card__chevron" src="${IC}chevron-right-20-grey.svg" alt=""></a>`).join('');
   const recent = ACCOUNTS.slice(0, 6).map(a => `<div class="lc-row" data-open="${a.id}"><div class="ra-account cell-text"><span class="cell-main">${esc(a.name)}</span><span class="cell-sub">${esc(a.owner)}</span></div><span class="ra-brands cell-main">${a.brands}</span><div class="ra-created cell-text"><span class="cell-sub">${a.created}</span></div><span class="ra-status">${acctChip(a)}</span></div>`).join('');
   const top = ACCOUNTS.filter(a => a.spend > 0).sort((a, b) => b.spend - a.spend).slice(0, 5);
@@ -1302,12 +1409,12 @@ function renderAccounts(){
       <div class="sa-c ac-status">${acctChip(a)}</div>
       <div class="sa-c end ac-act">${more(a.id)}</div>
     </div>`;
-  return head('Accounts', 'Every customer account on the platform. Suspending an account blocks sign-in for everyone in it — reversible, no data is deleted.') +
+  return head('Accounts', 'Every customer account on the platform. Suspending an account blocks all users from signing in without deleting any data.') +
     `<div class="sa-bar">${seg([['all', 'All', t.accounts], ['active', 'Active', t.active], ['suspended', 'Suspended', t.suspended]], S.filter, 'filter')}${search('Search by account, owner or email', S.q, 'accQ')}</div>
     <div class="sa-card">
-      <div class="sa-tr head"><div class="sa-c ac-account">${sortHead('accounts', 'account', 'Account')}</div><div class="sa-c ac-owner">Owner</div><div class="sa-c num ac-n">${sortHead('accounts', 'brands', 'Brands')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'admins', 'Admins')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'ba', 'Brand Admins')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'users', 'Users')}</div><div class="sa-c num ac-gen">${sortHead('accounts', 'gens', 'Generations')}</div><div class="sa-c num ac-spend">${sortHead('accounts', 'spend', 'Spend MTD')}</div><div class="sa-c ac-status">Status</div><div class="sa-c ac-act"></div></div>
-      ${rows.length ? rows.map(tr).join('') : '<p class="sa-empty">No accounts match your search.</p>'}
-      <div class="sa-foot"><span>${rows.length} of ${t.accounts} accounts</span></div>
+      <div class="sa-tr head"><div class="sa-c ac-account">${sortHead('accounts', 'account', 'Account')}</div><div class="sa-c ac-owner">Owner</div><div class="sa-c num ac-n">${sortHead('accounts', 'brands', 'Brands')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'admins', 'Admins')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'ba', 'Brand Admins')}</div><div class="sa-c num ac-role">${sortHead('accounts', 'users', 'Users')}</div><div class="sa-c num ac-gen">${sortHead('accounts', 'gens', 'Generations')}</div><div class="sa-c num ac-spend">${sortHead('accounts', 'spend', 'Spend MTD')}</div><div class="sa-c ac-status">${sortHead('accounts', 'status', 'Status')}</div><div class="sa-c ac-act"></div></div>
+      ${rows.length ? page(rows, 'accounts').map(tr).join('') : noResults(S.q ? `No accounts match “${esc(S.q.trim())}”` : 'No accounts here', S.q ? 'Try a different account name, owner or email.' : 'Nothing matches this filter yet.', S.q ? 'accQ' : '')}
+      ${rows.length ? tableFoot(rows.length, 'accounts', `${rows.length} of ${t.accounts} accounts`) : ''}
     </div>`;
 }
 
@@ -1317,57 +1424,65 @@ function bars(list, total, cls = ''){
 }
 function renderAccount(){
   const a = byId(S.id), R = a.rich ? RICH : null;
-  const tabs = [['overview', 'Overview'], ['usage', 'Usage & cost'], ['generations', 'Generations', a.gens], ['members', 'Members', a.admins + a.ba + a.users]];
+  const tabs = [['overview', 'Overview'], ['usage', 'Usage & cost'], ['generations', 'Generations', a.gens]];   /* Members tab removed (Figma 03, hidden on every frame) */
   const action = a.status === 'active'
     ? `<button type="button" class="actions-btn actions-btn--secondary" onclick="ask('suspend','${a.id}')">Suspend account</button>`
     : `<button type="button" class="actions-btn actions-btn--primary" onclick="ask('reinstate','${a.id}')">Reinstate account</button>`;
   let body = '';
-  const periodBar = `<div class="sa-sechead"><div><h2 class="sa-sectitle">${S.tab === 'usage' ? 'Usage in this period' : 'Generations in this period'}</h2><p class="sa-secsub">${S.tab === 'usage' ? 'Counts every billed provider call — including retries, failed renders and unpicked previews.' : 'Every version, newest first.'}</p></div>${seg([['today', 'Today'], ['7d', 'Past 7 days'], ['30d', 'Past 30 days'], ['3m', 'Past 3 months'], ['custom', 'Custom']], S.period, 'period')}</div>`;
+  const secHead = (title, meta = '', desc = '') => `<div class="trends-section-header"><div class="trends-section-header__left"><div class="trends-section-header__title-row"><h2 class="trends-section-header__title">${title}</h2></div>${desc ? `<p class="trends-section-header__desc">${desc}</p>` : ''}</div>${meta ? `<p class="trends-section-header__meta">${meta}</p>` : ''}</div>`;
+  const srow = ([l, v], total, cls = '') => `<div class="sa-srow"><div class="sa-srow-top"><span>${l}</span><b>${v}</b><span class="p">${pct(v, total)}%</span></div><div class="sa-track"><div class="sa-fill ${cls}" style="width:${pct(v, total)}%"></div></div></div>`;
+  const periodBar = `<div class="sa-period"><div><h2 class="sa-period__title${S.tab === 'usage' ? '' : ' sa-period__title--lg'}">${S.tab === 'usage' ? 'Usage in this period' : 'Generations in this period'}</h2><p class="sa-period__sub">${S.tab === 'usage' ? 'Counts every billed provider call, including retries, failed renders and unpicked previews.' : 'Every version, newest first.'}</p></div>${(p => S.tab === 'usage' ? p : `<div class="sa-bar">${p}${search('Search by campaign ID, brand or type', S.gq, 'genQ')}</div>`)(seg([['today', 'Today'], ['7d', 'Past 7 days'], ['30d', 'Past 30 days'], ['3m', 'Past 3 months'], ['custom', 'Custom']], S.period, 'period'))}</div>`;
   if (S.tab === 'overview'){
     const L = R ? R.lifetime : { total:a.gens, images:0, carousels:0, videos:0 };
     const stat = (icon, v, l, c) => `<div class="stats-summary__stat"><div class="stats-summary__icon"><img src="${IC}${icon}" alt=""></div><div class="stats-summary__text"><p class="stats-summary__value">${fmt(v)}</p><p class="stats-summary__label">${l}</p><p class="stats-summary__caption">${c}</p></div></div>`;
-    body = `<div class="stats-summary">${stat('stat-library-20.svg', L.total, 'Total generations', 'Every version, all statuses')}<div class="stats-summary__divider"></div>${stat('stat-scan-square-20.svg', L.images, 'Images', pct(L.images, L.total) + '% of all generations')}<div class="stats-summary__divider"></div>${stat('stat-scan-square-20.svg', L.carousels, 'Carousels', pct(L.carousels, L.total) + '% of all generations')}<div class="stats-summary__divider"></div>${stat('stat-duration-20.svg', L.videos, 'Videos', pct(L.videos, L.total) + '% of all generations')}</div>`;
-    const srow = ([l, v], total, cls = '') => `<div class="sa-srow"><div class="sa-srow-top"><span>${l}</span><b>${v}</b><span class="p">${pct(v, total)}%</span></div><div class="sa-track"><div class="sa-fill ${cls}" style="width:${pct(v, total)}%"></div></div></div>`;
-    const bd = (title, total, leftLabel, left, rightLabel, right, note) => `<div class="sa-card sa-bd"><div class="sa-bd-head"><p class="sa-kicker">${title}</p><span class="sa-total">${total} total</span></div>
+    body = `<div class="stats-summary">${stat('stat-library-20.svg', L.total, 'Total generations', 'Every version, all statuses')}<div class="stats-summary__divider"></div>${stat('stat-image-20.svg', L.images, 'Images', pct(L.images, L.total) + '% of all generations')}<div class="stats-summary__divider"></div>${stat('stat-carousel-20.svg', L.carousels, 'Carousels', pct(L.carousels, L.total) + '% of all generations')}<div class="stats-summary__divider"></div>${stat('stat-scan-square-20.svg', L.videos, 'Videos', pct(L.videos, L.total) + '% of all generations')}</div>`;
+    const bd = (title, total, leftLabel, left, rightLabel, right, note) => `<section class="home-section">${secHead(title, total + ' total')}<div class="sa-card sa-bd">
       <div class="sa-bd-cols"><div class="sa-bd-col"><p class="sa-group-label">${leftLabel}</p>${left.map(r => srow(r, total)).join('')}</div><div class="sa-bd-col"><p class="sa-group-label">${rightLabel}</p>${right.map(r => srow(r, total, 'muted')).join('')}</div></div>
-      <p class="sa-note">${note}</p></div>`;
+      <p class="sa-note">${note}</p></div></section>`;
     body += R ? `<div class="sa-grid2">
-        ${bd('Carousels by cards generated', L.carousels, 'Cards generated', R.cards, 'Not generated', R.cardsNot, '20 came back with fewer cards than requested — counted at the cards actually generated.')}
-        ${bd('Videos by generated length', L.videos, 'Generated length', R.lengths, 'No usable video', R.lengthsNot, '23 edited after generation — counted at their original length.')}
-      </div>` : `<div class="sa-card"><p class="sa-empty">This account hasn’t generated anything yet.</p></div>`;
+        ${bd('Carousels by Cards Generated', L.carousels, 'Cards generated', R.cards, 'Not generated', R.cardsNot, '20 came back with fewer cards than requested. Counted at the cards actually generated.')}
+        ${bd('Videos by Generated Length', L.videos, 'Generated length', R.lengths, 'No usable video', R.lengthsNot, '23 were edited after generation. Counted at their original length.')}
+      </div>` : `<div class="sa-empty-panel">This account hasn’t generated anything yet.</div>`;
   } else if (S.tab === 'usage'){
     body = periodBar;
-    if (!R) body += `<div class="sa-card"><p class="sa-empty">No generations or billed calls in this period.</p></div>`;
+    if (!R) body += `<div class="sa-empty-panel">No generations or billed calls in this period.</div>`;
     else {
       const P = R.period, tot = P.video[0] + P.image[0] + P.carousel[0], reqTot = P.req.reduce((s, r) => s + r[1], 0);
+      /* Videos by requested length — donut + legend (Figma 14383:668609). Segments run clockwise from 12 o'clock. */
+      const SW = ['var(--color-brand-primary-pale)', 'var(--color-brand-primary)', 'var(--color-neutral-800)', 'var(--color-brand-primary-dark)'];
+      const req = P.req.map((r, i) => [...r, SW[i]]).filter(r => r[1] > 0), C = 2 * Math.PI * 70;
+      let off = 0;
+      const arcs = req.map(([, v, c]) => { const len = C * v / reqTot, el = `<circle cx="80" cy="80" r="70" fill="none" stroke="${c}" stroke-width="20" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 80 80)"/>`; off += len; return el; }).join('');
+      const donut = `<div class="sa-donut"><svg viewBox="0 0 160 160" width="160" height="160" aria-hidden="true"><circle cx="80" cy="80" r="70" fill="none" stroke="var(--color-neutral-150)" stroke-width="20"/>${arcs}</svg><div class="sa-donut__center"><b>${reqTot}</b><span>generated</span></div></div>`;
+      const legend = `<div class="sa-legend">${req.map(([l, v, c]) => `<div class="sa-legend__row"><span class="sa-legend__label"><i style="background:${c}"></i>${l}</span><b>${v}</b><span class="sa-legend__p">${pct(v, reqTot)}%</span></div>`).join('')}</div>`;
+      /* Model usage (Super Admin / Model Usage Row 14355:331705) grouped Videos / Images */
+      const muHead = '<div class="sa-mu sa-mu--head"><span class="sa-mu__model">Model</span><span class="sa-mu__n">Calls</span><span class="sa-mu__n">Seconds</span><span class="sa-mu__rate">Rate</span></div>';
+      const muRow = m => `<div class="sa-mu"><span class="sa-mu__model"><b>${m[0]}</b>${m[1] ? `<small>${m[1]}</small>` : ''}</span><span class="sa-mu__n">${m[2]}</span><span class="sa-mu__n">${m[3]}</span><span class="sa-mu__rate">${m[4]}</span></div>`;
+      const groups = Object.entries(R.models).map(([g, list]) => `<div class="sa-mu-group"><p class="sa-group-label">${g}</p><div>${muHead}${list.map(muRow).join('')}</div></div>`).join('');
+      /* Cost by model (Super Admin / Cost Row 14355:331734): Subtotal = neutral-75 + SemiBold, Total = Bold, no rule */
+      const costRows = '<div class="sa-cost sa-cost--head"><span>Model</span><span>USD</span><span>AUD</span></div>' + R.cost.rows.map(r => `<div class="sa-cost${r[3] === 'sub' ? ' sa-cost--sub' : r[3] === 'total' ? ' sa-cost--total' : ''}"><span>${r[0]}</span><span>${usd(r[1])}</span><span>A${usd(r[2])}</span></div>`).join('');
       body += `<div class="sa-grid2">
-        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Generations by type</h2><p class="sa-secsub">${tot} versions · ${P.video[1] + P.image[1]} campaigns</p></div></div><div class="sa-card-body">${bars([['Video', P.video[0]], ['Image', P.image[0]], ['Carousel', P.carousel[0]]], tot)}</div></div>
-        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Videos by requested length</h2><p class="sa-secsub">${reqTot} videos generated</p></div></div><div class="sa-card-body">${bars(P.req, reqTot)}</div></div>
-        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Model usage</h2><p class="sa-secsub">Billed provider calls</p></div></div><div class="sa-card-body"><div class="sa-kv"><div class="r model h"><span>Model</span><span>Calls</span><span>Seconds</span><span>Rate</span></div>${R.models.map(m => `<div class="r model"><span class="sa-c col"><span class="sa-strong">${m[0]}</span><span class="sa-mono">${m[1]}</span></span><span>${m[2]}</span><span>${m[3]}</span><span>${m[4]}</span></div>`).join('')}</div><p class="sa-note">19 GPT Image 2 calls made before real token cost was recorded use a flat estimate.</p></div></div>
-        <div class="sa-card"><div class="sa-card-head"><div><h2 class="sa-sectitle">Cost by model</h2><p class="sa-secsub">USD and AUD</p></div><span class="sa-big">$20.30</span></div><div class="sa-card-body"><div class="sa-kv"><div class="r h"><span>Model</span><span>USD</span><span>AUD</span></div>${R.cost.rows.map(r => `<div class="r ${r[3] === 'sub' ? 'sub' : r[3] === 'total' ? 'total' : ''}"><span>${r[0]}</span><span>${usd(r[1])}</span><span>A${usd(r[2])}</span></div>`).join('')}</div><p class="sa-note">1 USD = 1.4317 AUD · ECB reference rate, Oct 20, 2026. Actual spend is likely a little higher than the estimates.</p></div></div>
+        <section class="home-section">${secHead('Generations by type', `${tot} versions · ${P.video[1] + P.image[1]} campaigns`)}<div class="sa-card sa-bd">${[['Video', P.video[0]], ['Image', P.image[0]], ['Carousel', P.carousel[0]]].map(r => srow(r, tot)).join('')}</div></section>
+        <section class="home-section">${secHead('Videos by requested length', `${reqTot} videos generated`)}<div class="sa-card sa-donut-card">${donut}${legend}</div></section>
+        <section class="home-section">${secHead('Model usage', '', 'Billed provider calls')}<div class="sa-card sa-bd">${groups}<p class="sa-note">Counts every billed provider call, including retries, failed renders and unpicked previews, so it can exceed the versions listed below.</p></div></section>
+        <section class="home-section">${secHead('Cost by model', '$20.30', 'USD and AUD')}<div class="sa-card sa-bd sa-bd--split"><div>${costRows}</div><p class="sa-note">Includes flat estimates for 15 GPT Image 2 calls made before real token cost was recorded. Actual spend is likely higher.<br>1 USD = 1.4317 AUD · ECB reference rate, Oct 20, 2026. Actual spend is likely a little higher than the estimates.</p></div></section>
       </div>`;
     }
   } else if (S.tab === 'generations'){
     body = periodBar;
-    const rows = R ? R.gens : [];
-    body += `<div class="sa-card"><div class="sa-tr head"><div class="sa-c gn-id">Campaign</div><div class="sa-c gn-brand">Brand</div><div class="sa-c gn-type">Type</div><div class="sa-c num gn-req">Requested</div><div class="sa-c num gn-got">Generated</div><div class="sa-c gn-status">Status</div><div class="sa-c num gn-created">Created</div></div>
-      ${rows.length ? rows.map(g => `<div class="sa-tr"><div class="sa-c gn-id"><span class="sa-mono">${g[0]} · v1</span></div><div class="sa-c gn-brand">${brandPill(g[1])}</div><div class="sa-c gn-type">${g[2]}</div><div class="sa-c num gn-req">${g[3] === '—' ? '<span class="sa-dash">—</span>' : g[3]}</div><div class="sa-c num gn-got sa-strong">${g[4] === '—' ? '<span class="sa-dash">—</span>' : g[4]}</div><div class="sa-c gn-status">${chip(g[5])}</div><div class="sa-c num gn-created sa-mute">${g[6]}</div></div>`).join('') : '<p class="sa-empty">No generations in this period.</p>'}
-      <div class="sa-foot"><span>${rows.length ? '1–' + rows.length + ' of 26' : '0 of 0'}</span><span class="sa-pager"><button type="button" class="text-btn text-btn--24" disabled>← Prev</button><span>Page 1 of ${rows.length ? 3 : 1}</span><button type="button" class="text-btn text-btn--24"${rows.length ? '' : ' disabled'}>Next →</button></span></div></div>`;
-  } else {
-    const M = R ? R.members : [[a.owner, a.email === a.owner ? '' : a.email, 'admin']];
-    const none = '<span class="settings-member-row__none">—</span>';
-    const row = m => {
-      const [name, email, kind, brands = []] = m;
-      if (kind === 'invited') return `<div class="settings-member-row settings-member-row--invited"><div class="settings-col settings-col--member"><span class="ai-avatar md">${initials(name)}</span><div class="settings-member-row__identity"><span class="settings-member-row__name">${esc(name)}</span><span class="settings-member-row__meta">Invited 5 hours ago</span></div></div><div class="settings-col settings-col--status"><span class="feedback-status-chip feedback-status-chip--orange">Invited</span></div><div class="settings-col settings-col--brand-admin">${none}</div><div class="settings-col settings-col--user">${brands.map(brandPill).join('')}</div><div class="settings-col settings-col--actions"></div></div>`;
-      const ba = kind === 'admin' ? `<span class="brand-pill brand-pill--icon"><img src="${IC}panel-brand.svg" alt="">All ${a.brands} brands</span>` : kind === 'ba' ? brands.map(brandPill).join('') : none;
-      const us = kind === 'user' ? brands.map(brandPill).join('') : none;
-      return `<div class="settings-member-row"><div class="settings-col settings-col--member"><span class="ai-avatar md">${initials(name)}</span><div class="settings-member-row__identity"><div class="settings-member-row__name-line"><span class="settings-member-row__name">${esc(name)}</span>${kind === 'admin' ? '<span class="feedback-status-chip feedback-status-chip--primary">Admin</span>' : ''}</div><span class="settings-member-row__email">${esc(email || name)}</span></div></div><div class="settings-col settings-col--status"><span class="feedback-status-chip feedback-status-chip--green">Active</span></div><div class="settings-col settings-col--brand-admin">${ba}</div><div class="settings-col settings-col--user">${us}</div><div class="settings-col settings-col--actions">${kind === 'admin' ? `<button type="button" class="more-btn more-btn--sm" data-menu="admin:${a.id}" aria-label="Account admin actions" aria-expanded="false"><img src="${IC}ui-ellipsis.svg" alt=""></button>` : ''}</div></div>`;
-    };
-    body = `<div class="sa-sechead"><div><h2 class="sa-sectitle">Members</h2><p class="sa-secsub">Read-only. The account's own Admin manages members in Settings; only Super Admin can change who the account admin is.</p></div></div>
-      <div class="sa-card"><div class="settings-members-head" style="border-top:0"><div class="settings-col settings-col--member">Member</div><div class="settings-col settings-col--status">Status</div><div class="settings-col settings-col--brand-admin"><img src="${IC}data-shield-check.svg" alt="">Brand Admin</div><div class="settings-col settings-col--user"><img src="${IC}circle-user-round.svg" alt="">User</div><div class="settings-col settings-col--actions"></div></div>${M.map(row).join('')}
-      ${R ? `<div class="sa-foot"><span>Showing ${M.length} of ${a.admins + a.ba + a.users + 1} · ${a.admins} Admin · ${a.ba} Brand Admins · ${a.users} Users · 1 pending invitation</span></div>` : ''}</div>`;
+    const q = S.gq.trim().toLowerCase();
+    const rows = sorted('gens', (R ? R.gens : []).filter(g => !q || (g[0] + ' ' + g[1] + ' ' + g[2]).toLowerCase().includes(q)));
+    const dash = v => v === '—' ? '<span class="sa-dash">—</span>' : v;
+    const when = t => { const d = new Date(t.replace(' · ', ' ')); return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}<span class="sa-dash">${t.split(' · ')[1]}</span>`; };
+    /* Super Admin / Generation Row (14353:331774): mono ID, brand as text, Generated SemiBold, status inset 48 */
+    /* nothing in the period → empty-state-panel (Figma 14426:658802) in place of the table */
+    if (!R) body += `<div class="empty-state-panel"><div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="${IC}nav-library-18.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No generations in this period.</p><p class="empty-state__body">Try a longer date range.</p></div></div></div>`;
+    else body += `<div class="sa-card sa-card--sticky"><div class="sa-tr head"><div class="sa-c gn-id">${sortHead('gens', 'campaign', 'Campaign ID')}</div><div class="sa-c gn-brand">${sortHead('gens', 'brand', 'Brand')}</div><div class="sa-c gn-type">${sortHead('gens', 'type', 'Type')}</div><div class="sa-c num gn-req">Requested</div><div class="sa-c num gn-got">Generated</div><div class="sa-c gn-status">${sortHead('gens', 'status', 'Status')}</div><div class="sa-c num gn-created">${sortHead('gens', 'created', 'Created')}</div></div>
+      ${rows.length ? page(rows, 'gens').map(g => `<div class="sa-tr"><div class="sa-c gn-id"><span class="sa-mono">${g[0]} · v1</span></div><div class="sa-c gn-brand"><span class="sa-ellipsis">${esc(g[1])}</span></div><div class="sa-c gn-type">${g[2]}</div><div class="sa-c num gn-req">${dash(g[3])}</div><div class="sa-c num gn-got sa-strong">${dash(g[4])}</div><div class="sa-c gn-status">${chip(g[5])}</div><div class="sa-c num gn-created">${when(g[6])}</div></div>`).join('')
+        : noResults(S.gq ? `No generations match “${esc(S.gq.trim())}”` : 'No generations in this period', S.gq ? 'Try a different campaign ID, brand or type.' : 'Pick a longer period to see older versions.', S.gq ? 'genQ' : '')}
+      ${rows.length ? tableFoot(rows.length, 'gens', `${rows.length} ${rows.length === 1 ? 'version' : 'versions'}`) : ''}</div>`;
   }
-  return `<div class="sa-head"><div><button type="button" class="sa-back" onclick="go('accounts')"><img src="${IC}chevron-left.svg" alt="">Accounts</button>
+  return `<div class="sa-head"><div>
       <div class="sa-titleline"><div><h1 class="sa-title">${esc(a.name)} ${acctChip(a)}</h1><p class="sa-sub">${esc(a.owner)}${a.owner !== a.email ? ' · ' + esc(a.email) : ''} · Created ${a.created} · ${a.brands} ${a.brands === 1 ? 'brand' : 'brands'}${a.status === 'suspended' ? ' · Suspended ' + a.suspendedOn : ''}</p></div></div></div>${action}</div>
     <div class="tab-bar" role="tablist">${tabs.map(([k, l, n]) => `<button type="button" class="tab-item${k === S.tab ? ' tab-item--selected' : ''}" role="tab" onclick="openAccount('${a.id}','${k}')">${l}${n != null ? `<b>${fmt(n)}</b>` : ''}</button>`).join('')}<div class="tab-item tab-item--filler" aria-hidden="true"></div></div>
     ${body}`;
@@ -1379,23 +1494,23 @@ function renderActivity(){
   const list = sorted('activity', ACT.filter(g => (S.afilter === 'all' || (S.afilter === 'failed' && g.status === 'failed') || (S.afilter === 'progress' && g.status === 'rendering'))
     && (!q || (byId(g.acc).name + ' ' + g.brand + ' ' + g.by).toLowerCase().includes(q))));
   const stage = g => !g.clips ? '<span class="sa-dash">—</span>' : g.status === 'rendering' ? `Clip ${g.clips[0] + 1} of ${g.clips[1]}` : `${g.clips[0]} of ${g.clips[1]} ${g.clips[1] === 1 ? 'clip' : 'clips'}`;
-  const tr = g => { const a = byId(g.acc); return `<div class="sa-tr${g.stuck ? ' is-stuck' : ''}">
+  const tr = g => { const a = byId(g.acc), [href, step] = lastScreen(g); return `<div class="sa-tr link${g.stuck ? ' is-stuck' : ''}" data-href="${href}" title="Opens where it stopped: ${step}">
       <div class="sa-c av-account"><div class="sa-c col"><span class="sa-nm">${esc(a.name)}</span>${dupName(a) ? `<span class="sa-mute">${esc(a.owner)}</span>` : ''}</div></div>
-      <div class="sa-c av-brand">${brandPill(g.brand)}</div>
-      <div class="sa-c av-by"><span class="sa-nm" style="font-weight:var(--font-weight-regular)">${esc(g.by)}</span><span class="feedback-status-chip feedback-status-chip--secondary">${g.role}</span></div>
+      <div class="sa-c av-brand"><span class="sa-ellipsis">${esc(g.brand)}</span></div>
+      <div class="sa-c av-by"><span class="sa-nm" style="font-weight:var(--font-weight-regular)">${esc(g.by)}</span><span class="feedback-status-chip feedback-status-chip--disabled">${g.role}</span></div>
       <div class="sa-c av-format">${g.format}</div>
       <div class="sa-c av-status">${chip(g.status)}${g.stuck ? '<span class="feedback-status-chip feedback-status-chip--orange">Stuck?</span>' : ''}</div>
       <div class="sa-c av-stage">${stage(g)}</div>
       <div class="sa-c av-updated sa-mute" title="${g.min} minutes ago">${ago(g.min)}</div>
       <div class="sa-c av-err">${g.err ? `<span class="sa-err" title="${esc(g.raw)}">${esc(g.err)}</span>` : '<span class="sa-dash">—</span>'}</div>
-      <div class="sa-c end av-act">${(([href, step]) => `<a class="text-btn text-btn--24" href="${href}" target="_blank" rel="noopener" title="Opens where it stopped: ${step}">Open →</a>`)(lastScreen(g))}</div>
+      <div class="sa-c end av-act"><a class="text-btn text-btn--24 sa-open" href="${href}" target="_blank" rel="noopener">Open<img src="${IC}shape-arrow-16.svg" alt=""></a></div>
     </div>`; };
-  return head('Activity', 'Every generation across all accounts and brands, newest first. Open shows the content where it stopped — Generate, Editing or Publish.', '') +
+  return head('Activity', 'Every tester’s content across all brands. Newest activity first. Click a row to open it.', '') +
     `<div class="sa-bar">${seg([['all', 'All', FEED.kept], ['progress', 'In progress', FEED.progress], ['failed', 'Failed', FEED.failed]], S.afilter, 'afilter')}${search('Search by account, brand or email', S.aq, 'actQ')}</div>
-    <div class="sa-card">
-      <div class="sa-tr head"><div class="sa-c av-account">${sortHead('activity', 'account', 'Account')}</div><div class="sa-c av-brand">${sortHead('activity', 'brand', 'Brand')}</div><div class="sa-c av-by">Created by</div><div class="sa-c av-format">Format</div><div class="sa-c av-status">Status</div><div class="sa-c av-stage">Progress</div><div class="sa-c av-updated">${sortHead('activity', 'updated', 'Updated')}</div><div class="sa-c av-err">Last error</div><div class="sa-c av-act"></div></div>
-      ${list.length ? list.map(tr).join('') : '<p class="sa-empty">No generations match.</p>'}
-      <div class="sa-foot"><span>${list.length} shown · latest 200 kept</span></div>
+    <div class="sa-card sa-card--sticky">
+      <div class="sa-tr head"><div class="sa-c av-account">${sortHead('activity', 'account', 'Account')}</div><div class="sa-c av-brand">${sortHead('activity', 'brand', 'Brand')}</div><div class="sa-c av-by">Created by</div><div class="sa-c av-format">Format</div><div class="sa-c av-status">Status</div><div class="sa-c av-stage">Progress</div><div class="sa-c av-updated">Updated</div><div class="sa-c av-err">Last error</div><div class="sa-c av-act"></div></div>
+      ${list.length ? page(list, 'activity').map(tr).join('') : noResults(S.aq ? `No activity matches “${esc(S.aq.trim())}”` : 'Nothing here right now', S.aq ? 'Try a different account, brand or email.' : 'Nothing matches this filter.', S.aq ? 'actQ' : '')}
+      ${list.length ? tableFoot(list.length, 'activity', `${list.length} shown · latest ${FEED.kept} kept`) : ''}
     </div>`;
 }
 
@@ -1405,13 +1520,10 @@ function closeMenu(){ $('#menu').hidden = true; document.querySelectorAll('[aria
 function openMenu(btn){
   const key = btn.dataset.menu, frame = $('#frame'), fr = frame.getBoundingClientRect(), r = btn.getBoundingClientRect(), k = fr.width / 1920;
   let html;
-  if (key.startsWith('admin:')){
-    html = `<a class="menu-item" style="text-decoration:none" href="#view=settings">Transfer account admin</a>`;
-  } else {
+  {
     const a = byId(key);
     html = `<button type="button" class="menu-item" onclick="openAccount('${a.id}')">View details</button>
-      <button type="button" class="menu-item" onclick="openAccount('${a.id}','members')">View members</button>
-      <div class="menu-divider"></div>` +
+      <button type="button" class="menu-item" onclick="go('settings')">View members</button>` +   /* no Members tab in Account details any more — members live in Settings */
       (a.status === 'active' ? `<button type="button" class="menu-item menu-item--danger" onclick="ask('suspend','${a.id}')">Suspend account</button>` : `<button type="button" class="menu-item" onclick="ask('reinstate','${a.id}')">Reinstate account</button>`);
   }
   const m = $('#menu');
@@ -1425,8 +1537,8 @@ function ask(kind, id){
   const label = dupName(a) ? `${a.name} (${a.owner})` : a.name;
   const L = $('#layer');
   L.innerHTML = kind === 'suspend'
-    ? `<div class="modal sa-dlg" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Suspend ${esc(label)}?</h3></div><div class="sa-dlg-body">${who} lose access across ${a.brands} ${a.brands === 1 ? 'brand' : 'brands'}.<ul><li>Scheduled posts stop publishing.</li><li>Nothing is deleted — you can reinstate at any time.</li></ul></div><div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--danger" onclick="setStatus('${a.id}','suspended')">Suspend account</button></div></div>`
-    : `<div class="modal sa-dlg" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Reinstate ${esc(label)}?</h3></div><div class="sa-dlg-body">${who} can sign in again, and their brands and content come back as they were.</div><div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--primary" onclick="setStatus('${a.id}','active')">Reinstate account</button></div></div>`;
+    ? `<div class="modal sa-dlg" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Suspend ${esc(label)}?</h3><button type="button" class="sa-dlg-close" aria-label="Close" onclick="closeLayer()"><img src="${IC}button-x-dark.svg" alt=""></button></div><div class="sa-dlg-body"><p>${who} will lose access across ${a.brands} ${a.brands === 1 ? 'brand' : 'brands'}.</p><p>•&nbsp; Scheduled posts will stop publishing.</p><p>•&nbsp; Nothing will be deleted. You can reinstate the account at any time.</p></div><div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--danger" onclick="setStatus('${a.id}','suspended')">Suspend account</button></div></div>`
+    : `<div class="modal sa-dlg" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Reinstate ${esc(label)}?</h3><button type="button" class="sa-dlg-close" aria-label="Close" onclick="closeLayer()"><img src="${IC}button-x-dark.svg" alt=""></button></div><div class="sa-dlg-body"><p>${who} can sign in again, and their brands and content come back as they were.</p></div><div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--primary" onclick="setStatus('${a.id}','active')">Reinstate account</button></div></div>`;
   L.hidden = false;
 }
 function closeLayer(){ $('#layer').hidden = true; }
@@ -1434,7 +1546,7 @@ function setStatus(id, st){
   const a = byId(id); a.status = st; a.suspendedOn = st === 'suspended' ? 'Oct 26, 2026' : null;
   closeLayer(); render(); toast(st === 'suspended' ? `${a.name} suspended` : `${a.name} reinstated`);
 }
-let tt; function toast(msg){ closeMenu(); const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2400); }
+let tt; function toast(msg){ closeMenu(); const t = $('#toast'); t.innerHTML = `<img src="${IC}circle-check-18.svg" alt="">${esc(msg)}`; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2400); }
 
 /* ---------------- render ---------------- */
 const CRUMB = { dashboard:'Dashboard', accounts:'Accounts', account:'Accounts', activity:'Activity', settings:'Settings' };
@@ -1442,12 +1554,11 @@ function render(){
   closeMenu();
   const navKey = S.view === 'account' ? 'accounts' : S.view;
   document.querySelectorAll('[data-nav]').forEach(n => n.classList.toggle('active', n.dataset.nav === navKey));
-  $('#crumb').textContent = S.view === 'account' ? 'Accounts / ' + byId(S.id).name : CRUMB[S.view];
+  $('#crumb').innerHTML = S.view === 'account' ? `<a class="sa-crumb-parent" href="#view=accounts">Accounts</a><span class="sa-crumb-sep">›</span>${esc(byId(S.id).name)}` : CRUMB[S.view];
   document.querySelectorAll('.sa-page').forEach(p => p.hidden = p.dataset.page !== S.view);
   const page = document.querySelector(`.sa-page[data-page="${S.view}"]`);
   if (S.view === 'settings'){ if (window.renderS3) window.renderS3(); }   /* Settings = v3 Settings ver3 (s3-js) */
   else page.innerHTML = ({ dashboard:renderDashboard, accounts:renderAccounts, account:renderAccount, activity:renderActivity })[S.view]();
-  $('#meName').textContent = S.name;
 }
 function rerenderKeepFocus(id){ const el = document.getElementById(id), pos = el ? el.selectionStart : 0; render(); const n = document.getElementById(id); if (n){ n.focus(); n.setSelectionRange(pos, pos); } }
 
@@ -1455,22 +1566,28 @@ document.addEventListener('click', e => {
   const sh = e.target.closest('[data-sort]');
   if (sh){ e.stopPropagation(); const open = sh.getAttribute('aria-expanded') === 'true'; closeMenu(); if (!open) openSort(sh); return; }
   const si = e.target.closest('[data-sortset]');
-  if (si){ const [table, key, dir] = si.dataset.sortset.split(':'); S.sort[table] = key ? { key, dir } : null; render(); return; }
+  if (si){ const [table, key, dir] = si.dataset.sortset.split(':'); S.sort[table] = key ? { key, dir } : null; S.page[table] = 1; render(); return; }
+  const pg = e.target.closest('[data-pg]');
+  if (pg){ if (pg.disabled) return; const [table, n] = pg.dataset.pg.split(':'); S.page[table] = +n; render(); $('#main').scrollTop = 0; return; }
+  const cl = e.target.closest('[data-clear]');
+  if (cl){ if (cl.dataset.clear === 'accQ'){ S.q = ''; S.page.accounts = 1; } else if (cl.dataset.clear === 'genQ'){ S.gq = ''; S.page.gens = 1; } else { S.aq = ''; S.page.activity = 1; } render(); return; }
   const m = e.target.closest('[data-menu]');
   if (m){ e.stopPropagation(); const open = m.getAttribute('aria-expanded') === 'true'; closeMenu(); if (!open) openMenu(m); return; }
   if (!e.target.closest('#menu')) closeMenu();
   const s = e.target.closest('[data-act]');
-  if (s){ const k = s.dataset.k; if (s.dataset.act === 'filter') S.filter = k; if (s.dataset.act === 'afilter') S.afilter = k; if (s.dataset.act === 'period') S.period = k; render(); return; }
+  if (s){ const k = s.dataset.k; if (s.dataset.act === 'filter'){ S.filter = k; S.page.accounts = 1; } if (s.dataset.act === 'afilter'){ S.afilter = k; S.page.activity = 1; } if (s.dataset.act === 'period') S.period = k; render(); return; }
+  const hr = e.target.closest('[data-href]');
+  if (hr && !e.target.closest('a, button')){ window.open(hr.dataset.href, '_blank', 'noopener'); return; }
   const o = e.target.closest('[data-open]');
   if (o && !e.target.closest('button')) openAccount(o.dataset.open);
   if (e.target.id === 'layer') closeLayer();
 });
 document.addEventListener('input', e => {
-  if (e.target.id === 'accQ'){ S.q = e.target.value; rerenderKeepFocus('accQ'); }
-  if (e.target.id === 'actQ'){ S.aq = e.target.value; rerenderKeepFocus('actQ'); }
+  if (e.target.id === 'accQ'){ S.q = e.target.value; S.page.accounts = 1; rerenderKeepFocus('accQ'); }
+  if (e.target.id === 'actQ'){ S.aq = e.target.value; S.page.activity = 1; rerenderKeepFocus('actQ'); }
+  if (e.target.id === 'genQ'){ S.gq = e.target.value; S.page.gens = 1; rerenderKeepFocus('genQ'); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeMenu(); closeLayer(); } });
-$('#meBtn').addEventListener('click', () => toast('Signed in as Super Admin · Sign out lives here'));
 window.addEventListener('hashchange', () => { readHash(); render(); $('#main').scrollTop = 0; });
 
 if (new URLSearchParams(location.search).has('shot')) document.querySelector('.home-fab').remove();
