@@ -484,7 +484,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-cm{ flex:0 0 380px; min-width:0; display:flex; align-items:center; gap:12px; }
 .s3-cs{ width:120px; flex:none; display:flex; align-items:center; }
 .s3-cp{ flex:1 1 0; min-width:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.s3-ca{ width:48px; flex:none; display:flex; justify-content:flex-end; }
+.s3-ca{ width:56px; flex:none; display:flex; justify-content:flex-end; gap:8px; }   /* 10/28 연필(Edit roles) + 휴지통 */
 .s3-dash{ font-size:12px; line-height:18px; color:var(--neutral-500); }
 .s3-you{ font-size:12px; line-height:18px; color:var(--neutral-500); font-weight:400; }
 .s3-adm{ display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; background:#000; color:var(--neutral-0); font-size:11px; line-height:13px; font-weight:600; }
@@ -492,6 +492,17 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-pill{ display:inline-flex; align-items:center; gap:8px; height:28px; padding:0 12px; border-radius:999px; background:var(--neutral-150); font-size:13px; line-height:20px; font-weight:500; color:var(--neutral-900); white-space:nowrap; }
 .s3-pill.all{ padding-left:10px; }
 .s3-pill.all img{ width:16px; height:16px; }
+/* 10/28 칸마다 칩 2개 + 나머지는 +N (Brand Pill Leading=None). 누르면 숨은 브랜드 목록(보기만) — 호버로는 안 연다 */
+.s3-pill.more{ font:inherit; font-size:13px; font-weight:500; border:0; padding:0 10px; cursor:pointer; }
+.s3-pill.more:hover, .s3-pill.more.on{ background:var(--neutral-200); }
+.s3-menu.s3-pop{ padding:12px; gap:8px; min-width:0; }
+.s3-pop .ph{ font-size:12px; line-height:16px; color:var(--neutral-500); }
+.s3-pop .pl{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; max-height:266px; overflow-y:auto; padding-right:12px; }   /* 8줄째가 반쯤 잘려 보이는 높이 — 더 있으면 안에서 스크롤 */
+.s3-pop .pl.fade{ -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent); mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent); }   /* 잘린 줄은 아래로 흐리게 — 끝까지 내리면 흐림을 뺀다 */
+.s3-pop .pl::-webkit-scrollbar{ width:4px; }
+.s3-pop .pl::-webkit-scrollbar-thumb{ background:var(--neutral-400); border-radius:2px; }
+.s3-tr.mrow.edit{ cursor:pointer; }
+.s3-tr.mrow.edit:hover{ background:var(--neutral-50, #f8f9fb); }
 .s3-lt{ display:grid; place-items:center; flex:none; overflow:hidden; background:var(--neutral-100); border:1px solid var(--neutral-400); }   /* 10/22 개발(워크스페이스)과 같은 1px 테두리 — 업로드 로고가 흰 바탕일 수 있어서 */
 .s3-lt img{ max-width:72%; max-height:72%; }
 .s3-lt.s20{ width:20px; height:20px; border-radius:5px; }
@@ -748,14 +759,14 @@ body.bk2-clean .s3-as{ display:none; }
   function lockOnly(why){ return '<span class="s3-lock only" title="'+esc(why)+'"><img src="'+IC+'edit-lock.svg" alt="'+esc(why)+'"></span>'; }
   function toast(msg, err){ var t=$('#s3Toast'); t.textContent=msg; t.classList.toggle('err', !!err); t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true;},err?3200:2200); }
   function closeMenu(){ var m=$('#s3Menu'); if(m) m.remove(); document.querySelectorAll('.s3-more.on, .s3-dd.on').forEach(function(x){x.classList.remove('on');}); document.querySelectorAll('#setMain .s3-tr.hl').forEach(function(x){x.classList.remove('hl');}); S.menu=null; }
-  function openMenu(anchor, html, width){
+  function openMenu(anchor, html, width, cls){
     closeMenu();
-    var m=document.createElement('div'); m.className='s3-menu'; m.id='s3Menu'; m.innerHTML=html; if(width) m.style.width=width+'px';
+    var m=document.createElement('div'); m.className='s3-menu'+(cls?' '+cls:''); m.id='s3Menu'; m.innerHTML=html; if(width) m.style.width=width+'px';
     /* 프레임은 창 크기에 맞춰 scale 된다 — 메뉴도 프레임 안에 넣어야 같은 배율로 보인다 */
     var fr=document.querySelector('.frame'); fr.appendChild(m);
     var fb=fr.getBoundingClientRect(), k=fb.width/fr.offsetWidth, r=anchor.getBoundingClientRect();
-    var a={top:(r.top-fb.top)/k, bottom:(r.bottom-fb.top)/k, right:(r.right-fb.left)/k};
-    var top=a.bottom+6, left=a.right-m.offsetWidth;
+    var a={top:(r.top-fb.top)/k, bottom:(r.bottom-fb.top)/k, right:(r.right-fb.left)/k, left:(r.left-fb.left)/k};
+    var top=a.bottom+6, left=(cls==='s3-pop') ? a.left : a.right-m.offsetWidth;   /* +N 목록은 칩 왼쪽에 맞춘다 */
     if (top+m.offsetHeight > fr.offsetHeight-8) top = a.top-6-m.offsetHeight;
     m.style.top=top+'px'; m.style.left=Math.max(8,left)+'px';
     anchor.classList.add('on');
@@ -797,8 +808,11 @@ body.bk2-clean .s3-as{ display:none; }
       if (p.id===OWNER) cols = '<div class="s3-cp">'+allPill()+'</div><div class="s3-cp"><span class="s3-dash">—</span></div>';
       else {
         var a = accessOf(p.id), ba = a.filter(function(x){return x.role==='Brand Admin';}), us = a.filter(function(x){return x.role==='User';});
-        var cell = function(list){ return '<div class="s3-cp">'+(list.length?list.map(function(x){return pill(x.brand);}).join(''):'<span class="s3-dash">—</span>')+'</div>'; };
-        cols = cell(ba)+cell(us);
+        var cell = function(list, role){
+          if (!list.length) return '<div class="s3-cp"><span class="s3-dash">—</span></div>';
+          var more = list.length>2 ? '<button type="button" class="s3-pill more" data-s3menu="pn:'+p.id+'|'+role+'">+'+(list.length-2)+'</button>' : '';
+          return '<div class="s3-cp">'+list.slice(0,2).map(function(x){return pill(x.brand);}).join('')+more+'</div>'; };
+        cols = cell(ba,'Brand Admin')+cell(us,'User');
       }
       var locked = isUser() || p.id===me() || (p.id===OWNER && !isSA());
       var who = (!p.name && p.status==='Invited')
@@ -810,8 +824,10 @@ body.bk2-clean .s3-as{ display:none; }
       var rmWhy = p.status==='Invited' ? 'The invite link stops working' : isBA() ? 'They lose access to your brands' : 'They lose access to every brand';
       var tail = locked ? ''
         : (p.id===OWNER) ? '<button type="button" class="s3-resend" data-s3xfer="1">Transfer admin</button>'   /* Super Admin 만 — Figma K1(C안): Resend 와 같은 글자 버튼, 툴팁 없음, 누르면 바로 넘기기 모달 */
-        : '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'<i>'+rmWhy+'</i></span></button>';
-      h += '<div class="s3-tr mrow'+(S.menu===('m:'+p.id)?' hl':'')+'"><div class="s3-cm">'+ava(p)+who+'</div>'+
+        : '<button type="button" class="s3-more s3-trash" data-s3act-row="editaccess" data-id="'+p.id+'" aria-label="Edit roles"><img src="'+IC+'edit-pencil.svg" alt=""><span class="tip">Edit roles<i>Change roles per brand</i></span></button>'+   /* 10/28 브랜드 수와 상관없이 늘 여기서 — +N 목록은 보기만 */
+          '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'<i>'+rmWhy+'</i></span></button>';
+      var editable = !locked && p.id!==OWNER;   /* 행을 누르면 Edit roles */
+      h += '<div class="s3-tr mrow'+(editable?' edit':'')+(S.menu===('m:'+p.id)?' hl':'')+'"'+(editable?' data-s3row="'+p.id+'"':'')+'><div class="s3-cm">'+ava(p)+who+'</div>'+
         '<div class="s3-cs">'+badge(p.status)+'</div>'+cols+
         '<div class="s3-ca">'+tail+'</div></div>';
     });
@@ -839,7 +855,7 @@ body.bk2-clean .s3-as{ display:none; }
         '<button type="button" class="s3-mi danger dis" disabled title="Transfer the admin role first">Remove member</button>', 200);   /* Figma K2 — 핸드오프 메뉴와 같은 Context Menu · Actions(글자만, 폭 200) */
     }
     if (inv) h += '<button type="button" class="s3-mi" data-s3act="resend" data-id="'+pid+'">Resend invite</button>';
-    h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit access</button>';   /* DS Controls / Context Menu(Actions) — 구분선 없음 */
+    h += '<button type="button" class="s3-mi" data-s3act="editaccess" data-id="'+pid+'">Edit roles</button>';   /* DS Controls / Context Menu(Actions) — 구분선 없음 */
     if (inv) h += '<button type="button" class="s3-mi danger" data-s3act="cancelinvite" data-id="'+pid+'">Cancel invite</button>';
     else if (isBA()) h += '<button type="button" class="s3-mi danger" data-s3act="removemine" data-id="'+pid+'">Remove from my brands</button>';
     else h += '<button type="button" class="s3-mi danger" data-s3act="removemember" data-id="'+pid+'">Remove member</button>';
@@ -924,22 +940,21 @@ body.bk2-clean .s3-as{ display:none; }
     if (!S.ed || S.ed.pid!==pid){ var d={}; accessOf(pid, B.map(function(b){return b.name;})).forEach(function(x){ d[x.brand]=x.role; }); S.ed={pid:pid, d:d}; }
     var p = person(pid), d = S.ed.d, names = Object.keys(d);
     var mine = names.filter(inScope), other = names.filter(function(n){ return !inScope(n); });
-    var left = scopeBrands().filter(function(n){ return !d[n]; });
     var row = function(n, edit){ return '<div class="s3-erow"><span class="l">'+mark(brand(n),24)+esc(n)+'</span>'+(edit?dd('data-s3menu="e:'+esc(n)+'"', d[n], 'w200'):'<span class="s3-ro">'+d[n]+'</span>')+'</div>'; };
     var body = '<div class="s3-ebody"><div class="s3-egrp"><span class="s3-label">'+(isBA()?'Brands you manage':'Brand access')+'</span>'+
       (mine.length?mine.map(function(n){return row(n,true);}).join(''):'<span class="s3-hint">No access to '+(isBA()?'your brands':'any brand')+' yet.</span>')+
-      (left.length?'<button type="button" class="s3-txtbtn" data-s3menu="eadd:x"><img src="'+IC+'plus-16-grey.svg" alt="">Add to a brand</button>':'')+'</div>';
+      '</div>';   /* 10/28 Add to a brand 뺌 — 브랜드 추가는 초대·Brands 탭에서 */
     if (isBA() && other.length) body += '<div class="s3-egrp"><span class="s3-label">Other brands</span>'+other.map(function(n){return row(n,false);}).join('')+
       '<span class="s3-hint">Managed by your account admin. You can see these but not change them.</span></div>';
     body += '</div>';
     var foot = (isBA()?'<div class="s3-fl"><button type="button" class="s3-txtbtn" data-s3do="edremove">Remove from my brands</button></div>':'')+
       '<button type="button" class="s3-btn sec" data-s3close>Cancel</button><button type="button" class="s3-btn" data-s3do="edsave">Save changes</button>';
-    layer('Edit access', (p.name?p.name+' · ':'')+p.email, body, foot);
+    layer('Edit roles', (p.name?p.name+' · ':'')+p.email, body, foot);
   }
   function saveEdit(){
     var pid=S.ed.pid, d=S.ed.d, p=person(pid);
     scopeBrands().forEach(function(n){ A[n]=A[n]||{}; if (d[n]) A[n][pid]=d[n]; else delete A[n][pid]; });
-    closeLayer(); render(); toast('Access updated for '+(p.name||p.email));
+    closeLayer(); render(); toast('Roles updated for '+(p.name||p.email));
   }
 
   /* Invite — 이메일 여러 개, 브랜드 여러 개, 역할 하나 (기본 User) */
@@ -1011,6 +1026,15 @@ body.bk2-clean .s3-as{ display:none; }
   function openKind(t, k){
     var i=k.indexOf(':'), kind=k.slice(0,i), id=k.slice(i+1);
     if (kind==='m') return memberMenu(t,id);
+    if (kind==='pn'){   /* +N 목록 — 숨은 브랜드 보기만. 고치기는 행의 연필(Edit roles) */
+      var pid=id.split('|')[0], role=id.split('|')[1];
+      var hid=accessOf(pid).filter(function(x){return x.role===role;}).slice(2);
+      S.menu=k;
+      var pm=openMenu(t, '<span class="ph">'+hid.length+' more</span><div class="pl">'+hid.map(function(x){return pill(x.brand);}).join('')+'</div>', 250, 's3-pop');
+      var pl=pm.querySelector('.pl'), edge=function(){ pl.classList.toggle('fade', pl.scrollTop+pl.clientHeight < pl.scrollHeight-2); };
+      edge(); pl.addEventListener('scroll', edge);
+      return pm;
+    }
     if (kind==='b') return brandMenu(t,id);
     if (kind==='r'){ S.menu=k; return openMenu(t, roleItems(A[S.axBrand][id], 'setrole', id, 'removeaccess'), 360); }
     if (kind==='a'){ S.menu=k; return openMenu(t, roleItems(S.addRole, 'addrole', 'x'), 360); }
@@ -1099,9 +1123,11 @@ body.bk2-clean .s3-as{ display:none; }
       if ((t=e.target.closest('[data-s3brand]'))){ S.axBrand=t.dataset.s3brand; render(); return; }
       if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
       if ((t=e.target.closest('[data-s3rm]'))){ act(t.dataset.s3rm, t.dataset.id); return; }
+      if ((t=e.target.closest('[data-s3act-row]'))){ act(t.dataset.s3actRow, t.dataset.id); return; }
       if ((t=e.target.closest('[data-s3xfer]'))){ transferModal(); return; }
       if ((t=e.target.closest('[data-s3resend]'))){ var rp=person(t.dataset.s3resend); rp.sent='just now'; render(); toast('Invite sent again to '+rp.email); return; }
       if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='clearfilters'){ S.mQ=''; S.mStatus='All'; render(); } else if (a==='add') addPerson(); return; }
+      if ((t=e.target.closest('[data-s3row]'))){ act('editaccess', t.dataset.s3row); return; }   /* 행 클릭 = Edit roles (버튼·칩은 위에서 먼저 처리) */
     }
     root.addEventListener('click', onClick);
     var L=$('#s3Layer');

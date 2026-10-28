@@ -37844,11 +37844,10 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     if (!S.ed || S.ed.pid!==pid){ var d={}; accessOf(pid, B.map(function(b){return b.name;})).forEach(function(x){ d[x.brand]=x.role; }); S.ed={pid:pid, d:d}; }
     var p = person(pid), d = S.ed.d, names = Object.keys(d);
     var mine = names.filter(inScope), other = names.filter(function(n){ return !inScope(n); });
-    var left = scopeBrands().filter(function(n){ return !d[n]; });
     var row = function(n, edit){ return '<div class="s3-erow"><span class="l">'+mark(brand(n),24)+esc(n)+'</span>'+(edit?dd('data-s3menu="e:'+esc(n)+'"', d[n], 'w200'):'<span class="s3-ro">'+d[n]+'</span>')+'</div>'; };
     var body = '<div class="s3-ebody"><div class="s3-egrp"><span class="s3-label">'+(isBA()?'Brands you manage':'Brand access')+'</span>'+
       (mine.length?mine.map(function(n){return row(n,true);}).join(''):'<span class="s3-hint">No access to '+(isBA()?'your brands':'any brand')+' yet.</span>')+
-      (left.length?'<button type="button" class="s3-txtbtn" data-s3menu="eadd:x"><img src="'+IC+'plus-16-grey.svg" alt="">Add to a brand</button>':'')+'</div>';
+      '</div>';   /* 10/28 Add to a brand 뺌 — 브랜드 추가는 초대·Brands 탭에서 */
     if (isBA() && other.length) body += '<div class="s3-egrp"><span class="s3-label">Other brands</span>'+other.map(function(n){return row(n,false);}).join('')+
       '<span class="s3-hint">Managed by your account admin. You can see these but not change them.</span></div>';
     body += '</div>';
