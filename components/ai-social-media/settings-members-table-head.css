@@ -6,7 +6,7 @@
 
    The column classes below are shared with Settings / Member Row (settings-member-row.css),
    so a page building the table links both files. Widths follow Figma: Member 380 ·
-   Status 120 · Brand Admin / User split the rest · actions 48 (right-aligned).
+   Status 120 · Brand Admin / User split the rest · actions 56 (pencil + trash, gap 8, right-aligned).
    Token gaps (Figma literals): 10px top/bottom padding, 6px icon gap. */
 
 .settings-members-head{
@@ -25,4 +25,4 @@
 .settings-col--status{ flex:0 0 120px; }
 .settings-col--brand-admin, .settings-col--user{ flex:1 1 0; flex-wrap:wrap; }
 .settings-members-head .settings-col--brand-admin, .settings-members-head .settings-col--user{ gap:6px; flex-wrap:nowrap; }
-.settings-col--actions{ flex:0 0 48px; justify-content:flex-end; }
+.settings-col--actions{ flex:0 0 56px; justify-content:flex-end; gap:var(--spacing-sm); }

@@ -3,8 +3,10 @@
    One person in the Settings › Members table. Column layout comes from
    settings-members-table-head.css (.settings-col--*), so link that file too.
    Type = Admin (black "Admin" chip after the name, "All N brands" Icon pill, no row action) /
-   Active (green Active chip, trash Icon Button) / Invited (name Regular + "Invited … ago",
-   Resend Text Button Size=24 at the end of the Member cell, orange Invited chip, trash = cancel invite).
+   Active (green Active chip, pencil = Edit roles + trash Icon Buttons) / Invited (name Regular + "Invited … ago",
+   Resend Text Button Size=24 at the end of the Member cell, orange Invited chip, pencil + trash = cancel invite).
+   Show edit (boolean, default on) shows the pencil — off wherever the trash is hidden.
+   Brand cells: 2 chips max, the rest in a +N chip (Brand Pill Leading=None) that opens a view-only list on click.
    Show you (boolean) adds "(You)" after the name. Empty Brand Admin / User cells show "—".
    Row: 16/16/16/20 padding, neutral-150 bottom border.
    Built from: Avatar (avatar.css · md), Feedback / Status Chip, Access / Brand Pill,
@@ -33,3 +35,7 @@
 .settings-member-row__meta{
   font-size:var(--font-size-text-xs); line-height:var(--line-height-text-2xs); color:var(--color-neutral-500); white-space:nowrap;
 }
+
+/* +N — Brand Pill Leading=None used as a button; the hidden brands open in a view-only list on click (never on hover) */
+.settings-member-row__more{ font:inherit; border:0; cursor:pointer; }
+.settings-member-row__more:hover{ background:var(--color-neutral-200); }
