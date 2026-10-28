@@ -10,7 +10,8 @@
    ("Pulse") sits top-left with the collapse toggle; the brand dropdown replaces the old
    role-scope input. Collapsed = 72px icon rail: groups lose their headings and are split
    by 40px dividers instead (Figma "divider", py5).
-   Consumed by: prototypes/ai-social-media/voice-library/voice-library.html
+   Consumed by: prototypes/ai-social-media/voice-library/voice-library.html,
+                prototypes/ai-social-media/home/home.html (behaviour: nav-brand-switch.js)
    Token gaps (Figma literals, no token): rail width 72, divider 40, brand-list item
    padding 8/10 + label gap 10, popover widths. Pulse title is ExtraBold in Figma — no
    800 weight token, so it uses nav.css's .brand-name--product precedent (bold). */
@@ -178,3 +179,20 @@
   margin:5px 0 calc(5px + var(--spacing-lg) - var(--spacing-1));
 }
 .nav--brand-switch.collapsed .nav-item{width:36px; height:36px; padding:0; justify-content:center;}
+
+/* ============================================================================
+   Nav design switcher (prototype aid, not part of the design) -- flips the left nav
+   between 1안 (with brand logo) and 2안 (no logo), and expanded/collapsed, for review.
+   Injected by nav-brand-switch.js.
+   ============================================================================ */
+.nav-test-panel{position:fixed; right:var(--spacing-lg); top:50%; transform:translateY(-50%); z-index:9999; width:180px; box-sizing:border-box; padding:var(--spacing-md); display:flex; flex-direction:column; gap:var(--spacing-md); background:var(--color-neutral-0); border:1px solid var(--color-neutral-300); border-radius:var(--radius-xl); box-shadow:var(--shadow-popover); font-family:var(--font-family-text);}
+.nav-test-panel__title{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.nav-test-panel__group{display:flex; flex-direction:column; gap:var(--spacing-xs);}
+.nav-test-panel__label{margin:0; font-size:var(--font-size-text-3xs); line-height:var(--line-height-text-3xs); font-weight:var(--font-weight-bold); letter-spacing:1px; text-transform:uppercase; color:var(--color-neutral-500);}
+.nav-test-panel__seg{display:flex; flex-direction:column; gap:var(--spacing-2); padding:var(--spacing-2); background:var(--color-neutral-100); border-radius:var(--radius-lg);}
+.nav-test-panel__seg--row{flex-direction:row;}
+.nav-test-panel__opt{flex:1; display:flex; flex-direction:column; align-items:flex-start; padding:6px var(--spacing-sm); border:none; border-radius:var(--radius-md); background:none; cursor:pointer; text-align:left; font-family:inherit; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+.nav-test-panel__seg--row .nav-test-panel__opt{align-items:center;}
+.nav-test-panel__opt small{font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); font-weight:var(--font-weight-regular); color:var(--color-neutral-500);}
+.nav-test-panel__opt:hover{color:var(--color-neutral-900);}
+.nav-test-panel__opt.is-active{background:var(--color-neutral-0); color:var(--color-neutral-900); font-weight:var(--font-weight-semibold); box-shadow:var(--shadow-cell-action);}

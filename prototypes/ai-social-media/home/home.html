@@ -16,6 +16,9 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&text=%E2%86%92&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../../tokens/tokens.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-brand-switch.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/brand-logo-tile.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/brand-mark.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/nav-app-topbar.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/avatar.css">
@@ -40,7 +43,7 @@
   /* 1920 × 1162 frame scaled to the window (same as the other prototypes); Main Content scrolls inside */
   html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
   .frame{position:relative; width:1920px; height:1162px; flex-shrink:0; transform-origin:top left; overflow:hidden; background:var(--color-neutral-75);}
-  .frame > .sidebar{height:100%;}
+  .frame > .sidebar, .frame > .nav{height:100%;}
   .frame .right-col{height:100%; min-height:0;}
   .frame .right-col > main{flex:1 0 0; min-height:0; overflow-y:auto;}
   .right-col{flex:1 0 0; min-width:1px; display:flex; flex-direction:column;}
@@ -153,39 +156,72 @@
 <body>
 <div class="home-frame frame">
 
-  <!-- ══ Nav / Navigation (12427:416861) ══ -->
-  <aside class="sidebar">
+  <!-- ══ Nav / Navigation — design test (same as voice-library.html) ══
+       components/ai-social-media/nav-brand-switch.css + .js on top of nav.css.
+       Figma 1안 (with logo) 14544:677608 / 677698, 2안 (no logo) 14544:677654 / 677741.
+       data-variant is flipped by the "Nav design" panel the script injects on the right. -->
+  <aside class="nav nav--brand-switch" id="sideNav" data-variant="logo">
     <div class="nav-account">
-      <div class="brand">
-        <span class="link">
-          <img class="brand-mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="">
-          <span class="account-names"><span class="brand-name brand-name--product">Pulse</span></span>
-        </span>
-        <button type="button" class="brand-collapse" aria-label="Collapse navigation" onclick="this.closest('.sidebar').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      <div class="nav-head">
+        <span class="nav-head__title">Pulse</span>
+        <button type="button" class="nav-collapse-btn" id="navCollapseBtn" aria-label="Collapse navigation" onclick="toggleNavCollapsed()">
+          <img class="ic-collapse" src="../../../components/ai-social-media/icons/panel-left.svg" alt="">
+          <img class="ic-expand" src="../../../components/ai-social-media/icons/panel-right-close.svg" alt="">
+        </button>
       </div>
-      <div class="acct acct--filled"><span>Formee Express</span>
-        <span class="chevron"><img src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt=""></span>
+      <!-- expanded: [DS] Input, Type=Dropdown -->
+      <button type="button" class="nav-brand-select" id="navBrandSelect" aria-haspopup="listbox" aria-expanded="false" onclick="toggleBrandList(event)">
+        <span class="nav-brand-select__options">
+          <span class="nav-brand-logo brand-logo-tile brand-logo-tile--24" data-brand-logo></span>
+          <span class="nav-brand-select__name" data-brand-name>Formee Express</span>
+          <span class="nav-role-badge">Admin</span>
+        </span>
+        <img class="nav-brand-select__chevron" src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt="">
+      </button>
+      <!-- collapsed: 1안 = brand logo tile, 2안 = 36px chevron input -->
+      <button type="button" class="nav-brand-trigger" id="navBrandTrigger" aria-label="Switch brand" aria-haspopup="menu" aria-expanded="false" onclick="toggleBrandMenu(event)">
+        <span class="nav-brand-logo brand-logo-tile brand-logo-tile--24" data-brand-logo></span>
+        <img class="nav-brand-trigger__chevron" src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt="">
+      </button>
+      <!-- brand list (expanded dropdown, Figma 14591:678713) -->
+      <div class="brand-list" id="navBrandList" role="listbox" hidden>
+        <div class="search-field search-field--expanded">
+          <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+          <input class="search-field__input" id="navBrandSearch" type="text" placeholder="Search brands" oninput="filterBrandList(this.value)">
+        </div>
+        <div id="navBrandListItems"></div>
+        <p class="brand-list__empty" id="navBrandListEmpty" hidden>No brands found</p>
+      </div>
+      <!-- Switch brand menu (collapsed flyout, Figma 14544:677803) -->
+      <div class="brand-switch-menu" id="navBrandMenu" role="menu" hidden>
+        <p class="brand-switch-menu__label">Switch brand</p>
+        <div id="navBrandMenuItems"></div>
       </div>
     </div>
     <nav class="nav-items">
-      <a class="nav-item active" aria-current="page"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span>Home</span></a>
-      <div class="nav-section">
-        <div class="nav-sec-head nav-sec-head--fit">Create</div>
-        <a class="nav-item" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span>New Content</span></a>
+      <a class="nav-item active" aria-current="page" title="Home"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span class="label">Home</span></a>
+      <div class="nav-group">
+        <div class="nav-label nav-sec-head--fit">Create</div>
+        <a class="nav-item" title="New Content" href="../new-content-generation/v4/new-content-to-generate.html"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span class="label">New Content</span></a>
       </div>
-      <div class="nav-section">
-        <div class="nav-sec-head nav-sec-head--fit">Content</div>
-        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span>Library</span></a>
-        <a class="nav-item" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Schedule</span></a>
-        <a class="nav-item" href="../trends/trends.html"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span>Trends</span></a>
-        <a class="nav-item"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span>Analytics</span></a>
+      <div class="nav-group">
+        <div class="nav-label nav-sec-head--fit">Content</div>
+        <a class="nav-item" title="Library" href="../brand-characters/brand-setup-kit-character-library.html#view=library"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span class="label">Library</span></a>
+        <a class="nav-item" title="Schedule" href="../schedule/schedule.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span class="label">Schedule</span></a>
+        <a class="nav-item" title="Trends" href="../trends/trends.html"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span class="label">Trends</span></a>
+        <a class="nav-item" title="Analytics"><span class="ic"><img src="../../../components/ai-social-media/icons/chart-column-big-20.svg" alt=""></span><span class="label">Analytics</span></a>
       </div>
-      <div class="nav-section">
-        <div class="nav-sec-head nav-sec-head--fit">Asset</div>
-        <a class="nav-item" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span>Brand</span></a>
-        <a class="nav-item" href="../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span>Characters</span></a>
-        <a class="nav-item" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span>Voices</span></a>
-        <a class="nav-item" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span>Music</span></a>
+      <div class="nav-group">
+        <div class="nav-label nav-sec-head--fit">Asset</div>
+        <a class="nav-item" title="Brand" href="../brand-characters/brand-setup-kit-v2.html#view=brandsetup&amp;brand=formee-express"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-brand-20.svg" alt=""></span><span class="label">Brand</span></a>
+        <a class="nav-item" title="Characters" href="../brand-characters/brand-setup-kit-character-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span class="label">Characters</span></a>
+        <a class="nav-item" title="Voices" href="../voice-library/voice-library.html"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span class="label">Voices</span></a>
+        <a class="nav-item" title="Music" href="../voice-library/voice-library.html#view=music"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span class="label">Music</span></a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label nav-sec-head--fit">Account</div>
+        <a class="nav-item" title="Settings"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-settings.svg" alt=""></span><span class="label">Settings</span></a>
+        <a class="nav-item" title="Billing"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-billing.svg" alt=""></span><span class="label">Billing</span></a>
       </div>
     </nav>
   </aside>
@@ -407,5 +443,6 @@ function fitFrameToViewport() {
 window.addEventListener('resize', fitFrameToViewport);
 fitFrameToViewport();
 </script>
+<script src="../../../components/ai-social-media/nav-brand-switch.js"></script>
 </body>
 </html>
