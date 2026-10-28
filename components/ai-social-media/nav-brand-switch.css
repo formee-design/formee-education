@@ -69,8 +69,11 @@
   line-height:var(--line-height-text-3xs); font-weight:var(--font-weight-semibold); white-space:nowrap;
 }
 
-/* 2안 — no brand logo anywhere in the nav chrome (the lists below keep theirs) */
-.nav--brand-switch[data-variant="text"] .nav-brand-select .nav-brand-logo{display:none;}
+/* 2안 — no brand logo in the brand select or its dropdown list (the collapsed
+   "Switch brand" menu keeps them, per its reference 14544:677803) */
+.nav--brand-switch[data-variant="text"] .nav-brand-select .nav-brand-logo,
+.nav--brand-switch[data-variant="text"] .brand-list-item .brand-logo-tile,
+.nav--brand-switch[data-variant="text"] .brand-list-item .brand-mark{display:none;}
 
 /* Collapsed-only brand trigger (hidden while expanded) */
 .nav-brand-trigger{display:none;}
