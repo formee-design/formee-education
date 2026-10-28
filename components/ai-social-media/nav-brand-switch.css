@@ -1,0 +1,177 @@
+/* Nav / Navigation — brand-switch variant (design test)
+   Figma: FME_AI-Social-Media
+     1안 (with brand logo)   expanded 14544:677608 · collapsed 14544:677698
+     2안 (no brand logo)     expanded 14544:677654 · collapsed 14544:677741
+     collapse toggle hover   "Actions / Icon Button" 14544:678071
+     expanded dropdown       "brand list" / "Settings / Brand List Item" 14591:678713
+     collapsed brand menu    reference image 14544:677803 ("Switch brand")
+   Layered on top of nav.css (.nav / .nav-items / .nav-group / .nav-label / .nav-item) —
+   use as <div class="nav nav--brand-switch" data-variant="logo|text">. The product title
+   ("Pulse") sits top-left with the collapse toggle; the brand dropdown replaces the old
+   role-scope input. Collapsed = 72px icon rail: groups lose their headings and are split
+   by 40px dividers instead (Figma "divider", py5).
+   Consumed by: prototypes/ai-social-media/voice-library/voice-library.html
+   Token gaps (Figma literals, no token): rail width 72, divider 40, brand-list item
+   padding 8/10 + label gap 10, popover widths. Pulse title is ExtraBold in Figma — no
+   800 weight token, so it uses nav.css's .brand-name--product precedent (bold). */
+
+/* ---------- container: popovers must escape the rail, so no clipping here ---------- */
+.nav.nav--brand-switch{position:relative; z-index:20; overflow:visible;}
+
+/* ---------- account block ---------- */
+.nav--brand-switch .nav-account{position:relative;}
+.nav-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:var(--spacing-lg) 0 var(--spacing-lg) var(--spacing-2);
+}
+.nav-head__title{
+  font-family:var(--font-family-text); font-size:var(--font-size-display-xs);
+  line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold);
+  color:var(--color-neutral-900); white-space:nowrap;
+}
+
+/* Actions / Icon Button — the collapse toggle. 28px hit area around the 20px glyph; the
+   negative margin keeps the glyph where Figma places it. Hover = neutral-100, radius-sm. */
+.nav-collapse-btn{
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  width:28px; height:28px; margin:calc(var(--spacing-xs) * -1); padding:0;
+  border:none; border-radius:var(--radius-sm); background:none; cursor:pointer;
+}
+.nav-collapse-btn:hover{background:var(--color-neutral-100);}
+.nav-collapse-btn:focus-visible{outline:2px solid var(--color-brand-primary); outline-offset:1px;}
+.nav-collapse-btn img{display:block; width:20px; height:20px;}
+.nav-collapse-btn .ic-expand{display:none;}
+
+/* Brand select — the [DS] Input, Type=Dropdown, holding the active brand */
+.nav-brand-select{
+  display:flex; align-items:center; gap:var(--spacing-md); box-sizing:border-box;
+  width:100%; height:36px; padding:0 var(--spacing-md); margin:0;
+  border:1px solid var(--color-neutral-400); border-radius:var(--radius-lg);
+  background:var(--color-neutral-0); cursor:pointer; text-align:left;
+  font-family:var(--font-family-text);
+}
+.nav-brand-select:hover{border-color:var(--color-neutral-450);}
+.nav-brand-select[aria-expanded="true"]{border-color:var(--color-neutral-500);}
+.nav-brand-select__options{display:flex; align-items:center; gap:var(--spacing-sm); flex:1 0 0; min-width:0;}
+.nav-brand-select__name{
+  flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-900);
+}
+.nav-brand-select__chevron{width:24px; height:24px; flex-shrink:0; display:block; transition:transform .15s ease;}
+.nav-brand-select[aria-expanded="true"] .nav-brand-select__chevron{transform:rotate(180deg);}
+
+/* Badge, Color=Gray, Style=Round (Badge/sm) */
+.nav-role-badge{
+  flex-shrink:0; padding:3px var(--spacing-sm); border-radius:var(--radius-full);
+  background:var(--color-badge-gray-bg); color:var(--color-badge-gray-text);
+  font-family:var(--font-family-text); font-size:var(--font-size-text-3xs);
+  line-height:var(--line-height-text-3xs); font-weight:var(--font-weight-semibold); white-space:nowrap;
+}
+
+/* 2안 — no brand logo anywhere in the nav chrome (the lists below keep theirs) */
+.nav--brand-switch[data-variant="text"] .nav-brand-select .nav-brand-logo{display:none;}
+
+/* Collapsed-only brand trigger (hidden while expanded) */
+.nav-brand-trigger{display:none;}
+
+/* ---------- brand list popover (expanded dropdown) ---------- */
+.brand-list{
+  position:absolute; left:var(--spacing-md); right:var(--spacing-md); top:calc(100% + var(--spacing-xs));
+  z-index:30; display:flex; flex-direction:column; gap:var(--spacing-2);
+  padding:var(--spacing-md); box-sizing:border-box;
+  background:var(--color-neutral-0); border:1px solid var(--color-neutral-200);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-popover);
+}
+.brand-list[hidden]{display:none;}
+.brand-list .search-field{width:100%; box-sizing:border-box; margin-bottom:var(--spacing-xs);}
+
+/* Settings / Brand List Item */
+.brand-list-item{
+  display:flex; align-items:center; justify-content:space-between; box-sizing:border-box;
+  width:100%; padding:var(--spacing-sm) 10px; border:none; border-radius:var(--radius-lg);
+  background:none; cursor:pointer; text-align:left; font-family:var(--font-family-text);
+}
+.brand-list-item:hover{background:var(--color-neutral-50);}
+.brand-list-item__label{display:flex; align-items:center; gap:10px; min-width:0;}
+.brand-list-item__name{
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-900);
+}
+.brand-list-item.is-selected{background:var(--color-neutral-100);}
+.brand-list-item.is-selected .brand-list-item__name{font-weight:var(--font-weight-semibold);}
+.brand-list-item[hidden]{display:none;}
+.brand-list__empty{
+  padding:var(--spacing-sm) 10px; margin:0;
+  font-family:var(--font-family-text); font-size:var(--font-size-text-sm);
+  line-height:var(--line-height-text-sm); color:var(--color-neutral-500);
+}
+
+/* ---------- "Switch brand" menu (collapsed rail flyout) ---------- */
+.brand-switch-menu{
+  position:absolute; left:calc(100% + var(--spacing-sm)); top:0; z-index:30;
+  width:240px; box-sizing:border-box; padding:var(--spacing-sm);
+  display:flex; flex-direction:column; gap:var(--spacing-2);
+  background:var(--color-neutral-0); border:1px solid var(--color-neutral-200);
+  border-radius:var(--radius-xl); box-shadow:var(--shadow-popover);
+}
+.brand-switch-menu[hidden]{display:none;}
+.brand-switch-menu__label{
+  margin:0; padding:var(--spacing-xs) var(--spacing-sm) var(--spacing-sm);
+  font-family:var(--font-family-text); font-size:var(--font-size-text-xs);
+  line-height:var(--line-height-text-xs); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);
+}
+.brand-switch-item{
+  display:flex; align-items:center; gap:var(--spacing-md); box-sizing:border-box;
+  width:100%; padding:var(--spacing-sm); border:none; border-radius:var(--radius-lg);
+  background:none; cursor:pointer; text-align:left; font-family:var(--font-family-text);
+}
+.brand-switch-item:hover{background:var(--color-neutral-50);}
+.brand-switch-item__name{
+  flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
+  font-weight:var(--font-weight-regular); color:var(--color-neutral-900);
+}
+.brand-switch-item__check{width:16px; height:16px; flex-shrink:0; visibility:hidden;}
+.brand-switch-item.is-selected{background:var(--color-neutral-100);}
+.brand-switch-item.is-selected .brand-switch-item__check{visibility:visible;}
+
+/* ============================================================================
+   Collapsed — 72px icon rail (Nav / Item-tab 36×36, dividers between groups)
+   ============================================================================ */
+.nav.nav--brand-switch.collapsed{width:72px; padding:0 0 var(--spacing-lg);}
+.nav--brand-switch.collapsed .nav-account{padding:0; margin-bottom:var(--spacing-lg); align-items:center; gap:var(--spacing-xs);}
+.nav--brand-switch.collapsed .nav-head{justify-content:center; height:54px; box-sizing:border-box; padding:var(--spacing-lg) 0;}
+.nav--brand-switch.collapsed .nav-head__title,
+.nav--brand-switch.collapsed .nav-brand-select,
+.nav--brand-switch.collapsed .brand-list{display:none;}
+.nav--brand-switch.collapsed .nav-collapse-btn .ic-collapse{display:none;}
+.nav--brand-switch.collapsed .nav-collapse-btn .ic-expand{display:block;}
+
+.nav--brand-switch.collapsed .nav-brand-trigger{
+  display:flex; align-items:center; justify-content:center; box-sizing:border-box;
+  padding:0; border:none; background:none; cursor:pointer;
+}
+/* 1안: the active brand's logo tile (pt8 / pb6 in Figma) */
+.nav--brand-switch.collapsed[data-variant="logo"] .nav-brand-trigger{margin:var(--spacing-sm) 0 6px; border-radius:var(--radius-md);}
+.nav--brand-switch.collapsed[data-variant="logo"] .nav-brand-trigger:hover .nav-brand-logo{border-color:var(--color-neutral-500);}
+.nav--brand-switch.collapsed[data-variant="logo"] .nav-brand-trigger__chevron{display:none;}
+/* 2안: a 36px input with only the chevron */
+.nav--brand-switch.collapsed[data-variant="text"] .nav-brand-trigger{
+  width:36px; height:36px; border:1px solid var(--color-neutral-400);
+  border-radius:var(--radius-lg); background:var(--color-neutral-0);
+}
+.nav--brand-switch.collapsed[data-variant="text"] .nav-brand-trigger:hover{border-color:var(--color-neutral-450);}
+.nav--brand-switch.collapsed[data-variant="text"] .nav-brand-trigger .nav-brand-logo{display:none;}
+.nav--brand-switch.collapsed .nav-brand-trigger[aria-expanded="true"]{border-color:var(--color-neutral-500);}
+.nav-brand-trigger__chevron{width:24px; height:24px; display:block;}
+
+.nav--brand-switch.collapsed .nav-items{padding:0 var(--spacing-lg); align-items:center;}
+.nav--brand-switch.collapsed .nav-group{align-items:center;}
+.nav--brand-switch.collapsed .nav-group::before{
+  content:""; display:block; width:40px; height:1px; background:var(--color-neutral-200);
+  /* divider py5, then the rail's 16px gap minus the group's own 1px gap */
+  margin:5px 0 calc(5px + var(--spacing-lg) - var(--spacing-1));
+}
+.nav--brand-switch.collapsed .nav-item{width:36px; height:36px; padding:0; justify-content:center;}

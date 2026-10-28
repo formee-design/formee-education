@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="../../../tokens/tokens.css">
 <link rel="stylesheet" href="../../../components/shared/button.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/nav-brand-switch.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/brand-logo-tile.css">
+<link rel="stylesheet" href="../../../components/ai-social-media/brand-mark.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/topbar-stepper.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/heading.css">
 <link rel="stylesheet" href="../../../components/ai-social-media/controls-search-field.css">
@@ -51,6 +54,19 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
 .home-fab{position:fixed; left:16px; bottom:16px; z-index:9999; display:flex; gap:7px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:8px 16px 8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-weight:600; text-decoration:none; font-family:var(--font-family-text); white-space:nowrap;}
 .home-fab:hover{background:rgba(15,23,41,1);}
 .home-fab svg{width:14px; height:14px; flex-shrink:0;}
+/* ---- Nav design switcher (prototype aid, not part of the design) -- flips the left nav
+   between 1안 (with brand logo) and 2안 (no logo), and expanded/collapsed, for review. ---- */
+.nav-test-panel{position:fixed; right:var(--spacing-lg); top:50%; transform:translateY(-50%); z-index:9999; width:180px; box-sizing:border-box; padding:var(--spacing-md); display:flex; flex-direction:column; gap:var(--spacing-md); background:var(--color-neutral-0); border:1px solid var(--color-neutral-300); border-radius:var(--radius-xl); box-shadow:var(--shadow-popover); font-family:var(--font-family-text);}
+.nav-test-panel__title{margin:0; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+.nav-test-panel__group{display:flex; flex-direction:column; gap:var(--spacing-xs);}
+.nav-test-panel__label{margin:0; font-size:var(--font-size-text-3xs); line-height:var(--line-height-text-3xs); font-weight:var(--font-weight-bold); letter-spacing:1px; text-transform:uppercase; color:var(--color-neutral-500);}
+.nav-test-panel__seg{display:flex; flex-direction:column; gap:var(--spacing-2); padding:var(--spacing-2); background:var(--color-neutral-100); border-radius:var(--radius-lg);}
+.nav-test-panel__seg--row{flex-direction:row;}
+.nav-test-panel__opt{flex:1; display:flex; flex-direction:column; align-items:flex-start; padding:6px var(--spacing-sm); border:none; border-radius:var(--radius-md); background:none; cursor:pointer; text-align:left; font-family:inherit; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
+.nav-test-panel__seg--row .nav-test-panel__opt{align-items:center;}
+.nav-test-panel__opt small{font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); font-weight:var(--font-weight-regular); color:var(--color-neutral-500);}
+.nav-test-panel__opt:hover{color:var(--color-neutral-900);}
+.nav-test-panel__opt.is-active{background:var(--color-neutral-0); color:var(--color-neutral-900); font-weight:var(--font-weight-semibold); box-shadow:var(--shadow-cell-action);}
 .main{flex:1; display:flex; flex-direction:column; min-width:0; position:relative; background:var(--color-neutral-50);}
 /* Topbar breadcrumb label (Figma "Nav / Stepper/Nav/Breadcrumb", Text/md SemiBold) --
    a single static crumb, not a multi-step Stepper (this page has no steps). */
@@ -649,42 +665,72 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
 
 <div class="app">
 
-  <!-- NAV — components/ai-social-media/nav.css (Figma "Nav / Navigation" 9154:132343) -->
-  <div class="nav" id="sideNav">
-    <!-- Matches components/ai-social-media/nav.css's canonical "Expanded (default)" demo
-         (nav.html) and brand-setup-kit-character-library.html's actual nav exactly: the
-         Formee Education platform lockup + collapse toggle, then the role scope below it --
-         not a per-tenant "Formee Express" brand switcher (that was this file's own,
-         non-matching invention). -->
+  <!-- NAV — design test: components/ai-social-media/nav-brand-switch.css on top of nav.css.
+       Figma "Nav / Navigation" 1안 (with logo) 14544:677608 / 677698 and 2안 (no logo)
+       14544:677654 / 677741. data-variant is flipped by the "Nav design" panel on the right.
+       Brand list + Switch brand menu items are rendered from NAV_BRANDS in the script. -->
+  <div class="nav nav--brand-switch" id="sideNav" data-variant="logo">
     <div class="nav-account">
-      <div class="nav-brand">
-        <span class="link">
-          <img class="mark" src="../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="Formee Education">
-          <span class="txt"><b>Formee Education</b><span>AI Social Media</span></span>
-        </span>
-        <button type="button" class="collapse-btn" aria-label="Collapse navigation" onclick="document.getElementById('sideNav').classList.toggle('collapsed')"><img src="../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      <div class="nav-head">
+        <span class="nav-head__title">Pulse</span>
+        <button type="button" class="nav-collapse-btn" id="navCollapseBtn" aria-label="Collapse navigation" onclick="toggleNavCollapsed()">
+          <img class="ic-collapse" src="../../../components/ai-social-media/icons/panel-left.svg" alt="">
+          <img class="ic-expand" src="../../../components/ai-social-media/icons/panel-right-close.svg" alt="">
+        </button>
       </div>
-      <div class="nav-workspace"><span>Super admin (All)</span></div>
+      <!-- expanded: [DS] Input, Type=Dropdown -->
+      <button type="button" class="nav-brand-select" id="navBrandSelect" aria-haspopup="listbox" aria-expanded="false" onclick="toggleBrandList(event)">
+        <span class="nav-brand-select__options">
+          <span class="nav-brand-logo brand-logo-tile brand-logo-tile--24" data-brand-logo></span>
+          <span class="nav-brand-select__name" data-brand-name>Formee Express</span>
+          <span class="nav-role-badge">Admin</span>
+        </span>
+        <img class="nav-brand-select__chevron" src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt="">
+      </button>
+      <!-- collapsed: 1안 = brand logo tile, 2안 = 36px chevron input -->
+      <button type="button" class="nav-brand-trigger" id="navBrandTrigger" aria-label="Switch brand" aria-haspopup="menu" aria-expanded="false" onclick="toggleBrandMenu(event)">
+        <span class="nav-brand-logo brand-logo-tile brand-logo-tile--24" data-brand-logo></span>
+        <img class="nav-brand-trigger__chevron" src="../../../components/ai-social-media/icons/chevron-down-24.svg" alt="">
+      </button>
+      <!-- brand list (expanded dropdown, Figma 14591:678713) -->
+      <div class="brand-list" id="navBrandList" role="listbox" hidden>
+        <div class="search-field search-field--expanded">
+          <img src="../../../components/ai-social-media/icons/ui-search.svg" alt="">
+          <input class="search-field__input" id="navBrandSearch" type="text" placeholder="Search brands" oninput="filterBrandList(this.value)">
+        </div>
+        <div id="navBrandListItems"></div>
+        <p class="brand-list__empty" id="navBrandListEmpty" hidden>No brands found</p>
+      </div>
+      <!-- Switch brand menu (collapsed flyout, Figma 14544:677803) -->
+      <div class="brand-switch-menu" id="navBrandMenu" role="menu" hidden>
+        <p class="brand-switch-menu__label">Switch brand</p>
+        <div id="navBrandMenuItems"></div>
+      </div>
     </div>
     <div class="nav-items">
-      <div class="nav-item" onclick="window.location.href='../home/home.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span class="label">Home</span></div>
+      <div class="nav-item" title="Home" onclick="window.location.href='../home/home.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span class="label">Home</span></div>
       <div class="nav-group">
-        <div class="nav-label">Create</div>
-        <div class="nav-item" onclick="window.location.href='../new-content-generation/v4/new-content-to-generate.html'" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span class="label">New Content</span></div>
+        <div class="nav-label nav-sec-head--fit">Create</div>
+        <div class="nav-item" title="New Content" onclick="window.location.href='../new-content-generation/v4/new-content-to-generate.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span class="label">New Content</span></div>
       </div>
       <div class="nav-group">
-        <div class="nav-label">Content</div>
-        <div class="nav-item" onclick="window.location.href='../brand-characters/brand-setup-kit-character-library.html#view=library'" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span class="label">Library</span></div>
-        <div class="nav-item" onclick="window.location.href='../schedule/schedule.html'" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span class="label">Schedule</span></div>
-        <div class="nav-item" onclick="window.location.href='../trends/trends.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span class="label">Trends</span></div>
-        <div class="nav-item"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-analytics.svg" alt=""></span><span class="label">Analytics</span></div>
+        <div class="nav-label nav-sec-head--fit">Content</div>
+        <div class="nav-item" title="Library" onclick="window.location.href='../brand-characters/brand-setup-kit-character-library.html#view=library'"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span class="label">Library</span></div>
+        <div class="nav-item" title="Schedule" onclick="window.location.href='../schedule/schedule.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span class="label">Schedule</span></div>
+        <div class="nav-item" title="Trends" onclick="window.location.href='../trends/trends.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span class="label">Trends</span></div>
+        <div class="nav-item" title="Analytics"><span class="ic"><img src="../../../components/ai-social-media/icons/data-chart-column-big.svg" alt=""></span><span class="label">Analytics</span></div>
       </div>
       <div class="nav-group">
-        <div class="nav-label">Asset</div>
-        <div class="nav-item" onclick="window.location.href='../brand-characters/brand-setup-kit-v2.html#view=brandsetup&brand=formee-express'" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-workspace-03.svg" alt=""></span><span class="label">Brand Setup</span></div>
-        <div class="nav-item" onclick="window.location.href='../brand-characters/brand-setup-kit-character-library.html'" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span class="label">Characters</span></div>
-        <div class="nav-item active" id="navVoices" onclick="switchView('voices')" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span class="label">Voices</span></div>
-        <div class="nav-item" id="navMusic" onclick="switchView('music')" style="cursor:pointer;"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span class="label">Music</span></div>
+        <div class="nav-label nav-sec-head--fit">Asset</div>
+        <div class="nav-item" title="Brand" onclick="window.location.href='../brand-characters/brand-setup-kit-v2.html#view=brandsetup&brand=formee-express'"><span class="ic"><img src="../../../components/ai-social-media/icons/panel-brand.svg" alt=""></span><span class="label">Brand</span></div>
+        <div class="nav-item" title="Characters" onclick="window.location.href='../brand-characters/brand-setup-kit-character-library.html'"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span class="label">Characters</span></div>
+        <div class="nav-item active" id="navVoices" title="Voices" onclick="switchView('voices')"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span class="label">Voices</span></div>
+        <div class="nav-item" id="navMusic" title="Music" onclick="switchView('music')"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span class="label">Music</span></div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label nav-sec-head--fit">Account</div>
+        <div class="nav-item" title="Settings"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-settings.svg" alt=""></span><span class="label">Settings</span></div>
+        <div class="nav-item" title="Billing"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-billing.svg" alt=""></span><span class="label">Billing</span></div>
       </div>
     </div>
   </div>
@@ -1467,6 +1513,25 @@ body{margin:0; font-family:var(--font-family-text); overflow:hidden;}
   <span>Home</span>
 </a>
 
+<!-- Nav design switcher (prototype aid) -->
+<div class="nav-test-panel" aria-label="Nav design switcher">
+  <p class="nav-test-panel__title">Nav design</p>
+  <div class="nav-test-panel__group">
+    <p class="nav-test-panel__label">Option</p>
+    <div class="nav-test-panel__seg">
+      <button type="button" class="nav-test-panel__opt" data-nav-variant="logo" onclick="setNavVariant('logo')">1안<small>With brand logo</small></button>
+      <button type="button" class="nav-test-panel__opt" data-nav-variant="text" onclick="setNavVariant('text')">2안<small>No brand logo</small></button>
+    </div>
+  </div>
+  <div class="nav-test-panel__group">
+    <p class="nav-test-panel__label">State</p>
+    <div class="nav-test-panel__seg nav-test-panel__seg--row">
+      <button type="button" class="nav-test-panel__opt" data-nav-state="expanded" onclick="setNavCollapsed(false)">Expanded</button>
+      <button type="button" class="nav-test-panel__opt" data-nav-state="collapsed" onclick="setNavCollapsed(true)">Collapsed</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const ICON = '../../../components/ai-social-media/icons/';
 
@@ -1561,6 +1626,123 @@ function switchView(which){
   document.getElementById('navMusic').classList.toggle('active', which === 'music');
   document.getElementById('topbarCrumb').textContent = which === 'music' ? 'Music' : 'Voice Library';
 }
+
+/* ---------------- nav design test: brand switch + 1안/2안 ---------------- */
+// Brands from Figma "brand list" (14591:678713). logo = icons/brand/*.svg (Brand / Logo Tile);
+// no logo = Brand / Mark initials in the given avatar tone.
+const NAV_BRANDS = [
+  {id:'formee-express', name:'Formee Express', logo:'brand/formee-education.svg'},
+  {id:'scei', name:'SCEI', logo:'brand/scei.svg'},
+  {id:'sche', name:'SCHE', logo:'brand/sche.svg'},
+  {id:'meridian', name:'Meridian Business', initials:'MB', tone:'rose'},
+  {id:'coastline', name:'Coastline TAFE', initials:'CT', tone:'amber'},
+  {id:'northbridge', name:'Northbridge College', initials:'NC', tone:'teal'},
+];
+let navBrandId = 'formee-express';
+
+function brandAvatarHTML(b, size){
+  return b.logo
+    ? `<span class="brand-logo-tile brand-logo-tile--${size}"><img src="${ICON}${b.logo}" alt=""></span>`
+    : `<span class="brand-mark brand-mark--${size} brand-mark--${b.tone}">${b.initials}</span>`;
+}
+function renderNavBrands(){
+  const b = NAV_BRANDS.find(x => x.id === navBrandId);
+  document.querySelectorAll('#sideNav [data-brand-logo]').forEach(el => {
+    const tmp = document.createElement('span');
+    tmp.innerHTML = brandAvatarHTML(b, 24);
+    const fresh = tmp.firstElementChild;
+    fresh.classList.add('nav-brand-logo');
+    fresh.setAttribute('data-brand-logo', '');
+    el.replaceWith(fresh);
+  });
+  document.querySelector('#sideNav [data-brand-name]').textContent = b.name;
+  document.getElementById('navBrandListItems').innerHTML = NAV_BRANDS.map(x => `
+    <button type="button" class="brand-list-item${x.id === navBrandId ? ' is-selected' : ''}" role="option" aria-selected="${x.id === navBrandId}" data-name="${x.name.toLowerCase()}" onclick="selectNavBrand('${x.id}')">
+      <span class="brand-list-item__label">${brandAvatarHTML(x, 24)}<span class="brand-list-item__name">${x.name}</span></span>
+    </button>`).join('');
+  document.getElementById('navBrandMenuItems').innerHTML = NAV_BRANDS.map(x => `
+    <button type="button" class="brand-switch-item${x.id === navBrandId ? ' is-selected' : ''}" role="menuitemradio" aria-checked="${x.id === navBrandId}" onclick="selectNavBrand('${x.id}')">
+      ${brandAvatarHTML(x, 24)}<span class="brand-switch-item__name">${x.name}</span>
+      <img class="brand-switch-item__check" src="${ICON}check-blue.svg" alt="">
+    </button>`).join('');
+}
+function selectNavBrand(id){
+  navBrandId = id;
+  renderNavBrands();
+  closeNavBrandPopovers();
+}
+function closeNavBrandPopovers(){
+  document.getElementById('navBrandList').hidden = true;
+  document.getElementById('navBrandMenu').hidden = true;
+  document.getElementById('navBrandSelect').setAttribute('aria-expanded', 'false');
+  document.getElementById('navBrandTrigger').setAttribute('aria-expanded', 'false');
+}
+function toggleBrandList(e){
+  e.stopPropagation();
+  const list = document.getElementById('navBrandList');
+  const open = list.hidden;
+  closeNavBrandPopovers();
+  if (!open) return;
+  list.hidden = false;
+  document.getElementById('navBrandSelect').setAttribute('aria-expanded', 'true');
+  const search = document.getElementById('navBrandSearch');
+  search.value = ''; filterBrandList('');
+  search.focus();
+}
+function filterBrandList(q){
+  q = q.trim().toLowerCase();
+  let shown = 0;
+  document.querySelectorAll('#navBrandListItems .brand-list-item').forEach(el => {
+    const hit = !q || el.dataset.name.includes(q);
+    el.hidden = !hit; if (hit) shown++;
+  });
+  document.getElementById('navBrandListEmpty').hidden = shown > 0;
+}
+function toggleBrandMenu(e){
+  e.stopPropagation();
+  const menu = document.getElementById('navBrandMenu');
+  const trigger = document.getElementById('navBrandTrigger');
+  const open = menu.hidden;
+  closeNavBrandPopovers();
+  if (!open) return;
+  menu.style.top = trigger.offsetTop + 'px';  // align the flyout with the trigger
+  menu.hidden = false;
+  trigger.setAttribute('aria-expanded', 'true');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#navBrandList, #navBrandMenu')) closeNavBrandPopovers();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNavBrandPopovers(); });
+
+function syncNavTestPanel(){
+  const nav = document.getElementById('sideNav');
+  const collapsed = nav.classList.contains('collapsed');
+  document.querySelectorAll('[data-nav-variant]').forEach(b => b.classList.toggle('is-active', b.dataset.navVariant === nav.dataset.variant));
+  document.querySelectorAll('[data-nav-state]').forEach(b => b.classList.toggle('is-active', (b.dataset.navState === 'collapsed') === collapsed));
+  document.getElementById('navCollapseBtn').setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+  try { localStorage.setItem('vlNavTest', JSON.stringify({variant: nav.dataset.variant, collapsed})); } catch (_) {}
+}
+function setNavVariant(v){
+  document.getElementById('sideNav').dataset.variant = v;
+  closeNavBrandPopovers();
+  syncNavTestPanel();
+}
+function setNavCollapsed(collapsed){
+  document.getElementById('sideNav').classList.toggle('collapsed', collapsed);
+  closeNavBrandPopovers();
+  syncNavTestPanel();
+}
+function toggleNavCollapsed(){
+  setNavCollapsed(!document.getElementById('sideNav').classList.contains('collapsed'));
+}
+(function initNavTest(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('vlNavTest')); } catch (_) {}
+  if (saved && (saved.variant === 'logo' || saved.variant === 'text')) document.getElementById('sideNav').dataset.variant = saved.variant;
+  if (saved && saved.collapsed) document.getElementById('sideNav').classList.add('collapsed');
+  renderNavBrands();
+  syncNavTestPanel();
+})();
 
 /* ---------------- Voices ---------------- */
 let voiceTab = 'explore';
