@@ -1845,7 +1845,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-cm{ flex:0 0 380px; min-width:0; display:flex; align-items:center; gap:12px; }
 .s3-cs{ width:120px; flex:none; display:flex; align-items:center; }
 .s3-cp{ flex:1 1 0; min-width:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.s3-ca{ width:48px; flex:none; display:flex; justify-content:flex-end; }
+.s3-ca{ width:56px; flex:none; display:flex; justify-content:flex-end; gap:8px; }   /* 10/28 연필(Edit roles) + 휴지통 */
 .s3-dash{ font-size:12px; line-height:18px; color:var(--neutral-500); }
 .s3-you{ font-size:12px; line-height:18px; color:var(--neutral-500); font-weight:400; }
 .s3-adm{ display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; background:#000; color:var(--neutral-0); font-size:11px; line-height:13px; font-weight:600; }
@@ -1859,6 +1859,7 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-menu.s3-pop{ padding:12px; gap:8px; min-width:0; }
 .s3-pop .ph{ font-size:12px; line-height:16px; color:var(--neutral-500); }
 .s3-pop .pl{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; max-height:266px; overflow-y:auto; padding-right:12px; }   /* 8줄째가 반쯤 잘려 보이는 높이 — 더 있으면 안에서 스크롤 */
+.s3-pop .pl.fade{ -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent); mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent); }   /* 10/28 잘린 줄은 아래로 흐리게 — 끝까지 내리면 흐림을 뺀다 */
 .s3-pop .pl::-webkit-scrollbar{ width:4px; }   /* 맥 오버레이 스크롤바는 안 보여서 늘 보이게 — Figma 목록의 4px 막대 */
 .s3-pop .pl::-webkit-scrollbar-thumb{ background:var(--neutral-400); border-radius:2px; }
 .s3-pop .s3-btn{ justify-content:center; width:100%; }
@@ -37738,7 +37739,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       var rmWhy = p.status==='Invited' ? 'The invite link stops working' : isBA() ? 'They lose access to your brands' : 'They lose access to every brand';
       var tail = locked ? ''
         : (p.id===OWNER) ? '<button type="button" class="s3-resend" data-s3xfer="1">Transfer admin</button>'   /* Super Admin 만 — Figma K1(C안): Resend 와 같은 글자 버튼, 툴팁 없음, 누르면 바로 넘기기 모달 */
-        : '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'<i>'+rmWhy+'</i></span></button>';
+        : '<button type="button" class="s3-more s3-trash" data-s3act-row="editaccess" data-id="'+p.id+'" aria-label="Edit roles"><img src="'+IC+'edit-pencil.svg" alt=""><span class="tip">Edit roles<i>Change roles per brand</i></span></button>'+   /* 10/28 브랜드 수와 상관없이 늘 여기서 — +N 목록은 보기만 */
+          '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'<i>'+rmWhy+'</i></span></button>';
       var editable = !locked && p.id!==OWNER;   /* 행을 누르면 Edit roles */
       h += '<div class="s3-tr mrow'+(editable?' edit':'')+(S.menu===('m:'+p.id)?' hl':'')+'"'+(editable?' data-s3row="'+p.id+'"':'')+'><div class="s3-cm">'+ava(p)+who+'</div>'+
         '<div class="s3-cs">'+badge(p.status)+'</div>'+cols+
@@ -37927,13 +37929,14 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   function openKind(t, k){
     var i=k.indexOf(':'), kind=k.slice(0,i), id=k.slice(i+1);
     if (kind==='m') return memberMenu(t,id);
-    if (kind==='pn'){   /* +N 목록 — 숨은 브랜드만, 맨 아래 Edit roles */
-      var pid=id.split('|')[0], role=id.split('|')[1], pp=person(pid);
+    if (kind==='pn'){   /* +N 목록 — 숨은 브랜드 보기만. 고치기는 행의 연필(Edit roles) */
+      var pid=id.split('|')[0], role=id.split('|')[1];
       var hid=accessOf(pid).filter(function(x){return x.role===role;}).slice(2);
-      var canEdit = !(isUser() || pid===me() || pid===OWNER);
       S.menu=k;
-      return openMenu(t, '<span class="ph">'+hid.length+' more</span><div class="pl">'+hid.map(function(x){return pill(x.brand);}).join('')+'</div>'+
-        (canEdit?'<div class="s3-div"></div><button type="button" class="s3-btn sec" data-s3act="editaccess" data-id="'+pid+'">Edit roles<img class="chev" src="'+IC+'chevron-right.svg" alt=""></button>':''), 250, 's3-pop');
+      var pm=openMenu(t, '<span class="ph">'+hid.length+' more</span><div class="pl">'+hid.map(function(x){return pill(x.brand);}).join('')+'</div>', 250, 's3-pop');
+      var pl=pm.querySelector('.pl'), edge=function(){ pl.classList.toggle('fade', pl.scrollTop+pl.clientHeight < pl.scrollHeight-2); };
+      edge(); pl.addEventListener('scroll', edge);
+      return pm;
     }
     if (kind==='b') return brandMenu(t,id);
     if (kind==='r'){ S.menu=k; return openMenu(t, roleItems(A[S.axBrand][id], 'setrole', id, 'removeaccess'), 360); }
@@ -38022,6 +38025,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       if ((t=e.target.closest('[data-s3brand]'))){ S.axBrand=t.dataset.s3brand; render(); return; }
       if ((t=e.target.closest('[data-s3menu]'))){ e.stopPropagation(); var k=t.dataset.s3menu; if (S.menu===k){ closeMenu(); return; } openKind(t,k); return; }
       if ((t=e.target.closest('[data-s3rm]'))){ act(t.dataset.s3rm, t.dataset.id); return; }
+      if ((t=e.target.closest('[data-s3act-row]'))){ act(t.dataset.s3actRow, t.dataset.id); return; }
       if ((t=e.target.closest('[data-s3xfer]'))){ transferModal(); return; }
       if ((t=e.target.closest('[data-s3resend]'))){ var rp=person(t.dataset.s3resend); rp.sent='just now'; render(); toast('Invite sent again to '+rp.email); return; }
       if ((t=e.target.closest('[data-s3]'))){ var a=t.dataset.s3; if (a==='invite'){ S.inv=null; inviteModal(); } else if (a==='createbrand') createBrandModal(); else if (a==='managebrands') openWorkspace(); else if (a==='clearfilters'){ S.mQ=''; S.mStatus='All'; render(); } else if (a==='add') addPerson(); return; }
