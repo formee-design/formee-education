@@ -5867,11 +5867,10 @@ const pad2 = n => String(n).padStart(2,'0');
 function renderApprovals(){
   DATA.appr = requests;
   const tab = (k,l,c) => `<a class="tab ${ap.tab===k?'active':''}" href="#approvals${k==='overview'?'':'/'+k}">${l}${c!=null?` <span class="count">${c}</span>`:''}</a>`;
-  // The workflow banner sits on the Overview only; list tabs get the action in the header instead
-  const overview = ap.tab==='overview';
+  // The workflow banner (and its Add New Approval Type button) shows on every tab, so the tab bar never moves
   setSub({title:'Approvals', plain:true, sub:'Review and action leave, overtime, and expense requests',
-    actions: overview ? '' : `<a class="btn btn-primary" href="#approvals/new-type/1" style="text-decoration:none"><img src="assets/add-white.svg" width="16" height="16" alt="">Add New Approval Type</a>`,
-    banner: !overview ? '' : orgBanner('Automated Workflow Engine','Set up rules, approval chains and escalations — requests route themselves to the right person.','Add New Approval Type','#approvals/new-type/1','approvals'),
+    actions: '',
+    banner: orgBanner('Automated Workflow Engine','Set up rules, approval chains and escalations — requests route themselves to the right person.','Add New Approval Type','#approvals/new-type/1','approvals'),
     tabs: tab('overview','Overview')+tab('requests','Requests',requests.length)+tab('types','Approval types',AP_TYPES.length)});
   if (ap.tab==='requests'){
     state.appr.only = ap.only;
