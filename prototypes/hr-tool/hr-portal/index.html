@@ -1620,7 +1620,7 @@
         <div class="table-wrap">
           <table><thead><tr>
             <th class="cb"><input type="checkbox" data-all="staff"></th>
-            <th>Staff ID</th><th>Staff name</th><th>Designation</th><th>Location</th><th>Leave request</th><th>Leave balance</th><th>Status</th><th class="act">Action</th>
+            <th>Staff ID</th><th>Staff name</th><th>Designation</th><th>Location</th><th>Contact</th><th>Staff Type</th><th>Status</th><th class="act">Action</th>
           </tr></thead><tbody id="staff-body"></tbody></table>
         </div>
         <div class="foot" data-foot="staff"></div>
@@ -2373,16 +2373,16 @@ function renderTableRows(kind){
       <div class="co-ft"><span><b>${r.employees}</b> Employees</span><span><b>${r.open}</b> Open</span></div></div>`).join('');
   }
   else if (kind==='staff'){
-    body.innerHTML = rows.map(r=>{ const lv=r.leave, pending=lv&&lv[4];
+    // Columns per Figma 3146:60563: ID · name · designation · location · contact · staff type · status · action
+    body.innerHTML = rows.map(r=>{ const pending=r.leave&&r.leave[4], p=stProfile(r);
       return `${trOpen(r)}<td>${r.sid}</td>
       <td><div class="person"><div class="ava">${initials(r.name)}</div><div><div class="nm">${esc(r.name)}</div><div class="sub" style="margin-top:6px">${r.sid}</div></div></div></td>
       <td><div>${esc(r.title)}</div><div class="sub g6">${r.type}</div></td>
       <td>${esc(r.location)}</td>
-      <td>${lv?`<div>${lv[0]}${pending?' <span class="badge b-yellow" style="margin-left:4px">Pending</span>':''}</div><div class="sub g6">${lv[1]} - ${lv[2]} · ${lv[3]} Days</div>`:'<span class="sub">—</span>'}</td>
-      <td>${r.used==null?'-':`<span class="${r.used>r.total?'lv-over':''}">${r.used}/${r.total}</span>`}</td>
+      <td><div>${esc(p.email)}</div><div class="sub g6">${esc(p.phone)}</div></td>
+      <td>${esc(p.staffType)}</td>
       <td><span class="badge ${STAFF_STATUS[r.status]}">${r.status}</span></td>
-      <td class="act"><div class="st-actions">${pending?`<button class="st-btn no" title="Reject leave" data-act="leaveReject" data-i="${r._i}"><img src="assets/st-b.svg" width="16" height="16" alt="Reject"></button><button class="st-btn yes" title="Approve leave" data-act="leaveApprove" data-i="${r._i}"><img src="assets/st-c.svg" width="16" height="16" alt="Approve"></button>`:''}
-        ${kebab([['View profile','','','staffView'],['Edit record','','','staffEdit'],['Request documents','','Document request sent'],r.phase==='current'?['Mark as past','danger','','staffPast']:['View history']],r._i)}</div></td></tr>`; }).join('');
+      <td class="act">${kebab([['View profile','','','staffView'],['Edit record','','','staffEdit'],...(pending?[['Approve leave','','','leaveApprove'],['Reject leave','danger','','leaveReject']]:[]),['Request documents','','Document request sent'],r.phase==='current'?['Mark as past','danger','','staffPast']:['View history']],r._i)}</td></tr>`; }).join('');
   }
   else if (kind==='apps'){
     body.innerHTML = rows.map(r=>`<tr class="${s.sel.has(r._i)?'selected':''}" data-ri="${r._i}" style="cursor:pointer">${appCols.map(([h,f])=>`<td class="${h==='cb'?'cb':h==='act'?'act':''}">${f(r)}</td>`).join('')}</tr>`).join('');
