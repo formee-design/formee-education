@@ -632,10 +632,11 @@
   .vf .sbtn{margin-left:auto}
   /* Next-step banner above the candidate columns */
   .cd-ban{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid;border-radius:12px;margin-bottom:20px}
-  .cd-ban .ic{width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid currentColor}
+  .cd-ban .ic{width:36px;height:36px;border-radius:50%;background:var(--ban-ic,#fff);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+  .cd-ban .ic svg{display:block;stroke-width:1.7}
   .cd-ban .t{font-weight:500;font-size:14px;color:var(--n900)} .cd-ban .s{font-size:12px;color:var(--n700);margin-top:5px}
   .cd-ban .sbtn{flex-shrink:0;margin-left:8px}
-  .cd-ban.teal{background:#e9f8f5;border-color:#bfe9e1;color:#0f8a7a} .cd-ban.blue{background:#f2f5fe;border-color:#d9e1fb;color:var(--brand-primary)} .cd-ban.amber{background:#fff8eb;border-color:#f5dfb4;color:#b7791f}
+  .cd-ban.teal{background:#e9f8f5;border-color:#bfe9e1;color:#0f8a7a;--ban-ic:#c9eee6} .cd-ban.blue{background:#f2f5fe;border-color:#d9e1fb;color:var(--brand-primary);--ban-ic:#dce4fd} .cd-ban.amber{background:#fff8eb;border-color:#f5dfb4;color:#b7791f;--ban-ic:#fbe7bf}
   .cd-empty.box{background:#f6f8fc;border-radius:10px;padding:56px 16px;margin-top:-4px}
   .cd-rounds .avs{display:flex;align-items:center}
   .cd-rounds .avs .ava.sm{width:26px;height:26px;font-size:10px;border:2px solid #fff;margin-right:-6px}
@@ -5263,7 +5264,7 @@ function renderCandidate(ctx){
   // Interview rounds: banner on top says what to do next; the rounds card leads the page from Shortlisted on
   const shortlisted = sIdx>=STAGES.indexOf('Shortlisted') && f.cstatus!=='Rejected';
   const upcoming = f.rounds.find((r,i)=>r.status==='Scheduled' && i!==dueIdx), done = f.rounds.filter(r=>r.status==='Completed');
-  const ban = (tone,ic,t,s,btn='') => `<div class="cd-ban ${tone}"><span class="ic">${cdIc(ic,18)}</span><div style="flex:1;min-width:0"><div class="t">${t}</div><div class="s">${s}</div></div>${btn}</div>`;
+  const ban = (tone,ic,t,s,btn='') => `<div class="cd-ban ${tone}"><span class="ic" aria-hidden="true">${cdIc(ic,18)}</span><div style="flex:1;min-width:0"><div class="t">${t}</div><div class="s">${s}</div></div>${btn}</div>`;
   const CLOCK = '<circle cx="8" cy="8" r="6"/><path d="M8 4.8V8l2.2 1.4"/>';
   const o = f.offer, preIdx = STAGES.indexOf('Pre-Employment');
   const ckN = f.checks ? f.checks.filter(c=>c.must).length : 0, ckV = f.checks ? f.checks.filter(c=>c.must && c.state==='verified').length : 0;
