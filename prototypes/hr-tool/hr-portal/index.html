@@ -737,42 +737,70 @@
     .ws-brk .fld:nth-of-type(2){grid-row:2;grid-column:2} .ws-brk .fld:nth-of-type(3){grid-row:2;grid-column:3} .ws-brk .fld:nth-of-type(4){grid-row:2;grid-column:4}
   }
   /* What’s New */
-  #view-ntf.show{display:block}
-  .ntf-count{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand-primary);color:#fff;font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
-  .ntf-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:20px;align-items:start}
-  .ntf-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
-  .ntf-chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--n300);border-radius:999px;background:#fff;font-size:13px;color:var(--n700)}
-  .ntf-chip span{font-size:11px;color:var(--n500)}
-  .ntf-chip:hover{border-color:var(--n400)}
-  .ntf-chip.on{border-color:var(--brand-primary);background:var(--brand-primary-light);color:var(--brand-primary);font-weight:500} .ntf-chip.on span{color:var(--brand-primary)}
-  .ntf-g{font-weight:600;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--n600);margin:18px 0 10px}
-  .ntf-list{border:1px solid var(--n300);border-radius:12px;background:#fff;overflow:hidden}
-  .ntf-row{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--n200);cursor:pointer}
-  .ntf-row:last-child{border-bottom:0}
-  .ntf-row:hover{background:#fafbfd}
-  .ntf-row.unread{background:#f7f9ff} .ntf-row.unread:hover{background:#f2f5fe}
-  .ntf-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .ntf-ic.sm{width:26px;height:26px;border-radius:7px}
-  .ntf-b{flex:1;min-width:0}
-  .ntf-b .t{font-size:14px;line-height:20px;color:var(--n900)} .ntf-row.unread .ntf-b .t{font-weight:500}
-  .ntf-b .t .badge{margin-left:6px;vertical-align:1px}
-  .ntf-b .s{font-size:13px;line-height:19px;color:var(--n700);margin-top:3px}
-  .ntf-b .m{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--n500);margin-top:8px} .ntf-b .m i{width:3px;height:3px;border-radius:50%;background:var(--n400)}
-  .ntf-acts{display:flex;gap:8px;margin-top:12px}
-  .ntf-acts .sbtn{height:30px;padding:0 14px;font-weight:500}
-  .ntf-acts .sbtn.ntf-p{background:var(--brand-primary);border-color:var(--brand-primary);color:#fff}
-  .ntf-done{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:500;color:var(--green)}
-  .ntf-r{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  #view-ntf.show,#view-ntfset.show{display:block}
+  .nav-dot{width:6px;height:6px;border-radius:50%;background:var(--brand-primary);flex-shrink:0;margin-left:-3px}
+  .ntf-wrap{display:flex;flex-direction:column;gap:16px}
+  .ntf-wrap .filters .search input{font-size:13px}
+  .ntf-groups{display:flex;flex-direction:column;gap:36px}
+  .ntf-gh{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--n200)}
+  .ntf-gh .l{font-weight:600;font-size:12px;line-height:18px;letter-spacing:.48px;text-transform:uppercase;color:var(--n700)}
+  .ntf-gh .mk{margin-left:auto;font-weight:500;font-size:13px;line-height:18px;color:var(--brand-primary)}
+  .ntf-gh .mk:hover{text-decoration:underline}
+  .ntf-tag{height:auto;padding:4px 8px;font-size:12px;line-height:normal}
+  .ntf-row{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid var(--n200);cursor:pointer}
+  .ntf-row:hover .ntf-b .t>span:first-child{color:var(--brand-primary)}
+  .ntf-ic{width:40px;height:40px;border-radius:10px;border:1px solid var(--n300);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ntf-ic .nic{width:25px;height:25px;background:var(--n700)}
+  .ntf-row.unread .ntf-ic{background:#cad4ff;border-color:#cad4ff}
+  .ntf-b{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+  .ntf-b .t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:500;font-size:14px;color:var(--n900)}
+  .ntf-b .s{font-size:14px;line-height:normal;color:var(--n600)}
+  .ntf-b .m{font-size:12px;line-height:16px;color:var(--n500)}
+  .ntf-acts{display:flex;gap:8px;padding-top:6px}
+  .ntf-a{height:28px;padding:0 12px;border:1px solid var(--brand-primary);border-radius:8px;background:#fff;font-weight:600;font-size:12px;color:var(--brand-primary);white-space:nowrap}
+  .ntf-a:hover{background:#f5f8ff}
+  .ntf-a.p{background:var(--brand-primary);color:#fff} .ntf-a.p:hover{background:#4361d9}
+  .ntf-a.red{border-color:var(--n400);color:var(--red);min-width:74px} .ntf-a.red:hover{background:var(--red-bg)}
+  .ntf-done{display:inline-flex;align-items:center;gap:6px;padding-top:6px;font-size:12px;font-weight:500;color:var(--green)}
+  .ntf-r{display:flex;align-items:center;gap:12px;flex-shrink:0}
   .ntf-dot{width:8px;height:8px;border-radius:50%;background:var(--brand-primary)}
-  .ntf-r .dots{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--n500)}
-  .ntf-r .dots:hover,.ntf-r .dots.open{background:var(--n100);color:var(--n900)}
-  .ntf-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:72px 16px;border:1px solid var(--n300);border-radius:12px;background:#fff;margin-top:12px}
+  .ntf-r .dots{width:28px;height:28px;border:1px solid var(--n300);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center}
+  .ntf-r .dots:hover,.ntf-r .dots.open{background:var(--n75);border-color:var(--n400)}
+  .ntf-more{display:flex;justify-content:center;align-items:center;gap:12px;font-size:12px;color:var(--n500);margin-top:36px}
+  .ntf-more .sbtn-p{height:28px;padding:0 12px}
+  .ntf-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:72px 16px;border:1px solid var(--n300);border-radius:12px;background:#fff}
   .ntf-empty b{font-weight:600;font-size:15px;color:var(--n900)} .ntf-empty span{font-size:13px;color:var(--n700)}
-  .ntf-side{display:flex;flex-direction:column;gap:20px;position:sticky;top:16px}
-  .ntf-sum{width:100%;text-align:left;font:inherit;font-size:14px;background:none}
-  .ntf-sum:hover .k{color:var(--brand-primary)}
-  .ntf-sum b{font-weight:600;color:var(--n900)}
-  @media (max-width:1100px){ .ntf-cols{grid-template-columns:1fr} .ntf-side{position:static} }
+  /* Notification Settings */
+  .ns-head h2{font-weight:600;font-size:20px;letter-spacing:-.1px;color:var(--n900)}
+  .ns-head p{font-size:12px;color:var(--n700);margin-top:8px}
+  .ns-mods{display:flex;flex-direction:column;gap:12px}
+  .ns-mod{border:1px solid var(--n300);border-radius:12px;background:#fff;overflow:hidden}
+  .ns-mh{display:flex;align-items:center;gap:12px;width:100%;padding:16px 20px;text-align:left;cursor:pointer}
+  .ns-mod.open .ns-mh{background:var(--n75);border-bottom:1px solid var(--n200)}
+  .ns-mh .chev{flex-shrink:0;transform:rotate(-90deg);transition:transform .15s}
+  .ns-mod.open .ns-mh .chev{transform:none}
+  .ns-mh .ic{width:36px;height:36px;border-radius:8px;background:var(--n75);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ns-mh .ic .nic{width:20px;height:20px;background:var(--n700)}
+  .ns-mh .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .ns-mh .tx b{font-weight:500;font-size:14px;line-height:20px;color:var(--n900)}
+  .ns-mh .tx span,.ns-ev .tx span{font-size:12px;line-height:16px;color:var(--n500)}
+  .ns-ev{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--n200);cursor:pointer}
+  .ns-ev:last-child{border-bottom:0}
+  .ns-ev .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .ns-ev .tx b{display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;line-height:20px;color:var(--n900)}
+  .ns-mod.off .ns-mh .tx,.ns-mod.off .ns-mh .ic,.ns-mod.off .ns-ev{opacity:.45}
+  .ns-mod.off .ns-ev{cursor:default}
+  .ns-cb{appearance:none;-webkit-appearance:none;flex-shrink:0;width:16px;height:16px;margin:0;border:1px solid var(--n400);border-radius:3px;background:#fff center/10px 10px no-repeat;cursor:pointer}
+  .ns-cb:checked{background-color:var(--brand-primary);border-color:var(--brand-primary);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none'%3E%3Cpath d='M8.3 2.5 4 6.8 1.8 4.6' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+  .ns-cb:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(79,109,230,.2)}
+  .ns-cb:disabled{cursor:default}
+  .ns-chans{display:flex;flex-direction:column;gap:20px}
+  .ns-chans .toggle-row .t,.ns-chans .toggle-row .s,.ns-quiet .toggle-row .s{text-transform:none}
+  .ns-chans .toggle-row .s,.ns-quiet .toggle-row .s{font-weight:400}
+  .ns-chans .switch,.ns-quiet .switch{cursor:pointer}
+  .ns-dis{opacity:.5;pointer-events:none}
+  .ns-days .dchip{padding:0 16px;gap:7px}
+  .ns-foot{padding-top:12px}
   /* Event details */
   #view-evdetail.show{display:block}
   .evd-cols{display:grid;grid-template-columns:clamp(320px,28%,400px) minmax(0,1fr);gap:16px;align-items:start}
@@ -1660,6 +1688,7 @@
       <section class="view" id="view-stform"></section>
       <section class="view" id="view-evdetail"></section>
       <section class="view" id="view-ntf"></section>
+      <section class="view" id="view-ntfset"></section>
       <section class="view" id="view-stdetail"></section>
 
       <!-- ============ OVERVIEW ============ -->
@@ -2496,7 +2525,7 @@ function route(){
   const staffing = /^staff(\/new|\/\d+(\/edit)?)?$/.test(tab),companyPage = tab==='company' || !!coSub, deptPage = /^departments(\/new|\/\d+(\/employees|\/edit)?)?$/.test(tab), teamPage = /^teams(\/new|\/\d+(\/employees|\/edit)?)?$/.test(tab), evPage = tab.startsWith('events');
   // Exactly one sidebar item is active: the one owning this page (Jobs owns all recruitment pages)
   const ratioPage = /^staff-ratio(\/report)?$/.test(tab);
-  const docsPage = tab==='documents', commsPage = tab==='comms', saPage = /^sysadmin(\/new-type)?$/.test(tab), ntfPage = tab==='whats-new';
+  const docsPage = tab==='documents', commsPage = tab==='comms', saPage = /^sysadmin(\/new-type)?$/.test(tab), ntfPage = tab==='whats-new' || tab==='whats-new/settings';
   const attPage = /^attendance(\/shifts|\/new-shift\/[1-4]|\/shift\/\d+\/edit\/[1-4])?$/.test(tab);
   const apPage = /^approvals(\/requests|\/types|\/new-type\/[1-4])?$/.test(tab);
   const activeNav = attPage ? 'nav-attendance' : apPage ? 'nav-approvals' : ratioPage ? 'nav-staff-ratio' : staffing ? 'nav-staff-list' : companyPage ? 'nav-company' : deptPage ? 'nav-departments' : teamPage ? 'nav-teams' : evPage ? 'nav-events' : docsPage ? 'nav-documents' : commsPage ? 'nav-comms' : saPage ? 'nav-sysadmin' : ntfPage ? 'nav-whats-new' : 'nav-jobs';
@@ -2511,8 +2540,10 @@ function route(){
   ntfBadge();
   if (ntfPage){
     document.body.classList.remove('creating'); document.body.classList.add('subpage');
-    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('show',v.id==='view-ntf'));
-    renderNotifications(); window.scrollTo(0,0); return;
+    const set = tab.endsWith('/settings');
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('show',v.id===(set?'view-ntfset':'view-ntf')));
+    if (set) ntf.draft = null;     // arriving fresh discards any unsaved edits
+    set ? renderNtfSettings() : renderNotifications(); window.scrollTo(0,0); return;
   }
   if (saPage){
     document.body.classList.remove('creating'); document.body.classList.add('subpage');
@@ -4049,22 +4080,40 @@ document.addEventListener('click', e=>{
 
 /* ---------------- What’s New (notifications) ----------------
    Built live from every module's data, so acting on something elsewhere updates the feed and vice versa. */
+// Each source module rolls up into one of the five sidebar sections, which set the tag colour and the settings group
 const NTF_MODS = {
-  Approvals:{c:'#4f6de6', bg:'#eef2fe', ic:'<path d="m4 8.2 2.6 2.6L12 5.4"/><rect x="2" y="2" width="12" height="12" rx="3"/>'},
-  Jobs:{c:'#7c3aed', bg:'#f3edfe', ic:'<rect x="2" y="4.5" width="12" height="9" rx="1.5"/><path d="M5.5 4.5V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.5M2 8.5h12"/>'},
-  Candidates:{c:'#0e7490', bg:'#e6f6fa', ic:'<circle cx="8" cy="5.5" r="2.5"/><path d="M3 13.5c.6-2.6 2.6-4 5-4s4.4 1.4 5 4"/>'},
-  Staff:{c:'#0f8a7a', bg:'#e7f7f4', ic:'<circle cx="6" cy="5.5" r="2.3"/><path d="M2 13c.5-2.2 2-3.5 4-3.5s3.5 1.3 4 3.5"/><circle cx="11.3" cy="6" r="1.8"/><path d="M11 9.6c1.6 0 2.7 1 3 2.9"/>'},
-  Attendance:{c:'#c2410c', bg:'#fff1e8', ic:'<circle cx="8" cy="8" r="6"/><path d="M8 4.8V8l2.2 1.4"/>'},
-  Events:{c:'#be185d', bg:'#fdeef5', ic:'<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>'},
-  Communications:{c:'#2563eb', bg:'#eaf1fe', ic:'<path d="M2.5 4h11v8h-11z"/><path d="m2.5 4.5 5.5 4 5.5-4"/>'},
-  Documents:{c:'#a16207', bg:'#fdf6e3', ic:'<path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/>'},
-  Organisation:{c:'#475569', bg:'#f1f4f8', ic:'<rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M5.5 5.5h1M9.5 5.5h1M5.5 8h1M9.5 8h1M7 13.5v-3h2v3"/>'},
-  'System Admin':{c:'#64748b', bg:'#f2f4f7', ic:'<circle cx="8" cy="8" r="2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/>'},
+  Approvals:{cat:'Staffing', ic:'staffing'}, Staff:{cat:'Staffing', ic:'staffing'}, Attendance:{cat:'Staffing', ic:'staffing'},
+  Jobs:{cat:'Recruitment', ic:'jobs'}, Candidates:{cat:'Recruitment', ic:'jobs'},
+  Organisation:{cat:'Organization', ic:'teams'},
+  Events:{cat:'Engagement', ic:'events'}, Communications:{cat:'Engagement', ic:'comms'},
+  Documents:{cat:'Admin', ic:'documents'}, 'System Admin':{cat:'Admin', ic:'sysadmin'},
 };
-const ntf = {read:new Set(), done:new Map(), muted:new Set(), filter:'all', mod:'All', extra:[], digest:true, email:true};
+const NTF_CATS = {
+  Recruitment:{b:'b-blue', ic:'jobs', sub:'Jobs, Candidates, Talent Pool and Blocked List', ev:[
+    ['New application received','When a candidate applies to a job you own'],['Candidate stage changed','Shortlisted, interview scheduled, offer sent or moved to staff'],
+    ['Job posting closing soon','3 days before a job posting closes'],['Talent Pool and Blocked List updates','When candidates are added or removed']]},
+  Staffing:{b:'b-purple', ic:'staffing', sub:'Staff List, Approvals, Time & Attendance and Staff Ratio', ev:[
+    ['Approval requests','Leave, timesheet and document requests waiting for you'],['Approval decisions','When your requests are approved or rejected'],
+    ['Shift swap requests','When staff request to swap or cover a shift'],['Staff ratio below requirement','Room or campus falls below the required ratio',true],
+    ['New staff onboarded','When a candidate is moved to staff']]},
+  Organization:{b:'b-teal', ic:'company', sub:'Company, Departments and Teams', ev:[
+    ['Company and department changes','New departments, edits or closures'],['Team membership changes','When you’re added to or removed from a team']]},
+  Engagement:{b:'b-orange', ic:'events', sub:'Events and Communications', ev:[
+    ['Event reminders and RSVPs','24 hours before events you host or attend'],['Communication delivery reports','Opens and clicks for emails and campaigns you send']]},
+  Admin:{b:'b-gray', ic:'documents', sub:'Documents and System Administration', ev:[
+    ['Documents expiring','30, 7 and 1 day before a certificate or record expires'],['Signature requests and signed documents','When a document needs or receives a signature'],
+    ['User types and permission changes','Changes made in System Administration']]},
+};
+const ntfPrefDefault = () => ({email:true, sms:false, freq:'daily', digestAt:'9:00 AM', tz:'AEST - Australian Eastern Standard Time',
+  quiet:true, qFrom:'7:00 PM', qTo:'8:00 AM', days:['Saturday','Sunday'],
+  mods:{Recruitment:{on:true, ev:[1,1,1,0]}, Staffing:{on:true, ev:[1,1,1,0,0]}, Organization:{on:false, ev:[0,1]}, Engagement:{on:true, ev:[1,1]}, Admin:{on:true, ev:[1,1,1]}}});
+let ntfPrefs = ntfPrefDefault();
+const ntf = {read:new Set(), done:new Map(), archived:new Set(), filter:'all', mod:'All', type:'All', range:'Last 7 days', sort:'Newest', q:'', limit:14, extra:[], draft:null, open:new Set(['Staffing','Organization'])};
 // Other modules call this when something happens that people should hear about
 function ntfPush(mod, title, body, href){ ntf.extra.unshift({id:'x'+Date.now()+Math.random(), mod, title, body, href, at:Date.now(), acts:[]}); ntfBadge(); }
-const ntfAgo = m => m<1 ? 'Just now' : m<60 ? `${m}m ago` : m<1440 ? `${Math.round(m/60)}h ago` : m<2880 ? 'Yesterday' : `${Math.round(m/1440)}d ago`;
+const ntfAgo = m => { if (m<1) return 'Just now'; if (m<60) return `${m} min ago`; if (m<1440){ const h = Math.round(m/60); return `${h} hr${h>1?'s':''} ago`; }
+  const d = new Date(Date.now()-m*60000), t = d.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+  return `${m<2880 ? 'Yesterday' : d.toLocaleDateString('en-US',{weekday:'short'})}, ${t}`; };
 const ntfAgeMin = s => { const n = parseInt(s)||1; return /min/.test(s) ? n : /hour|hr/.test(s) ? n*60 : /day/.test(s) ? n*1440 : /week/.test(s) ? n*10080 : /month/.test(s) ? n*43200 : /Today/.test(s) ? 120 : 1440; };
 function ntfItems(){
   const out = [], add = o => out.push({acts:[], ...o});
@@ -4095,79 +4144,170 @@ function ntfItems(){
   const dd = docs.filter(d=>d.status==='Draft'); if (dd.length) add({id:'dd'+dd.length, mod:'Documents', ago:3100, href:'#documents', title:`${dd.length} document${dd.length>1?'s':''} waiting to be published`, body:`${[...new Set(dd.map(d=>d.name))].slice(0,3).join(', ')}${dd.length>3?' and more':''}`, acts:[['Review documents','o','#documents']]});
   const nv = sysUsers.filter(u=>u.status==='Not Verified'); if (nv.length) add({id:'sv'+nv.length, mod:'System Admin', ago:4300, href:'#sysadmin', title:`${nv.length} staff login${nv.length>1?'s':''} not verified`, body:`${nv.map(u=>u.name).join(', ')} haven’t accepted their invite.`, acts:[['Resend invites','o',()=>`Invites resent to ${nv.length} people`]]});
   const td = teams.filter(t=>t.status==='Draft'); if (td.length) add({id:'td'+td.length, mod:'Organisation', ago:5200, href:'#teams', title:`${td.length} team${td.length>1?'s are':' is'} still in draft`, body:td.slice(0,3).map(t=>t.name).join(', ')});
+  add({id:'mn1', mod:'Candidates', mention:true, ago:75, href:'#candidates', title:'Emma Thompson mentioned you', body:'“@Prajwal can you join Liam Smith’s panel interview on Thursday?” — on Talent Acquisition Intern.', acts:[['Reply','p',()=>'Reply sent to Emma Thompson'],['View Candidate','o','#candidates']]});
+  add({id:'mn2', mod:'Organisation', mention:true, ago:1720, href:'#teams', title:'Rachel Green mentioned you in Curriculum Design', body:'“@Prajwal please review the onboarding checklist before Friday.”'});
+  add({id:'mn3', mod:'Events', mention:true, ago:3350, href:'#events', title:'Liam Carter mentioned you on Annual Staff Meetup', body:'“@Prajwal can you confirm the AV setup for the Main Hall?”', acts:[['Reply','p',()=>'Reply sent to Liam Carter']]});
   ntf.extra.forEach(x=>out.push({acts:[], ...x, ago:Math.round((Date.now()-x.at)/60000)||0}));
   // Things you acted on stay in the feed, marked done, even though they've left their source list
   ntf.done.forEach((d,id)=>{ if (!out.some(o=>o.id===id)) out.push(d.item); });
-  return out.filter(o=>!ntf.muted.has(o.mod)).sort((a,b)=>a.ago-b.ago);
+  // Archived items leave the feed. Muting a section in Notification Settings only stops its emails: every event still shows here
+  return out.filter(o=>!ntf.archived.has(o.id)).sort((a,b)=>a.ago-b.ago);
 }
-const ntfNeeds = o => o.acts.length && !ntf.done.has(o.id);
+// Needs action = has a real action to take (approve, remind…), not just a link to open
+const ntfNeeds = o => o.acts.some(a=>typeof a[2]==='function') && !ntf.done.has(o.id);
+const ntfUnread = o => !ntf.read.has(o.id) && !ntf.done.has(o.id);
+const ntfCat = o => NTF_MODS[o.mod].cat;
+const NTF_TYPES = ['All','Action Required','Mentions','Alerts','Updates'];
+const NTF_RANGES = {'Today':1440, 'Last 7 days':10080, 'Last 30 days':43200, 'All time':Infinity};
+const ntfIsType = (o,t) => t==='All' || t==='Action Required' && ntfNeeds(o) || t==='Mentions' && o.mention || t==='Alerts' && o.urgent || t==='Updates' && !ntfNeeds(o) && !o.mention && !o.urgent;
+// Start with a realistic mix: roughly every other non-urgent item already seen
+let ntfSeeded = false;
+const ntfSeed = () => { if (ntfSeeded) return; ntfSeeded = true; ntfItems().forEach((o,i)=>{ if (i%2 && !o.urgent) ntf.read.add(o.id); }); };
+const ntfTitleCase = s => s.replace(/\b[a-z]/g, c=>c.toUpperCase());
+// Sidebar shows a dot (not a count) while anything is unread
 function ntfBadge(){
-  const items = ntfItems(), n = items.filter(o=>!ntf.read.has(o.id) && !ntf.done.has(o.id)).length, nav = document.getElementById('nav-whats-new');
-  if (!nav) return; nav.querySelector('.ntf-count')?.remove();
-  if (n) nav.insertAdjacentHTML('beforeend', `<span class="ntf-count" aria-label="${n} unread">${n>99?'99+':n}</span>`);
+  ntfSeed();
+  const n = ntfItems().filter(ntfUnread).length, nav = document.getElementById('nav-whats-new');
+  if (!nav) return; nav.querySelector('.nav-dot')?.remove();
+  nav.setAttribute('aria-label', n ? `What’s New, ${n} unread` : 'What’s New');
+  if (n) nav.querySelector('.l').insertAdjacentHTML('beforeend', '<span class="nav-dot" aria-hidden="true"></span>');
 }
+const NTF_CHECK = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M8.3 2.5 4 6.8 1.8 4.6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ntfOpt = (key, list, title) => `<div class="fm-h">${title}</div><div class="fm-list">${list.map(v=>`<button class="fm-opt radio ${ntf[key]===v?'sel':''}" data-nset="${key}" data-nval="${esc(v)}"><span class="fm-box">${NTF_CHECK}</span><span class="fm-l">${esc(v)}</span></button>`).join('')}</div>`;
+const ntfChip = (key, label, list, title, def) => `<div class="kebab"><button class="chip ${ntf[key]!==def?'has-val':''}" data-menu>${label} <img class="chev" src="assets/f-chev.svg" width="16" height="16" alt=""></button><div class="menu fmenu">${ntfOpt(key,list,title)}</div></div>`;
 function renderNotifications(){
-  const all = ntfItems(), unread = all.filter(o=>!ntf.read.has(o.id) && !ntf.done.has(o.id)), needs = all.filter(ntfNeeds);
+  const all = ntfItems().filter(o=>o.ago<NTF_RANGES[ntf.range]), unread = all.filter(ntfUnread), anyRead = all.length > unread.length, off = 'disabled style="opacity:.5;cursor:default"';
   const tab = (k,l,c) => `<a class="tab ${ntf.filter===k?'active':''}" href="#" data-ntab="${k}">${l} <span class="count">${c}</span></a>`;
-  setSub({title:'What’s New', plain:true, sub:'Updates from across the portal: approvals, hiring, staff, attendance, events and more',
-    actions:`<button class="btn btn-outline" data-ntf="readall" ${unread.length?'':'disabled style="opacity:.5"'}>Mark all as read</button>`,
-    tabs: tab('all','All',all.length)+tab('unread','Unread',unread.length)+tab('action','Needs action',needs.length)});
-  const list = all.filter(o=>(ntf.mod==='All' || o.mod===ntf.mod) && (ntf.filter==='all' || ntf.filter==='unread' && !ntf.read.has(o.id) && !ntf.done.has(o.id) || ntf.filter==='action' && ntfNeeds(o)));
-  const mods = Object.keys(NTF_MODS).filter(m=>all.some(o=>o.mod===m));
-  const chip = m => { const c = m==='All' ? all.length : all.filter(o=>o.mod===m).length; return `<button class="ntf-chip ${ntf.mod===m?'on':''}" data-nmod="${esc(m)}">${esc(m)} <span>${c}</span></button>`; };
-  const group = o => o.ago < 1440 ? 'Today' : o.ago < 2880 ? 'Yesterday' : 'Earlier';
-  const row = o => { const M = NTF_MODS[o.mod], isRead = ntf.read.has(o.id) || ntf.done.has(o.id), d = ntf.done.get(o.id);
-    return `<div class="ntf-row ${isRead?'':'unread'}" data-nid="${esc(o.id)}" data-href="${o.href||''}">
-      <span class="ntf-ic" style="background:${M.bg};color:${M.c}">${cdIc(M.ic,16)}</span>
-      <div class="ntf-b"><div class="t">${esc(o.title)}${o.urgent&&!d?' <span class="badge b-red">Urgent</span>':''}</div><div class="s">${esc(o.body)}</div>
-        <div class="m"><span>${esc(o.mod)}</span><i></i><span>${ntfAgo(o.ago)}</span></div>
-        ${d ? `<div class="ntf-done">${cdIc(CD_I.ok,14)} ${esc(d.result)}</div>` : o.acts.length ? `<div class="ntf-acts">${o.acts.map(([l,k],j)=>`<button class="sbtn ${k==='p'?'ntf-p':''}" data-nact="${j}">${esc(l)}</button>`).join('')}</div>` : ''}</div>
-      <div class="ntf-r">${isRead?'':'<span class="ntf-dot" aria-label="Unread"></span>'}
-        <div class="kebab"><button class="dots" data-menu aria-label="Notification options">${cdIc('<circle cx="8" cy="3.5" r=".6" fill="currentColor"/><circle cx="8" cy="8" r=".6" fill="currentColor"/><circle cx="8" cy="12.5" r=".6" fill="currentColor"/>',18)}</button><div class="menu right">
-          ${d?'':`<button data-nread="${isRead?0:1}">Mark as ${isRead?'unread':'read'}</button>`}<button data-nmute="${esc(o.mod)}">Turn off ${esc(o.mod)} updates</button></div></div></div></div>`; };
-  const groups = ['Today','Yesterday','Earlier'].map(g=>[g, list.filter(o=>group(o)===g)]).filter(([,l])=>l.length);
-  const empty = ntf.filter==='unread' ? ['You’re all caught up','Nothing unread. New updates from every module show up here.'] : ntf.filter==='action' ? ['Nothing needs you right now','Approvals, leave requests and other actions will appear here.'] : ['No updates','Updates from the modules you follow will appear here.'];
-  const counts = Object.keys(NTF_MODS).map(m=>[m, needs.filter(o=>o.mod===m).length]).filter(([,n])=>n);
-  document.getElementById('view-ntf').innerHTML = `<div class="ntf-cols">
-    <div class="ntf-main"><div class="ntf-chips">${chip('All')}${mods.map(chip).join('')}</div>
-      ${groups.map(([g,l])=>`<div class="ntf-g">${g}</div><div class="ntf-list">${l.map(row).join('')}</div>`).join('') || `<div class="ntf-empty"><b>${empty[0]}</b><span>${empty[1]}</span></div>`}</div>
-    <div class="ntf-side">
-      <div class="jcard"><div class="jcard-h"><div class="l"><div class="jicon">${cdIc(NTF_MODS.Approvals.ic,16)}</div><div><h3>Needs your action</h3><p>${needs.length ? `${needs.length} item${needs.length>1?'s':''} waiting on you` : 'Nothing waiting on you'}</p></div></div></div>
-        <div>${counts.map(([m,n])=>`<button class="lrow ntf-sum" data-nsum="${esc(m)}"><span class="k" style="display:flex;align-items:center;gap:10px"><span class="ntf-ic sm" style="background:${NTF_MODS[m].bg};color:${NTF_MODS[m].c}">${cdIc(NTF_MODS[m].ic,13)}</span>${esc(m)}</span><span class="v"><b>${n}</b></span></button>`).join('') || '<div class="sub" style="font-size:13px">You’re all caught up.</div>'}</div></div>
-      <div class="jcard"><div class="jcard-h"><div class="l"><div class="jicon">${cdIc('<path d="M4 11V7a4 4 0 0 1 8 0v4l1 1.5H3z"/><path d="M6.5 14a1.6 1.6 0 0 0 3 0"/>',16)}</div><div><h3>Notification settings</h3><p>Choose which modules you hear from</p></div></div></div>
-        <div>${Object.keys(NTF_MODS).map(m=>`<div class="lrow"><span class="k">${esc(m)}</span><span class="switch sm ${ntf.muted.has(m)?'':'on'}" role="switch" tabindex="0" aria-checked="${!ntf.muted.has(m)}" aria-label="${esc(m)} updates" data-nsw="${esc(m)}"></span></div>`).join('')}
-          <div class="lrow"><span class="k">Daily email digest</span><span class="switch sm ${ntf.digest?'on':''}" role="switch" tabindex="0" aria-checked="${ntf.digest}" aria-label="Daily email digest" data-nsw="digest"></span></div></div></div>
-    </div></div>`;
-  ntfBadge();
+  setSub({title:'What’s New', plain:true, sub:'Updates, approvals and alerts from every module of your HR portal',
+    actions:`<a class="btn btn-outline" href="#whats-new/settings" style="text-decoration:none">Notification Settings</a><button class="btn btn-outline" data-ntf="archive" ${anyRead?'':off}>Archive Read</button><button class="btn btn-primary" data-ntf="readall" ${unread.length?'':off}>Mark all as read</button>`,
+    tabs: tab('all','All',all.length)+tab('unread','Unread',unread.length)+tab('action','Action Required',all.filter(ntfNeeds).length)+tab('mentions','Mentions',all.filter(o=>o.mention).length)});
+  document.getElementById('view-ntf').innerHTML = `<div class="ntf-wrap">
+    <div class="filters"><div class="l">
+      <label class="search"><img src="assets/f-search.svg" width="18" height="18" alt=""><input data-nq placeholder="Search notifications" aria-label="Search notifications" value="${esc(ntf.q)}"></label>
+      <div class="chips">${ntfChip('mod',`Module : ${esc(ntf.mod)}`,['All',...Object.keys(NTF_CATS)],'Filter by module','All')}${ntfChip('type',`Type : ${esc(ntf.type)}`,NTF_TYPES,'Filter by type','All')}${ntfChip('range',esc(ntf.range),Object.keys(NTF_RANGES),'Show notifications from','Last 7 days')}
+        <button class="chip" data-toast="More filters panel"><img src="assets/f-filters.svg" width="16" height="16" alt=""> More Filters</button></div></div>
+      <div class="r"><div class="kebab"><button class="chip" data-menu><img src="assets/f-sort.svg" width="16" height="16" alt=""> ${ntf.sort}</button><div class="menu right fmenu">${ntfOpt('sort',['Newest','Oldest'],'Sort by')}</div></div></div></div>
+    <div id="ntf-feed"></div></div>`;
+  ntfFeed(); ntfBadge();
+}
+function ntfFeed(){
+  const all = ntfItems(), q = ntf.q.trim().toLowerCase(), max = NTF_RANGES[ntf.range];
+  let list = all.filter(o=>(ntf.mod==='All' || ntfCat(o)===ntf.mod) && ntfIsType(o,ntf.type) && o.ago<max
+    && (ntf.filter==='all' || ntf.filter==='unread' && ntfUnread(o) || ntf.filter==='action' && ntfNeeds(o) || ntf.filter==='mentions' && o.mention)
+    && (!q || `${o.title} ${o.body} ${ntfCat(o)}`.toLowerCase().includes(q)));
+  if (ntf.sort==='Oldest') list = list.reverse();
+  const shown = list.slice(0, ntf.limit);
+  const group = o => o.ago < 1440 ? 'Today' : o.ago < 2880 ? 'Yesterday' : o.ago < 10080 ? 'Earlier this week' : 'Older';
+  const order = ['Today','Yesterday','Earlier this week','Older']; if (ntf.sort==='Oldest') order.reverse();
+  const groups = order.map(g=>[g, shown.filter(o=>group(o)===g)]).filter(([,l])=>l.length);
+  const head = (g,l) => { const n = l.filter(ntfUnread);
+    return `<div class="ntf-gh"><span class="l">${g}</span><span class="badge ntf-tag ${n.length?'b-blue':'b-gray'}">${n.length?`${n.length} new`:l.length}</span>${n.length?`<button class="mk" data-ngread="${esc(n.map(o=>o.id).join('|'))}">Mark as read</button>`:''}</div>`; };
+  const row = o => { const cat = ntfCat(o), un = ntfUnread(o), d = ntf.done.get(o.id);
+    return `<div class="ntf-row ${un?'unread':''}" data-nid="${esc(o.id)}">
+      <span class="ntf-ic"><i class="nic" style="--ic:url(assets/nav-${NTF_MODS[o.mod].ic}.svg)" aria-hidden="true"></i></span>
+      <div class="ntf-b"><div class="t"><span>${esc(o.title)}</span><span class="badge ntf-tag ${NTF_CATS[cat].b}">${cat}</span>${o.urgent&&!d?'<span class="badge ntf-tag b-red">Urgent</span>':''}</div>
+        <div class="s">${esc(o.body)}</div><div class="m">${ntfAgo(o.ago)}</div>
+        ${d ? `<div class="ntf-done">${cdIc(CD_I.ok,14)} ${esc(d.result)}</div>` : o.acts.length ? `<div class="ntf-acts">${o.acts.map(([l],j)=>`<button class="ntf-a ${j===0?'p':/^(Reject|Decline)/.test(l)?'red':''}" data-nact="${j}">${esc(ntfTitleCase(l))}</button>`).join('')}</div>` : ''}</div>
+      <div class="ntf-r">${un?'<span class="ntf-dot" aria-label="Unread"></span>':''}
+        <div class="kebab"><button class="dots" data-menu aria-label="Notification options"><img src="assets/ellipsis.svg" width="20" height="20" alt=""></button><div class="menu right">
+          ${d?'':`<button data-nread="${un?1:0}">Mark as ${un?'read':'unread'}</button>`}<button data-narch>Archive</button><button data-nmute="${cat}">Stop ${cat} emails</button></div></div></div></div>`; };
+  const empty = ntf.q || ntf.mod!=='All' || ntf.type!=='All' ? ['No matching notifications','Try a different search or clear the filters.']
+    : ntf.filter==='unread' ? ['You’re all caught up','Nothing unread. New updates from every module show up here.']
+    : ntf.filter==='action' ? ['Nothing needs you right now','Approvals, leave requests and other actions will appear here.']
+    : ntf.filter==='mentions' ? ['No mentions','When someone @mentions you in a note or comment, it shows up here.'] : ['No updates','Updates from the modules you follow will appear here.'];
+  document.getElementById('ntf-feed').innerHTML = groups.length
+    ? `<div class="ntf-groups">${groups.map(([g,l])=>`<div>${head(g,l)}${l.map(row).join('')}</div>`).join('')}</div>
+       <div class="ntf-more"><span>Showing ${shown.length} of ${list.length} notifications</span>${list.length>shown.length?'<button class="sbtn-p" data-ntf="more">Load older notifications</button>':''}</div>`
+    : `<div class="ntf-empty"><b>${empty[0]}</b><span>${empty[1]}</span></div>`;
 }
 function ntfRerender(){ if (location.hash==='#whats-new') renderNotifications(); else ntfBadge(); }
 document.addEventListener('click', e=>{
   if (location.hash!=='#whats-new') return;
   const t = e.target, q = s => t.closest(s);
-  const tb = q('[data-ntab]'); if (tb){ e.preventDefault(); ntf.filter = tb.dataset.ntab; return renderNotifications(); }
-  const md = q('[data-nmod]'); if (md){ ntf.mod = md.dataset.nmod; return renderNotifications(); }
-  const sm = q('[data-nsum]'); if (sm){ ntf.mod = sm.dataset.nsum; ntf.filter = 'action'; return renderNotifications(); }
-  if (q('[data-ntf="readall"]')){ ntfItems().forEach(o=>ntf.read.add(o.id)); toast('All notifications marked as read'); return renderNotifications(); }
-  const sw = q('[data-nsw]');
-  if (sw){ const k = sw.dataset.nsw;
-    if (k==='digest'){ ntf.digest = !ntf.digest; toast(`Daily email digest ${ntf.digest?'on':'off'}`); }
-    else { ntf.muted.has(k) ? ntf.muted.delete(k) : ntf.muted.add(k); if (ntf.mod===k) ntf.mod='All'; toast(`${k} updates ${ntf.muted.has(k)?'turned off':'turned on'}`); }
-    return renderNotifications(); }
+  const tb = q('[data-ntab]'); if (tb){ e.preventDefault(); ntf.filter = tb.dataset.ntab; ntf.limit = 14; return renderNotifications(); }
+  const st = q('[data-nset]'); if (st){ closeMenus(); ntf[st.dataset.nset] = st.dataset.nval; ntf.limit = 14; return renderNotifications(); }
+  const nf = q('[data-ntf]')?.dataset.ntf;
+  if (nf==='readall'){ ntfItems().forEach(o=>ntf.read.add(o.id)); toast('All notifications marked as read'); return renderNotifications(); }
+  if (nf==='archive'){ const r = ntfItems().filter(o=>!ntfUnread(o)); r.forEach(o=>ntf.archived.add(o.id)); toast(`${r.length} read notification${r.length>1?'s':''} archived`); return renderNotifications(); }
+  if (nf==='more'){ ntf.limit += 10; return ntfFeed(); }
+  const gr = q('[data-ngread]'); if (gr){ gr.dataset.ngread.split('|').forEach(id=>ntf.read.add(id)); return renderNotifications(); }
   const rowEl = q('[data-nid]'); if (!rowEl) return;
   const id = rowEl.dataset.nid, o = ntfItems().find(x=>x.id===id); if (!o) return;
   const rd = q('[data-nread]'); if (rd){ closeMenus(); rd.dataset.nread==='1' ? ntf.read.add(id) : ntf.read.delete(id); return renderNotifications(); }
-  const mu = q('[data-nmute]'); if (mu){ closeMenus(); ntf.muted.add(mu.dataset.nmute); toast(`${mu.dataset.nmute} updates turned off · turn them back on in Notification settings`); return renderNotifications(); }
+  if (q('[data-narch]')){ closeMenus(); ntf.archived.add(id); toast('Notification archived'); return renderNotifications(); }
+  const mu = q('[data-nmute]'); if (mu){ closeMenus(); const c = mu.dataset.nmute; ntfPrefs.mods[c].on = false; toast(`${c} emails turned off · turn them back on in Notification Settings`); return renderNotifications(); }
   const ac = q('[data-nact]');
   if (ac){ const [label,,run] = o.acts[+ac.dataset.nact]; ntf.read.add(id);
     if (typeof run==='string'){ location.hash = run.slice(1); return; }
     const before = location.hash, res = run();
     if (location.hash!==before) return;     // the action navigated (e.g. Complete setup)
-    const msg = typeof res==='string' ? res : `${label} done`;
+    const msg = typeof res==='string' ? res : `${ntfTitleCase(label)} done`;
     ntf.done.set(id, {item:{...o, acts:[]}, result:msg}); toast(msg); return renderNotifications(); }
   if (q('.kebab, button, a')) return;
   ntf.read.add(id); if (o.href) location.hash = o.href.slice(1); else renderNotifications();
 });
-document.addEventListener('keydown', e=>{ if ((e.key==='Enter'||e.key===' ') && e.target.matches?.('#view-ntf [data-nsw]')){ e.preventDefault(); e.target.click(); } });
+document.addEventListener('input', e=>{ if (e.target.matches?.('#view-ntf [data-nq]')){ ntf.q = e.target.value; ntf.limit = 14; ntfFeed(); } });
+
+/* Notification Settings: edits a draft; Save applies it to the feed, Cancel throws it away */
+const NS_TIMES = Array.from({length:48}, (_,i)=>{ const h = Math.floor(i/2); return `${h%12||12}:${i%2?'30':'00'} ${h<12?'AM':'PM'}`; });
+const NS_TZ = ['AEST - Australian Eastern Standard Time','ACST - Australian Central Standard Time','AWST - Australian Western Standard Time','NZST - New Zealand Standard Time','IST - India Standard Time','GMT - Greenwich Mean Time'];
+const NS_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+function renderNtfSettings(){
+  if (!ntf.draft) ntf.draft = structuredClone(ntfPrefs);
+  const d = ntf.draft;
+  setSub({title:'Notification Settings', root:['What’s New','#whats-new']});
+  const sw = (k,on,label) => `<span class="switch ${on?'on':''}" role="switch" tabindex="0" aria-checked="${on}" aria-label="${esc(label)}" data-nsw="${k}"></span>`;
+  const sel = (k,label,list,icon,dis) => `<label class="fld ${dis?'dis':''}"><span>${label}</span><select data-nsf="${k}" ${dis?'disabled':''}>${list.map(x=>`<option ${x===d[k]?'selected':''}>${esc(x)}</option>`).join('')}</select><img src="assets/${icon}.svg" width="16" height="16" alt=""></label>`;
+  const mod = c => { const C = NTF_CATS[c], m = d.mods[c], open = ntf.open.has(c);
+    return `<div class="ns-mod ${open?'open':''} ${m.on?'':'off'}">
+      <div class="ns-mh" data-nsopen="${c}" role="button" tabindex="0" aria-expanded="${open}"><img class="chev" src="assets/chev-down-20.svg" width="20" height="20" alt="">
+        <span class="ic"><i class="nic" style="--ic:url(assets/nav-${C.ic}.svg)" aria-hidden="true"></i></span>
+        <span class="tx"><b>${c}</b><span>${esc(C.sub)} · ${C.ev.length} events</span></span>${sw('mod:'+c, m.on, c+' notifications')}</div>
+      ${open ? C.ev.map(([n,s,crit],j)=>`<label class="ns-ev"><span class="tx"><b>${esc(n)}${crit?'<span class="badge ntf-tag b-red">Critical</span>':''}</b><span>${esc(s)}</span></span><input type="checkbox" class="ns-cb" data-nsev="${c}:${j}" ${m.ev[j]?'checked':''} ${m.on?'':'disabled'} aria-label="Email me: ${esc(n)}"></label>`).join('') : ''}</div>`; };
+  const freq = (v,t,s) => `<button type="button" class="opt ${d.freq===v?'sel':''}" data-nsfreq="${v}"><span class="t">${t}</span><span class="s">${s}</span></button>`;
+  document.getElementById('view-ntfset').innerHTML = `<div class="flow" style="padding-top:28px"><div class="step">
+    <div class="ns-head"><h2>Notification Preferences</h2><p>Choose what you’re notified about, where it reaches you and when. These settings apply only to your account.</p></div>
+    <div class="fsecs">
+      <div class="fsec"><div class="sec-h"><h3>Delivery Channels</h3><p>Every notification always appears in What’s New in the HR Portal. Choose where else you’d like to be notified.</p></div>
+        <div class="ns-chans">
+          <div class="toggle-row"><div><div class="t">Email</div><div class="s">Sent to prajwalformee@gmail.com</div></div>${sw('email',d.email,'Email notifications')}</div>
+          <div class="toggle-row"><div><div class="t">SMS For Urgent Alerts</div><div class="s">Only critical alerts such as staff ratio breaches and missed clock-ins</div></div>${sw('sms',d.sms,'SMS for urgent alerts')}</div></div></div>
+      <div class="fsec"><div class="sec-h"><h3>What You’re Notified About</h3><p>Every event appears in What’s New. Expand a module to choose which events also send an email; switch a module off to mute all of its events.</p></div>
+        <div class="ns-mods">${Object.keys(NTF_CATS).map(mod).join('')}</div></div>
+      <div class="fsec"><div class="sec-h"><h3>Email Frequency</h3><p>How often email notifications are sent. Approval requests and critical alerts are always sent instantly.</p></div>
+        <div class="opts">${freq('instant','Instant','Get an email as soon as something happens.')}${freq('daily','Daily Digest','One summary email each morning covering the last 24 hours.')}${freq('weekly','Weekly Summary','One email every Monday covering the previous week.')}</div>
+        <div class="grid2">${sel('digestAt', d.freq==='weekly'?'Send Summary At':'Send Digest At', NS_TIMES, 'in-clock', d.freq==='instant')}${sel('tz','Time Zone',NS_TZ,'in-arrow')}</div></div>
+      <div class="fsec ns-quiet"><div class="sec-h"><h3>Quiet Hours</h3><p>Pause email and SMS outside your working hours. Notifications still collect in What’s New.</p></div>
+        <div class="toggle-row"><div><div class="t">Enable Quiet Hours</div><div class="s">Uses the time zone set above</div></div>${sw('quiet',d.quiet,'Enable quiet hours')}</div>
+        <div class="stack16 ${d.quiet?'':'ns-dis'}">
+          <div class="grid2">${sel('qFrom','From',NS_TIMES,'in-clock',!d.quiet)}${sel('qTo','To',NS_TIMES,'in-clock',!d.quiet)}</div>
+          <div class="sub-h" style="font-weight:500">Pause all day on</div>
+          <div class="dchips ns-days">${NS_DAYS.map(x=>`<label class="dchip ${d.days.includes(x)?'on':''}"><input type="checkbox" data-nsday="${x}" ${d.days.includes(x)?'checked':''}>${x}</label>`).join('')}</div></div>
+        <div class="note"><img src="assets/info.svg" width="15" height="15" alt="">Critical alerts (staff ratio breaches and missed clock-ins) are always delivered, even during quiet hours.</div></div>
+    </div>
+    <div class="flow-foot ns-foot"><button class="fbtn o" data-nsact="reset">Reset to Default</button><div class="r"><button class="fbtn o" data-nsact="cancel">Cancel</button><button class="fbtn p" data-nsact="save">Save Changes</button></div></div>
+  </div></div>`;
+}
+document.addEventListener('click', e=>{
+  if (location.hash!=='#whats-new/settings' || !ntf.draft) return;
+  const t = e.target, q = s => t.closest(s), d = ntf.draft;
+  const sw = q('[data-nsw]');
+  if (sw){ const k = sw.dataset.nsw; if (k.startsWith('mod:')){ const m = d.mods[k.slice(4)]; m.on = !m.on; } else d[k] = !d[k]; return renderNtfSettings(); }
+  const op = q('[data-nsopen]'); if (op){ const c = op.dataset.nsopen; ntf.open.has(c) ? ntf.open.delete(c) : ntf.open.add(c); return renderNtfSettings(); }
+  const fq = q('[data-nsfreq]'); if (fq){ d.freq = fq.dataset.nsfreq; return renderNtfSettings(); }
+  const ac = q('[data-nsact]')?.dataset.nsact;
+  if (ac==='reset'){ ntf.draft = ntfPrefDefault(); toast('Settings reset to default · save to apply them'); return renderNtfSettings(); }
+  if (ac==='cancel'){ ntf.draft = null; location.hash = 'whats-new'; return; }
+  if (ac==='save'){ ntfPrefs = d; ntf.draft = null; toast('Notification settings saved'); location.hash = 'whats-new'; }
+});
+document.addEventListener('change', e=>{
+  if (location.hash!=='#whats-new/settings' || !ntf.draft) return;
+  const t = e.target, d = ntf.draft;
+  if (t.dataset.nsev){ const [c,j] = t.dataset.nsev.split(':'); d.mods[c].ev[+j] = t.checked ? 1 : 0; }
+  else if (t.dataset.nsday){ const x = t.dataset.nsday; d.days = t.checked ? [...d.days, x] : d.days.filter(v=>v!==x); renderNtfSettings(); }
+  else if (t.dataset.nsf) d[t.dataset.nsf] = t.value;
+});
+document.addEventListener('keydown', e=>{ if ((e.key==='Enter'||e.key===' ') && e.target.matches?.('#view-ntfset [data-nsw], #view-ntfset [data-nsopen]')){ e.preventDefault(); e.target.click(); } });
 
 /* ---------------- Teams ---------------- */
 function renderTeams(){
