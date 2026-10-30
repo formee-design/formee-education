@@ -156,8 +156,8 @@
   .menu{position:absolute;top:calc(100% + 6px);left:0;min-width:200px;background:#fff;border:1px solid var(--n200);border-radius:10px;box-shadow:0 8px 24px rgba(15,23,41,.12);padding:6px;z-index:20;display:none;text-align:left}
   .menu.right{left:auto;right:0}
   .menu.show{display:block}
-  .menu button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:8px 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--n700)}
-  .menu button:hover{background:var(--n75)}
+  .menu button,.menu a{text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:8px 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--n700)}
+  .menu button:hover,.menu a:hover{background:var(--n75)}
   .menu button.sel{color:var(--brand-primary)}
   .menu button.danger{color:var(--red)}
   .menu.show{animation:ddIn .12s ease-out}
@@ -4701,7 +4701,7 @@ function renderEvForm(){
     const days = evDays(d), multi = days.length>1;
     const sCard = (x,s2,i) => `<div class="ev-sess"><div class="hd"><div style="min-width:0"><div class="t">Session ${i+1} - ${esc(s2.name)}</div><div class="s">${esc(s2.desc.split('\n')[0]||s2.category)}</div></div>
         <div class="kebab"><button class="dots" data-menu aria-label="Session actions">${cdIc('<circle cx="8" cy="3.5" r=".6" fill="currentColor"/><circle cx="8" cy="8" r=".6" fill="currentColor"/><circle cx="8" cy="12.5" r=".6" fill="currentColor"/>',18)}</button><div class="menu right">
-          <a href="#events/new/session/${days.indexOf(x)}/${i}" style="display:block">Edit session</a><button data-evdup="${x.iso}.${i}">Duplicate</button><button class="danger" data-evrm="${x.iso}.${i}">Remove</button></div></div></div>
+          <a href="#events/new/session/${days.indexOf(x)}/${i}">Edit session</a><button data-evdup="${x.iso}.${i}">Duplicate</button><button class="danger" data-evrm="${x.iso}.${i}">Remove</button></div></div></div>
       <div class="m">${cdIc('<circle cx="8" cy="8" r="6"/><path d="M8 4.8V8l2.2 1.4"/>',14)} ${evTime(s2.start)} – ${evTime(s2.end)}<i></i>${cdIc('<circle cx="6" cy="5.5" r="2.3"/><path d="M2 13c.5-2.2 2-3.5 4-3.5s3.5 1.3 4 3.5"/><circle cx="11.3" cy="6" r="1.8"/><path d="M11 9.6c1.6 0 2.7 1 3 2.9"/>',14)} ${evdCount(s2)}<i></i>${cdIc('<path d="M2.5 3.5h4.5a1.5 1.5 0 0 1 1 .4 1.5 1.5 0 0 1 1-.4h4.5v9H9a1.5 1.5 0 0 0-1 .4 1.5 1.5 0 0 0-1-.4H2.5z"/><path d="M8 3.9v9"/>',14)} ${s2.topics.length} Topics</div></div>`;
     const dayBlock = (x,k) => { const list = evSessionsOf(d,x.iso), dd = evD(x.iso);
       return `<div class="ev-dayhd"><span class="cal"><small>${dd.toLocaleDateString('en-AU',{month:'short'}).toUpperCase()}</small>${dd.getDate()}</span><div><b>${multi?x.label:'Event Day'}</b> ${evDayLong(x.iso)}${multi?`<div class="s">${list.length} session${list.length===1?'':'s'}${list.length?` · ${list[0].start} – ${list[list.length-1].end}`:''}</div>`:''}</div>
