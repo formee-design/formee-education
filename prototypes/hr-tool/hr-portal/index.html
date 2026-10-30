@@ -1075,6 +1075,21 @@
   .modal p{font-size:13px;color:var(--n700);line-height:19px}
   .modal .fld{height:52px}
   .modal .r{display:flex;justify-content:flex-end;gap:12px}
+  .modal{position:relative}
+  .modal .mx{position:absolute;top:21px;right:20px;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .modal .mx:hover{background:var(--n100)}
+  /* Add / Edit topic popup */
+  .modal.tp{width:480px;padding:0;gap:0;overflow:hidden}
+  .modal.tp>div:nth-child(2){padding:24px 64px 0 24px}
+  .modal.tp h3{font-size:18px;line-height:24px}
+  .modal.tp .tp-body{display:flex;flex-direction:column;gap:16px;padding:20px 24px 24px}
+  .modal.tp .tp-pts{display:flex;flex-direction:column;gap:6px}
+  .modal.tp .fld.area{height:auto;min-height:148px}
+  .modal.tp .fld.area textarea{text-transform:none;min-height:104px;line-height:22px}
+  .modal.tp .fld input::placeholder,.modal.tp textarea::placeholder{color:var(--n500)}
+  .modal.tp .tp-hint{display:flex;justify-content:space-between;padding:0 4px;font-size:12px;color:var(--n600)}
+  .modal.tp .r{padding:16px 24px;border-top:1px solid var(--n200);background:var(--n75)}
+  .modal.tp .r .fbtn{height:38px;min-width:112px}
   /* ---------- Job details ---------- */
   tr[data-job]{cursor:pointer}
   .jd-meta:empty{display:none}
@@ -4873,13 +4888,20 @@ function renderEvSession(){
 }
 function esTopicModal(i){
   const t = i!=null ? evSess.s.topics[i] : {title:'', points:[]};
-  formModal(i!=null?'Edit topic':'Add a topic','One learning point per line.', `${mfld('et-t','Topic title *',{val:t.title})}<label class="fld area soft" style="min-height:120px"><span>Learning points *</span><textarea id="et-p" style="text-transform:none;min-height:80px">${esc(t.points.join('\n'))}</textarea></label>`, i!=null?'Save Topic':'Add Topic', bg=>{
+  const count = v => { const n = v.split('\n').map(x=>x.trim()).filter(Boolean).length; return `${n} point${n===1?'':'s'}`; };
+  formModal(i!=null?'Edit topic':'Add a topic','Name the topic and list what attendees will take away.',
+    `<div class="tp-body">${mfld('et-t','Topic title *',{val:t.title, ph:'e.g. Why this session matters'})}
+      <div class="tp-pts"><label class="fld area soft"><span>Learning points *</span><textarea id="et-p" placeholder="Press Enter for each new point">${esc(t.points.join('\n'))}</textarea></label>
+        <div class="tp-hint"><span>One learning point per line</span><span id="et-n">${count(t.points.join('\n'))}</span></div></div></div>`,
+    i!=null?'Save Topic':'Add Topic', bg=>{
     const title = bg.querySelector('#et-t').value.trim(), points = bg.querySelector('#et-p').value.split('\n').map(x=>x.trim()).filter(Boolean);
     bg.querySelector('#et-t').closest('.fld').classList.toggle('err',!title); bg.querySelector('#et-p').closest('.fld').classList.toggle('err',!points.length);
     if (!title || !points.length) return false;
     if (i!=null) Object.assign(evSess.s.topics[i], {title, points}); else evSess.s.topics.push({title, points});
     renderEvSession();
-  });
+  }, {cls:'tp', x:true});
+  const bg = document.querySelector('.modal.tp').closest('.modal-bg');
+  bg.querySelector('#et-p').addEventListener('input', e=>{ bg.querySelector('#et-n').textContent = count(e.target.value); });
 }
 document.addEventListener('click', e=>{
   if (!evSess || !e.target.closest('#view-evsess')) return;
@@ -6316,9 +6338,10 @@ function renderLinkedIn(){
 }
 
 // Small form modal: fields html, onOk(bg) returns false to keep it open
-function formModal(title, text, fields, okLabel, onOk){
+// o.cls = extra class on the dialog; o.x = show a close button in the top-right corner
+function formModal(title, text, fields, okLabel, onOk, o={}){
   const bg = document.createElement('div'); bg.className='modal-bg';
-  bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true"><div><h3>${title}</h3>${text?`<p style="margin-top:6px">${text}</p>`:''}</div>${fields}
+  bg.innerHTML = `<div class="modal ${o.cls||''}" role="dialog" aria-modal="true">${o.x?'<button class="mx" data-modal="cancel" aria-label="Close"><img src="assets/dr-close.svg" width="18" height="18" alt=""></button>':''}<div><h3>${title}</h3>${text?`<p style="margin-top:6px">${text}</p>`:''}</div>${fields}
     <div class="r"><button class="fbtn o" data-modal="cancel">Cancel</button><button class="fbtn p" data-modal="ok">${okLabel}</button></div></div>`;
   document.body.appendChild(bg); bg.querySelector('input')?.focus();
   bg.addEventListener('click', e=>{
