@@ -1976,6 +1976,31 @@ body.bk2-clean .s3-as{ display:none; }
 .s3-failt input{ width:14px; height:14px; accent-color:var(--s3-danger); appearance:auto; -webkit-appearance:checkbox; }
 .s3-toast.err{ background:var(--s3-danger); }
 .s3-toast{ font-family:'DM Sans',-apple-system,'Helvetica Neue',sans-serif; font-weight:500; }   /* 프레임 밖에 떠서 글꼴을 직접 지정 */
+/* 10/30 User 뷰 = Account + Email notifications (Figma Flow L0 14937:326878). 960 고정폭 한 컬럼, 알림은 토글 즉시 저장. */
+.s3u{ width:100%; max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+.s3u-card{ padding:24px; display:flex; flex-direction:column; gap:20px; }
+.s3u-h{ display:flex; flex-direction:column; gap:4px; }
+.s3u-t{ margin:0; font-size:14px; line-height:22px; font-weight:600; color:var(--neutral-900); }
+.s3u-d{ margin:0; font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3u-f{ display:flex; flex-direction:column; gap:6px; }
+.s3u-l{ font-size:12px; line-height:18px; font-weight:500; color:var(--neutral-900); }
+.s3u-f .s3-input{ width:100%; box-sizing:border-box; }
+.s3u-f .s3-input:disabled{ background:var(--neutral-100); color:var(--neutral-500); border-color:var(--neutral-300); }
+.s3u-f .s3-input.err{ border-color:var(--s3-danger); }
+.s3u-help{ font-size:12px; line-height:18px; color:var(--neutral-500); }
+.s3u-help.err{ color:var(--s3-danger); }
+.s3u-acc{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.s3u-role{ font-size:10px; line-height:16px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--neutral-100); color:var(--neutral-700); }
+.s3u-sep{ width:1px; height:16px; background:var(--neutral-300); }
+.s3u-ft{ display:flex; justify-content:flex-end; }
+.s3u-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; }
+.s3u-row + .s3u-row{ border-top:1px solid var(--neutral-200); }
+.s3u-rt{ margin:0 0 2px; font-size:13px; line-height:20px; color:var(--neutral-900); }
+.s3u-link{ margin-left:4px; color:var(--brand-primary); text-decoration:underline; }
+.s3u-sw{ flex:none; position:relative; width:40px; height:23px; padding:0; border:0; border-radius:12px; background:var(--neutral-300); cursor:pointer; transition:background .15s; }
+.s3u-sw::after{ content:''; position:absolute; top:2.5px; left:2.5px; width:18px; height:18px; border-radius:50%; background:var(--neutral-0); box-shadow:0 1px 2px rgba(15,23,41,.2); transition:transform .15s; }
+.s3u-sw.on{ background:var(--brand-primary); }
+.s3u-sw.on::after{ transform:translateX(17px); }
 </style>
 
 </head>
@@ -37600,6 +37625,7 @@ body{margin:auto;padding:0;background:#e5e5e5;}
    10/22 Super Admin(Admin 화면 + 계정 Admin 넘기기) · User(읽기 전용) 추가 — Figma `Super Admin` 13789:25 / `User` 13789:26.
    10/23 Figma 최종본에 맞춤 — 행 끝 ··· 메뉴 대신 휴지통(권한은 Brands 탭에서만 바꾼다), 초대 행 Resend, 확인 모달 X 없음,
    Brands 패널 역할 안내 줄 삭제(설명은 역할 메뉴 안), 계정 Admin 행은 자물쇠만, Manage brands = Secondary + ›.
+   10/30 User 뷰를 Figma Flow L0(14937:326878)으로 교체 — 탭 없이 Account + Email notifications.
    #view=settings&tab=members|brands&as=superadmin|admin|brandadmin|user */
 (function(){
   var IC = '../../../components/ai-social-media/icons/';
@@ -37636,7 +37662,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
   var ROLE_DESC = {'Brand Admin':'Edits Brand Setup and decides who has access', 'User':'Creates and publishes content for this brand'};
   var ROLE_IC = {'Brand Admin':'shield-check-500.svg', 'User':'circle-user-round.svg'};   /* shield 은 n500 색으로 다시 칠한 사본(assets) */
   var S = { fail:/[#&]fail\b/.test(location.hash||''), as:'admin', tab:'members',   /* &fail 은 처음부터 읽는다 — 다른 스크립트가 먼저 그려 주소를 덮어써도 남게 */
-            mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null };
+            mStatus:'All', mQ:'', axBrand:'SCEI', axQ:'', addRole:'User', menu:null, ed:null, inv:null,
+            u:{ saved:'Jenny Jeong', draft:'Jenny Jeong', n:{post:true, render:true, weekly:true} } };   /* User 뷰(L0) — 이름 초안·알림 */
 
   function $(s,r){ return (r||document).querySelector(s); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -37990,13 +38017,45 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     A[S.axBrand]=A[S.axBrand]||{}; A[S.axBrand][p.id]=r; render(); toast(invited?('Invite sent to '+q):((p.name||p.email)+' added to '+S.axBrand));
   }
 
+  /* ---------- User 뷰 (10/30 Figma Flow L0) — Members·Brands 대신 Account + Email notifications ---------- */
+  var UN = [['post','Post published','When a scheduled post goes live.'],
+            ['render','Render completed','When an image or video finishes generating.'],
+            ['weekly','Weekly spend','A weekly summary of the credits you used.']];
+  function renderUser(){
+    var U=S.u, p=person(ME_USER), empty=!U.draft.trim(), changed=U.draft.trim()!==U.saved;
+    return '<section class="s3-card s3u-card"><div class="s3u-h"><p class="s3u-t">Account</p><p class="s3u-d">Your name and sign-in email.</p></div>'+
+      '<label class="s3u-f"><span class="s3u-l">Display name</span><input id="s3uName" class="s3-input'+(empty?' err':'')+'" value="'+esc(U.draft)+'" autocomplete="off">'+
+        '<span class="s3u-help'+(empty?' err':'')+'">'+(empty?'Enter a display name.':'Shown to teammates and on your content.')+'</span></label>'+
+      '<div class="s3u-f"><span class="s3u-l">Email</span><input class="s3-input" value="'+esc(p.email)+'" disabled><span class="s3u-help">Your sign-in email. Ask an Admin to change it.</span></div>'+
+      '<div class="s3u-f"><span class="s3u-l">My access</span><div class="s3u-acc"><span class="s3u-role">User</span><span class="s3u-sep"></span>'+userBrands().map(pill).join('')+'</div>'+
+        '<span class="s3u-help">Ask a Brand Admin to change your role or brands.</span></div>'+
+      '<div class="s3u-ft"><button type="button" class="s3-btn" data-s3u="save"'+(changed&&!empty?'':' disabled')+'>Save changes</button></div></section>'+
+      '<section class="s3-card s3u-card"><div class="s3u-h"><p class="s3u-t">Email notifications</p><p class="s3u-d">Sent to '+esc(p.email)+'. Account and billing emails are always sent.</p></div><div>'+
+      UN.map(function(n){ var on=U.n[n[0]];
+        return '<div class="s3u-row"><div><p class="s3u-rt">'+n[1]+'</p><p class="s3u-d">'+n[2]+
+          (n[0]==='weekly'?'<a class="s3u-link" href="../billing/billing-v2.html#tab=activity">View usage</a>':'')+'</p></div>'+
+          '<button type="button" role="switch" aria-checked="'+on+'" aria-label="'+n[1]+'" class="s3u-sw'+(on?' on':'')+'" data-s3usw="'+n[0]+'"></button></div>'; }).join('')+
+      '</div></section>';
+  }
+  function userSave(){
+    var U=S.u, v=U.draft.trim(); if (!v || v===U.saved) return;
+    if (S.fail){ toast('Couldn’t save your profile. Try again.', true); return; }
+    U.saved=v; U.draft=v; person(ME_USER).name=v; render(); toast('Profile saved');
+  }
+  function userToggle(k){
+    var U=S.u; U.n[k]=!U.n[k]; render();
+    if (S.fail){ setTimeout(function(){ U.n[k]=!U.n[k]; render(); toast('Couldn’t save your notification settings. Try again.', true); }, 400); return; }
+    toast('Notification preferences saved');
+  }
+
   /* ---------- render ---------- */
   function render(){
     var root=$('#setMain'); if (!root) return;
     if (S.tab!=='brands') S.tab='members';
     var tabs = [['members','Members'],['brands','Brands']];
-    var body = S.tab==='brands' ? renderBrands() : renderMembers();
-    root.innerHTML = '<div class="s3-head"><div><p class="s3-title">Settings</p><p class="s3-hsub">Manage members and who can work on each brand.</p></div><div class="s3-as"><span>Prototype · viewing as</span><div class="s3-seg">'+[['superadmin','Super Admin'],['admin','Account Admin'],['brandadmin','Brand Admin'],['user','User']].map(function(o){ return '<button type="button" class="'+(S.as===o[0]?'on':'')+'" data-s3as="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div><label class="s3-failt" title="Prototype only — role changes fail and roll back"><input type="checkbox" data-s3fail'+(S.fail?' checked':'')+'>Fail saves</label></div></div>'+
+    var body = isUser() ? '' : S.tab==='brands' ? renderBrands() : renderMembers();
+    var head = '<div class="s3-head"><div><p class="s3-title">Settings</p><p class="s3-hsub">'+(isUser()?'Manage your profile and the emails you get.':'Manage members and who can work on each brand.')+'</p></div><div class="s3-as"><span>Prototype · viewing as</span><div class="s3-seg">'+[['superadmin','Super Admin'],['admin','Account Admin'],['brandadmin','Brand Admin'],['user','User']].map(function(o){ return '<button type="button" class="'+(S.as===o[0]?'on':'')+'" data-s3as="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div><label class="s3-failt" title="Prototype only — role changes fail and roll back"><input type="checkbox" data-s3fail'+(S.fail?' checked':'')+'>Fail saves</label></div></div>';
+    root.innerHTML = isUser() ? '<div class="s3u">'+head+renderUser()+'</div>' : head+
       '<div class="s3-tabs">'+tabs.map(function(t){ return '<button type="button" class="s3-tab'+(S.tab===t[0]?' on':'')+'" data-s3tab="'+t[0]+'">'+t[1]+'</button>'; }).join('')+'</div>'+body;
     var bill=$('#navBilling'); if (bill) bill.hidden = false;   /* 10/26 모든 역할이 Billing 을 본다(주은님) */
     var u = person(me());
@@ -38018,6 +38077,8 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     function onClick(e){
       var t;
       if ((t=e.target.closest('[data-s3fail]'))){ S.fail=t.checked; writeHash(); return; }
+      if ((t=e.target.closest('[data-s3usw]'))){ userToggle(t.dataset.s3usw); return; }
+      if ((t=e.target.closest('[data-s3u]'))){ if (t.dataset.s3u==='save') userSave(); return; }
       if ((t=e.target.closest('[data-s3as]'))){ S.as=t.dataset.s3as; closeMenu(); render(); return; }
       if ((t=e.target.closest('[data-s3tab]'))){ S.tab=t.dataset.s3tab; closeMenu(); render(); return; }
       if ((t=e.target.closest('[data-s3mstatus]'))){ S.mStatus=t.dataset.s3mstatus; render(); return; }
@@ -38044,10 +38105,11 @@ body{margin:auto;padding:0;background:#e5e5e5;}
     });
     root.addEventListener('input', function(e){
       var id=e.target.id, pos=e.target.selectionStart;
+      if (id==='s3uName'){ S.u.draft=e.target.value; render(); var nu=$('#s3uName'); nu.focus(); nu.setSelectionRange(pos,pos); }
       if (id==='s3mq'){ S.mQ=e.target.value; render(); var n=$('#s3mq'); n.focus(); n.setSelectionRange(pos,pos); }
       if (id==='s3axq'){ S.axQ=e.target.value; render(); var n3=$('#s3axq'); n3.focus(); n3.setSelectionRange(pos,pos); }
     });
-    root.addEventListener('keydown', function(e){ if (e.target.id==='s3addq' && e.key==='Enter') addPerson(); });
+    root.addEventListener('keydown', function(e){ if (e.target.id==='s3addq' && e.key==='Enter') addPerson(); if (e.target.id==='s3uName' && e.key==='Enter') userSave(); });
     document.addEventListener('click', function(e){ var t=e.target.closest('#s3Menu [data-s3act]'); if (t){ e.stopPropagation(); act(t.dataset.s3act, t.dataset.id, t); } });
     document.addEventListener('keydown', function(e){ if (e.key==='Escape'){ if (S.menu) closeMenu(); else closeLayer(); } });
     document.addEventListener('input', function(e){ if (e.target.id!=='s3ibq') return; var q=e.target.value.trim().toLowerCase();
