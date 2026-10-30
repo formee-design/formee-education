@@ -2913,7 +2913,7 @@ const sec = (title,desc,body) => `<div class="fsec"><div class="sec-h"><h3>${tit
 const sw = (k,sm) => `<button type="button" class="switch ${sm?'sm':''} ${D()[k]?'on':''}" data-sw="${k}" aria-pressed="${!!D()[k]}"></button>`;
 const cbx = (k,t,s,o={}) => `<button type="button" class="cbx ${o.lg?'lg':''} ${D()[k]?'on':''} ${o.locked?'locked':''}" ${o.locked?'':`data-cb="${k}"`}><span class="box"><img src="assets/check-wh.svg" width="9.14" height="9.14" alt=""></span><span><div class="t">${t}</div>${s?`<div class="s">${s}</div>`:''}</span></button>`;
 const pills = (list,key) => list.map((x,i)=>`<span class="pill">${esc(x)}<img src="assets/chip-x.svg" width="14" height="14" alt="Remove" data-rm="${key}" data-i="${i}"></span>`).join('');
-const adder = key => `<span class="add-wrap"><span class="pill inp"><input data-addinp="${key}" placeholder="Type User Name"></span><button type="button" class="pill add" data-addbtn="${key}">Add</button></span>`;
+const adder = (key, ph='Type User Name') => `<span class="add-wrap"><span class="pill inp"><input data-addinp="${key}" placeholder="${ph}"></span><button type="button" class="pill add" data-addbtn="${key}">Add</button></span>`;
 
 function step1(){
   const d=D();
@@ -2967,7 +2967,7 @@ function step3(){
       `<div class="grid2">${fld('qualification','Basic Qualifications',{opts:OPT.qualification})}${fld('experience','Minimum Experience',{opts:OPT.experience,optional:true})}
        ${fld('gender','Gender Preferences',{opts:OPT.gender,optional:true})}</div>`)
    + sec('Skills','Used for the AI Match Score. Pick from suggestions or create your own.',
-      `<div class="chips">${pills(d.skills,'skills')}${sug.map(s=>`<button type="button" class="pill sug" data-sug="${esc(s)}">${esc(s)}<img src="assets/chip-plus.svg" width="14" height="14" alt=""></button>`).join('')}${adder('skills')}</div>`)
+      `<div class="chips">${pills(d.skills,'skills')}${sug.map(s=>`<button type="button" class="pill sug" data-sug="${esc(s)}">${esc(s)}<img src="assets/chip-plus.svg" width="14" height="14" alt=""></button>`).join('')}${adder('skills','Type Skill')}</div>`)
    + sec('Screening Questions','Asked on every application. Answers that miss a Must Have are flagged for review.',
       `<div class="stack12"><div class="q-list">${d.questions.map(qBlock).join('')}</div>
        <div class="row-between"><button type="button" class="sbtn-p" data-qadd><img src="assets/add-q.svg" width="14" height="14" alt="">Add Question</button>
