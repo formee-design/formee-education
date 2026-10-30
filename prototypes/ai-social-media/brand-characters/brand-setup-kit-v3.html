@@ -37766,9 +37766,9 @@ body{margin:auto;padding:0;background:#e5e5e5;}
       var rmWhy = p.status==='Invited' ? 'The invite link stops working' : isBA() ? 'They lose access to your brands' : 'They lose access to every brand';
       var tail = locked ? ''
         : (p.id===OWNER) ? '<button type="button" class="s3-resend" data-s3xfer="1">Transfer admin</button>'   /* Super Admin 만 — Figma K1(C안): Resend 와 같은 글자 버튼, 툴팁 없음, 누르면 바로 넘기기 모달 */
-        : '<button type="button" class="s3-more s3-trash" data-s3act-row="editaccess" data-id="'+p.id+'" aria-label="Edit roles"><img src="'+IC+'edit-pencil.svg" alt=""><span class="tip">Edit roles<i>Change roles per brand</i></span></button>'+   /* 10/28 브랜드 수와 상관없이 늘 여기서 — +N 목록은 보기만 */
+        : (isBA() ? '' : '<button type="button" class="s3-more s3-trash" data-s3act-row="editaccess" data-id="'+p.id+'" aria-label="Edit roles"><img src="'+IC+'edit-pencil.svg" alt=""><span class="tip">Edit roles<i>Change roles per brand</i></span></button>')+   /* 10/28 브랜드 수와 상관없이 늘 여기서 — +N 목록은 보기만. 10/30 Brand Admin 은 연필 없음(Supreet: User 로 두거나 빼기만 가능 → 휴지통만) */
           '<button type="button" class="s3-more s3-trash" data-s3rm="'+rmAct+'" data-id="'+p.id+'" aria-label="'+rmTip+'"><img src="'+IC+'edit-trash.svg" alt=""><span class="tip">'+rmTip+'<i>'+rmWhy+'</i></span></button>';
-      var editable = !locked && p.id!==OWNER;   /* 행을 누르면 Edit roles */
+      var editable = !locked && p.id!==OWNER && !isBA();   /* 행을 누르면 Edit roles — Brand Admin 은 연필이 없으니 행 클릭도 막음 */
       h += '<div class="s3-tr mrow'+(editable?' edit':'')+(S.menu===('m:'+p.id)?' hl':'')+'"'+(editable?' data-s3row="'+p.id+'"':'')+'><div class="s3-cm">'+ava(p)+who+'</div>'+
         '<div class="s3-cs">'+badge(p.status)+'</div>'+cols+
         '<div class="s3-ca">'+tail+'</div></div>';
