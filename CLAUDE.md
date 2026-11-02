@@ -32,3 +32,7 @@
 ## 제품별 스타일 레퍼런스
 
 - AI Social Media 제품 화면 작업 시 `components/ai-social-media/style-reference.md`를 항상 참고할 것.
+
+## Design QA
+
+- 스테이징 vs Figma 원본 디자인 QA 작업 시 `docs/design-qa-guide.md`를 항상 먼저 읽고 그 규칙대로 진행할 것.
