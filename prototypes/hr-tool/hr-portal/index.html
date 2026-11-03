@@ -749,9 +749,6 @@
   .ntf-tag{height:auto;padding:4px 8px;font-size:12px;line-height:normal}
   .ntf-row{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid var(--n200);cursor:pointer}
   .ntf-row:hover .ntf-b .t>span:first-child{color:var(--brand-primary)}
-  .ntf-ic{width:40px;height:40px;border-radius:10px;border:1px solid var(--n300);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .ntf-ic .nic{width:25px;height:25px;background:var(--n700)}
-  .ntf-row.unread .ntf-ic{background:#cad4ff;border-color:#cad4ff}
   .ntf-b{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
   .ntf-b .t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:500;font-size:14px;color:var(--n900)}
   .ntf-b .s{font-size:14px;line-height:normal;color:var(--n600)}
@@ -4204,7 +4201,6 @@ function ntfFeed(){
     return `<div class="ntf-gh"><span class="l">${g}</span><span class="badge ntf-tag ${n.length?'b-blue':'b-gray'}">${n.length?`${n.length} new`:l.length}</span>${n.length?`<button class="mk" data-ngread="${esc(n.map(o=>o.id).join('|'))}">Mark as read</button>`:''}</div>`; };
   const row = o => { const cat = ntfCat(o), un = ntfUnread(o), d = ntf.done.get(o.id);
     return `<div class="ntf-row ${un?'unread':''}" data-nid="${esc(o.id)}">
-      <span class="ntf-ic"><i class="nic" style="--ic:url(assets/nav-${NTF_MODS[o.mod].ic}.svg)" aria-hidden="true"></i></span>
       <div class="ntf-b"><div class="t"><span>${esc(o.title)}</span><span class="badge ntf-tag ${NTF_CATS[cat].b}">${cat}</span>${o.urgent&&!d?'<span class="badge ntf-tag b-red">Urgent</span>':''}</div>
         <div class="s">${esc(o.body)}</div><div class="m">${ntfAgo(o.ago)}</div>
         ${d ? `<div class="ntf-done">${cdIc(CD_I.ok,14)} ${esc(d.result)}</div>` : o.acts.length ? `<div class="ntf-acts">${o.acts.map(([l],j)=>`<button class="ntf-a ${j===0?'p':/^(Reject|Decline)/.test(l)?'red':''}" data-nact="${j}">${esc(ntfTitleCase(l))}</button>`).join('')}</div>` : ''}</div>
