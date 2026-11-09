@@ -293,6 +293,9 @@
   .versions-scene-grid{display:flex; gap:20px; align-items:flex-start; flex:1; min-width:0;}
   .versions-scene-grid-col{flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; align-items:flex-start;}
   .versions-scene-grid-col.detail{flex:none; width:400px;}
+  /* Image versions (max 4) always sit in 2 columns, so 4 lands as a 2x2 and 3 as 2+1 instead of
+     one shrinking row — picking between versions needs them large enough to compare. */
+  #versionGrid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--spacing-xl); align-items:start;}
   .versions-editor-col{width:358px; flex-shrink:0; display:flex; flex-direction:column; gap:24px;}
   .versions-segment-nav{display:flex; gap:6px;}
   #stageAreaImage .versions-editor-col .segment-nav-btn{width:28px; height:28px; border-radius:6px;}
