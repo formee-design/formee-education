@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Landing · Motion Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" aria-hidden="true"><i id="progress"></i></div>
+
+<div id="page">
+  <div class="bg-wash" aria-hidden="true"></div>
+  <div class="glow glow-a" data-mouse="-26" aria-hidden="true"></div>
+  <div class="glow glow-b" data-mouse="30" aria-hidden="true"></div>
+
+  <header class="nav-wrap" id="nav">
+    <nav class="nav">
+      <a class="nav-left" href="#top" aria-label="Pulse home">
+        <span class="logo"><img class="logo-mark" src="assets/logo-mark.svg" alt=""><img class="logo-word" src="assets/logo-word.svg" alt=""></span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <span class="nav-pill" aria-hidden="true"></span>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-right">
+        <a class="btn ghost" href="#">Log in</a>
+        <a class="btn" data-magnetic href="#pricing"><span>Start free</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <h1 class="d4" data-split data-auto>Your brand. Every post.<br><span class="muted">Made in minutes, not weeks.</span></h1>
+      <div class="prompt-group">
+        <div class="prompt r up" data-auto style="--d:.55s">
+          <p class="prompt-text"><span id="typed"></span><i class="caret"></i></p>
+          <div class="toolbar">
+            <div class="controls">
+              <button class="ctl"><i class="ratio"></i>9:16</button>
+              <button class="ctl"><img src="assets/ic-duration.svg" alt="">16s</button>
+              <button class="ctl"><img src="assets/ic-quality.svg" alt="">480p</button>
+              <button class="ctl"><img src="assets/ic-file.svg" alt="">Brief doc</button>
+            </div>
+            <button class="btn gen" id="generate" data-magnetic><span>Generate</span><span class="credit"><img src="assets/ic-zap.svg" alt="">20</span></button>
+          </div>
+        </div>
+        <div class="suggest r up" data-auto style="--d:.75s">
+          <span class="try">Try</span>
+          <button class="refine" data-prompt="Make it warmer and a little more playful, keep the same opening shot."><img src="assets/ic-refine.svg" alt=""><span>Refine with AI</span></button>
+          <button class="chip" data-prompt="Use this week’s trending format for our oat latte launch.">Use this week’s trending format</button>
+          <button class="chip" data-prompt="Weekend promo carousel for the new oat latte, five slides, bold headline.">Weekend promo carousel</button>
+          <button class="chip" data-prompt="Same post in Korean, keep the brand voice and the caption length.">Same post in Korean</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="made">
+      <div class="strip" id="strip">
+        <div class="ly card" data-depth="10" data-speed="-.035" style="left:240px;top:130px;width:200px;height:356px"><div class="r rise" style="--d:1.02s"><video class="card-video" src="assets/v1.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+        <div class="ly card" data-depth="18" data-speed=".03" style="left:456px;top:109px;width:224px;height:398px"><div class="r rise" style="--d:.92s"><video class="card-video" src="assets/v2.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+        <div class="ly card" data-depth="28" data-speed="-.06" style="left:696px;top:80px;width:256px;height:455px"><div class="r rise" style="--d:.82s"><video class="card-video" src="assets/v3.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+        <div class="ly card" data-depth="28" data-speed=".05" style="left:968px;top:80px;width:256px;height:455px"><div class="r rise" style="--d:.86s"><video class="card-video" src="assets/v4.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+        <div class="ly card" data-depth="18" data-speed="-.03" style="left:1240px;top:109px;width:224px;height:398px"><div class="r rise" style="--d:.96s"><video class="card-video" src="assets/v5.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+        <div class="ly card" data-depth="10" data-speed=".04" style="left:1480px;top:130px;width:200px;height:356px"><div class="r rise" style="--d:1.06s"><video class="card-video" src="assets/v6.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+      </div>
+      <div class="trust">
+        <p class="r fade">Trusted by teams at</p>
+        <div class="marquee r fade" style="--d:.1s" id="logos" aria-label="Customer logos">
+          <div class="marquee-track" id="logoTrack"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat r up"><strong data-count="10" data-suffix="x">10x</strong><span>Faster from brief to post</span></div>
+      <div class="stat r up" style="--d:.1s"><strong data-count="80" data-suffix="%">80%</strong><span>Fewer rounds of revisions</span></div>
+      <div class="stat r up" style="--d:.2s"><strong data-count="250" data-suffix="K+">250K+</strong><span>Posts made with Pulse</span></div>
+      <div class="stat r up" style="--d:.3s"><strong data-count="50" data-suffix="+">50+</strong><span>Brands in one workspace</span></div>
+    </section>
+
+    <section class="perf">
+      <div class="head">
+        <h2 class="d3" data-split>A week of posts, made in minutes</h2>
+        <p class="body16 w720 r up" style="--d:.3s">Plan Monday to Sunday in one sitting. Images, videos and carousels, all in your brand, without a shoot or an agency.</p>
+      </div>
+      <div class="demo-stage" id="demoStage"><div class="demo" id="demo"><video id="demoVideo" src="assets/demo.mp4" poster="assets/demo.png" muted loop playsinline preload="auto" aria-label="Pulse product demo"></video></div></div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="head">
+        <h2 class="d3 fill-words" data-fill>Everything your brand posts,<br>made in one place</h2>
+        <p class="body18 w720 r up">Set up your brand once. Pulse keeps every image, video and carousel on brand, with the same faces and voices your audience already knows.</p>
+      </div>
+
+      <article class="row">
+        <div class="copy">
+          <small class="r up">Brand Kit</small>
+          <h3 class="d1" data-split>Every post starts<br><span class="muted">from your brand.</span></h3>
+          <p class="body18 r up" style="--d:.2s">Add your logo, colors, fonts and voice once. Pulse uses them in every image, video and carousel, so new posts look like your team made them.</p>
+          <ul class="bullets">
+            <li class="r left" style="--d:.3s">Your logo and colors on every post</li>
+            <li class="r left" style="--d:.38s">Your fonts, not a template’s</li>
+            <li class="r left" style="--d:.46s">Captions written in your brand voice</li>
+          </ul>
+        </div>
+        <div class="panel right clip r panel-in" data-tilt>
+          <div class="ly" data-depth="8" style="left:130px;top:28px;width:576px;height:576px"><div class="r scale" style="--d:.1s"><img src="assets/f1-base.png" alt=""></div></div>
+          <div class="ly" data-depth="26" style="left:10px;top:360px;width:352px;height:130px"><div class="r left" style="--d:.55s"><img class="float a" src="assets/f1-glass.png" alt=""></div></div>
+          <div class="ly" data-depth="30" style="left:223px;top:436px;width:22px;height:22px"><div class="r pop" style="--d:0.95s"><img class="cur wander a" src="assets/cursor-pink.svg" alt=""></div></div>
+          <div class="ly" data-depth="16" style="left:445px;top:82px;width:194.88px;height:120.64px"><div class="r draw" style="--d:0.7s"><div class="sel" style="--h:12px"><i></i><i></i><i></i><i></i></div></div></div>
+          <div class="ly" data-depth="22" style="left:418px;top:14px;width:105px;height:38px"><div class="r drop" style="--d:.85s"><img src="assets/f1-tag-font.png" alt=""></div></div>
+          <div class="ly" data-depth="22" style="left:527px;top:14px;width:115px;height:38px"><div class="r drop" style="--d:.95s"><img src="assets/f1-tag-voice.png" alt=""></div></div>
+          <div class="ly" data-depth="34" style="left:616px;top:291px;width:162px;height:106px"><div class="r right" style="--d:.65s"><img class="float b" src="assets/f1-colors.png" alt=""></div></div>
+          <div class="ly" data-depth="38" style="left:622px;top:247px;width:31px;height:31px"><div class="r pop" style="--d:1.05s"><img class="cur wander b" src="assets/cursor-blue.svg" alt=""></div></div>
+        </div>
+      </article>
+
+      <article class="row flip">
+        <div class="panel left r panel-in" data-tilt>
+          <div class="ly" data-depth="10" style="left:39px;top:33px;width:431.2px;height:565.6px"><div class="r scale" style="--d:.1s"><img src="assets/w-media.png" alt=""></div></div>
+          <div class="ly" data-depth="26" style="left:287.4px;top:315.8px;width:448.6px;height:209.8px"><div class="r up" style="--d:.65s"><img class="float a" src="assets/w-prompt.png" alt=""></div></div>
+          <div class="ly" data-depth="32" style="left:403.3px;top:80.6px;width:403.2px;height:268px"><div class="r right" style="--d:.45s"><div class="scan"><img class="float b" src="assets/w-timeline.png" alt=""><i></i></div></div></div>
+        </div>
+        <div class="copy">
+          <small class="r up">Trends</small>
+          <h3 class="d1" data-split>Turn what is working<br><span class="muted">into your next prompt.</span></h3>
+          <p class="body18 r up" style="--d:.2s">Pulse watches trending Reels and TikToks in your industry, breaks down why they work, and writes a prompt for your brand.</p>
+          <ul class="bullets">
+            <li class="r left" style="--d:.3s">Trending Reels and TikToks in your industry</li>
+            <li class="r left" style="--d:.38s">Hook, format and pacing, broken down</li>
+            <li class="r left" style="--d:.46s">A ready-to-use prompt in your brand</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="copy">
+          <small class="r up">Create, edit, publish</small>
+          <h3 class="d1" data-split>One flow,<br><span class="muted">from idea to posted.</span></h3>
+          <p class="body18 r up" style="--d:.2s">Pulse makes the post, lets you fix any detail in the editor, and publishes it to your accounts. No exporting, no switching tools.</p>
+          <a class="btn r up" style="--d:.32s" data-magnetic href="#"><span>See the editor</span></a>
+        </div>
+        <div class="panel right clip r panel-in" data-tilt>
+          <div class="ly" data-depth="8" style="left:2px;top:121.9px;width:799px;height:388.3px"><div class="r wipe" style="--d:.15s"><img src="assets/f2-stages.png" alt=""></div></div>
+          <div class="ly" data-depth="28" style="left:24px;top:131.875px;width:177px;height:52px"><div class="r stick" style="--d:.8s"><div class="tilt" style="--rot:4deg"><div class="sticker yellow wiggle"><b>Your first draft</b></div></div></div></div>
+          <div class="ly" data-depth="24" style="left:562px;top:476.185px;width:185px;height:48px"><div class="r stick2" style="--d:1.5s"><div class="tilt" style="--rot:-3deg"><div class="sticker small"><b>From editor to feed</b></div></div></div></div>
+          <div class="ly" data-depth="24" style="left:627px;top:419px;width:53px;height:54px"><div class="r trace" style="--d:1.25s"><img src="assets/arrow.svg" alt=""></div></div>
+          <div class="ly" data-depth="16" style="left:446.12px;top:263.96px;width:46.31px;height:46.31px"><div class="r draw" style="--d:0.9s"><div class="sel" style="--h:9px"><i></i><i></i><i></i><i></i></div></div></div>
+          <div class="ly" data-depth="16" style="left:454.3px;top:314.3px;width:30px;height:30px"><div class="r pop" style="--d:1s"><img class="spin" src="assets/f2-rot-heart.png" alt=""></div></div>
+          <div class="ly" data-depth="30" style="left:486px;top:304px;width:29px;height:29px"><div class="r pop" style="--d:1.05s"><img class="cur wander a" src="assets/cursor-heart.svg" alt=""></div></div>
+          <div class="ly" data-depth="16" style="left:634.39px;top:171.34px;width:93.18px;height:64.77px"><div class="r draw" style="--d:1.15s"><div class="sel" style="--h:9px"><i></i><i></i><i></i><i></i></div></div></div>
+          <div class="ly" data-depth="16" style="left:666px;top:240.1px;width:30px;height:30px"><div class="r pop" style="--d:1.25s"><img class="spin" src="assets/f2-rot-cap.png" alt=""></div></div>
+          <div class="ly" data-depth="30" style="left:722px;top:230px;width:29px;height:29px"><div class="r pop" style="--d:1.3s"><img class="cur wander b" src="assets/cursor-cap.svg" alt=""></div></div>
+          <div class="ly" data-depth="34" style="left:246px;top:409px;width:326px;height:158px"><div class="r up" style="--d:.7s"><img class="float a" src="assets/f2-popover.png" alt=""></div></div>
+        </div>
+      </article>
+
+      <article class="row flip">
+        <div class="panel left r panel-in" data-tilt>
+          <div class="ly" data-depth="14" style="left:32px;top:49px;width:380px;height:534px"><div class="r left" style="--d:.15s"><img class="float a" src="assets/f4-post.png" alt=""></div></div>
+          <div class="ly" data-depth="26" style="left:355px;top:66px;width:416px;height:284px"><div class="r right" style="--d:.35s"><img class="float b" src="assets/f4-calendar.png" alt=""></div></div>
+          <div class="ly" data-depth="34" style="left:355px;top:294px;width:416px;height:244px"><div class="r up" style="--d:.55s"><img class="float c" src="assets/f4-publish.png" alt=""></div></div>
+        </div>
+        <div class="copy">
+          <small class="r up">Schedule and publish</small>
+          <h3 class="d1" data-split>Post to every account<br><span class="muted">from one calendar.</span></h3>
+          <p class="body18 r up" style="--d:.2s">Connect your social accounts once. Plan the week on one calendar, and Pulse publishes each post on time and shows what went out.</p>
+          <a class="btn r up" style="--d:.32s" data-magnetic href="#"><span>See scheduling</span></a>
+        </div>
+      </article>
+    </section>
+
+    <section class="how" id="how">
+      <div class="how-left">
+        <h2 class="d2" data-split>How to make on-brand posts with Pulse</h2>
+        <p class="body16 r up" style="--d:.25s">Set your brand once. Every post after that starts from it, so you never begin with a blank page.</p>
+        <a class="btn r up" style="--d:.35s" data-magnetic href="#pricing"><span>Start free</span></a>
+      </div>
+      <ol class="steps" id="steps">
+        <li><div class="rail"><b>01</b><i><u></u></i></div><div class="txt"><h4>Set up your Brand Kit</h4><p>Add your logo, colors, fonts and voice once. Pulse uses them in every post.</p></div></li>
+        <li><div class="rail"><b>02</b><i><u></u></i></div><div class="txt"><h4>Describe the post or pick a trend</h4><p>Type what you need, or start from a trend that is working in your industry right now.</p></div></li>
+        <li><div class="rail"><b>03</b><i><u></u></i></div><div class="txt"><h4>Refine it in plain words</h4><p>Say what to change, like “warmer light” or “shorter caption”. Pulse edits that part and keeps the rest.</p></div></li>
+        <li><div class="rail"><b>04</b></div><div class="txt last"><h4>Schedule or download</h4><p>Put it on the calendar to publish to your connected accounts, or download the file.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <div class="head">
+        <h2 class="d3" data-split>Start free. Pay for what you make.</h2>
+        <p class="body18 w640 r up" style="--d:.25s">Credits work the same on every plan. Bigger plans make longer, sharper videos.</p>
+      </div>
+      <div class="billing r up">
+        <div class="toggle" id="toggle" role="tablist">
+          <span class="thumb" aria-hidden="true"></span>
+          <button class="on" data-mode="monthly">Monthly</button>
+          <button data-mode="annual">Annual</button>
+        </div>
+        <span class="save">Save 15%</span>
+      </div>
+      <div class="plans" id="plans"></div>
+      <p class="foot r fade">Need more? Add 100 credits for $30. Purchased credits never expire. Pay yearly and save 15%, with credits added every month. Video examples are 8s at 720p.</p>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="faq-left"><h2 class="d2" data-split>Questions, answered.</h2></div>
+      <div class="faq-list" id="faqList"></div>
+    </section>
+
+    <section class="cta">
+      <div class="cta-head">
+        <h2 class="d3" data-split>Make this week’s posts today.</h2>
+        <p class="r up" style="--d:.25s">Your brand is already set up. Type what you need and Pulse does the rest.</p>
+        <a class="btn big shine r up" style="--d:.35s" data-magnetic href="#top"><span>Start creating for free</span></a>
+      </div>
+      <div class="wall r fade" id="wall"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="f-brand r up">
+      <span class="logo"><img class="logo-mark" src="assets/logo-mark.svg" alt=""><img class="logo-word" src="assets/logo-word.svg" alt=""></span>
+      <p>Make on-brand posts for every brand you run. Image, video and carousel, all in one workspace.</p>
+      <div class="social">
+        <a href="#" aria-label="Instagram"><img src="assets/so-ig.svg" alt=""></a>
+        <a href="#" aria-label="TikTok" class="tt"><img src="assets/so-tt.svg" alt=""></a>
+        <a href="#" aria-label="YouTube"><img src="assets/so-yt.svg" alt=""></a>
+        <a href="#" aria-label="LinkedIn"><img src="assets/so-li.svg" alt=""></a>
+        <a href="#" aria-label="Facebook"><img src="assets/so-fb.svg" alt=""></a>
+      </div>
+      <small>© Formee 2026</small>
+    </div>
+    <div class="f-col r up" style="--d:.08s"><h5>Features</h5><a href="#">Brand Kit</a><a href="#">Trends</a><a href="#">Editor</a><a href="#">Schedule and publish</a></div>
+    <div class="f-col r up" style="--d:.16s"><h5>Get started</h5><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#faq">What is a credit?</a><a href="#faq">FAQ</a></div>
+    <div class="f-col r up" style="--d:.24s"><h5>Company</h5><a href="#">About Formee</a><a href="#">Contact</a><a href="#">Terms of Use</a><a href="#">Privacy</a></div>
+  </footer>
+</div>
+<script src="main.js"></script>
+<script src="ab-switch.js"></script>
+</body>
+</html>
