@@ -139,3 +139,30 @@
   border-radius:3px; /* half of the 6px thumb width — no matching radius token at this scale */
   background:var(--color-neutral-400);
 }
+
+/* ---------- Menu / Item, Type=Model (Figma 15382:923830 Default / 15382:923832 Focused) ----------
+   Video model dropdown row (Brief & Style → model chip, "Model popover · Seedance" 14148:298300):
+   name + optional badge + max-resolution chip + duration-range chip, one-line description under it,
+   check on the selected row. The popover shell is a plain white card with the focus-card shadow. */
+.model-popover{
+  display:flex; flex-direction:column; gap:var(--spacing-xs); box-sizing:border-box; width:474px; padding:var(--spacing-sm);
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-200);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-focus-card);
+}
+.model-popover__title{margin:0; padding:7px var(--spacing-sm); font-family:var(--font-family-text); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-900);}
+.menu-item--model{
+  display:flex; align-items:flex-start; gap:var(--spacing-md); width:100%; box-sizing:border-box;
+  padding:10px var(--spacing-md) 10px 10px; /* Figma literal 10px (off the spacing scale) */
+  border:none; border-radius:var(--radius-md); background:var(--color-neutral-0); cursor:pointer; text-align:left;
+  font-family:var(--font-family-text);
+}
+.menu-item--model:hover{background:var(--color-neutral-50);}
+.menu-item--model.selected{background:var(--color-neutral-100); align-items:center;}
+.menu-item--model__text{flex:1 0 0; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-2); overflow:hidden;}
+.menu-item--model__title{display:flex; align-items:center; gap:6px; overflow:hidden;}
+.menu-item--model__name{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-medium); color:var(--color-neutral-900); white-space:nowrap;}
+.menu-item--model__desc{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-regular); color:var(--color-neutral-500);}
+.menu-item--model__chip{display:inline-flex; align-items:center; gap:var(--spacing-xs); padding:var(--spacing-2) var(--spacing-sm); border-radius:var(--radius-full); background:var(--color-neutral-150); font-size:var(--font-size-text-2xs); line-height:13px; font-weight:var(--font-weight-medium); color:var(--color-neutral-900); white-space:nowrap;}
+.menu-item--model__chip img{display:block; width:12px; height:12px;}
+.menu-item--model__check{width:16px; height:16px; flex-shrink:0; display:none;}
+.menu-item--model.selected .menu-item--model__check{display:block;}

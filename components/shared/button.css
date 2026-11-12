@@ -128,3 +128,9 @@
   line-height: var(--line-height-text-md);
   gap: var(--spacing-2);
 }
+
+/* Actions / Button — Credits (Figma 16211:429488 showCredits): optional trailing "⚡ N" cost,
+   12px bolt + number in the button's own 13/20 semibold. Dark buttons use icons/zap-white.svg,
+   secondary ones icons/zap-sm.svg tinted by the caller. */
+.btn-credits{display:inline-flex; align-items:center; gap:var(--spacing-2);}
+.btn-credits img{display:block; width:12px; height:12px;}

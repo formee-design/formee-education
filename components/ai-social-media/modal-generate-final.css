@@ -1,0 +1,24 @@
+/* Modal · Generate final — Figma FME_AI-Social-Media node 12480:221641
+   Shown after a 480p draft video: pick the final quality (HD · 720p / Full HD · 1080p) with each
+   option's credit cost (Est. credits pill, est-credits.css), a note, and Cancel / Generate final ⚡N
+   (Actions / Button · Credits, shared/button.css .btn-credits). Overlay = shared .modal-overlay (modal.css). */
+
+  .final-modal{width:560px; max-width:100%; display:flex; flex-direction:column; background:var(--color-neutral-0); border-radius:var(--radius-2xl); box-shadow:0 20px 48px rgba(0,0,0,0.18); /* Figma shadow/xl — differs from --shadow-modal */ overflow:hidden; font-family:var(--font-family-text);}
+  .final-modal__title-row{display:flex; align-items:center; justify-content:space-between; padding:28px 28px 20px 32px;}
+  .final-modal__title{margin:0; font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-bold); color:var(--color-neutral-900);}
+  .final-modal__close{width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:none; background:none; border-radius:var(--radius-lg); cursor:pointer;}
+  .final-modal__close:hover{background:var(--color-neutral-100);}
+  .final-modal__close img{width:24px; height:24px;}
+  .final-modal{min-height:466px;} /* Figma frame height */
+  .final-modal__body{flex:1 0 auto; display:flex; flex-direction:column; gap:var(--spacing-lg); padding:0 var(--spacing-4xl) var(--spacing-2xl);}
+  .final-modal__lead{margin:0; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-700);}
+  .final-modal__options{display:flex; flex-direction:column; gap:var(--spacing-md);}
+  .final-modal__note{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); color:var(--color-neutral-500);}
+  .final-option{display:flex; align-items:center; gap:var(--spacing-md); box-sizing:border-box; width:100%; padding:calc(14px - var(--border-width-1)) calc(var(--spacing-lg) - var(--border-width-1)); background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-300); border-radius:var(--radius-xl); cursor:pointer; text-align:left; font-family:inherit;} /* Figma py14 px16, stroke inside */
+  .final-option--selected{border:2px solid var(--color-brand-primary); padding:calc(14px - 2px) calc(var(--spacing-lg) - 2px);}
+  .final-option__radio{width:20px; height:20px; box-sizing:border-box; flex-shrink:0; border-radius:var(--radius-full); border:var(--border-width-1) solid var(--color-neutral-400); background:var(--color-neutral-0);}
+  .final-option--selected .final-option__radio{border:6px solid var(--color-neutral-900);}
+  .final-option__label{flex:1 0 0; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-2);}
+  .final-option__name{font-size:var(--font-size-text-xl); line-height:var(--line-height-text-xl); font-weight:var(--font-weight-medium); color:var(--color-neutral-900);}
+  .final-option__desc{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); color:var(--color-neutral-500);}
+  .final-modal__footer{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-md); padding:18px 28px 18px 32px; border-top:var(--border-width-1) solid var(--color-neutral-200);}

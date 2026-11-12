@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="../../../../components/ai-social-media/reference-chip.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/selector-card-voice.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/est-credits.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/modal-generate-final.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/ai-assistant.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/voice-accordion-row.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/voice-section.css">
@@ -1573,7 +1574,7 @@
   .setting-chip-wrap--voice{width:248px;}
   .setting-chip-wrap--voice .setting-chip{width:100%; box-sizing:border-box;}
   .setting-chip-wrap--voice .setting-chip b{flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  #subReelScript .stage-body-inner{max-width:calc(var(--spacing-7xl) * 16);}
+  #subReelScript .stage-body-inner, #subReelTimeline .stage-body-inner, #subReelVideo .stage-body-inner{max-width:calc(var(--spacing-7xl) * 16);}
   #subReelScript .draft-section{margin:var(--spacing-2xl) 0 0;}
   #subReelScript .draft-section-label{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); margin-bottom:var(--spacing-xs);}
   #subReelScript .draft-section-hint{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); margin:0 0 var(--spacing-md);}
@@ -1592,6 +1593,7 @@
   #stageAreaReel .script-limit-row.over{margin-top:var(--spacing-xs);}
   #stageAreaReel .script-limit-row.over .script-limit-count,
   #stageAreaReel .script-limit-error{font-size:var(--font-size-text-xs); line-height:normal; font-weight:var(--font-weight-medium);}
+  #modelPopover{position:absolute; top:calc(100% + var(--spacing-xs)); left:0; z-index:40;}
   #reelBrandKitSection .brand-kit-description{margin:0;}
   #reelBrandKitSection .brand-kit-toggle-row{height:23px;} /* Figma use-brand-kit-group: label 22 + 23px switch */
   #reelBrandKitEmpty .brand-kit-empty-row{padding:calc(var(--spacing-md) - var(--border-width-1)) calc(var(--spacing-lg) - var(--border-width-1));}
@@ -1607,6 +1609,78 @@
   /* Reset / Edit in Brand Kit are plain 13/20 text actions here (no button padding) */
   #reelBrandKitSummary .brand-kit-actions .actions-btn{padding:0; height:20px; min-height:0; background:none; box-shadow:none; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
   .brand-kit-text-style-pill span.none{font-family:var(--font-family-text); font-size:15px; font-weight:var(--font-weight-bold);}
+
+  /* ---- Video · Timeline (Figma 12480:221851 default · 12480:221756 generating · 12480:222259 thumbnail generated) ---- */
+  #subReelTimeline .stage-head-row, #subReelVideo .stage-head-row{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-lg); margin-bottom:var(--spacing-3xl);}
+  #subReelTimeline .stage-head-text .stage-title, #subReelVideo .stage-head-text .stage-title{margin:0 0 var(--spacing-xs);}
+  #subReelTimeline .stage-sub-text, #subReelVideo .stage-sub-text{margin:0; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); text-align:left;}
+  #subReelTimeline .timeline-stage, #subReelVideo .timeline-stage{gap:var(--spacing-4xl); max-width:none; width:100%;}
+  #subReelTimeline .timeline-canvas, #subReelVideo .timeline-canvas{flex:0 0 304px; width:304px;}
+  #subReelTimeline .scene-editor-col, #subReelVideo .scene-editor-col{flex:1 1 0; width:auto; min-width:0;}
+  #subReelTimeline .scene-tile, #subReelVideo .scene-tile{max-width:304px;}
+  #subReelTimeline .scene-tile-badge, #subReelVideo .scene-tile-badge{align-self:flex-end; background:rgba(71,80,105,0.6);} /* Figma: neutral-700 @ 60% */
+  #subReelTimeline .scene-tile-top-row{justify-content:flex-end; position:absolute; top:var(--spacing-lg); left:var(--spacing-lg); right:var(--spacing-lg); width:auto;}
+  #subReelTimeline .scene-tile[data-type="thumbnail"] .scene-tile-preview{background-size:cover; background-position:center;}
+  #subReelTimeline .scene-tile[data-type="thumbnail"] .scene-tile-badge{display:none;}
+  #subReelTimeline .scene-tile-line{font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); color:var(--color-neutral-700); padding:10px var(--spacing-lg);}
+  #timelineEditorPanel, #videoEditorPanel{gap:var(--spacing-2xl);}
+  #timelineEditorPanel .voice-section, #videoEditorPanel .voice-section{max-width:none;} /* Figma: the Voice Section instance is resized to the 680 column */
+  #videoEditorPanel .video-scene-editor{width:100%;}
+  /* locked spec chips (Seedance / 9:16 / duration / character once the thumbnail exists) + hover tooltip */
+  .setting-chip--locked{background:var(--color-neutral-100); color:var(--color-neutral-500); cursor:not-allowed; position:relative;}
+  .setting-chip--locked b, .setting-chip--locked .chip-ic img, .setting-chip--locked .ratio-icon i{opacity:.7;}
+  .setting-chip--locked:hover{background:var(--color-neutral-100); border-color:var(--color-neutral-400);}
+  .setting-chip--locked[data-tip]:hover::after{
+    content:attr(data-tip); position:absolute; top:calc(100% + var(--spacing-sm)); left:0; z-index:60; width:max-content; max-width:240px; white-space:normal;
+    padding:var(--spacing-sm) var(--spacing-md); background:var(--color-neutral-900); color:var(--color-neutral-0); border-radius:var(--radius-md);
+    font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-medium);
+  }
+
+  .btn-spinner{width:14px; height:14px; border-radius:var(--radius-full); border:2px solid rgba(255,255,255,.4); border-top-color:var(--color-neutral-0); animation:spin .8s linear infinite; margin-right:var(--spacing-sm); display:inline-block; vertical-align:-2px;}
+  /* Video stage heading row + upgrade pill */
+  #videoStageHeadingDefault.stage-head-row{display:flex;}
+  #combineResultHeading .versions-chooser-head{align-items:flex-start;}
+  .stage-head-actions{display:flex; align-items:center; gap:var(--spacing-md);}
+  .upgrade-1080-btn{height:30px; padding:0 var(--spacing-md); border-radius:var(--radius-full); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-medium);}
+  .btn-credits--blue{color:var(--color-brand-primary); font-weight:var(--font-weight-bold); font-size:var(--font-size-text-2xs);}
+  #subReelVideo .scene-tile-top-row{justify-content:flex-end; position:absolute; top:var(--spacing-lg); left:var(--spacing-lg); right:var(--spacing-lg); width:auto;}
+  #subReelVideo .scene-tile[data-type="video"] .scene-tile-preview{background-size:cover; background-position:center; justify-content:flex-end;}
+  #subReelVideo .scene-tile-line{font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); color:var(--color-neutral-700); padding:10px var(--spacing-lg);}
+  #stageAreaReel .stage-tab{display:flex; align-items:center; justify-content:center; gap:var(--spacing-xs);}
+  #stageAreaReel .stage-tab .tab-check{width:16px; height:16px; display:block;}
+  /* Lightbox = "Modal / Dialog · Fit · 9:16" (Figma 14149:652876): single image, bare X, Download — no Scene selector or paging */
+  .reel-lightbox-pills, .reel-lightbox-nav, .video-lightbox-pills, .video-lightbox-nav{display:none;}
+  .reel-lightbox-header, .video-lightbox-header{justify-content:flex-end;}
+  .reel-lightbox-close, .video-lightbox-close{border:none; background:none; box-shadow:none; width:36px; height:36px;}
+  .reel-lightbox-close img, .video-lightbox-close img{width:24px; height:24px;}
+
+  /* ---- Image post · Generate (Figma 12480:214973 / 215075 / 215465 / 215651): same 1024 column + 36px Controls chips as Video ---- */
+  #stageAreaImage .stage-tabs{padding:var(--spacing-2xl) 0 var(--spacing-2); border-bottom:0; max-width:1024px;}
+  #stageAreaImage .stage-tab{box-sizing:border-box; height:36px; padding:5px var(--spacing-lg) 0; line-height:22px; border-bottom:var(--border-width-1) solid var(--color-neutral-300); display:flex; align-items:center; justify-content:center; gap:var(--spacing-xs);}
+  #stageAreaImage .stage-tab.active{border-bottom:2px solid var(--color-neutral-800);}
+  #stageAreaImage .stage-tab .tab-check{width:16px; height:16px; display:block;}
+  #stageAreaImage:has(#tabDraft.active) .stage-tabs{margin-bottom:0;}
+  #stageAreaImage #settingsBarImage{align-items:center; margin-top:0; padding:var(--spacing-xl) 0 0; margin-bottom:0;}
+  #stageAreaImage #settingsBarImage .setting-chip{padding:6px 11px 6px 9px;}
+  #stageAreaImage #settingsBarImage .setting-chip .dot-sep{background:var(--color-neutral-500);}
+  #stageAreaImage .stage-body-inner, #stageAreaImage #subDraft .stage-body-inner{max-width:calc(var(--spacing-7xl) * 16);}
+  #stageAreaImage .stage-body{padding-top:var(--spacing-3xl);}
+  #stageAreaImage .text-placement-controls{flex-direction:column; align-items:flex-start; gap:var(--spacing-md);}
+  #stageAreaImage #subDraft .stage-body{padding-top:var(--spacing-3xl);}
+  #versionsStatus{display:none;} /* not in Figma 12480:215651 */
+
+  /* ---- Carousel · Generate (Figma 12480:213146 …): same tab row / 36px Controls chips / 1024 column as Image & Video ---- */
+  #stageAreaCarousel .stage-tabs{padding:var(--spacing-2xl) 0 var(--spacing-2); border-bottom:0; max-width:1024px; gap:0; justify-content:stretch;}
+  #stageAreaCarousel .stage-tab{flex:1; text-align:center; box-sizing:border-box; height:36px; padding:5px var(--spacing-lg) 0; line-height:22px; font-size:14px; font-weight:500; border-bottom:var(--border-width-1) solid var(--color-neutral-300); display:flex; align-items:center; justify-content:center; gap:var(--spacing-xs);}
+  #stageAreaCarousel .stage-tab.active{font-weight:700; color:var(--color-neutral-800); border-bottom:2px solid var(--color-neutral-800);}
+  #stageAreaCarousel .stage-tab .tab-check{width:16px; height:16px; display:block;}
+  #stageAreaCarousel .settings-bar{position:static; align-items:center; padding:var(--spacing-xl) 0 0; gap:var(--spacing-md); flex-wrap:wrap; justify-content:center;}
+  #stageAreaCarousel .settings-bar .setting-chip{padding:6px 11px 6px 9px;}
+  #stageAreaCarousel .settings-bar .setting-chip .dot-sep{background:var(--color-neutral-500);}
+  #stageAreaCarousel .stage-body-inner{max-width:calc(var(--spacing-7xl) * 16);}
+  #stageAreaCarousel .stage-body{padding-top:var(--spacing-3xl);}
+  #stageAreaCarousel .text-placement-controls{gap:var(--spacing-xl);}
+  #subScript .script-card-msg{box-sizing:border-box; width:100%; min-height:46px; height:46px; padding:var(--spacing-md) 14px; resize:vertical; line-height:var(--line-height-text-md); font-size:var(--font-size-text-md);} /* Figma: 46px single-line field */
 </style>
 <body>
 
@@ -1841,7 +1915,14 @@
             <div class="prompt-chips">
               <!-- Figma 12480:219504 "AI / Prompt Box" controls-row: model · ratio · duration · quality · Brief doc.
                    Seedance 2.5 and Brief doc are display-only chips for now (no dropdown is drawn in Figma). -->
-              <div class="prompt-chip" id="videoModelChip"><img class="ic-img" src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""><span>Seedance 2.5</span></div>
+              <div class="prompt-chip-wrap" id="videoModelChipWrap">
+                <div class="prompt-chip clickable" id="videoModelChip" onclick="toggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""><span id="videoModelChipText">Seedance 2.5</span></div>
+                <!-- Figma 14148:298300 "Model popover · Seedance" — Menu / Item Type=Model rows -->
+                <div class="model-popover" id="modelPopover" style="display:none;" onclick="event.stopPropagation();">
+                  <p class="model-popover__title">Model</p>
+                  <button type="button" class="menu-item--model selected" data-model="Seedance 2.5" onclick="selectVideoModel('Seedance 2.5')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.5</span><span class="feedback-status-chip feedback-status-chip--blue">New</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–30s</span></span><span class="menu-item--model__desc">Highest quality with advanced references</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 2.0" onclick="selectVideoModel('Seedance 2.0')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.0</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–15s</span></span><span class="menu-item--model__desc">High-quality videos with precise motion and creative control</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 2.0 Fast" onclick="selectVideoModel('Seedance 2.0 Fast')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.0 Fast</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">720p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–15s</span></span><span class="menu-item--model__desc">Faster generation with balanced quality</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 1.0 Pro" onclick="selectVideoModel('Seedance 1.0 Pro')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 1.0 Pro</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">2–12s</span></span><span class="menu-item--model__desc">Cinematic multi-shot videos with smooth, dynamic motion</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+                </div>
+              </div>
               <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-9-16.svg" alt=""><span>9:16</span></div>
               <div class="prompt-chip-wrap" id="durationChipWrap">
                 <div class="prompt-chip clickable" onclick="toggleDurationPopover(event)">
@@ -2238,10 +2319,14 @@
           </div>
 
           <div class="settings-bar" id="settingsBarImage" aria-label="Image post settings">
-            <div class="setting-chip"><div class="chip-ic"><img id="genSettingRatioIconImage" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""></div><b id="genSettingRatioImage">4:5</b></div>
-            <div class="setting-chip"><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""></div><b id="genSettingVersionsImage">2 Versions</b></div>
+            <!-- Figma controls-row (15003:714382): model · quality · ratio · versions · character · Est. credits.
+                 Model / quality are display-only (the Image brief has no pickers for them yet). -->
+            <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/cpu.svg" alt=""></div><b id="genSettingModelImage">Nano Banana</b></div>
+            <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></div><b>HD</b></div>
+            <div class="setting-chip" data-lockable-img><div class="chip-ic"><img id="genSettingRatioIconImage" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""></div><b id="genSettingRatioImage">4:5</b></div>
+            <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""></div><b id="genSettingVersionsImage">2 Versions</b></div>
             <div class="setting-chip-wrap" id="characterChipWrapImage">
-              <div class="setting-chip clickable" id="genSettingCharacterChipImage" onclick="toggleImgCharacterPopover(event)"><span class="character-avatar"><img src="../../../../components/ai-social-media/icons/menu-image.svg" alt=""></span><span>Character</span><span class="dot-sep" aria-hidden="true"></span><b id="genSettingCharacterImage">Elena</b><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span></div>
+              <div class="setting-chip clickable" id="genSettingCharacterChipImage" onclick="toggleImgCharacterPopover(event)"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/user-round.svg" alt=""></span><span>Character</span><span class="dot-sep" aria-hidden="true"></span><b id="genSettingCharacterImage">Elena</b></div>
               <div class="char-replace-popover" id="imgCharacterPopover" style="display:none;">
                 <div class="char-replace-header"><img src="../../../../components/ai-social-media/icons/arrow-down-up.svg" alt="">Change Character</div>
                 <div class="char-replace-carousel">
@@ -2251,6 +2336,7 @@
                 </div>
               </div>
             </div>
+            <div class="est-credits" id="genEstCreditsImage"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="genEstCreditsImageValue">20</span></span></div>
             <div class="setting-chip brand-chip-setting" id="brandSettingChipImage" style="display:none;">🏷 Brand: <b>Formee Express</b></div>
           </div>
 
@@ -2276,7 +2362,7 @@
                    visible standalone section, same pattern/state as Reel/Short's own (see
                    TEXT_PLACEMENT_STANDALONE_SCOPES / renderTextPlacementSection('img')). -->
               <div class="draft-section draft-section-placement" id="imgTextPlacementSection">
-                <div class="draft-section-label">Text placement</div>
+                <div class="draft-section-label draft-section-label--dotted">Text<span class="dot-sep"></span>Graphics placement</div>
                 <p class="draft-section-hint">How the texts and graphics should appear on the image.</p>
                 <div class="text-placement-controls">
                   <div class="controls-segmented-control" id="imgTextPlacementSeg"></div>
@@ -2322,7 +2408,7 @@
                     <div class="scene-card">
                       <div class="scene-card-head-row">
                         <span class="scene-card-head-label">Image prompt</span>
-                        <button type="button" class="img-prompt-regen-btn" id="versionsRegenBtn" onclick="regenerateActiveVersion()">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">5</span></button>
+                        <button type="button" class="img-prompt-regen-btn" id="versionsRegenBtn" onclick="regenerateActiveVersion()">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">1</span></button>
                       </div>
                       <div class="scene-desc-box"><textarea class="scene-desc" id="versionsPromptText" oninput="onVersionsPromptEdited()"></textarea></div>
                       <p class="scene-note">Auto-drafted from your Copy and Visual concept in the Draft step</p>
@@ -2382,7 +2468,7 @@
                   <div class="scene-card">
                     <div class="scene-card-head-row">
                       <span class="scene-card-head-label">Image prompt</span>
-                      <button type="button" class="img-prompt-regen-btn used" id="refineRegenBtn" onclick="regenerateWithPrompt()" disabled><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt="">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">8</span></button>
+                      <button type="button" class="img-prompt-regen-btn used" id="refineRegenBtn" onclick="regenerateWithPrompt()" disabled><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt="">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">1</span></button>
                     </div>
                     <div class="scene-desc-box"><textarea class="scene-desc" id="refineEditInput" oninput="onRefinePromptEdited()"></textarea></div>
                     <p class="scene-note">Auto-drafted from your Copy and Visual concept in the Draft step</p>
@@ -2411,10 +2497,13 @@
                Cards count, Character. No type-label or language chip (Figma doesn't show them
                here); Brand chip stays conditional, matching the Image flow's convention. -->
           <div class="settings-bar" id="settingsBarCarousel">
+            <!-- Figma controls-row (12480:213146): model · quality · ratio · cards · character · Est. credits (model / quality display-only) -->
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/cpu.svg" alt=""></span><b>Nano Banana</b></div>
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></span><b>HD</b></div>
             <div class="setting-chip"><span class="ratio-icon"><i></i></span><b id="genSettingRatioCarousel">4:5</b></div>
-            <div class="setting-chip"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" class="icon-inline" alt=""><b id="genSettingCards">5 cards</b></div>
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""></span><b id="genSettingCards">5 Cards</b></div>
             <div class="setting-chip-wrap" id="carouselCharacterChipWrap" style="display:none;">
-              <div class="setting-chip clickable" id="carouselCharacterChip" onclick="toggleCarCharacterPopover(event)"><span class="avatar-mini"></span>Character<span class="dot-sep"></span><b id="genSettingCharacterCarousel">Elena</b><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span></div>
+              <div class="setting-chip clickable" id="carouselCharacterChip" onclick="toggleCarCharacterPopover(event)"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/user-round.svg" alt=""></span>Character<span class="dot-sep"></span><b id="genSettingCharacterCarousel">Elena</b></div>
               <div class="char-replace-popover" id="carCharacterPopover" style="display:none;">
                 <div class="char-replace-header"><img src="../../../../components/ai-social-media/icons/arrow-down-up.svg" alt="">Change Character</div>
                 <div class="char-replace-carousel">
@@ -2424,6 +2513,7 @@
                 </div>
               </div>
             </div>
+            <div class="est-credits" id="genEstCreditsCarousel"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
             <div class="setting-chip brand-chip-setting" id="brandSettingChipCarousel" style="display:none;">🏷 Brand: <b>Formee Express</b></div>
           </div>
 
@@ -2439,7 +2529,7 @@
                    always-visible standalone section, same pattern/state as Reel/Short and
                    Image post (see TEXT_PLACEMENT_STANDALONE_SCOPES / renderTextPlacementSection('car')). -->
               <div class="draft-section draft-section-placement" id="carTextPlacementSection">
-                <div class="draft-section-label">Text placement</div>
+                <div class="draft-section-label draft-section-label--dotted">Text<span class="dot-sep"></span>Graphics placement</div>
                 <p class="draft-section-hint">How the headline, subhead/body, and call to action should appear on each card.</p>
                 <div class="text-placement-controls">
                   <div class="controls-segmented-control" id="carTextPlacementSeg"></div>
@@ -2465,7 +2555,7 @@
                    Regenerate All/Regenerate Card N — node 6566-115391), but kept in the DOM as
                    the hidden source syncGenActionBarV3() mirrors text/onclick from. -->
               <div class="stage-cta-row" style="display:none;">
-                <button class="btn btn-dark" id="confirmScriptBtn" data-chat-action="carConfirmScript" onclick="confirmScript()">Confirm & continue to Storyboard →</button>
+                <button class="btn btn-dark" id="confirmScriptBtn" data-chat-action="carConfirmScript" onclick="confirmScript()">Continue to Storyboard</button>
               </div>
             </div></div>
           </div>
@@ -2560,10 +2650,10 @@
           <!-- persistent settings bar — Figma "controls-row" (15001:712212): Controls chips (36h, no
                chevrons) + Est. credits. Seedance 2.5 / 480p mirror the Brief & Style chips (display-only). -->
           <div class="settings-bar" id="settingsBar">
-            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""></span>Seedance 2.5</div>
-            <div class="setting-chip"><span class="ratio-icon"><i></i></span>9:16</div>
+            <div class="setting-chip" data-lockable data-locked-tip="Locked once the thumbnail is generated — go back to Script to change it."><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""></span><span id="genSettingModel">Seedance 2.5</span></div>
+            <div class="setting-chip" data-lockable data-locked-tip="Locked once the thumbnail is generated — go back to Script to change it."><span class="ratio-icon"><i></i></span>9:16</div>
             <div class="setting-chip-wrap" id="durationSettingChipWrap">
-              <div class="setting-chip clickable" onclick="toggleSettingPopover(event,'duration')"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt=""></span><span id="genSettingDuration">16s</span></div>
+              <div class="setting-chip clickable" data-lockable data-locked-tip="Locked once the thumbnail is generated — go back to Script to change it." onclick="toggleSettingPopover(event,'duration')"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt=""></span><span id="genSettingDuration">16s</span></div>
               <div class="setting-popover" id="durationSettingPopover" style="display:none;">
                 <div class="controls-option-popover__header">Duration</div>
                 <button type="button" class="controls-option-row" data-seconds="8" onclick="selectDuration(8)"><span>8 seconds</span></button>
@@ -2575,7 +2665,7 @@
             <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></span><span id="genSettingQuality">480p</span></div>
 
             <div class="setting-chip-wrap" id="characterChipWrap">
-              <div class="setting-chip clickable" onclick="toggleSettingPopover(event,'character')">
+              <div class="setting-chip clickable" data-lockable data-locked-tip="Character can only be changed on Script. Go back and regenerate the thumbnail." onclick="toggleSettingPopover(event,'character')">
                 <span class="chip-ic"><img src="../../../../components/ai-social-media/icons/user-round.svg" alt=""></span>Character<span class="dot-sep"></span><b id="settingCharacter">Elena</b>
               </div>
               <div class="char-replace-popover" id="characterPopover" style="display:none;">
@@ -2700,14 +2790,19 @@
           <div class="stage-sub" id="subReelTimeline" style="display:none;">
             <div class="stage-body">
             <div class="stage-body-inner">
-              <h2 class="stage-title">Timeline</h2>
-              <p class="stage-sub-text">Confirm the dialogue and scene description for each segment, then generate a reference image for each.</p>
+              <div class="stage-head-row">
+                <div class="stage-head-text">
+                  <h2 class="stage-title">Timeline</h2>
+                  <p class="stage-sub-text">Confirm the dialogue and scene description, then generate a thumbnail.</p>
+                </div>
+                <button type="button" class="btn btn-secondary download-all-btn" id="timelineDownloadBtn" style="display:none;" onclick="downloadReelThumb(1)"><img src="../../../../components/ai-social-media/icons/download-ui.svg" class="icon-inline" alt="">Download</button>
+              </div>
               <div class="timeline-stage">
                 <div class="timeline-canvas">
                   <div class="video-grid" id="timelineGrid"></div>
                 </div>
                 <div class="scene-editor-col">
-                  <div class="scene-nav" id="timelineSegmentNav"></div>
+                  <div class="scene-nav" id="timelineSegmentNav" style="display:none;"></div>
                   <div class="scene-editor-panel" id="timelineEditorPanel"></div>
                   <!-- Hidden — mirrors syncGenActionBarV3()'s forward-progress pattern; the
                        bottom action bar's CTA on this tab is "Generate Thumbnails". -->
@@ -2716,7 +2811,7 @@
                          above: this hidden button feeds the persistent bottom action bar's
                          disabled state on every tab revisit, so it must never be disabled
                          itself. Only the chat card's own button copy does. -->
-                    <button class="btn btn-dark" id="timelineGenerateThumbsBtn" data-chat-action="generateReferenceImages" onclick="generateScriptThumbnails()">Generate Reference Images</button>
+                    <button class="btn btn-dark" id="timelineGenerateThumbsBtn" data-chat-action="generateReferenceImages" onclick="generateScriptThumbnails()">Generate Thumbnails</button>
                   </div>
                 </div>
               </div>
@@ -2728,9 +2823,12 @@
           <div class="stage-sub" id="subReelVideo" style="display:none;">
             <div class="stage-body">
             <div class="stage-body-inner">
-              <div id="videoStageHeadingDefault">
-                <h2 class="stage-title">Video</h2>
-                <p class="stage-sub-text" id="studioStageSub">Generate an 8-second video clip for each part of the video, then combine them into the final cut. The narration audio from Script carries over automatically.</p>
+              <div id="videoStageHeadingDefault" class="stage-head-row">
+                <div class="stage-head-text">
+                  <h2 class="stage-title">Video</h2>
+                  <p class="stage-sub-text" id="studioStageSub">Generate your video from the prompt. The narration from Timeline carries over automatically.</p>
+                </div>
+                <button type="button" class="btn btn-secondary download-all-btn" id="videoDownloadBtn" style="display:none;" onclick="downloadVideoScene(1)"><img src="../../../../components/ai-social-media/icons/download-ui.svg" class="icon-inline" alt="">Download</button>
               </div>
 
               <!-- Figma 8727:220241 "Reel/Short · Timeline - Video" (post-combine state) --
@@ -2741,13 +2839,16 @@
                    .download-all-btn), rather than the old plain underlined text link that used
                    to sit at the bottom of the sidebar for this. -->
               <div id="combineResultHeading" style="display:none;">
-                <button type="button" class="preview-back-row" onclick="backToSceneVideos()"><img src="../../../../components/ai-social-media/icons/back.svg" class="icon-inline" alt="">Back to scene videos</button>
+                <button type="button" class="preview-back-row" onclick="backToSceneVideos()"><img src="../../../../components/ai-social-media/icons/back.svg" class="icon-inline" alt="">Back to edit</button>
                 <div class="versions-chooser-head">
                   <div class="versions-chooser-head-text">
                     <h2 class="stage-title">Your Video is ready</h2>
                     <p class="stage-sub-text">Your final video is ready. Edit it with our built-in tools, or publish it now.</p>
                   </div>
-                  <button type="button" class="btn btn-secondary download-all-btn" onclick="downloadCombinedVideo()"><img src="../../../../components/ai-social-media/icons/download-ui.svg" class="icon-inline" alt="">Download</button>
+                  <div class="stage-head-actions">
+                    <button type="button" class="btn btn-secondary upgrade-1080-btn" id="upgrade1080Btn" style="display:none;" onclick="upgradeTo1080()">Upgrade to 1080p <span class="btn-credits btn-credits--blue"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="upgrade1080Cost">90</span></span></button>
+                    <button type="button" class="btn btn-secondary download-all-btn" onclick="downloadCombinedVideo()"><img src="../../../../components/ai-social-media/icons/download-ui.svg" class="icon-inline" alt="">Download</button>
+                  </div>
                 </div>
               </div>
 
@@ -2772,8 +2873,8 @@
                        Regenerate Card N (node 6566-115391). Kept in the DOM as the hidden source
                        syncGenActionBarV3()/updateVideoCta() drive text/onclick from. -->
                   <div class="video-cta-row" id="videoCtaRow" style="display:none;">
-                    <button class="btn btn-dark" id="videoCtaBtn" onclick="combineVideo()">Combine into final video</button>
-                    <span class="meta-text" id="videoCtaMeta">Combining is free — no credits used</span>
+                    <button class="btn btn-dark" id="videoCtaBtn" onclick="openFinalModal()">Generate final</button>
+                    <span class="meta-text" id="videoCtaMeta"></span>
                   </div>
                 </div>
               </div>
@@ -2807,7 +2908,7 @@
                       </div>
                       <div class="video-summary-card-divider"></div>
                       <div id="combineSummarySpecs" style="display:contents;"></div>
-                      <p class="combine-audio-note"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" class="icon-inline" alt=""> Narration from Script is already mixed in — no extra steps needed.</p>
+                      <p class="combine-audio-note"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" class="icon-inline" alt=""> Narration from Timeline is already mixed in — no extra steps needed.</p>
                     </div>
 
                     <!-- Version picker for re-rendered cuts — the request itself now happens in
@@ -2822,7 +2923,7 @@
                          Regenerate Card N (node 6566-115391). Kept in the DOM as the hidden
                          source syncGenActionBarV3() mirrors text/onclick from. -->
                     <div class="combine-result-actions" style="display:none;">
-                      <button class="btn btn-dark" onclick="goToDevelop()">Continue to editing →</button>
+                      <button class="btn btn-dark" onclick="goToDevelop()">Continue to editing</button>
                       <button class="btn btn-secondary" onclick="goToPublish()">Skip to publish</button>
                     </div>
                   </div>
@@ -2839,7 +2940,7 @@
               <span class="queue-panel-title">Queue</span>
               <span class="feedback-status-chip feedback-status-chip--orange-icon" id="queueBadge"><img src="../../../../components/ai-social-media/icons/badge-dot.svg" alt="">2 ACTIVE</span>
             </div>
-            <div class="queue-sub">We keep working even if you leave this page.</div>
+            
             <div class="queue-panel-jobs" id="queueJobs"></div>
           </div>
         </div>
@@ -3102,6 +3203,37 @@
       <button class="actions-publish-btn auto-width" id="pubMainBtn" onclick="handlePublishMainAction()"><span>Publish</span><img src="../../../../components/ai-social-media/icons/content-preview-publish.svg" alt=""></button>
     </div>
   </div>
+    </div>
+  </div>
+
+
+  <!-- Modal · Generate final (Figma 12480:221641) — pick the final quality after a 480p draft. -->
+  <div class="modal-overlay" id="finalModalOverlay" style="display:none;" onclick="if(event.target===this) closeFinalModal();">
+    <div class="final-modal" role="dialog" aria-labelledby="finalModalTitle">
+      <div class="final-modal__title-row">
+        <p class="final-modal__title" id="finalModalTitle">Generate final video</p>
+        <button type="button" class="final-modal__close" onclick="closeFinalModal()" aria-label="Close"><img src="../../../../components/ai-social-media/icons/panel-close.svg" alt=""></button>
+      </div>
+      <div class="final-modal__body">
+        <p class="final-modal__lead">Happy with your draft? Choose the quality for your final video.</p>
+        <div class="final-modal__options">
+          <button type="button" class="final-option final-option--selected" data-q="720" onclick="selectFinalQuality(720)">
+            <span class="final-option__radio"></span>
+            <span class="final-option__label"><span class="final-option__name">HD · 720p</span><span class="final-option__desc">Recommended for social media</span></span>
+            <span class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="finalOpt720Cost">40</span></span></span>
+          </button>
+          <button type="button" class="final-option" data-q="1080" onclick="selectFinalQuality(1080)">
+            <span class="final-option__radio"></span>
+            <span class="final-option__label"><span class="final-option__name">Full HD · 1080p</span><span class="final-option__desc">Best for high-quality videos</span></span>
+            <span class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="finalOpt1080Cost">90</span></span></span>
+          </button>
+        </div>
+        <p class="final-modal__note">Your final video will be rendered again at a higher quality and may look slightly different from the draft.</p>
+      </div>
+      <div class="final-modal__footer">
+        <button type="button" class="btn btn-secondary" onclick="closeFinalModal()">Cancel</button>
+        <button type="button" class="btn btn-dark" onclick="confirmFinalVideo()">Generate final <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt=""><span id="finalModalCost">40</span></span></button>
+      </div>
     </div>
   </div>
 
@@ -4075,7 +4207,7 @@ function buildBrandKitEmptyCardHtml(goToSetupFn, btnClass){
   return `
     <div class="brand-kit-empty-row">
       <p>Set up your brand kit to apply it here automatically</p>
-      <button type="button" class="btn ${btnClass || 'btn-dark'}" onclick="${goToSetupFn}()">Brand Setup</button>
+      <button type="button" class="btn ${btnClass || 'btn-secondary'}" onclick="${goToSetupFn}()">Brand Setup</button>
     </div>`;
 }
 [['brandKitEmpty', 'imgGoToBrandSetup'], ['globalBrandKitEmpty', 'carGoToBrandSetup'], ['reelBrandKitEmpty', 'reelGoToBrandSetup', 'btn-secondary']].forEach(([id, fn, cls]) => {
@@ -4304,7 +4436,7 @@ function renderVersionGrid(){
       <div class="image-scene-card${ready && v.id === window.__activeVersionId ? ' selected' : ''}" data-type="version" onclick="selectActiveVersion(${v.id})">
         <div class="image-scene-card-preview${ready ? ' has-photo' : ' generating'}"${photoStyle}>
           <div class="image-scene-card-top-row">
-            <span class="feedback-status-chip feedback-status-chip--green" style="${ready ? '' : 'display:none;'}">Ready</span>
+            <span class="feedback-status-chip feedback-status-chip--green" style="display:none;">Ready</span>
             <div class="image-scene-card-icon-row">
               <button class="media-card-icon-btn download" type="button" onclick="event.stopPropagation(); downloadImage(${v.id})"><img src="../../../../components/ai-social-media/icons/download-ui.svg" alt=""></button>
               <button class="media-card-icon-btn maximize" type="button" onclick="event.stopPropagation(); openVersionLightbox(${v.id})"><img src="../../../../components/ai-social-media/icons/maximize.svg" alt=""></button>
@@ -4386,7 +4518,6 @@ function openVersionLightbox(id){
 function selectVersion(id){
   addChatMsg('user', `Use version ${id}`);
   window.__selectedVersionId = id;
-  document.getElementById('tabVersions').innerHTML = '<span class="check">✓</span> Versions';
   /* Figma 8727:222249: once a version is picked, the chat's own "Use Version 1/2" pills go
      inactive (a decision has been made -- they no longer do anything if clicked again). */
   document.querySelectorAll('.ai-version-buttons button').forEach(b => { b.disabled = true; });
@@ -4837,7 +4968,7 @@ function carUpdateBriefMeta(){
   const n = window.__cardCount;
   document.getElementById('briefMetaTextCarousel').textContent = `Carousel · ${ratio} · ${n} cards`;
   document.getElementById('genSettingRatioCarousel').textContent = ratio;
-  document.getElementById('genSettingCards').textContent = `${n} cards`;
+  document.getElementById('genSettingCards').textContent = `${n} Cards`;
 }
 
 // ---- Character section (Brief & Style) ----
@@ -5152,7 +5283,6 @@ function updateCardScript(n, value){
 }
 function confirmScript(){
   disableChatActionPair('carConfirmScript');
-  document.getElementById('tabScript').innerHTML = '<span class="check">✓</span> Script';
   document.getElementById('tabStoryboard').classList.remove('locked');
   showSub('storyboard');
   const log = document.getElementById('chatLog');
@@ -5994,7 +6124,7 @@ window.__latestScriptText = '';
 let reelScriptSyncTimer;
 window.__reelPromptReview = {};
 function buildDurationScript(){
-  // Prototype copy for the existing lip-tint brief, one complete beat per 8-second clip.
+  // Prototype copy for the existing lip-tint brief.
   const lines = window.__brandMode === 'set' ? [
     'Discover this lip tint. A hand swatch reveals the colour in soft, natural light.',
     'Applied to the lips, the tint reveals its true finish. See the colour up close.',
@@ -6004,7 +6134,8 @@ function buildDurationScript(){
     'Now onto my lips. Look at that colour come through as I apply the tint!',
     'Here is the finished look, up close. Which shade would you try? Find your favourite!'
   ];
-  return lines.slice(0, getSceneCount()).join(' ');
+  // one beat per ~8s of narration budget (the script is one piece now — no per-clip split)
+  return lines.slice(0, Math.max(1, Math.round((window.__videoDuration || 16) / 8))).join(' ');
 }
 function reelOnScriptInput(){
   window.__reelScriptEdited = true;
@@ -6053,7 +6184,7 @@ function resolveReelPromptReview(n, regenerate){
 }
 function reelHasInvalidNarration(){
   return Array.from({length:getSceneCount()}, (_,i)=>countScriptWords(getSceneScript(i+1)))
-    .some(count => count === 0 || count > 15);
+    .some(count => count === 0 || count > getMaxScriptWords());
 }
 function reelNeedsPromptReview(){
   return Array.from({length:getSceneCount()}, (_,i)=>i+1).some(n=>window.__reelPromptReview[n]);
@@ -6421,7 +6552,7 @@ function runBriefToScript(){
     await sleep(300);
     const aiMsg = document.createElement('div');
     aiMsg.className = 'msg ai';
-    aiMsg.textContent = `Your ${window.__videoDuration}s script and ${count} clip${count > 1 ? 's are' : ' is'} ready. Each 8-second clip has an image prompt and up to 15 narration words. Edit the script to update the clips automatically.`;
+    aiMsg.textContent = `Your ${window.__videoDuration}s script is ready — up to ${getMaxScriptWords()} narration words. Edit it anytime and the video follows.`;
     log.appendChild(aiMsg);
     beatIn();
 
@@ -7836,8 +7967,52 @@ function reelToggleVoiceBrowsePanel(){
 renderMyVoicesCardRow();
 
 // ---- Settings bar: Character / Voice popovers ----
+// After the thumbnail exists, Seedance / ratio / duration / character are locked (the thumbnail was made from them) —
+// only the voice can still change. Going back to Script unlocks them; changing them there means regenerating the thumbnail.
+// Finished stages get a circle-check in front of the label (Figma Nav / Stage Tabs: Script ✓ · Timeline ✓ · Video).
+// Image post: Draft ✓ · Versions ✓ · Preview — finished stages get a circle-check, and the spec chips lock after Draft.
+function syncImageTabChecks(name){
+  const order = ['draft', 'versions', 'previewImage'], ids = {draft:'tabDraft', versions:'tabVersions', previewImage:'tabPreviewImage'}, labels = {draft:'Draft', versions:'Versions', previewImage:'Preview'};
+  const idx = order.indexOf(name);
+  if(idx < 0) return;
+  order.forEach((k, i) => {
+    const el = document.getElementById(ids[k]);
+    if(el) el.innerHTML = (i < idx ? `<img class="tab-check" src="../../../../components/ai-social-media/icons/circle-check-neutral.svg" alt="">` : '') + labels[k];
+  });
+  document.querySelectorAll('#settingsBarImage .setting-chip:not(.brand-chip-setting)').forEach(c => c.classList.toggle('setting-chip--locked', name !== 'draft'));
+}
+// Carousel: Script ✓ · Storyboard ✓ · Preview; chips lock once past Script.
+function syncCarouselTabChecks(name){
+  const order = ['script', 'storyboard', 'preview'], ids = {script:'tabScript', storyboard:'tabStoryboard', preview:'tabPreview'}, labels = {script:'Script', storyboard:'Storyboard', preview:'Preview'};
+  const idx = order.indexOf(name);
+  if(idx < 0) return;
+  order.forEach((k, i) => {
+    const el = document.getElementById(ids[k]);
+    if(el) el.innerHTML = (i < idx ? `<img class="tab-check" src="../../../../components/ai-social-media/icons/circle-check-neutral.svg" alt="">` : '') + labels[k];
+  });
+  // Figma 12480:213576: past Script only ratio + card count lock; model / quality / character stay usable
+  ['genSettingRatioCarousel', 'genSettingCards'].forEach(id => document.getElementById(id)?.closest('.setting-chip')?.classList.toggle('setting-chip--locked', name !== 'script'));
+}
+function syncReelTabChecks(name){
+  const order = ['reelScript', 'reelTimeline', 'reelVideo'], labels = {reelScript:'Script', reelTimeline:'Timeline', reelVideo:'Video'};
+  const idx = order.indexOf(name);
+  if(idx < 0) return;
+  order.forEach((k, i) => {
+    const el = document.getElementById('tab' + k.charAt(0).toUpperCase() + k.slice(1));
+    if(el) el.innerHTML = (i < idx ? `<img class="tab-check" src="../../../../components/ai-social-media/icons/circle-check-neutral.svg" alt="">` : '') + labels[k];
+  });
+}
+function syncSettingChipLock(){
+  const onScript = document.getElementById('tabReelScript')?.classList.contains('active');
+  const locked = !!window.__reelThumbReady && !onScript;
+  document.querySelectorAll('#settingsBar [data-lockable]').forEach(c => {
+    c.classList.toggle('setting-chip--locked', locked);
+    if(locked) c.setAttribute('data-tip', c.dataset.lockedTip || ''); else c.removeAttribute('data-tip');
+  });
+}
 function toggleSettingPopover(e, which){
   e.stopPropagation();
+  if(document.querySelector('#settingsBar .setting-chip--locked') && (which === 'character' || which === 'duration')) return;
   const ids = {character:'characterPopover', duration:'durationSettingPopover'};
   Object.entries(ids).forEach(([key, id]) => {
     const pop = document.getElementById(id);
@@ -8027,7 +8202,7 @@ function continueToTimelineFromChat(){
     await sleep(300);
     const descMsg = document.createElement('div');
     descMsg.className = 'msg ai';
-    descMsg.textContent = `Wrote a scene and character action description for each clip, based on your script.`;
+    descMsg.textContent = `Wrote a scene and character action description for your video, based on your script.`;
     log.appendChild(descMsg);
     beatIn();
     hideFieldSpinner(document.getElementById(`descFieldWrap_${unit}`));
@@ -8053,7 +8228,7 @@ function continueToTimelineFromChat(){
     await sleep(300);
     const voiceMsg = document.createElement('div');
     voiceMsg.className = 'msg ai';
-    voiceMsg.textContent = `Split your narration across each 8-second clip and matched it to a voice automatically.`;
+    voiceMsg.textContent = `Matched your narration to the voice automatically.`;
     log.appendChild(voiceMsg);
     beatIn();
     hideFieldSpinner(document.getElementById(`narrFieldWrap_tl_${unit}`));
@@ -8065,7 +8240,7 @@ function continueToTimelineFromChat(){
     await sleep(400);
     appendChatCta(
       'Timeline set up',
-      'Review each scene on the Timeline, then generate a reference image for how it looks.',
+      'Review your video on the Timeline, then generate a reference image for how it looks.',
       '<button class="btn btn-dark" id="timelineGenRefImagesChatBtn" data-chat-action="generateReferenceImages" onclick="generateScriptThumbnails()">Generate Reference Images</button>'
     );
     beatIn();
@@ -8116,9 +8291,10 @@ const SCENE_TEMPLATES = [
 // AI video generation currently has an 8-second minimum clip length, so a video is always
 // generated as one 8s clip per "scene" — e.g. a 16s video generates as 2 clips, which then
 // get combined into the final cut. Scene count and video-clip count are the same number.
+// Seedance 2.5 renders the whole duration as ONE video (no 8s clips, no Combine step — Figma "Video ·
+// Timeline & video" notes), so there is always exactly one unit; the per-unit helpers below all run with unit 1.
 function getVideoUnitCount(){
-  const seconds = window.__videoDuration || 8;
-  return Math.max(1, Math.round(seconds / 8));
+  return 1;
 }
 function getSceneCount(){
   return getVideoUnitCount();
@@ -8133,10 +8309,8 @@ function getUnitDefaultScript(unit){
   return [SCENE_TEMPLATES[first - 1]?.script, SCENE_TEMPLATES[last - 1]?.script].filter(Boolean).join(' ');
 }
 function getVideoUnitTimeLabel(unit){
-  const [first, last] = getVideoUnitScenes(unit);
-  const start = SCENE_TEMPLATES[first - 1]?.time.split('–')[0] || '';
-  const end = SCENE_TEMPLATES[last - 1]?.time.split('–')[1] || SCENE_TEMPLATES[first - 1]?.time.split('–')[1] || '';
-  return `${start}–${end}`;
+  const d = window.__videoDuration || 16;
+  return `0:00-0:${String(d).padStart(2, '0')}`;
 }
 // Scene & character action description is edited per 8s video unit (matching what actually
 // gets generated), not per 4s dialogue scene — narration keeps its own finer granularity in
@@ -8184,6 +8358,7 @@ function toggleDurationPopover(e){
   e.stopPropagation();
   const pop = document.getElementById('durationPopover');
   document.getElementById('qualityPopover').style.display = 'none';
+  document.getElementById('modelPopover').style.display = 'none';
   pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
 }
 // Quality chip (Figma 12480:219891 "quality menu"): Standard · 480p / HD · 720p / Full HD · 1080p.
@@ -8193,8 +8368,30 @@ function toggleQualityPopover(e){
   e.stopPropagation();
   const pop = document.getElementById('qualityPopover');
   document.getElementById('durationPopover').style.display = 'none';
+  document.getElementById('modelPopover').style.display = 'none';
   pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
 }
+// Video model dropdown (Figma 14148:298300) — the chosen name mirrors onto the Generate chip row.
+window.__videoModel = 'Seedance 2.5';
+function toggleModelPopover(e){
+  e.stopPropagation();
+  const pop = document.getElementById('modelPopover');
+  const open = pop.style.display !== 'flex';
+  document.querySelectorAll('#durationPopover, #qualityPopover').forEach(p => p.style.display = 'none');
+  pop.style.display = open ? 'flex' : 'none';
+}
+function selectVideoModel(name){
+  window.__videoModel = name;
+  document.getElementById('videoModelChipText').textContent = name;
+  document.querySelectorAll('#modelPopover .menu-item--model').forEach(b => b.classList.toggle('selected', b.dataset.model === name));
+  document.getElementById('modelPopover').style.display = 'none';
+  const g = document.getElementById('genSettingModel');
+  if(g) g.textContent = name;
+}
+document.addEventListener('click', (e) => {
+  const mp = document.getElementById('modelPopover');
+  if(mp && mp.style.display === 'flex' && !e.target.closest('#videoModelChipWrap')) mp.style.display = 'none';
+});
 function selectVideoQuality(q){
   window.__videoQuality = q;
   document.getElementById('qualityChipText').textContent = q + 'p';
@@ -8209,6 +8406,7 @@ function selectVideoQuality(q){
   document.getElementById('briefMetaQualityReel').textContent = q === 480 ? '480p draft' : q + 'p';
   const genQ = document.getElementById('genSettingQuality');
   if(genQ) genQ.textContent = q + 'p';
+  updateEstCredits();
 }
 document.addEventListener('click', (e) => {
   const pop = document.getElementById('durationPopover');
@@ -8232,6 +8430,7 @@ function selectDuration(seconds){
   if(settingPop) settingPop.style.display = 'none';
   document.getElementById('briefMetaDurationReel').textContent = seconds + 's';
   document.getElementById('genSettingDuration').textContent = seconds + 's';
+  updateEstCredits();
 
   // A script that already exists needs to fit the new duration's word budget — surface that
   // as an in-chat step (Figma 5457-111240's "top chip" duration control) instead of silently
@@ -8315,7 +8514,7 @@ function narrateDurationChangeScript(oldSeconds, newSeconds){
 // tiles, one per 8s unit (see getVideoUnitCount()), so the narration is scene-count based
 // instead (Figma 9742:1393 "Duration Changed via Timeline (Applied)").
 function narrateDurationChangeTimeline(oldSeconds, newSeconds){
-  const oldCount = Math.max(1, Math.round(oldSeconds / 8));
+  const oldCount = 1;
   const newCount = getVideoUnitCount();
   const delta = newCount - oldCount;
   if(delta === 0) return;
@@ -8379,7 +8578,8 @@ function renderScriptProposalMessageApplied(scriptText, introText, proposalTitle
 // more, just however many clips the duration produces (see getSceneCount()).
 function wordCountGuideText(script){
   const n = countScriptWords(script);
-  return `8 seconds · ${n} / 15 words${n > 15 ? ' — shorten narration to continue' : n === 0 ? ' — add narration to continue' : ''}`;
+  const max = getMaxScriptWords();
+  return `${window.__videoDuration || 16} seconds · ${n} / ${max} words${n > max ? ' — shorten narration to continue' : n === 0 ? ' — add narration to continue' : ''}`;
 }
 
 // Shared by both the Script stage's scene cards (scope 'tl') and the Video stage's clip
@@ -8396,7 +8596,7 @@ function renderSceneNarrationHTML(scope, unit){
         </button>
       </div>
       <div class="field-fill-wrap" id="narrFieldWrap_${scope}_${unit}">
-        <textarea class="voice-script-text" data-scene="${unit}" oninput="updateSceneScript(${unit}, this.value)" aria-invalid="${countScriptWords(script) > 15 || countScriptWords(script) === 0}">${escapeHtml(script)}</textarea>
+        <textarea class="voice-script-text" data-scene="${unit}" oninput="updateSceneScript(${unit}, this.value)" aria-invalid="${countScriptWords(script) > getMaxScriptWords() || countScriptWords(script) === 0}">${escapeHtml(script)}</textarea>
       </div>
       <span class="scene-guide voice-guide-${unit}">${wordCountGuideText(script)}</span>
     </div>
@@ -8409,17 +8609,17 @@ function renderSceneNarrationHTML(scope, unit){
 // (updateVoicePreviewButton), just reskinned full-width, see voice-section.css's own note.
 function renderVoiceWordcountRowHTML(scope, unit, script){
   const count = countScriptWords(script);
-  if(count > 15){
+  if(count > getMaxScriptWords()){
     return `
       <div class="voice-section-error-row" id="voiceWordcountRow_${scope}_${unit}">
         <div class="voice-section-error-left">
           <span class="voice-section-error-text">You've gone over the word limit.</span>
           <button class="voice-section-refine-chip" type="button" onclick="refineSceneScript(${unit})">Make it shorter</button>
         </div>
-        <span class="voice-section-error-count">${count} / 15 words</span>
+        <span class="voice-section-error-count">${count} / ${getMaxScriptWords()} words</span>
       </div>`;
   }
-  return `<span class="voice-section-wordcount" id="voiceWordcountRow_${scope}_${unit}">${count} / 15 words</span>`;
+  return `<span class="voice-section-wordcount" id="voiceWordcountRow_${scope}_${unit}">${count} / ${getMaxScriptWords()} words</span>`;
 }
 // Case 2/3 — same convergence rule as shortenFullScriptViaChat(): the Voice Section's own
 // inline "Make it shorter" chip routes through the identical chat working/completion(Undo/Redo)
@@ -8440,7 +8640,7 @@ function shortenSceneScriptViaChat(unit){
   const before = getSceneScript(unit);
   setTimeout(() => {
     loadingEl.remove();
-    const after = fitScriptToWordLimit(before, 15);
+    const after = fitScriptToWordLimit(before, getMaxScriptWords());
     updateSceneScript(unit, after);
 
     const status = document.createElement('div');
@@ -8509,7 +8709,7 @@ function playVoiceSample(scope, unit){
 // layer name still reading "Regenerate").
 function renderVoiceButtonAreaHTML(scope, unit){
   const words = countScriptWords(getSceneScript(unit));
-  const invalid = words === 0 || words > 15 || !!window.__reelSyncPending;
+  const invalid = words === 0 || words > getMaxScriptWords() || !!window.__reelSyncPending;
   const hasCache = !!window.__voicePreviewCache[unit];
   const fresh = hasCache && isVoicePreviewCached(unit);
   // Figma 8727:220495's "Music / Track Play Button" glyph is a bare triangle (no baked-in
@@ -8535,7 +8735,7 @@ function renderVoiceButtonAreaHTML(scope, unit){
 // Regenerating from either scope refreshes the same shared take (window.__voicePreviewCache),
 // so both Timeline's and Video's copies of this clip's voice card need to reflect it.
 function regenerateSceneVoice(scope, unit){
-  if(countScriptWords(getSceneScript(unit)) === 0 || countScriptWords(getSceneScript(unit)) > 15 || window.__reelSyncPending) return;
+  if(countScriptWords(getSceneScript(unit)) === 0 || countScriptWords(getSceneScript(unit)) > getMaxScriptWords() || window.__reelSyncPending) return;
   const btn = document.getElementById(`voiceRegenBtn_${scope}_${unit}`);
   if(!btn || btn.disabled) return;
   const scriptText = getSceneScript(unit);
@@ -8572,7 +8772,7 @@ function renderVoiceSectionCardHTML(scope, unit){
       <div class="voice-section-body">
         <div class="voice-section-script-wrap">
           <div class="field-fill-wrap" id="narrFieldWrap_${scope}_${unit}">
-            <textarea class="voice-script-text voice-section-script" data-scene="${unit}" oninput="updateSceneScript(${unit}, this.value)" aria-invalid="${countScriptWords(script) > 15 || countScriptWords(script) === 0}">${escapeHtml(script)}</textarea>
+            <textarea class="voice-script-text voice-section-script" data-scene="${unit}" oninput="updateSceneScript(${unit}, this.value)" aria-invalid="${countScriptWords(script) > getMaxScriptWords() || countScriptWords(script) === 0}">${escapeHtml(script)}</textarea>
           </div>
           ${renderVoiceWordcountRowHTML(scope, unit, script)}
         </div>
@@ -8653,31 +8853,28 @@ function renderReelSceneEditors(){
 // Narration is v4's current design either way — one panel per 8s clip
 // (renderSceneNarrationHTML), no whole-take/split-by-scene toggle. ----
 function renderTimelineGrid(count){
-  const cols = Math.min(count, 3);
-  const rows = Math.ceil(count / cols);
+  // One video, one tile (Figma "Video / Scene Tile": badge "Video · 0:00-0:16", narration line underneath).
+  window.__reelThumbReady = false;
   const grid = document.getElementById('timelineGrid');
-  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  grid.classList.toggle('single-row', rows <= 1);
-  grid.innerHTML = Array.from({ length: count }, (_, i) => {
-    const unit = i + 1;
-    return `
-    <div class="scene-tile${i === 0 ? ' selected' : ''}" data-type="default" data-unit="${unit}" id="timelineTile${unit}" onclick="selectTimelineTile(${unit})">
+  grid.style.gridTemplateColumns = '1fr';
+  grid.classList.add('single-row');
+  const dlBtn = document.getElementById('timelineDownloadBtn'); if(dlBtn) dlBtn.style.display = 'none';
+  grid.innerHTML = `
+    <div class="scene-tile selected" data-type="default" data-unit="1" id="timelineTile1" onclick="selectTimelineTile(1)">
       <div class="scene-tile-preview">
-        <span class="scene-tile-badge">Scene ${unit}<span class="dot"></span>${getVideoUnitTimeLabel(unit)}</span>
+        <span class="scene-tile-badge">Video<span class="dot"></span>${getVideoUnitTimeLabel(1)}</span>
         <div class="scene-tile-placeholder">
           <div class="scene-tile-placeholder-icon sparkle"><img src="../../../../components/ai-social-media/icons/sparkle-single-neutral.svg" alt=""></div>
           <div class="scene-tile-placeholder-text">
-            <span class="scene-tile-placeholder-title">Your reference image will appear here</span>
+            <span class="scene-tile-placeholder-title">Your thumbnail will appear here</span>
             <span class="scene-tile-placeholder-sub"><p>Generate one to guide</p><p>how this scene's video looks.</p></span>
           </div>
         </div>
       </div>
-      <div class="scene-tile-line">${escapeHtml(getSceneScript(unit))}</div>
+      <div class="scene-tile-line">${escapeHtml(getSceneScript(1))}</div>
     </div>`;
-  }).join('');
-
-  buildTimelineSegmentNav(count);
   selectTimelineTile(1);
+  syncSettingChipLock();
 }
 
 // Prototype only -- no real files exist to save, mirrors downloadCard()'s no-op.
@@ -8693,14 +8890,8 @@ function downloadReelThumb(unit){}
 window.__reelLightboxEntries = [];
 window.__reelLightboxIndex = 0;
 function expandReelThumb(unit){
-  const tiles = document.querySelectorAll('#timelineGrid .scene-tile');
-  window.__reelLightboxEntries = Array.from(tiles).map((t, i) => {
-    const preview = t.querySelector('.scene-tile-preview');
-    const bg = preview ? preview.style.backgroundImage : '';
-    const src = bg ? bg.slice(4, -1).replace(/["']/g, '') : '';
-    return { label: 'Scene ' + (i + 1), ready: t.dataset.type === 'thumbnail', src };
-  });
-  openReelLightbox(unit - 1);
+  window.__reelLightboxEntries = [{ label: 'Video', ready: true, src: 'assets/video/scene1.png' }];
+  openReelLightbox(0);
 }
 function openReelLightbox(index){
   window.__reelLightboxIndex = index;
@@ -8743,14 +8934,9 @@ function reelLightboxNext(){ reelLightboxGoTo(window.__reelLightboxIndex + 1); }
 window.__videoLightboxEntries = [];
 window.__videoLightboxIndex = 0;
 function expandVideoTile(unit){
-  const tiles = document.querySelectorAll('#videoGrid .video-tile');
-  window.__videoLightboxEntries = Array.from(tiles).map((t, i) => {
-    const preview = t.querySelector('.video-tile-preview');
-    const bg = preview ? preview.style.backgroundImage : '';
-    const src = bg ? bg.slice(4, -1).replace(/["']/g, '') : '';
-    return { label: 'Scene ' + (i + 1), ready: t.classList.contains('ready'), src };
-  });
-  openVideoLightbox(unit - 1);
+  // one video — the lightbox has no Scene pills / paging any more (Figma "Modal / Dialog · Fit · 9:16")
+  window.__videoLightboxEntries = [{ label: 'Video', ready: true, src: 'assets/video/scene2.png' }];
+  openVideoLightbox(0);
 }
 function openVideoLightbox(index){
   window.__videoLightboxIndex = index;
@@ -8828,32 +9014,44 @@ function selectTimelineTile(n){
 // Cost shown on Figma 9059:244772's per-scene "Regenerate" pill -- happens to be the same
 // number as VIDEO_COST_PER_UNIT, but named separately since it's a distinct action (regenerating
 // just this scene's reference image, not its video clip).
-const THUMB_REGEN_COST = 175;
+const THUMB_REGEN_COST = 20;
 function renderTimelineEditor(unit){
+  // Before the thumbnail: "Scene & character action description" (Reference chip + description).
+  // After it: the same card turns into the "Image prompt" the thumbnail was made from, with Regenerate.
+  const ready = !!window.__reelThumbReady;
   document.getElementById('timelineEditorPanel').innerHTML = `
     <div class="scene-card" id="timelineSceneEditor${unit}">
       <div class="scene-desc-block">
         <div class="scene-card-head-row">
-          <label class="scene-desc-label-reel">Scene &amp; character action description</label>
-          <button type="button" class="img-prompt-regen-btn used" id="reelThumbRegenBtn${unit}" onclick="regenerateReelThumb(${unit})" disabled><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt="">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">${THUMB_REGEN_COST}</span></button>
+          <label class="scene-desc-label-reel">${ready ? 'Image prompt' : 'Scene &amp; character action description'}</label>
+          ${ready ? `<button type="button" class="img-prompt-regen-btn used" id="reelThumbRegenBtn${unit}" onclick="regenerateReelThumb(${unit})" disabled><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt="">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">${THUMB_REGEN_COST}</span></button>` : ''}
         </div>
         <div class="scene-desc-box">
-          <div class="reference-images-row compact"></div>
+          ${ready ? '' : '<div class="reference-images-row compact"></div>'}
           <div class="mention-wrap field-fill-wrap" id="descFieldWrap_${unit}">
-            <textarea class="scene-desc" data-unit="${unit}" oninput="updateVideoUnitDesc(${unit}, this.value)">${escapeHtml(getVideoUnitDesc(unit))}</textarea>
+            ${ready
+              ? `<textarea class="scene-desc" id="timelineImagePrompt${unit}" oninput="onTimelinePromptInput(${unit}, this.value)">${escapeHtml(buildVideoPrompt(unit))}</textarea>`
+              : `<textarea class="scene-desc" data-unit="${unit}" oninput="updateVideoUnitDesc(${unit}, this.value)">${escapeHtml(getVideoUnitDesc(unit))}</textarea>`}
             <div class="mention-popover" style="display:none;"></div>
           </div>
         </div>
-        <p class="scene-note">AI automatically builds a scene to match this line</p>
+        ${ready ? '' : '<p class="scene-note">AI automatically builds a scene to match this line</p>'}
       </div>
     </div>
     ${renderVoiceSectionCardHTML('tl', unit)}
   `;
-  renderReferenceImages();
+  if(!ready) renderReferenceImages();
   document.querySelectorAll('#timelineEditorPanel .mention-wrap textarea').forEach(bindMentionTextarea);
   updateVoicePreviewButton('tl', unit);
   if(!window.__reelThumbDescBaseline) window.__reelThumbDescBaseline = {};
-  window.__reelThumbDescBaseline[unit] = getVideoUnitDesc(unit);
+  if(ready && window.__reelThumbDescBaseline[unit] === undefined) window.__reelThumbDescBaseline[unit] = buildVideoPrompt(unit);
+}
+// The ready-state "Image prompt" shows description + motion suffix; editing it writes the description part back.
+function onTimelinePromptInput(unit, value){
+  const desc = value.endsWith(VIDEO_PROMPT_MOTION_SUFFIX) ? value.slice(0, -VIDEO_PROMPT_MOTION_SUFFIX.length) : value;
+  if(!window.__unitDescriptions) window.__unitDescriptions = {};
+  window.__unitDescriptions[unit] = desc; window.__unitDescTouched[unit] = true;
+  syncReelThumbRegenBtn(unit);
 }
 // Regenerate starts inactive -- the reference image (once generated) already matches this
 // exact description -- and only lights up once the text diverges from what it was last
@@ -8863,14 +9061,13 @@ function syncReelThumbRegenBtn(unit){
   if(!btn) return;
   const baseline = window.__reelThumbDescBaseline && window.__reelThumbDescBaseline[unit];
   if(baseline === undefined) return;
-  btn.disabled = getVideoUnitDesc(unit).trim() === baseline.trim();
+  const ta = document.getElementById('timelineImagePrompt' + unit);
+  btn.disabled = (ta ? ta.value : buildVideoPrompt(unit)).trim() === baseline.trim();
 }
 // Regenerates just this scene's reference-image tile (Figma 9059:244772's per-scene
 // "Regenerate" pill) -- mirrors regenerateVideoScene()'s generating -> ready cycle, just for a
 // Timeline scene-tile (data-type attribute) instead of a Video tile (.ready/.generating classes).
-function regenerateReelThumb(unit){
-  const tile = document.getElementById('timelineTile' + unit);
-  if(!tile) return;
+function setReelTileGenerating(tile, title, sub){
   tile.dataset.type = 'generating';
   const preview = tile.querySelector('.scene-tile-preview');
   preview.querySelector('.scene-tile-top-row')?.remove();
@@ -8884,64 +9081,51 @@ function regenerateReelThumb(unit){
   placeholder.innerHTML = `
     <div class="scene-tile-placeholder-icon spinner"><img src="../../../../components/ai-social-media/icons/ui-spinner-lg.svg" alt=""></div>
     <div class="scene-tile-placeholder-text">
-      <span class="scene-tile-placeholder-title">Creating your reference image…</span>
-      <span class="scene-tile-placeholder-sub"><p>The video will be generated using this as a guide</p></span>
+      <span class="scene-tile-placeholder-title">${title}</span>
+      <span class="scene-tile-placeholder-sub"><p>${sub}</p></span>
     </div>`;
+}
+function setReelTileThumbnail(tile, unit){
+  tile.dataset.type = 'thumbnail';
+  const preview = tile.querySelector('.scene-tile-preview');
+  preview.querySelector('.scene-tile-placeholder')?.remove();
+  preview.style.backgroundImage = `url('assets/video/scene1.png')`;
+  preview.insertAdjacentHTML('afterbegin', `
+    <div class="scene-tile-top-row">
+      <div class="scene-tile-icon-row">
+        <button class="media-card-icon-btn download" type="button" onclick="event.stopPropagation(); downloadReelThumb(${unit})"><img src="../../../../components/ai-social-media/icons/download-ui.svg" alt=""></button>
+        <button class="media-card-icon-btn maximize" type="button" onclick="event.stopPropagation(); expandReelThumb(${unit})"><img src="../../../../components/ai-social-media/icons/maximize.svg" alt=""></button>
+      </div>
+    </div>`);
+}
+// Regenerates just the thumbnail (the pill on the "Image prompt" card).
+function regenerateReelThumb(unit){
+  const tile = document.getElementById('timelineTile' + unit);
+  if(!tile) return;
+  setReelTileGenerating(tile, 'Creating your thumbnail…', 'The video will be generated using this as a guide.');
   setTimeout(() => {
-    tile.dataset.type = 'thumbnail';
-    placeholder.remove();
-    preview.style.backgroundImage = `url('assets/video/scene${(unit % 2) + 1}.png')`;
-    preview.insertAdjacentHTML('afterbegin', `
-      <div class="scene-tile-top-row">
-        <span class="feedback-status-chip feedback-status-chip--green">Ready</span>
-        <div class="scene-tile-icon-row">
-          <button class="media-card-icon-btn download" type="button" onclick="event.stopPropagation(); downloadReelThumb(${unit})"><img src="../../../../components/ai-social-media/icons/download-ui.svg" alt=""></button>
-          <button class="media-card-icon-btn maximize" type="button" onclick="event.stopPropagation(); expandReelThumb(${unit})"><img src="../../../../components/ai-social-media/icons/maximize.svg" alt=""></button>
-        </div>
-      </div>`);
+    setReelTileThumbnail(tile, unit);
     if(!window.__reelThumbDescBaseline) window.__reelThumbDescBaseline = {};
-    window.__reelThumbDescBaseline[unit] = getVideoUnitDesc(unit);
+    const ta = document.getElementById('timelineImagePrompt' + unit);
+    window.__reelThumbDescBaseline[unit] = ta ? ta.value : buildVideoPrompt(unit);
     syncReelThumbRegenBtn(unit);
   }, 1400);
 }
 
-// "Generate Thumbnails" CTA (bottom action bar, Timeline tab) — every tile runs through
-// data-type default -> generating (spinner placeholder, for the queue-panel's duration) ->
-// thumbnail (real photo + Ready badge), then advances to Video the same way the old
-// proceedToStudio() did.
+// "Generate Thumbnails" CTA (bottom action bar / chat card): the single tile goes
+// default → generating (spinner, "Queue · Thumbnail generation") → thumbnail, and the scene card turns into "Image prompt".
 function generateScriptThumbnails(){
   disableChatActionPair('generateReferenceImages');
-  document.querySelectorAll('#timelineGrid .scene-tile').forEach(t => {
-    t.dataset.type = 'generating';
-    const placeholder = t.querySelector('.scene-tile-placeholder');
-    if(placeholder) placeholder.innerHTML = `
-      <div class="scene-tile-placeholder-icon spinner"><img src="../../../../components/ai-social-media/icons/ui-spinner-lg.svg" alt=""></div>
-      <div class="scene-tile-placeholder-text">
-        <span class="scene-tile-placeholder-title">Creating your reference image…</span>
-        <span class="scene-tile-placeholder-sub"><p>The video will be generated using this as a guide</p></span>
-      </div>`;
-  });
-  showQueuePanel('#timelineGrid .scene-tile', 'reference image generation', () => {
-    document.querySelectorAll('#timelineGrid .scene-tile').forEach((t, i) => {
-      t.dataset.type = 'thumbnail';
-      t.querySelector('.scene-tile-placeholder')?.remove();
-      t.querySelector('.scene-tile-preview').style.backgroundImage = `url('assets/video/scene${(i % 2) + 1}.png')`;
-      // Figma 9059:244772 -- Ready badge left, download/maximize (media-card-icon-btn, shared
-      // with Image Scene Card / Storyboard Card) right, both always visible (not hover-only)
-      // per .scene-tile-top-row's own justify-content:space-between.
-      t.querySelector('.scene-tile-preview').insertAdjacentHTML('afterbegin', `
-        <div class="scene-tile-top-row">
-          <span class="feedback-status-chip feedback-status-chip--green">Ready</span>
-          <div class="scene-tile-icon-row">
-            <button class="media-card-icon-btn download" type="button" onclick="event.stopPropagation(); downloadReelThumb(${i + 1})"><img src="../../../../components/ai-social-media/icons/download-ui.svg" alt=""></button>
-            <button class="media-card-icon-btn maximize" type="button" onclick="event.stopPropagation(); expandReelThumb(${i + 1})"><img src="../../../../components/ai-social-media/icons/maximize.svg" alt=""></button>
-          </div>
-        </div>`);
-    });
+  const tile = document.getElementById('timelineTile1');
+  setReelTileGenerating(tile, 'Creating your thumbnail…', 'The video will be generated using this as a guide.');
+  showQueuePanel('Thumbnail generation', () => {
+    window.__reelThumbReady = true;
+    window.__reelThumbDescBaseline = {};
+    setReelTileThumbnail(tile, 1);
+    renderTimelineEditor(1);
+    const dl = document.getElementById('timelineDownloadBtn'); if(dl) dl.style.display = '';
+    syncSettingChipLock();
 
-    // Same working -> completion -> Done-card narration as continueToTimelineFromChat() above,
-    // just with the image icon (Figma 81:12294) instead of the default file glyph, since this
-    // completion is about generated images rather than text.
     const log = document.getElementById('chatLog');
     const status = document.createElement('div');
     status.className = 'msg-status';
@@ -8949,42 +9133,26 @@ function generateScriptThumbnails(){
     log.appendChild(status);
     const msg = document.createElement('div');
     msg.className = 'msg ai';
-    msg.textContent = `Generated a reference image for each scene, based on its description.`;
+    msg.textContent = `Generated a reference image for your video, based on its description.`;
     log.appendChild(msg);
     reelAppendDoneCard('Generated reference images', 'content-image-outline-sm.svg');
-
-    // Figma 9059:244772 ("Reel/Short · Timeline - Thumbnail generated") is its own screen —
-    // thumbnails ready, Ready badge + download/maximize on every tile, reviewable via the
-    // lightbox (9385:172647) — that this used to skip straight past by calling
-    // proceedToStudio() immediately. Every other AI-did-work beat in this app ends in an
-    // explicit next-step card the user has to click (never an auto-advance), so this one
-    // gets the same treatment: land on/stay on the Timeline tab with the real thumbnails
-    // visible, and hand off to Video generation only once "Generate video" is clicked. Copy
-    // reuses Figma's own "Generate Video" card text for this exact beat.
-    const count = getSceneCount();
     appendChatCta(
       'Generate Video',
-      `Script confirmed — I'll generate an 8-second video clip for each of your ${count} scene${count > 1 ? 's' : ''}.`,
-      '<button class="btn btn-dark" data-chat-action="generateVideo" onclick="proceedToStudio();">Generate video</button>'
+      `Script confirmed — I'll generate your ${window.__videoDuration || 16}s video in one go.`,
+      `<button class="btn btn-dark" data-chat-action="generateVideo" onclick="proceedToStudio();">Generate video <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt="">${videoCost()}</span></button>`
     );
     log.scrollTop = log.scrollHeight;
 
-    // The persistent bottom action bar (syncGenActionBarV3) mirrors whatever hidden button is
-    // wired up for the Timeline tab (#timelineGenerateThumbsBtn) regardless of the chat -- now
-    // that thumbnails already exist and the chat's own CTA is "Generate video" (not another
-    // round of reference-image generation), point this hidden mirror at the same action (same
-    // data-chat-action tag, so disableChatActionPair('generateVideo') inside proceedToStudio()
-    // catches both at once) so the bottom bar and the chat never disagree about what happens
-    // next, or go stale independently of each other.
+    // the bottom bar mirrors the same next step as the chat card
     const barBtn = document.getElementById('timelineGenerateThumbsBtn');
     if(barBtn){
-      barBtn.textContent = 'Generate video';
+      barBtn.innerHTML = `Generate video <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt="">${videoCost()}</span>`;
       barBtn.disabled = false;
       barBtn.dataset.chatAction = 'generateVideo';
       barBtn.onclick = () => proceedToStudio();
     }
     syncGenActionBarV3();
-  }, 'Scene');
+  });
 }
 
 window.__voicePreviewCache = window.__voicePreviewCache || {}; // keyed by clip/scene id, TTS-cached
@@ -9034,7 +9202,7 @@ function updateSceneScript(n, value){
   updateReelReadiness();
 
   document.querySelectorAll(`.voice-guide-${n}`).forEach(g => { g.textContent = wordCountGuideText(value); });
-  document.querySelectorAll(`.voice-script-text[data-scene="${n}"]`).forEach(ta => { if(ta.value !== value) ta.value = value; ta.setAttribute('aria-invalid', String(countScriptWords(value) > 15 || countScriptWords(value) === 0)); });
+  document.querySelectorAll(`.voice-script-text[data-scene="${n}"]`).forEach(ta => { if(ta.value !== value) ta.value = value; ta.setAttribute('aria-invalid', String(countScriptWords(value) > getMaxScriptWords() || countScriptWords(value) === 0)); });
   // Timeline's and Video's Voice Section cards are separate DOM copies of the same clip
   // (see renderVoiceSectionCardHTML) — both need refreshing, not just whichever one you're
   // currently editing from.
@@ -9051,8 +9219,8 @@ function updateSceneScript(n, value){
   updateVoicePreviewButton('vid', n);
 
   // Case 3 — proactive chat suggestion alongside this clip's own inline red warning above.
-  if(countScriptWords(value) > 15){
-    showChatLimitSuggestion(`scene-${n}`, `Clip ${n}'s narration is over 15 words for an 8s clip. Want me to shorten it to fit?`, 'Shorten it', () => shortenSceneScriptViaChat(n));
+  if(countScriptWords(value) > getMaxScriptWords()){
+    showChatLimitSuggestion(`scene-${n}`, `Your narration is over the word limit for a ${window.__videoDuration || 16}s video (${countScriptWords(value)}/${getMaxScriptWords()} words). Want me to shorten it to fit?`, 'Shorten it', () => shortenSceneScriptViaChat(n));
   } else {
     clearChatLimitSuggestion(`scene-${n}`);
   }
@@ -9071,7 +9239,7 @@ function isVoicePreviewCached(n){
 function updateVoicePreviewButton(scope, n){
   const btn = document.getElementById(`voicePreviewBtn_${scope}_${n}`);
   if(!btn || btn.classList.contains('loading') || btn.classList.contains('playing')) return;
-  const invalid = countScriptWords(getSceneScript(n)) === 0 || countScriptWords(getSceneScript(n)) > 15 || !!window.__reelSyncPending;
+  const invalid = countScriptWords(getSceneScript(n)) === 0 || countScriptWords(getSceneScript(n)) > getMaxScriptWords() || !!window.__reelSyncPending;
   btn.disabled = invalid;
 
   // Timeline's split Preview/Regenerate layout (voice-section-preview-btn): once any take
@@ -9103,7 +9271,7 @@ function updateVoicePreviewButton(scope, n){
 }
 
 function previewSceneVoice(scope, n){
-  if(countScriptWords(getSceneScript(n)) === 0 || countScriptWords(getSceneScript(n)) > 15 || window.__reelSyncPending) return;
+  if(countScriptWords(getSceneScript(n)) === 0 || countScriptWords(getSceneScript(n)) > getMaxScriptWords() || window.__reelSyncPending) return;
   const btn = document.getElementById(`voicePreviewBtn_${scope}_${n}`);
   if(!btn || btn.disabled) return;
 
@@ -9162,30 +9330,27 @@ function proceedToStudio(){
   document.getElementById('tabReelVideo').classList.remove('locked');
   const unitCount = getVideoUnitCount();
   const log = document.getElementById('chatLog');
-  log.innerHTML += `<div class="msg ai"><span class="tag">AI</span>${unitCount > 1 ? `Generating ${unitCount} 8-second video clips now.` : 'Generating your video now.'}</div>`;
+  log.innerHTML += `<div class="msg ai"><span class="tag">AI</span>Generating your ${window.__videoDuration || 16}s video now.</div>`;
   log.scrollTop = log.scrollHeight;
   showSub('reelVideo');
   startVideoGeneration();
 }
 
 // ---- Queue panel (simulates background generation jobs) ----
-function showQueuePanel(tileSelector, jobLabel, onDone, itemName){
-  itemName = itemName || 'Scene';
-  const scenes = document.querySelectorAll(tileSelector);
-  const jobsHTML = [...scenes].map((c, i) => `
-    <div class="queue-job-row" data-job="${i}">
+function showQueuePanel(jobTitle, onDone, delay){
+  document.getElementById('queueJobs').innerHTML = `
+    <div class="queue-job-row" data-job="0">
       <div class="queue-job-thumb"></div>
       <div class="queue-job-info">
-        <div class="queue-job-title">${itemName} ${i + 1} ${jobLabel}</div>
+        <div class="queue-job-title">${jobTitle}</div>
         <div class="queue-job-status"><span class="queue-job-status-dot"></span><span class="queue-job-status-label">WORKING</span></div>
       </div>
-    </div>
-  `).join('');
-  document.getElementById('queueJobs').innerHTML = jobsHTML;
+    </div>`;
   const badge = document.getElementById('queueBadge');
   badge.className = 'feedback-status-chip feedback-status-chip--orange-icon';
-  badge.innerHTML = `<img src="../../../../components/ai-social-media/icons/badge-dot.svg" alt="">${scenes.length} ACTIVE`;
+  badge.innerHTML = `<img src="../../../../components/ai-social-media/icons/badge-dot.svg" alt="">1 ACTIVE`;
   document.getElementById('queuePanel').style.display = 'block';
+  const wait = delay || 2200;
   setTimeout(() => {
     document.querySelectorAll('.queue-job-row').forEach(j => {
       j.classList.add('ready');
@@ -9193,147 +9358,180 @@ function showQueuePanel(tileSelector, jobLabel, onDone, itemName){
     });
     badge.className = 'feedback-status-chip feedback-status-chip--green with-icon';
     badge.innerHTML = `<img src="../../../../components/ai-social-media/icons/circle-check.svg" alt="">DONE`;
-  }, 1400);
+  }, wait - 800);
   setTimeout(() => {
     document.getElementById('queuePanel').style.display = 'none';
     if(onDone) onDone();
-  }, 2200);
+  }, wait);
 }
 
 // ---- Voice + Video stage: per-scene video generation, then free combine ----
-const VIDEO_COST_PER_UNIT = 175;
+// Credits per 8s of video: 480p draft 10 · HD 720p 20 · Full HD 1080p 45 (16s → 20 / 40 / 90, Figma Seedance notes)
+const VIDEO_RATE = { 480: 10, 720: 20, 1080: 45 };
+// "Est. credits" pills (Brief + Generate chip rows) follow the chosen duration × quality.
+function updateEstCredits(){
+  ['estCreditsValue', 'genEstCreditsValue'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = videoCost(); });
+}
+function videoCost(q){ return ((window.__videoDuration || 16) / 8) * VIDEO_RATE[q || window.__videoQuality || 480]; }
+const VIDEO_COST_PER_UNIT = 20;
+
+// ---- One video: 480p draft first → "Generate final" (HD 720p / Full HD 1080p), or straight to the final when the
+// Brief already asked for 720p/1080p. window.__videoStage: idle · draft-generating · draft-ready · final-generating · final-ready ----
+window.__videoStage = 'idle';
+window.__finalQuality = null;
+function videoQualityName(q){ return q === 480 ? '480p' : q === 720 ? 'HD 720p' : 'Full HD 1080p'; }
+function reelMetaText(){
+  const d = window.__videoDuration || 16, q = window.__videoQuality || 480;
+  const st = window.__videoStage;
+  const tail = (st === 'final-generating' || st === 'final-ready') ? `${videoQualityName(window.__finalQuality)} final`
+    : (q === 480 ? '480p draft' : videoQualityName(q));
+  return `Video · 9:16 · ${d}s · ${tail}`;
+}
 
 function updateVideoCta(){
-  const tiles = document.querySelectorAll('#videoGrid .video-tile');
-  const readyTiles = document.querySelectorAll('#videoGrid .video-tile.ready');
-  const generatingTiles = document.querySelectorAll('#videoGrid .video-tile.generating');
   const btn = document.getElementById('videoCtaBtn');
-  const meta = document.getElementById('videoCtaMeta');
-  const staleBanner = document.getElementById('combineStaleBanner');
-  if(!btn || tiles.length === 0) return;
-
-  // ctaRow stays hidden (see the HTML comment above it) — btn/meta below are still kept fully
-  // up to date as syncGenActionBarV3()'s mirrored source for the bottom action bar.
-  staleBanner.style.display = (window.__videoCombined && window.__videoCombineStale) ? 'flex' : 'none';
-
-  if(generatingTiles.length > 0){
-    btn.textContent = 'Generating…';
-    btn.disabled = true;
-    meta.textContent = 'Generating scene videos…';
-  } else if(readyTiles.length < tiles.length){
-    btn.textContent = 'Combine into final video';
-    btn.disabled = true;
-    meta.textContent = 'Waiting for all scenes to finish generating';
-  } else if(!window.__videoCombined){
-    btn.textContent = 'Combine into final video';
-    btn.disabled = false;
-    btn.onclick = combineVideo;
-    meta.textContent = 'Combining is free — no credits used';
-  } else if(window.__videoCombineStale){
-    btn.textContent = 'Recombine';
-    btn.disabled = false;
-    btn.onclick = combineVideo;
-    meta.textContent = 'A scene changed since the last combine — recombining is free';
+  if(!btn) return;
+  const st = window.__videoStage;
+  if(st === 'draft-generating'){
+    btn.textContent = 'Generating…'; btn.disabled = true; btn.onclick = null;
+  } else if(st === 'draft-ready'){
+    btn.textContent = 'Generate final'; btn.disabled = false; btn.onclick = openFinalModal;
+  } else if(st === 'final-generating'){
+    btn.innerHTML = '<span class="btn-spinner"></span>Generate final'; btn.disabled = true; btn.onclick = null;
   } else {
-    btn.textContent = 'View combined video →';
-    btn.disabled = false;
-    btn.onclick = showCombineResult;
-    meta.textContent = 'Combined and up to date';
+    btn.textContent = 'Generate final'; btn.disabled = true; btn.onclick = null;
   }
   syncGenActionBarV3();
 }
 
-function startVideoGeneration(){
-  const count = getVideoUnitCount();
+// Single "Video / Scene Tile": generating placeholder or the rendered frame + play button, tag bottom-right.
+function renderVideoTile(mode, kind, q){
+  const grid = document.getElementById('videoGrid');
+  grid.style.gridTemplateColumns = '1fr'; grid.classList.add('single-row');
+  const ready = mode === 'ready';
+  const tag = `${kind}<span class="dot"></span>${q}p<span class="dot"></span>${getVideoUnitTimeLabel(1)}`;
+  const title = kind === 'Final' ? `Rendering your final · ${videoQualityName(q)}…` : `Rendering your draft · ${q}p…`;
+  grid.innerHTML = `
+    <div class="scene-tile selected" data-type="${ready ? 'video' : 'generating'}" id="videoTile1">
+      <div class="scene-tile-preview"${ready ? ` style="background-image:url('assets/video/scene2.png')"` : ''}>
+        ${ready ? `<div class="scene-tile-top-row"><div class="scene-tile-icon-row">
+            <button class="media-card-icon-btn download" type="button" onclick="event.stopPropagation(); downloadVideoScene(1)"><img src="../../../../components/ai-social-media/icons/download-ui.svg" alt=""></button>
+            <button class="media-card-icon-btn maximize" type="button" onclick="event.stopPropagation(); expandVideoTile(1)"><img src="../../../../components/ai-social-media/icons/maximize.svg" alt=""></button>
+          </div></div>
+          <button class="scene-tile-play-btn" type="button" onclick="event.stopPropagation(); playVideoScene(1)" title="Play"><img class="play" src="../../../../components/ai-social-media/icons/video-play-glyph.svg" alt=""></button>` : `
+          <div class="scene-tile-placeholder">
+            <div class="scene-tile-placeholder-icon spinner"><img src="../../../../components/ai-social-media/icons/ui-spinner-lg.svg" alt=""></div>
+            <div class="scene-tile-placeholder-text">
+              <span class="scene-tile-placeholder-title">${title}</span>
+              <span class="scene-tile-placeholder-sub"><p>Usually takes a minute or two.</p></span>
+            </div>
+          </div>`}
+        <span class="scene-tile-badge">${tag}</span>
+      </div>
+      <div class="scene-tile-line">${escapeHtml(getSceneScript(1))}</div>
+    </div>`;
+}
 
+function startVideoGeneration(){
+  document.getElementById('combineResultView').style.display = 'none';
+  document.getElementById('combineResultHeading').style.display = 'none';
+  document.getElementById('videoStageHeadingDefault').style.display = '';
+  document.querySelector('#subReelVideo .timeline-stage').style.display = 'flex';
+  document.getElementById('settingsBar').style.display = '';
+  const dl = document.getElementById('videoDownloadBtn'); if(dl) dl.style.display = 'none';
+
+  // Figma 12480:221646 — "Video prompt" card (Regenerate ⚡20) + the same Voice card as Timeline
+  document.getElementById('videoEditorPanel').innerHTML = `
+    <div class="video-scene-editor" id="videoSceneEditor1" style="display:flex;">
+      <div class="scene-card" id="videoSceneCard1">
+        <div class="scene-card-head-row">
+          <span class="scene-card-head-label">Video prompt</span>
+          <button type="button" class="img-prompt-regen-btn used" id="videoPromptRegenBtn1" onclick="regenerateVideoScene(1)" disabled><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt="">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">${videoCost(480)}</span></button>
+        </div>
+        <div class="scene-desc-box"><textarea class="scene-desc" id="videoPrompt1" oninput="onVideoPromptEdited(1)">${escapeHtml(buildVideoPrompt(1))}</textarea></div>
+      </div>
+      ${renderVoiceSectionCardHTML('vid', 1)}
+    </div>`;
+  window.__videoPromptBaseline = { 1: buildVideoPrompt(1) };
+  updateVoicePreviewButton('vid', 1);
+  document.getElementById('videoCtaRow').style.display = 'none';
+
+  const q = window.__videoQuality || 480;
+  if(q === 480) runVideoRender('Draft', 480);
+  else runVideoRender('Final', q);
+}
+
+function runVideoRender(kind, q){
+  const isFinal = kind === 'Final';
+  window.__videoStage = isFinal ? 'final-generating' : 'draft-generating';
+  window.__finalQuality = isFinal ? q : null;
+  renderVideoTile('generating', kind, q);
+  updateVideoCta();
+  const log = document.getElementById('chatLog');
+  if(isFinal && log){
+    const st = document.createElement('div'); st.className = 'msg-status';
+    st.innerHTML = '<span class="worked-label working">Worked</span>';
+    log.appendChild(st);
+    const m = document.createElement('div'); m.className = 'msg ai';
+    m.textContent = `Rendering your final in ${videoQualityName(q)}. This usually takes a minute or two.`;
+    log.appendChild(m);
+    log.scrollTop = log.scrollHeight;
+    window.__finalWorkedStatus = st;
+  }
+  showQueuePanel(isFinal ? `Final video · ${videoQualityName(q)}` : `Draft video · ${q}p`, () => {
+    window.__videoStage = isFinal ? 'final-ready' : 'draft-ready';
+    renderVideoTile('ready', kind, q);
+    const dl = document.getElementById('videoDownloadBtn'); if(dl) dl.style.display = '';
+    const log2 = document.getElementById('chatLog');
+    if(isFinal){
+      if(window.__finalWorkedStatus) window.__finalWorkedStatus.innerHTML = '<span class="worked-label">Worked</span> <span class="worked-time">for 4s</span>';
+      const m = document.createElement('div'); m.className = 'msg ai';
+      m.textContent = `Rendered your final in ${videoQualityName(q)}.`;
+      log2.appendChild(m);
+      reelAppendDoneCard('Generated video');
+      showFinalResult();
+    } else {
+      const st = document.createElement('div'); st.className = 'msg-status';
+      st.innerHTML = '<span class="worked-label">Worked</span> <span class="worked-time">for 4s</span>';
+      log2.appendChild(st);
+      const m = document.createElement('div'); m.className = 'msg ai';
+      m.textContent = `Rendered your ${window.__videoDuration || 16}s draft in 480p. Happy with it? Generate the final in HD or Full HD.`;
+      log2.appendChild(m);
+      reelAppendDoneCard('Generated video');
+    }
+    log2.scrollTop = log2.scrollHeight;
+    updateVideoCta();
+  }, isFinal ? 3000 : 2200);
+}
+
+// ---- Generate final (modal): HD 720p / Full HD 1080p ----
+window.__finalPick = 720;
+function openFinalModal(){
+  selectFinalQuality(window.__finalPick);
+  document.getElementById('finalModalOverlay').style.display = 'flex';
+}
+function closeFinalModal(){ document.getElementById('finalModalOverlay').style.display = 'none'; }
+function selectFinalQuality(q){
+  window.__finalPick = q;
+  document.querySelectorAll('#finalModalOverlay .final-option').forEach(o => o.classList.toggle('final-option--selected', Number(o.dataset.q) === q));
+  document.getElementById('finalModalCost').textContent = videoCost(q);
+  document.getElementById('finalOpt720Cost').textContent = videoCost(720);
+  document.getElementById('finalOpt1080Cost').textContent = videoCost(1080);
+}
+function confirmFinalVideo(){
+  closeFinalModal();
+  runVideoRender('Final', window.__finalPick);
+}
+// Upgrade a finished 720p final to 1080p
+function upgradeTo1080(){
+  document.getElementById('combineResultHeading').style.display = 'none';
+  document.getElementById('videoStageHeadingDefault').style.display = '';
   document.getElementById('combineResultView').style.display = 'none';
   document.querySelector('#subReelVideo .timeline-stage').style.display = 'flex';
   document.getElementById('settingsBar').style.display = '';
-
-  const cols = Math.min(count, 3);
-  const rows = Math.ceil(count / cols);
-  const grid = document.getElementById('videoGrid');
-  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  grid.classList.toggle('single-row', rows <= 1);
-  grid.innerHTML = Array.from({ length: count }, (_, i) => `
-    <div class="video-tile generating${i === 0 ? ' active' : ''}" data-scene="${i + 1}" id="videoTile${i + 1}" onclick="selectVideoScene(${i + 1})">
-      <div class="video-tile-preview">
-        <div class="video-tile-overlay-top">
-          <span class="video-tile-ready-badge">✓ Ready</span>
-          <div class="video-tile-icon-group">
-            <button class="media-card-icon-btn download" type="button" onclick="event.stopPropagation(); downloadVideoScene(${i + 1})" title="Download"><img src="../../../../components/ai-social-media/icons/download-ui.svg" alt=""></button>
-            <button class="media-card-icon-btn maximize" type="button" onclick="event.stopPropagation(); expandVideoTile(${i + 1})" title="Maximize"><img src="../../../../components/ai-social-media/icons/maximize.svg" alt=""></button>
-            <button class="video-tile-regen-btn" onclick="event.stopPropagation(); regenerateVideoScene(${i + 1})" title="Regenerate · ⚡${VIDEO_COST_PER_UNIT}"><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt=""></button>
-          </div>
-        </div>
-        <div class="spinner-mini"></div>
-        <button class="video-play-btn" onclick="event.stopPropagation(); playVideoScene(${i + 1})" title="Play"><img class="play" src="../../../../components/ai-social-media/icons/video-play-glyph.svg" alt=""></button>
-        <span class="video-tile-badge">Video ${i + 1} · ${getVideoUnitTimeLabel(i + 1)}</span>
-      </div>
-    </div>
-  `).join('');
-
-  // Figma 8727:220140 -- scene-card (label + Regenerate pill + prompt box, the exact same
-  // .scene-card/.scene-card-head-row pattern Image's own Versions screen uses, see line
-  // ~2005) then a fully separate Voice Section card, 24px gap between them (CSS above).
-  // Previously both lived inside one .carousel-card-block with a "Clip N" header -- that
-  // header doesn't exist in Figma for this screen at all; the per-clip time range is already
-  // shown on the video-tile in the canvas grid to the left (.video-tile-badge), so dropping
-  // it here isn't a loss. The regenerate pill's leading refresh-ccw icon is a deliberate
-  // deviation from Figma's literal asset (which is, oddly, the same play-triangle glyph as
-  // the Preview button -- almost certainly a copy-pasted instance that never got its icon
-  // swapped) in favor of the refresh icon every OTHER regenerate control in this app uses.
-  document.getElementById('videoEditorPanel').innerHTML = Array.from({ length: count }, (_, i) => `
-    <div class="video-scene-editor" id="videoSceneEditor${i + 1}" style="${i === 0 ? '' : 'display:none;'}">
-      <div class="scene-card" id="videoSceneCard${i + 1}">
-        <div class="scene-card-head-row">
-          <span class="scene-card-head-label">Video prompt</span>
-          <button type="button" class="img-prompt-regen-btn used" id="videoPromptRegenBtn${i + 1}" onclick="regenerateVideoScene(${i + 1})" disabled><img src="../../../../components/ai-social-media/icons/refresh-ccw.svg" class="icon-inline" alt="">Regenerate <span class="cost"><img src="../../../../components/ai-social-media/icons/zap.svg" class="icon-inline" alt="">${VIDEO_COST_PER_UNIT}</span></button>
-        </div>
-        <div class="scene-desc-box"><textarea class="scene-desc" id="videoPrompt${i + 1}" oninput="onVideoPromptEdited(${i + 1})">${escapeHtml(buildVideoPrompt(i + 1))}</textarea></div>
-      </div>
-      ${renderVoiceSectionCardHTML('vid', i + 1)}
-    </div>
-  `).join('');
-
-  buildVideoSegmentNav();
-  selectVideoScene(1);
-  // Regenerate starts inactive -- each unit's clip was already generated from exactly this
-  // prompt, so there's nothing to regenerate against until the text actually diverges from it.
-  window.__videoPromptBaseline = {};
-  for(let i = 1; i <= count; i++){ updateVoicePreviewButton('vid', i); window.__videoPromptBaseline[i] = buildVideoPrompt(i); }
-
-  document.getElementById('videoCtaRow').style.display = 'none';
-  document.getElementById('combineStaleBanner').style.display = 'none';
-  window.__videoCombined = false;
-  window.__videoCombineStale = false;
-  updateVideoCta();
-
-  showQueuePanel('#videoGrid .video-tile', 'video generation', () => {
-    document.querySelectorAll('#videoGrid .video-tile').forEach((t, i) => {
-      t.classList.remove('generating'); t.classList.add('ready');
-      applySampleVideoFrame(t, i);
-    });
-    updateVideoCta();
-    // Same working -> completion -> Done-card narration as generateScriptThumbnails() above --
-    // this beat was jumping straight from the plain "Generating N video clips now." line
-    // (proceedToStudio()) to the Combine card with no confirmation that the clips actually
-    // finished, unlike every other AI-did-work step in this chat (Figma 8727:220247's own
-    // "Worked for 4s" / "Rendered a video clip for each of your N scenes..." beat).
-    const log = document.getElementById('chatLog');
-    const status = document.createElement('div');
-    status.className = 'msg-status';
-    status.innerHTML = '<span class="worked-label">Worked</span> <span class="worked-time">for 4s</span>';
-    log.appendChild(status);
-    const msg = document.createElement('div');
-    msg.className = 'msg ai';
-    msg.textContent = `Rendered a video clip for each of your ${count} scene${count > 1 ? 's' : ''}, ready to combine into the final cut.`;
-    log.appendChild(msg);
-    reelAppendDoneCard('Generated video clips');
-    appendChatCta('Combine into Final Video', 'Combine your scene clips into one final video. This step is free — no credits used.', '<button class="btn btn-dark" data-chat-action="combineVideo" onclick="combineVideo()">Combine into final video →</button>');
-    log.scrollTop = log.scrollHeight;
-  }, 'Video');
+  runVideoRender('Final', 1080);
 }
+
 // Prototype stand-in for a real generated clip's first frame — cycles between the two sample
 // stills so every ready tile shows something instead of a flat gradient.
 function applySampleVideoFrame(tile, index){
@@ -9349,48 +9547,15 @@ function buildVideoPrompt(unit){
   return getVideoUnitDesc(unit) + VIDEO_PROMPT_MOTION_SUFFIX;
 }
 
-// Nav label is "Scene" (not "Video"), even though what's being edited here is called
-// "Video prompt" (Figma: node 6077-107146).
-function buildVideoSegmentNav(){
-  const tiles = document.querySelectorAll('#subReelVideo .video-tile');
-  const nav = document.getElementById('videoSegmentNav');
-  if(!nav || !tiles.length) return;
-  const buttons = [...tiles].map((tile) => {
-    const n = tile.dataset.scene;
-    return `<div class="segment-nav-btn${n === '1' ? ' active' : ''}" data-target="${n}" onclick="selectVideoScene(${n})">${n}</div>`;
-  }).join('');
-  nav.innerHTML = `<span class="scene-nav-label">Scene</span>${buttons}`;
-}
-
-function selectVideoScene(n){
-  n = Number(n);
-  document.querySelectorAll('#subReelVideo .video-tile').forEach(t => t.classList.toggle('active', Number(t.dataset.scene) === n));
-  document.querySelectorAll('.video-scene-editor').forEach(e => e.style.display = 'none');
-  const editor = document.getElementById('videoSceneEditor' + n);
-  if(editor) editor.style.display = 'flex'; /* .video-scene-editor is itself the flex-col/gap-24 wrapper around [scene-card, Voice card] now -- 'block' would silently override that CSS with an inline display */
-  document.querySelectorAll('#videoSegmentNav .segment-nav-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.target) === n));
-  const tile = document.getElementById('videoTile' + n);
-  if(tile) tile.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-}
-
+// (single video — no scene navigation any more)
+function selectVideoScene(){}
+// Regenerate the draft from the (edited) video prompt.
 function regenerateVideoScene(n){
-  const tile = document.getElementById('videoTile' + n);
-  if(!tile) return;
-  tile.classList.remove('ready');
-  tile.classList.add('generating');
-  updateVideoCta();
-  setTimeout(() => {
-    tile.classList.remove('generating');
-    tile.classList.add('ready');
-    applySampleVideoFrame(tile, n - 1);
-    if(window.__videoCombined) window.__videoCombineStale = true;
-    updateVideoCta();
-    // The clip now matches whatever the prompt box currently holds -- move the baseline up to
-    // that text so the scene-card's own Regenerate goes back to inactive until it's edited again.
-    const input = document.getElementById('videoPrompt' + n);
-    if(input && window.__videoPromptBaseline) window.__videoPromptBaseline[n] = input.value;
-    syncVideoPromptRegenBtn(n);
-  }, 1400);
+  if(window.__videoStage === 'draft-generating' || window.__videoStage === 'final-generating') return;
+  const input = document.getElementById('videoPrompt1');
+  if(input && window.__videoPromptBaseline) window.__videoPromptBaseline[1] = input.value;
+  syncVideoPromptRegenBtn(1);
+  runVideoRender('Draft', 480);
 }
 // Video prompt's Regenerate (scene-card, not the tile overlay's always-on quick-regen icon)
 // starts disabled -- the clip already matches this exact prompt -- and only lights up once the
@@ -9406,33 +9571,19 @@ function syncVideoPromptRegenBtn(n){
 }
 
 function playVideoScene(n){
-  const tile = document.getElementById('videoTile' + n);
-  if(!tile || !tile.classList.contains('ready')) return;
-  const btn = tile.querySelector('.video-play-btn');
+  const btn = document.querySelector('#videoTile1 .scene-tile-play-btn');
+  if(!btn || window.__videoStage === 'draft-generating') return;
   btn.innerHTML = '<img class="pause" src="../../../../components/ai-social-media/icons/video-pause-glyph.svg" alt="">';
   setTimeout(() => { btn.innerHTML = '<img class="play" src="../../../../components/ai-social-media/icons/video-play-glyph.svg" alt="">'; }, 1400);
 }
 
-function combineVideo(){
-  // Only the chat card's own "Combine into final video →" button is tagged here (not the
-  // bottom bar's #videoCtaBtn mirror) -- that hidden button gets its own live state machine
-  // from updateVideoCta() right below (Combining.../View combined video .../Recombine), which
-  // would be wrong to just permanently disable; the chat card's copy has no such next state
-  // of its own once this step is done (a new "Your video is ready" card replaces it), so it
-  // simply goes inert whichever of the two entry points triggered this.
-  document.querySelectorAll('[data-chat-action="combineVideo"]').forEach(b => { b.disabled = true; });
-  window.__videoCombined = true;
-  window.__videoCombineStale = false;
-  updateVideoCta();
-  document.getElementById('tabReelVideo').innerHTML = '<span class="check">✓</span> Video';
-  reelAppendDoneCard('Combined final video');
+// Final is ready: result view ("Your Video is ready") + what's-next card + refine chips in the chat.
+function showFinalResult(){
   appendChatCta('Your video is ready. What\'s next?', '',
-    '<button class="btn btn-dark" onclick="this.parentElement.querySelectorAll(\'button\').forEach(b => b.disabled = true); goToDevelop()">Continue to editing →</button>' +
+    '<button class="btn btn-dark" onclick="this.parentElement.querySelectorAll(\'button\').forEach(b => b.disabled = true); goToDevelop()">Continue to editing</button>' +
     '<button class="btn btn-secondary" onclick="this.parentElement.querySelectorAll(\'button\').forEach(b => b.disabled = true); goToPublish()">Skip to publish</button>' +
     '<div class="chat-card-feedback" id="videoCardFeedback"><span class="ccf-label">How\'s this result?</span><button type="button" class="ccf-icon-btn" onclick="ccfRate(this,\'video\',\'up\')" title="Looks great"><img src="../../../../components/ai-social-media/icons/thumbs-up.svg" alt=""></button><button type="button" class="ccf-icon-btn" onclick="ccfRate(this,\'video\',\'down\')" title="Needs work"><img src="../../../../components/ai-social-media/icons/thumbs-down.svg" alt=""></button></div>'
   );
-  // Refine-this-video now happens through the AI Assistant chat itself instead of a separate
-  // right-panel prompt box — quick presets + a per-request credit hint live down by the input.
   window.__videoRefineMode = true;
   renderChatQuickChips([
     { label: 'Tighten the opening', direct: () => sendVideoRefineChat('Tighten the opening') },
@@ -9455,7 +9606,9 @@ function showCombineResult(){
   document.querySelector('#subReelVideo .timeline-stage').style.display = 'none';
   document.getElementById('combineResultView').style.display = 'flex';
   document.getElementById('settingsBar').style.display = 'none';
-  const totalDuration = getVideoUnitCount() * (window.__videoDuration || 8);
+  const up = document.getElementById('upgrade1080Btn');
+  if(up){ up.style.display = window.__finalQuality === 720 ? '' : 'none'; document.getElementById('upgrade1080Cost').textContent = videoCost(1080); }
+  const totalDuration = (window.__videoDuration || 16);
   document.getElementById('combineResultTime').textContent = `0:00 / ${formatClipTime(totalDuration)}`;
   document.getElementById('combineResultProgressFill').style.width = '0%';
   renderCombineSummaryCard();
@@ -9517,6 +9670,8 @@ function renderCombineSummaryCard(){
   // Figma's own VideoSummaryCard (node 6171:9) has exactly these 4 rows -- no Language row,
   // and Character's icon is circle-user-round (not the nav-rail's nav-characters glyph).
   const specs = [
+    { icon: `<img src="${ICON_PATH}content-reel-16.svg" alt="">`, label: 'Model', value: window.__videoModel || 'Seedance 2.5' },
+    { icon: `<img src="${ICON_PATH}spec-quality.svg" alt="">`, label: 'Quality', value: `${duration} · ${videoQualityName(window.__finalQuality || window.__videoQuality || 480)}` },
     { icon: `<img src="${ICON_PATH}spec-duration.svg" alt="">`, label: 'Duration', value: duration },
     { icon: `<span class="spec-ratio-box"></span>`, label: 'Ratio', value: '9:16' },
     { icon: `<img src="${ICON_PATH}circle-user-round.svg" alt="">`, label: 'Character', value: character },
@@ -9548,7 +9703,7 @@ function playCombineResult(btn){
   btn.innerHTML = '<img class="pause" src="../../../../components/ai-social-media/icons/video-pause-glyph.svg" alt="">';
   const fill = document.getElementById('combineResultProgressFill');
   const timeEl = document.getElementById('combineResultTime');
-  const totalDuration = getVideoUnitCount() * (window.__videoDuration || 8);
+  const totalDuration = (window.__videoDuration || 16);
   if(fill) fill.style.width = '100%';
   if(timeEl) timeEl.textContent = `${formatClipTime(totalDuration)} / ${formatClipTime(totalDuration)}`;
   setTimeout(() => {
@@ -11256,6 +11411,10 @@ function showSub(name){
   if(subEl) subEl.style.display = displays[name];
   // Figma's Preview tab (node 6269-124472) drops the ratio/versions/character settings-bar
   // entirely, replacing it with the in-page "← Back to versions" breadcrumb instead.
+  syncReelTabChecks(name);
+  syncImageTabChecks(name);
+  syncCarouselTabChecks(name);
+  syncSettingChipLock();
   const settingsBarImage = document.getElementById('settingsBarImage');
   if(settingsBarImage) settingsBarImage.style.display = (name === 'previewImage') ? 'none' : '';
   syncGenActionBarV3();
@@ -11274,16 +11433,16 @@ function syncGenActionBarV3(){
   secondaryBtn.style.display = '';
   let sourceBtn = null;
   if(window.__contentType === 'image'){
-    document.getElementById('genMetaV3').textContent = `Image post · ${window.__imageRatio || '4:5'} · English`;
+    document.getElementById('genMetaV3').textContent = `Image post · ${window.__imageRatio || '4:5'}`;
     if(document.getElementById('subDraft').style.display !== 'none'){
       const n = window.__versionCount || 2;
       // disabled once confirmAndGenerate() has already run (versionState populated) --
       // otherwise re-syncing this bar (e.g. disableChatActionPair's own call at the end of
       // confirmAndGenerate) would silently flip this synthetic button back to enabled and
       // undo the chat card's own disabled state the next time this function runs.
-      sourceBtn = { textContent: `Confirm & generate ${n} version${n > 1 ? 's' : ''}`, disabled: versionState.length > 0, click: () => confirmAndGenerate() };
+      sourceBtn = { textContent: `Confirm & Generate ${n} Version${n > 1 ? 's' : ''}`, disabled: versionState.length > 0, click: () => confirmAndGenerate() };
     } else if(document.getElementById('subVersions').style.display !== 'none'){
-      sourceBtn = { textContent: 'Choose a version to continue', disabled: true, click: () => {} };
+      sourceBtn = { textContent: 'Continue', disabled: true, click: () => {} };
     } else if(document.getElementById('subPreviewImage').style.display !== 'none'){
       sourceBtn = document.querySelector('#subPreviewImage .version-result-actions .btn-dark');
       secondaryBtn.textContent = 'Skip to publish';
@@ -11301,7 +11460,7 @@ function syncGenActionBarV3(){
       sourceBtn = document.getElementById('continueToEditingBtn');
     }
   } else if(window.__contentType === 'reel'){
-    document.getElementById('genMetaV3').textContent = `Video · 9:16 · ${window.__videoDuration || 16}s · ${(window.__videoQuality || 480) === 480 ? '480p draft' : (window.__videoQuality + 'p')}`;
+    document.getElementById('genMetaV3').textContent = reelMetaText();
     if(document.getElementById('subReelScript').style.display !== 'none'){
       sourceBtn = !window.__scriptConfirmed
         ? document.querySelector('#scriptPanel .stage-cta-row .btn-dark')
@@ -11321,7 +11480,7 @@ function syncGenActionBarV3(){
     }
   }
   if(sourceBtn){
-    btn.textContent = sourceBtn.textContent;
+    if(sourceBtn.innerHTML !== undefined) btn.innerHTML = sourceBtn.innerHTML; else btn.textContent = sourceBtn.textContent;
     btn.disabled = sourceBtn.disabled;
     btn.onclick = () => { if(sourceBtn.click) sourceBtn.click(); };
     btn.style.display = '';
@@ -11438,7 +11597,7 @@ function reviseSceneOrNarration(text, defaultTarget){
     loadingEl.remove();
     targets.forEach(n => {
       if(isNarration){
-        updateSceneScript(n, fitScriptToWordLimit(buildRevisedScript(getSceneScript(n), text), 15));
+        updateSceneScript(n, fitScriptToWordLimit(buildRevisedScript(getSceneScript(n), text), getMaxScriptWords()));
       } else {
         setVideoUnitDesc(n, buildRevisedScript(getVideoUnitDesc(n), text));
       }
