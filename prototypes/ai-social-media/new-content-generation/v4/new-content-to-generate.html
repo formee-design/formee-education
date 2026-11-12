@@ -57,6 +57,7 @@
 <link rel="stylesheet" href="../../../../components/ai-social-media/controls-misc.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/controls-toggles.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/controls-search-field.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/editor-panel-chrome.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/style-card.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/character-detail-panel.css">
 <!-- Playfair Display: only used live for the Draft screen's brand-kit font-preview tags (Formee
@@ -121,6 +122,8 @@
      thumbnail unconditionally (applySampleVideoFrame(), never redesigned away), so this
      switch just governs whether that same "generate a still first, animate from it" framing
      is *also* visible one step earlier, on Script's clip cards. */
+  /* Third demo switch (above Script clips): compares where the voice-use question lives. */
+  .voice-use-switch{position:fixed; right:16px; bottom:112px; z-index:9999; display:flex; gap:6px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:6px 8px 6px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px);}
   .thumb-mode-switch{position:fixed; right:16px; bottom:64px; z-index:9999; display:flex; gap:6px; align-items:center; background:rgba(15,23,41,.92); border-radius:9999px; padding:6px 8px 6px 14px; box-shadow:0 6px 20px rgba(0,0,0,.28); backdrop-filter:blur(6px);}
 
   /* display:inline-flex alone still stretches full-width inside any column-flex parent (its
@@ -998,6 +1001,52 @@
   /* the summary line is one 22px row in Figma; the textarea grows to its 2-line default brief (rows=2) instead of the old 66px floor */
   #briefContentReel .prompt-summary, #briefContentImage .prompt-summary, #briefContentCarousel .prompt-summary{min-height:22px;}
   .prompt-chip .ic-img{width:16px; height:16px; display:block; flex-shrink:0;}
+  /* Icon-only chip name: Editor / Panel Action Row/Tooltip (.editor-tooltip), 8px under the chip on hover */
+  .prompt-chip-tooltip{position:absolute; top:calc(100% + var(--spacing-sm) + var(--border-width-1)); /* 100% is the padding box, so add the chip's 1px stroke to land 8px under its edge */ left:50%; transform:translateX(-50%); z-index:50; pointer-events:none; opacity:0; visibility:hidden; transition:opacity .12s ease;}
+  .prompt-chip--icon:hover .prompt-chip-tooltip{opacity:1; visibility:visible;}
+  /* Brief doc is icon-only to keep the chip row short; the name shows on hover */
+  .prompt-chip--icon{gap:0; padding:9px; position:relative;} /* 16px icon + 9px + 1px stroke a side = the 36px height of the text chips (same literal convention as prompt-box.css) */
+  /* Prompt / Character Chip (Image + Carousel brief): sits next to the Reference chip in the prompt box
+     and opens the saved-character picker as a popover, replacing the old With / No Character section. */
+  .char-see-all-search{width:100%; box-sizing:border-box;}
+  /* Audio reference chip (Video brief): same box as Reference / Character; a long file name is cut with an ellipsis */
+  .audio-ref-chip .ref-chip-label{max-width:72px; overflow:hidden; text-overflow:ellipsis;}
+  /* Voice use: version A = question below (#voiceUseSection), version B = prompt-box chip (#voiceUseChipWrap) */
+  body:not(.voice-use--chip) #voiceUseChipWrap{display:none;}
+  body.voice-use--chip #voiceUseSection{display:none;}
+  body.voice-use--chip #voiceSourceSection{margin-top:0;}
+  /* Version B: with only "How should the voice be made?" left, it becomes the section title and the
+     card goes away (segment, note and My voices sit straight on the page). */
+  body.voice-use--chip #reelVoiceBlock > .char-section-label,
+  body.voice-use--chip #reelVoiceBlock > .char-section-sub{display:none;}
+  body.voice-use--chip #reelVoiceBlock > .char-panel{background:none; border:none; border-radius:0; padding:0;}
+  /* ...but the Choose-a-voice picker (My voices + ElevenLabs library) stays grouped in the same card look */
+  body.voice-use--chip #voiceLibrarySection{background:var(--color-neutral-0); border:1.2px solid var(--color-neutral-400); border-radius:var(--radius-xl); padding:var(--spacing-2xl);} /* 1.2px stroke = .char-panel's Figma literal */
+  #voiceUsePopover{position:absolute; top:calc(100% + 6px); left:0; z-index:40; width:260px;}
+  #voiceUsePopover .voice-use-row{width:100%; height:auto; align-items:center;}
+  .voice-use-row__text{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); text-align:left;}
+  .voice-use-row__desc{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-regular); color:var(--color-neutral-500);}
+  .voice-use-row:not(.controls-option-row--selected) img{visibility:hidden;}
+  .audio-ref-chip[data-attached="true"] .ref-chip-label{color:var(--color-neutral-900);}
+  /* Figma 12480:218763: the Default badge hugs its label under the type line */
+  #charSeeAllGrid .char-select-card .feedback-status-chip{align-self:flex-start;}
+  .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-sm);}
+  .char-chip-wrap{position:relative;}
+  .char-chip .char-chip-icon{border-radius:var(--radius-full); object-fit:cover;}
+  /* Picked character: the chip becomes a 1:1 photo tile (same 68px height as the Reference chip);
+     the name moves to the hover tooltip, the Remove corner stays. */
+  .char-chip.char-chip--photo{width:68px; height:68px; padding:0;}
+  .char-chip.char-chip--photo .char-chip-icon{width:100%; height:100%; border-radius:var(--radius-lg);}
+  .char-chip.char-chip--photo .ref-chip-label{display:none;}
+  .char-chip-tooltip{top:calc(100% + var(--spacing-sm));}
+  .char-chip.char-chip--photo:hover .char-chip-tooltip{opacity:1; visibility:visible;}
+  .char-chip[data-attached="true"] .ref-chip-label{color:var(--color-neutral-900);}
+  .char-chip-popover{position:absolute; top:calc(100% + var(--spacing-xs)); left:0; z-index:45; width:720px; box-sizing:border-box;
+    padding:var(--spacing-lg); background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-200);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-focus-card); display:flex; flex-direction:column; gap:var(--spacing-md);}
+  .char-chip-popover__head{display:flex; flex-direction:column; gap:var(--spacing-2);}
+  .char-chip-popover__title{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
+  .char-chip-popover__sub{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}
   .prompt-bottom-actions{display:flex; align-items:center; gap:var(--spacing-sm);}
   .brief-option-popover{display:none; flex-direction:column; width:128px; box-sizing:border-box;}
   .brief-option-popover--quality{width:170px;}
@@ -1029,11 +1078,18 @@
   /* Figma 12480:219504 "character-mode"/"voice-source": 16px Bold label, 12px to the segmented control */
   .appear-label{font-size:16px; line-height:24px; font-weight:700; color:var(--color-neutral-900); margin:0 0 12px;}
   .appear-label .sub{font-weight:400; color:var(--color-neutral-500);}
-  #charAppearToggle, #needsVoiceToggle, #voiceSourceToggle{margin-bottom:0;}
+  #voiceUseToggle, #voiceSourceToggle{margin-bottom:0;}
+  #voiceUseSection{display:flex; flex-direction:column; gap:var(--spacing-md);}
+  #voiceUseSection .appear-label{margin:0;}
   /* 24px between the "how does the character appear" block and the voice-source block (Figma character-mode-col gap) */
   #voiceSourceSection{margin-top:24px; display:flex; flex-direction:column; gap:12px;}
   #voiceSourceSection .appear-label{margin:0;}
   .voice-source-hint{margin:0; font-size:13px; line-height:20px; color:var(--color-neutral-500);}
+  /* Model-gated voice: Seedance makes its own voice, so "Choose a voice" goes disabled with this note
+     and a one-click switch to the model that takes ElevenLabs voices (Gemini Omni Flash). */
+  .voice-model-switch{border:none; background:none; padding:0; cursor:pointer; font:inherit; font-weight:var(--font-weight-semibold); color:var(--color-brand-primary);}
+  .voice-model-switch:hover{text-decoration:underline;}
+  .voice-model-toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); z-index:200;}
 
   /* ---- Voice picker (Character section) — "My voices" card row + Browse ElevenLabs library ---- */
   .voice-section-label-row{display:flex; align-items:center; justify-content:space-between; margin-top:0; margin-bottom:12px;}
@@ -1594,6 +1650,7 @@
   #stageAreaReel .script-limit-row.over{margin-top:var(--spacing-xs);}
   #stageAreaReel .script-limit-row.over .script-limit-count,
   #stageAreaReel .script-limit-error{font-size:var(--font-size-text-xs); line-height:normal; font-weight:var(--font-weight-medium);}
+  #ratioPopoverImage, #ratioPopoverCarousel, #imgQualityPopover, #carQualityPopover, #videoRatioPopover{position:absolute; top:calc(100% + 6px); left:0; z-index:40;}
   #modelPopover, #imgModelPopover, #carModelPopover{position:absolute; top:calc(100% + var(--spacing-xs)); left:0; z-index:40;}
   /* image model rows carry no badges/chips, so the card hugs its name + model id like Figma's */
   #imgModelPopover, #carModelPopover{width:max-content;}
@@ -1786,7 +1843,7 @@
       <div class="brief-content">
         <div class="brief-heading">
           <h1>New content</h1>
-          <p>Describe your idea — AI handles everything else</p>
+          <p>Describe your idea. AI takes care of the rest.</p>
         </div>
         <div class="seg-control" id="contentTypeToggle" style="margin-bottom:16px;">
           <!-- Reel/Short and Story Video are one "Video" type now (Figma 12480:219504). The chip keeps
@@ -1798,63 +1855,18 @@
 <div id="briefContentImage">
         <div class="prompt-box">
           <div class="prompt-top">
-            <div class="reference-images-row" id="referenceImagesRowImage"></div>
-            <textarea class="prompt-summary" id="briefPromptImage">A study-abroad promo image for the January UK intake — bright, aspirational, campus setting, diverse group of students.</textarea>
-          </div>
-          <div class="prompt-bottom">
-            <div class="prompt-chips">
-              <!-- Figma 12480:214812 "AI / Prompt Box" controls-row: model · quality · ratio · versions · Brief doc.
-                   HD and Brief doc are display-only chips (no picker drawn in Figma). -->
-              <div class="prompt-chip-wrap" id="imgModelChipWrap">
-                <div class="prompt-chip clickable" onclick="imgToggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/cpu.svg" alt=""><span id="imgModelChipText">Nano Banana</span></div>
-                <!-- Figma 12480:214812 model popover: Nano Banana · GPT Image 2 (Menu / Item Type=Model rows) -->
-                <div class="model-popover" id="imgModelPopover" style="display:none;" onclick="event.stopPropagation();">
-                  <p class="model-popover__title">Model</p>
-                  <button type="button" class="menu-item--model selected" data-model="Nano Banana" onclick="imgSelectModel('Nano Banana')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Nano Banana</span></span><span class="menu-item--model__desc">gemini-3.1-flash-image-preview</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="GPT Image 2" onclick="imgSelectModel('GPT Image 2')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">GPT Image 2</span></span><span class="menu-item--model__desc">gpt-image-2</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+            <!-- Prompt / Character Chip: replaces the old With / No Character section. Same default size as the
+                 Reference chip; empty = no saved character, the AI follows the prompt (a picked character wins). -->
+            <div class="prompt-attach-row">
+              <div class="reference-images-row" id="referenceImagesRowImage"></div>
+              <div class="char-chip-wrap" id="charChipWrapImage">
+                <div class="ref-chip char-chip" id="charChipImage" onclick="openCharacterSeeAllModal('img')" title="Add a saved character">
+                  <img class="ref-chip-icon char-chip-icon" id="charChipIconImage" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelImage">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipImage" role="tooltip"></span>
+                  <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('img')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
-              </div>
-              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span>HD</span></div>
-              <div class="prompt-chip-wrap" id="ratioChipWrapImage">
-                <div class="prompt-chip clickable" onclick="imgToggleRatioPopover(event)">
-                  <img class="ic-img" id="ratioChipIconImage" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""><span id="ratioChipTextImage">4:5</span>
-                </div>
-                <div class="chip-popover" id="ratioPopoverImage" style="display:none;">
-                  <div class="chip-popover-label">Aspect Ratio</div>
-                  <div class="chip-option" data-ratio="9:16" onclick="imgSelectRatio('9:16')"><span>9:16</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-ratio="1:1" onclick="imgSelectRatio('1:1')"><span>1:1</span><span class="check">✓</span></div>
-                  <div class="chip-option selected" data-ratio="4:5" onclick="imgSelectRatio('4:5')"><span>4:5</span><span class="check">✓</span></div>
-                </div>
-              </div>
-              <div class="prompt-chip-wrap" id="versionsChipWrap">
-                <div class="prompt-chip clickable" onclick="toggleVersionsPopover(event)">
-                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""><span id="versionsChipText">2 Versions</span>
-                </div>
-                <div class="chip-popover" id="versionsPopover" style="display:none;">
-                  <div class="chip-popover-label">Versions</div>
-                  <div class="chip-option" data-versions="1" onclick="selectVersions(1)"><span>1</span><span class="check">✓</span></div>
-                  <div class="chip-option selected" data-versions="2" onclick="selectVersions(2)"><span>2</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-versions="3" onclick="selectVersions(3)"><span>3</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-versions="4" onclick="selectVersions(4)"><span>4</span><span class="check">✓</span></div>
-                </div>
-              </div>
-              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span>Brief doc</span></div>
-            </div>
-            <div class="prompt-bottom-actions">
-              <div class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
-              <button type="button" class="ai-refine-pill ai-refine-pill--outlined"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="char-section">
-          <div class="char-section-label">Character</div>
-          <div class="char-section-sub">All optional — defaults to your brand design system.</div>
-          <div class="char-panel">
-            <div class="seg-control" id="charModeToggleImage">
-              <div class="seg-chip active" data-mode="with" onclick="imgSetCharMode('with')">With Character</div>
-              <div class="seg-chip" data-mode="none" onclick="imgSetCharMode('none')">No Character</div>
-            </div>
-            <div id="charWithSectionImage">
+                <div class="char-chip-popover" hidden aria-hidden="true" id="charPopoverImage" style="display:none;" onclick="event.stopPropagation();">
+                  <div class="char-chip-popover__head"><span class="char-chip-popover__title">Character</span><span class="char-chip-popover__sub">Optional. Without one, people in the image follow your prompt.</span></div>
+                  <div id="charWithSectionImage">
               <div class="char-filter-row">
                 <div class="char-filters">
                   <div class="filter-chip active">Favorites <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiB2aWV3Qm94PSIwIDAgMTIgMTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpY29uIC8gc3Rhci1maWxsIiBjbGlwLXBhdGg9InVybCgjY2xpcDBfMF8xMjM5KSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik01Ljc2MjUgMS4xNDc1QzUuNzg0NDEgMS4xMDMyMyA1LjgxODI2IDEuMDY1OTcgNS44NjAyMyAxLjAzOTkxQzUuOTAyMTkgMS4wMTM4NiA1Ljk1MDYgMS4wMDAwNSA2IDEuMDAwMDVDNi4wNDk0IDEuMDAwMDUgNi4wOTc4MSAxLjAxMzg2IDYuMTM5NzcgMS4wMzk5MUM2LjE4MTc0IDEuMDY1OTcgNi4yMTU1OSAxLjEwMzIzIDYuMjM3NSAxLjE0NzVMNy4zOTI1IDMuNDg3QzcuNDY4NTkgMy42NDA5OCA3LjU4MDkxIDMuNzc0MiA3LjcxOTgxIDMuODc1MjNDNy44NTg3MiAzLjk3NjI1IDguMDIwMDYgNC4wNDIwNiA4LjE5IDQuMDY3TDEwLjc3MyA0LjQ0NUMxMC44MjE5IDQuNDUyMDkgMTAuODY3OSA0LjQ3Mjc0IDEwLjkwNTcgNC41MDQ2QzEwLjk0MzYgNC41MzY0NiAxMC45NzE3IDQuNTc4MjcgMTAuOTg3IDQuNjI1M0MxMS4wMDIzIDQuNjcyMzMgMTEuMDA0MSA0LjcyMjcgMTAuOTkyMyA0Ljc3MDcyQzEwLjk4MDUgNC44MTg3MyAxMC45NTU0IDQuODYyNDggMTAuOTIgNC44OTdMOS4wNTIgNi43MTZDOC45Mjg4MSA2LjgzNjA1IDguODM2NjQgNi45ODQyNCA4Ljc4MzQyIDcuMTQ3ODFDOC43MzAyIDcuMzExMzkgOC43MTc1MyA3LjQ4NTQ0IDguNzQ2NSA3LjY1NUw5LjE4NzUgMTAuMjI1QzkuMTk2MTQgMTAuMjczOSA5LjE5MDg2IDEwLjMyNDMgOS4xNzIyNSAxMC4zNzAzQzkuMTUzNjQgMTAuNDE2NCA5LjEyMjQ3IDEwLjQ1NjMgOS4wODIyNyAxMC40ODU1QzkuMDQyMDggMTAuNTE0NyA4Ljk5NDQ5IDEwLjUzMiA4Ljk0NDkzIDEwLjUzNTRDOC44OTUzOCAxMC41Mzg5IDguODQ1ODUgMTAuNTI4MyA4LjgwMiAxMC41MDVMNi40OTMgOS4yOTFDNi4zNDA4NiA5LjIxMTExIDYuMTcxNTkgOS4xNjkzOCA1Ljk5OTc1IDkuMTY5MzhDNS44Mjc5MSA5LjE2OTM4IDUuNjU4NjQgOS4yMTExMSA1LjUwNjUgOS4yOTFMMy4xOTggMTAuNTA1QzMuMTU0MTcgMTAuNTI4MiAzLjEwNDcgMTAuNTM4NiAzLjA1NTIzIDEwLjUzNTFDMy4wMDU3NSAxMC41MzE2IDIuOTU4MjYgMTAuNTE0MyAyLjkxODE1IDEwLjQ4NTFDMi44NzgwNCAxMC40NTU5IDIuODQ2OTIgMTAuNDE2MSAyLjgyODMzIDEwLjM3MDFDMi44MDk3NCAxMC4zMjQxIDIuODA0NDMgMTAuMjczOSAyLjgxMyAxMC4yMjVMMy4yNTM1IDcuNjU1NUMzLjI4MjYgNy40ODU4NyAzLjI2OTk5IDcuMzExNyAzLjIxNjc3IDcuMTQ4MDJDMy4xNjM1NSA2Ljk4NDM1IDMuMDcxMyA2LjgzNjA4IDIuOTQ4IDYuNzE2TDEuMDggNC44OTc1QzEuMDQ0MyA0Ljg2MzAyIDEuMDE5IDQuODE5MiAxLjAwNjk4IDQuNzcxMDRDMC45OTQ5NjYgNC43MjI4OCAwLjk5NjcxOSA0LjY3MjMxIDEuMDEyMDQgNC42MjUxQzEuMDI3MzYgNC41Nzc4OCAxLjA1NTYzIDQuNTM1OTIgMS4wOTM2NCA0LjUwMzk5QzEuMTMxNjQgNC40NzIwNiAxLjE3Nzg1IDQuNDUxNDUgMS4yMjcgNC40NDQ1TDMuODA5NSA0LjA2N0MzLjk3OTYzIDQuMDQyMjUgNC4xNDExOSAzLjk3NjUzIDQuMjgwMjkgMy44NzU0OUM0LjQxOTM5IDMuNzc0NDYgNC41MzE4NSAzLjY0MTE0IDQuNjA4IDMuNDg3TDUuNzYyNSAxLjE0NzVaIiBmaWxsPSIjNDc1MDY5IiBzdHJva2U9IiM0NzUwNjkiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8wXzEyMzkiPgo8cmVjdCB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt="" width="12" height="12" style="margin-left:2px;"></div>
@@ -1901,6 +1913,48 @@
                 </div>
               </div>
             </div>
+                </div>
+              </div>
+            </div>
+            <textarea class="prompt-summary" id="briefPromptImage">A study-abroad promo image for the January UK intake — bright, aspirational, campus setting, diverse group of students.</textarea>
+          </div>
+          <div class="prompt-bottom">
+            <div class="prompt-chips">
+              <!-- Figma 12480:214812 "AI / Prompt Box" controls-row: model · quality · ratio · versions · Brief doc.
+                   HD and Brief doc are display-only chips (no picker drawn in Figma). -->
+              <div class="prompt-chip-wrap" id="imgModelChipWrap">
+                <div class="prompt-chip clickable" onclick="imgToggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/cpu.svg" alt=""><span id="imgModelChipText">Nano Banana</span></div>
+                <!-- Figma 12480:214812 model popover: Nano Banana · GPT Image 2 (Menu / Item Type=Model rows) -->
+                <div class="model-popover" id="imgModelPopover" style="display:none;" onclick="event.stopPropagation();">
+                  <p class="model-popover__title">Model</p>
+                  <button type="button" class="menu-item--model selected" data-model="Nano Banana" onclick="imgSelectModel('Nano Banana')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Nano Banana</span></span><span class="menu-item--model__desc">gemini-3.1-flash-image-preview</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="GPT Image 2" onclick="imgSelectModel('GPT Image 2')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">GPT Image 2</span></span><span class="menu-item--model__desc">gpt-image-2</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+                </div>
+              </div>
+              <div class="prompt-chip-wrap" id="imgQualityChipWrap"><div class="prompt-chip clickable" onclick="toggleBriefOptionPopover(event, 'imgQualityPopover')"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span id="imgQualityChipText">HD</span></div><div class="controls-option-popover brief-option-popover" id="imgQualityPopover" style="display:none;"><div class="controls-option-popover__header">Quality</div><div class="brief-option-list"><button type="button" class="controls-option-row" data-quality="SD" onclick="imgSelectQuality('SD')"><span>SD</span></button><button type="button" class="controls-option-row controls-option-row--selected" data-quality="HD" onclick="imgSelectQuality('HD')"><span>HD</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button><button type="button" class="controls-option-row" data-quality="Full HD" onclick="imgSelectQuality('Full HD')"><span>Full HD</span></button><button type="button" class="controls-option-row" data-quality="Ultra HD" onclick="imgSelectQuality('Ultra HD')"><span>Ultra HD</span></button></div></div></div>
+              <div class="prompt-chip-wrap" id="ratioChipWrapImage">
+                <div class="prompt-chip clickable" onclick="toggleBriefOptionPopover(event, 'ratioPopoverImage')">
+                  <img class="ic-img" id="ratioChipIconImage" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""><span id="ratioChipTextImage">4:5</span>
+                </div>
+                <div class="controls-option-popover brief-option-popover" id="ratioPopoverImage" style="display:none;"><div class="controls-option-popover__header">Aspect Ratio</div><div class="brief-option-list"><button type="button" class="controls-option-row" data-ratio="9:16" onclick="imgSelectRatio('9:16')"><span>9:16</span></button><button type="button" class="controls-option-row" data-ratio="1:1" onclick="imgSelectRatio('1:1')"><span>1:1</span></button><button type="button" class="controls-option-row controls-option-row--selected" data-ratio="4:5" onclick="imgSelectRatio('4:5')"><span>4:5</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button></div></div>
+              </div>
+              <div class="prompt-chip-wrap" id="versionsChipWrap">
+                <div class="prompt-chip clickable" onclick="toggleVersionsPopover(event)">
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""><span id="versionsChipText">2 Versions</span>
+                </div>
+                <div class="chip-popover" id="versionsPopover" style="display:none;">
+                  <div class="chip-popover-label">Versions</div>
+                  <div class="chip-option" data-versions="1" onclick="selectVersions(1)"><span>1</span><span class="check">✓</span></div>
+                  <div class="chip-option selected" data-versions="2" onclick="selectVersions(2)"><span>2</span><span class="check">✓</span></div>
+                  <div class="chip-option" data-versions="3" onclick="selectVersions(3)"><span>3</span><span class="check">✓</span></div>
+                  <div class="chip-option" data-versions="4" onclick="selectVersions(4)"><span>4</span><span class="check">✓</span></div>
+                </div>
+              </div>
+              <div class="prompt-chip prompt-chip--icon clickable" aria-label="Brief doc"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span class="editor-tooltip prompt-chip-tooltip" role="tooltip">Brief doc</span></div>
+            </div>
+            <div class="prompt-bottom-actions">
+              <div class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
+              <button type="button" class="ai-refine-pill ai-refine-pill--outlined"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
+            </div>
           </div>
         </div>
 
@@ -1923,71 +1977,18 @@
 <div id="briefContentReel" style="display:none;">
         <div class="prompt-box">
           <div class="prompt-top">
-            <div class="reference-images-row" id="referenceImagesRow"></div>
-            <div class="mention-wrap">
-              <textarea class="prompt-summary" id="briefSummary">Create a bright, energetic UGC-style video promoting a new lip tint, filmed casually at home with soft lighting. Show the model swatching the tint on her hand first, then applying it to her lips to show the final colour.</textarea>
-              <div class="mention-popover" id="mentionPopover" style="display:none;"></div>
-            </div>
-          </div>
-          <div class="prompt-bottom">
-            <div class="prompt-chips">
-              <!-- Figma 12480:219504 "AI / Prompt Box" controls-row: model · ratio · duration · quality · Brief doc.
-                   Seedance 2.5 and Brief doc are display-only chips for now (no dropdown is drawn in Figma). -->
-              <div class="prompt-chip-wrap" id="videoModelChipWrap">
-                <div class="prompt-chip clickable" id="videoModelChip" onclick="toggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""><span id="videoModelChipText">Seedance 2.5</span></div>
-                <!-- Figma 14148:298300 "Model popover · Seedance" — Menu / Item Type=Model rows -->
-                <div class="model-popover" id="modelPopover" style="display:none;" onclick="event.stopPropagation();">
-                  <p class="model-popover__title">Model</p>
-                  <button type="button" class="menu-item--model selected" data-model="Seedance 2.5" onclick="selectVideoModel('Seedance 2.5')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.5</span><span class="feedback-status-chip feedback-status-chip--blue">New</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–30s</span></span><span class="menu-item--model__desc">Highest quality with advanced references</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 2.0" onclick="selectVideoModel('Seedance 2.0')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.0</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–15s</span></span><span class="menu-item--model__desc">High-quality videos with precise motion and creative control</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 2.0 Fast" onclick="selectVideoModel('Seedance 2.0 Fast')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.0 Fast</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">720p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–15s</span></span><span class="menu-item--model__desc">Faster generation with balanced quality</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 1.0 Pro" onclick="selectVideoModel('Seedance 1.0 Pro')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 1.0 Pro</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">2–12s</span></span><span class="menu-item--model__desc">Cinematic multi-shot videos with smooth, dynamic motion</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+            <!-- Prompt / Character Chip (same as Image / Carousel): picking a character here is what used to be
+                 "With Character"; leaving it empty is "No Character" (the voice section below follows it). -->
+            <div class="prompt-attach-row">
+              <div class="reference-images-row" id="referenceImagesRow"></div>
+              <div class="char-chip-wrap" id="charChipWrapReel">
+                <div class="ref-chip char-chip" id="charChipReel" onclick="openCharacterSeeAllModal('reel')" title="Add a saved character">
+                  <img class="ref-chip-icon char-chip-icon" id="charChipIconReel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelReel">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipReel" role="tooltip"></span>
+                  <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('reel')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
-              </div>
-              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-9-16.svg" alt=""><span>9:16</span></div>
-              <div class="prompt-chip-wrap" id="durationChipWrap">
-                <div class="prompt-chip clickable" onclick="toggleDurationPopover(event)">
-                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-duration.svg" alt=""><span id="durationChipText">16s</span>
-                </div>
-                <div class="controls-option-popover brief-option-popover" id="durationPopover" style="display:none;">
-                  <div class="controls-option-popover__header">Duration</div>
-                  <div class="brief-option-list">
-                    <button type="button" class="controls-option-row" data-seconds="8" onclick="selectDuration(8)"><span>8 seconds</span></button>
-                    <button type="button" class="controls-option-row controls-option-row--selected" data-seconds="16" onclick="selectDuration(16)"><span>16 seconds</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button>
-                    <button type="button" class="controls-option-row" data-seconds="24" onclick="selectDuration(24)"><span>24 seconds</span></button>
-                    <button type="button" class="controls-option-row" data-seconds="30" onclick="selectDuration(30)"><span>30 seconds</span></button>
-                  </div>
-                </div>
-              </div>
-              <div class="prompt-chip-wrap" id="qualityChipWrap">
-                <div class="prompt-chip clickable" onclick="toggleQualityPopover(event)">
-                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span id="qualityChipText">480p</span>
-                </div>
-                <div class="controls-option-popover brief-option-popover brief-option-popover--quality" id="qualityPopover" style="display:none;">
-                  <div class="controls-option-popover__header">Quality</div>
-                  <div class="brief-option-list">
-                    <button type="button" class="controls-option-row controls-option-row--selected" data-quality="480" onclick="selectVideoQuality(480)"><span>Standard · 480p</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button>
-                    <button type="button" class="controls-option-row" data-quality="720" onclick="selectVideoQuality(720)"><span>HD · 720p</span></button>
-                    <button type="button" class="controls-option-row" data-quality="1080" onclick="selectVideoQuality(1080)"><span>Full HD · 1080p</span></button>
-                  </div>
-                </div>
-              </div>
-              <div class="prompt-chip" id="briefDocChip"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span>Brief doc</span></div>
-            </div>
-            <div class="prompt-bottom-actions">
-              <div class="est-credits" id="estCreditsPill"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="estCreditsValue">20</span></span></div>
-              <button type="button" class="ai-refine-pill ai-refine-pill--outlined" id="refineBtn"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="char-section">
-          <div class="char-section-label">Character</div>
-          <div class="char-section-sub">All optional — defaults to your brand design system.</div>
-          <div class="char-panel">
-          <div class="seg-control" id="charModeToggle">
-            <div class="seg-chip active" data-mode="with" onclick="reelSetCharMode('with')">With Character</div>
-            <div class="seg-chip" data-mode="none" onclick="reelSetCharMode('none')">No Character</div>
-          </div>
-
-          <div id="charWithSection">
+                <div class="char-chip-popover" hidden aria-hidden="true" id="charPopoverReel" style="display:none;" onclick="event.stopPropagation();">
+                  <div class="char-chip-popover__head"><span class="char-chip-popover__title">Character</span><span class="char-chip-popover__sub">Optional. Without one, people in the video follow your prompt.</span></div>
+                  <div id="charWithSection">
             <div class="char-filter-row">
               <div class="char-filters">
                 <div class="filter-chip active">Favorites <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiB2aWV3Qm94PSIwIDAgMTIgMTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpY29uIC8gc3Rhci1maWxsIiBjbGlwLXBhdGg9InVybCgjY2xpcDBfMF8xMjM5KSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik01Ljc2MjUgMS4xNDc1QzUuNzg0NDEgMS4xMDMyMyA1LjgxODI2IDEuMDY1OTcgNS44NjAyMyAxLjAzOTkxQzUuOTAyMTkgMS4wMTM4NiA1Ljk1MDYgMS4wMDAwNSA2IDEuMDAwMDVDNi4wNDk0IDEuMDAwMDUgNi4wOTc4MSAxLjAxMzg2IDYuMTM5NzcgMS4wMzk5MUM2LjE4MTc0IDEuMDY1OTcgNi4yMTU1OSAxLjEwMzIzIDYuMjM3NSAxLjE0NzVMNy4zOTI1IDMuNDg3QzcuNDY4NTkgMy42NDA5OCA3LjU4MDkxIDMuNzc0MiA3LjcxOTgxIDMuODc1MjNDNy44NTg3MiAzLjk3NjI1IDguMDIwMDYgNC4wNDIwNiA4LjE5IDQuMDY3TDEwLjc3MyA0LjQ0NUMxMC44MjE5IDQuNDUyMDkgMTAuODY3OSA0LjQ3Mjc0IDEwLjkwNTcgNC41MDQ2QzEwLjk0MzYgNC41MzY0NiAxMC45NzE3IDQuNTc4MjcgMTAuOTg3IDQuNjI1M0MxMS4wMDIzIDQuNjcyMzMgMTEuMDA0MSA0LjcyMjcgMTAuOTkyMyA0Ljc3MDcyQzEwLjk4MDUgNC44MTg3MyAxMC45NTU0IDQuODYyNDggMTAuOTIgNC44OTdMOS4wNTIgNi43MTZDOC45Mjg4MSA2LjgzNjA1IDguODM2NjQgNi45ODQyNCA4Ljc4MzQyIDcuMTQ3ODFDOC43MzAyIDcuMzExMzkgOC43MTc1MyA3LjQ4NTQ0IDguNzQ2NSA3LjY1NUw5LjE4NzUgMTAuMjI1QzkuMTk2MTQgMTAuMjczOSA5LjE5MDg2IDEwLjMyNDMgOS4xNzIyNSAxMC4zNzAzQzkuMTUzNjQgMTAuNDE2NCA5LjEyMjQ3IDEwLjQ1NjMgOS4wODIyNyAxMC40ODU1QzkuMDQyMDggMTAuNTE0NyA4Ljk5NDQ5IDEwLjUzMiA4Ljk0NDkzIDEwLjUzNTRDOC44OTUzOCAxMC41Mzg5IDguODQ1ODUgMTAuNTI4MyA4LjgwMiAxMC41MDVMNi40OTMgOS4yOTFDNi4zNDA4NiA5LjIxMTExIDYuMTcxNTkgOS4xNjkzOCA1Ljk5OTc1IDkuMTY5MzhDNS44Mjc5MSA5LjE2OTM4IDUuNjU4NjQgOS4yMTExMSA1LjUwNjUgOS4yOTFMMy4xOTggMTAuNTA1QzMuMTU0MTcgMTAuNTI4MiAzLjEwNDcgMTAuNTM4NiAzLjA1NTIzIDEwLjUzNTFDMy4wMDU3NSAxMC41MzE2IDIuOTU4MjYgMTAuNTE0MyAyLjkxODE1IDEwLjQ4NTFDMi44NzgwNCAxMC40NTU5IDIuODQ2OTIgMTAuNDE2MSAyLjgyODMzIDEwLjM3MDFDMi44MDk3NCAxMC4zMjQxIDIuODA0NDMgMTAuMjczOSAyLjgxMyAxMC4yMjVMMy4yNTM1IDcuNjU1NUMzLjI4MjYgNy40ODU4NyAzLjI2OTk5IDcuMzExNyAzLjIxNjc3IDcuMTQ4MDJDMy4xNjM1NSA2Ljk4NDM1IDMuMDcxMyA2LjgzNjA4IDIuOTQ4IDYuNzE2TDEuMDggNC44OTc1QzEuMDQ0MyA0Ljg2MzAyIDEuMDE5IDQuODE5MiAxLjAwNjk4IDQuNzcxMDRDMC45OTQ5NjYgNC43MjI4OCAwLjk5NjcxOSA0LjY3MjMxIDEuMDEyMDQgNC42MjUxQzEuMDI3MzYgNC41Nzc4OCAxLjA1NTYzIDQuNTM1OTIgMS4wOTM2NCA0LjUwMzk5QzEuMTMxNjQgNC40NzIwNiAxLjE3Nzg1IDQuNDUxNDUgMS4yMjcgNC40NDQ1TDMuODA5NSA0LjA2N0MzLjk3OTYzIDQuMDQyMjUgNC4xNDExOSAzLjk3NjUzIDQuMjgwMjkgMy44NzU0OUM0LjQxOTM5IDMuNzc0NDYgNC41MzE4NSAzLjY0MTE0IDQuNjA4IDMuNDg3TDUuNzYyNSAxLjE0NzVaIiBmaWxsPSIjNDc1MDY5IiBzdHJva2U9IiM0NzUwNjkiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8wXzEyMzkiPgo8cmVjdCB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt="" width="12" height="12" style="margin-left:2px;"></div>
@@ -2036,26 +2037,105 @@
             </div>
 
           </div>
+                </div>
+              </div>
+              <!-- Audio reference chip (Video only): opens the file picker straight away; once a file is
+                   attached the chip shows its name with the Remove corner, like an attached Reference chip. -->
+              <div class="audio-ref-wrap" id="audioRefWrapReel">
+                <div class="ref-chip audio-ref-chip" id="audioRefChipReel" onclick="document.getElementById('audioRefInputReel').click()" title="Upload an audio reference">
+                  <img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/toolbar-audio.svg" alt=""><span class="ref-chip-label" id="audioRefLabelReel">Audio</span>
+                  <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearAudioReference()" aria-label="Remove audio reference" title="Remove audio"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
+                </div>
+                <input type="file" id="audioRefInputReel" accept="audio/*,.mp3,.wav,.m4a,.aac" hidden onchange="onAudioReferencePicked(this)">
+              </div>
+            </div>
+            <div class="mention-wrap">
+              <textarea class="prompt-summary" id="briefSummary">Create a bright, energetic UGC-style video promoting a new lip tint, filmed casually at home with soft lighting. Show the model swatching the tint on her hand first, then applying it to her lips to show the final colour.</textarea>
+              <div class="mention-popover" id="mentionPopover" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="prompt-bottom">
+            <div class="prompt-chips">
+              <!-- Figma 12480:219504 "AI / Prompt Box" controls-row: model · ratio · duration · quality · Brief doc.
+                   Seedance 2.5 and Brief doc are display-only chips for now (no dropdown is drawn in Figma). -->
+              <div class="prompt-chip-wrap" id="videoModelChipWrap">
+                <div class="prompt-chip clickable" id="videoModelChip" onclick="toggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""><span id="videoModelChipText">Seedance 2.5</span></div>
+                <!-- Figma 14148:298300 "Model popover · Seedance" — Menu / Item Type=Model rows -->
+                <div class="model-popover" id="modelPopover" style="display:none;" onclick="event.stopPropagation();">
+                  <p class="model-popover__title">Model</p>
+                  <button type="button" class="menu-item--model selected" data-model="Seedance 2.5" onclick="selectVideoModel('Seedance 2.5')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.5</span><span class="feedback-status-chip feedback-status-chip--blue">New</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–30s</span></span><span class="menu-item--model__desc">Highest quality with advanced references</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 2.0" onclick="selectVideoModel('Seedance 2.0')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.0</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–15s</span></span><span class="menu-item--model__desc">High-quality videos with precise motion and creative control</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 2.0 Fast" onclick="selectVideoModel('Seedance 2.0 Fast')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 2.0 Fast</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">720p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">4–15s</span></span><span class="menu-item--model__desc">Faster generation with balanced quality</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Seedance 1.0 Pro" onclick="selectVideoModel('Seedance 1.0 Pro')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Seedance 1.0 Pro</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt="">1080p</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt="">2–12s</span></span><span class="menu-item--model__desc">Cinematic multi-shot videos with smooth, dynamic motion</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="Gemini Omni Flash" onclick="selectVideoModel('Gemini Omni Flash')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Gemini Omni Flash</span><span class="menu-item--model__chip"><img src="../../../../components/ai-social-media/icons/audio-mic.svg" alt="">ElevenLabs voices</span></span><span class="menu-item--model__desc">Pick any voice from My voices or the ElevenLabs library</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+                </div>
+              </div>
+              <div class="prompt-chip-wrap" id="videoRatioChipWrap"><div class="prompt-chip clickable" onclick="toggleBriefOptionPopover(event, 'videoRatioPopover')"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-9-16.svg" alt=""><span>9:16</span></div><div class="controls-option-popover brief-option-popover" id="videoRatioPopover" style="display:none;"><div class="controls-option-popover__header">Aspect Ratio</div><div class="brief-option-list"><button type="button" class="controls-option-row controls-option-row--selected" data-ratio="9:16" onclick="closeBriefOptionPopovers('9:16')"><span>9:16</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button></div></div></div>
+              <div class="prompt-chip-wrap" id="durationChipWrap">
+                <div class="prompt-chip clickable" onclick="toggleDurationPopover(event)">
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-duration.svg" alt=""><span id="durationChipText">16s</span>
+                </div>
+                <div class="controls-option-popover brief-option-popover" id="durationPopover" style="display:none;">
+                  <div class="controls-option-popover__header">Duration</div>
+                  <div class="brief-option-list">
+                    <button type="button" class="controls-option-row" data-seconds="8" onclick="selectDuration(8)"><span>8 seconds</span></button>
+                    <button type="button" class="controls-option-row controls-option-row--selected" data-seconds="16" onclick="selectDuration(16)"><span>16 seconds</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button>
+                    <button type="button" class="controls-option-row" data-seconds="24" onclick="selectDuration(24)"><span>24 seconds</span></button>
+                    <button type="button" class="controls-option-row" data-seconds="30" onclick="selectDuration(30)"><span>30 seconds</span></button>
+                  </div>
+                </div>
+              </div>
+              <div class="prompt-chip-wrap" id="qualityChipWrap">
+                <div class="prompt-chip clickable" onclick="toggleQualityPopover(event)">
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span id="qualityChipText">480p</span>
+                </div>
+                <div class="controls-option-popover brief-option-popover brief-option-popover--quality" id="qualityPopover" style="display:none;">
+                  <div class="controls-option-popover__header">Quality</div>
+                  <div class="brief-option-list">
+                    <button type="button" class="controls-option-row controls-option-row--selected" data-quality="480" onclick="selectVideoQuality(480)"><span>Standard · 480p</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button>
+                    <button type="button" class="controls-option-row" data-quality="720" onclick="selectVideoQuality(720)"><span>HD · 720p</span></button>
+                    <button type="button" class="controls-option-row" data-quality="1080" onclick="selectVideoQuality(1080)"><span>Full HD · 1080p</span></button>
+                  </div>
+                </div>
+              </div>
+              <!-- Version B of the voice-use question (demo switch "Voice use"): the same Talking / Voiceover /
+                   No voice choice as a dropdown chip in the prompt box, next to where the prompt is written. -->
+              <div class="prompt-chip-wrap" id="voiceUseChipWrap">
+                <div class="prompt-chip clickable" onclick="toggleVoiceUsePopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/audio-mic.svg" alt=""><span id="voiceUseChipText">Voiceover</span></div>
+                <div class="controls-option-popover brief-option-popover brief-option-popover--voice-use" id="voiceUsePopover" style="display:none;">
+                  <div class="controls-option-popover__header">Voice</div>
+                  <div class="brief-option-list"><button type="button" class="controls-option-row voice-use-row" data-use="talking" onclick="reelSetVoiceUse('talking'); closeVoiceUsePopover();"><span class="voice-use-row__text"><span>Talking (Lip-sync)</span><span class="voice-use-row__desc">Someone speaks the script on camera.</span></span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button><button type="button" class="controls-option-row voice-use-row controls-option-row--selected" data-use="voiceover" onclick="reelSetVoiceUse('voiceover'); closeVoiceUsePopover();"><span class="voice-use-row__text"><span>Voiceover</span><span class="voice-use-row__desc">The script plays as narration.</span></span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button><button type="button" class="controls-option-row voice-use-row" data-use="none" onclick="reelSetVoiceUse('none'); closeVoiceUsePopover();"><span class="voice-use-row__text"><span>No voice</span><span class="voice-use-row__desc">Music and sound only.</span></span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button></div>
+                </div>
+              </div>
+              <div class="prompt-chip prompt-chip--icon clickable" id="briefDocChip" aria-label="Brief doc"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span class="editor-tooltip prompt-chip-tooltip" role="tooltip">Brief doc</span></div>
+            </div>
+            <div class="prompt-bottom-actions">
+              <div class="est-credits" id="estCreditsPill"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="estCreditsValue">20</span></span></div>
+              <button type="button" class="ai-refine-pill ai-refine-pill--outlined" id="refineBtn"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="char-section" id="reelVoiceBlock">
+          <div class="char-section-label">Voice</div>
+          <div class="char-section-sub">How the video sounds. The character is picked in the prompt box above.</div>
+          <div class="char-panel">
+          
+
+          
 
           <!-- Voice/appearance only applies to motion content — hidden entirely for Image post.
                Sits OUTSIDE #charWithSection (a sibling, not nested) so it still shows when
                "No Character" is selected — only the appear-toggle vs needs-voice-toggle portion
                swaps based on character mode; My voices/Browse library stays shared either way. -->
           <div id="charVoiceSection">
-            <div class="char-divider"></div>
-            <div id="charAppearSection">
-              <div class="appear-label">How does character appear in this video?</div>
-              <div class="seg-control" id="charAppearToggle">
-                <div class="seg-chip active" data-appear="lipsync" onclick="reelSetCharAppear('lipsync')">Talking (Lip-sync)</div>
-                <div class="seg-chip" data-appear="acting" onclick="reelSetCharAppear('acting')">Acting only (Voiceover)</div>
+            <!-- One voice question for every video, with or without a saved character (replaces Talking / Acting
+                 for a character and AI Voice / No Voice without one). Defaults to Voiceover; no prompt-based
+                 pre-pick for now (left out of this round). -->
+            <div id="voiceUseSection">
+              <div class="appear-label">How should the voice be used?</div>
+              <div class="seg-control" id="voiceUseToggle">
+                <div class="seg-chip" data-use="talking" onclick="reelSetVoiceUse('talking', true)">Talking (Lip-sync)</div>
+                <div class="seg-chip active" data-use="voiceover" onclick="reelSetVoiceUse('voiceover', true)">Voiceover</div>
+                <div class="seg-chip" data-use="none" onclick="reelSetVoiceUse('none', true)">No voice</div>
               </div>
-            </div>
-            <div id="charNeedsVoiceSection" style="display:none;">
-              <div class="appear-label">Does this video need a voice?</div>
-              <div class="seg-control" id="needsVoiceToggle">
-                <div class="seg-chip active" data-needsvoice="yes" onclick="reelSetNeedsVoice('yes')">AI Voice</div>
-                <div class="seg-chip" data-needsvoice="no" onclick="reelSetNeedsVoice('no')">No Voice</div>
-              </div>
+              <p class="voice-source-hint voice-use-hint" id="voiceUseHint"></p>
             </div>
             <!-- Figma 12480:219702 / 12480:219363 "voice-source": Seedance generates its own voice, so the
                  voice is either made automatically with the video or picked from My voices. The
@@ -2066,7 +2146,8 @@
                 <div class="seg-chip" data-source="auto" onclick="reelSetVoiceSource('auto')">Auto voice</div>
                 <div class="seg-chip active" data-source="choose" onclick="reelSetVoiceSource('choose')">Choose a voice</div>
               </div>
-              <p class="voice-source-hint" id="voiceAutoHint" style="display:none;">The voice is generated together with the video — matched to your character and script. To use a specific voice, pick Choose a voice.</p>
+              <p class="voice-source-hint" id="voiceModelNote" style="display:none;"><span id="voiceModelNoteModel">Seedance 2.5</span> creates its own voice, so ElevenLabs voices aren't available. <button type="button" class="voice-model-switch" onclick="selectVideoModel('Gemini Omni Flash')">Switch to Gemini Omni Flash</button></p>
+              <p class="voice-source-hint" id="voiceAutoHint" style="display:none;">The voice is generated together with the video and matched to your character and script. To use a specific voice, pick Choose a voice.</p>
             <div id="voiceLibrarySection">
               <div class="voice-section-label-row">
                 <span class="my-voices-label">My voices<span class="default-voice-hint" id="defaultVoiceHint" style="display:none;"></span></span>
@@ -2156,64 +2237,18 @@
 <div id="briefContentCarousel" style="display:none;">
         <div class="prompt-box">
           <div class="prompt-top">
-            <div class="reference-images-row" id="referenceImagesRowCarousel"></div>
-            <textarea class="prompt-summary" id="briefPromptCarousel">A 5-card carousel walking prospective students through why they should study abroad with us — one clear idea per card, ending on a call to action to apply.</textarea>
-          </div>
-          <div class="prompt-bottom">
-            <div class="prompt-chips">
-              <!-- Figma 12480:212985 "AI / Prompt Box" controls-row: model · quality · ratio · cards · Brief doc.
-                   HD and Brief doc are display-only chips (no picker drawn in Figma). -->
-              <div class="prompt-chip-wrap" id="carModelChipWrap">
-                <div class="prompt-chip clickable" onclick="carToggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/cpu.svg" alt=""><span id="carModelChipText">Nano Banana</span></div>
-                <!-- Figma 12480:214812 model popover: Nano Banana · GPT Image 2 (Menu / Item Type=Model rows) -->
-                <div class="model-popover" id="carModelPopover" style="display:none;" onclick="event.stopPropagation();">
-                  <p class="model-popover__title">Model</p>
-                  <button type="button" class="menu-item--model selected" data-model="Nano Banana" onclick="carSelectModel('Nano Banana')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Nano Banana</span></span><span class="menu-item--model__desc">gemini-3.1-flash-image-preview</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="GPT Image 2" onclick="carSelectModel('GPT Image 2')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">GPT Image 2</span></span><span class="menu-item--model__desc">gpt-image-2</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+            <!-- Prompt / Character Chip: replaces the old With / No Character section. Same default size as the
+                 Reference chip; empty = no saved character, the AI follows the prompt (a picked character wins). -->
+            <div class="prompt-attach-row">
+              <div class="reference-images-row" id="referenceImagesRowCarousel"></div>
+              <div class="char-chip-wrap" id="charChipWrapCarousel">
+                <div class="ref-chip char-chip" id="charChipCarousel" onclick="openCharacterSeeAllModal('car')" title="Add a saved character">
+                  <img class="ref-chip-icon char-chip-icon" id="charChipIconCarousel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelCarousel">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipCarousel" role="tooltip"></span>
+                  <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('car')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
-              </div>
-              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span>HD</span></div>
-              <div class="prompt-chip-wrap" id="ratioChipWrapCarousel">
-                <div class="prompt-chip clickable" onclick="carToggleRatioPopover(event)">
-                  <img class="ic-img" id="ratioChipIconCarousel" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""><span id="ratioChipTextCarousel">4:5</span>
-                </div>
-                <div class="chip-popover" id="ratioPopoverCarousel" style="display:none;">
-                  <div class="chip-popover-label">Aspect Ratio</div>
-                  <div class="chip-option" data-ratio="9:16" onclick="carSelectRatio('9:16')"><span>9:16</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-ratio="1:1" onclick="carSelectRatio('1:1')"><span>1:1</span><span class="check">✓</span></div>
-                  <div class="chip-option selected" data-ratio="4:5" onclick="carSelectRatio('4:5')"><span>4:5</span><span class="check">✓</span></div>
-                </div>
-              </div>
-              <div class="prompt-chip-wrap" id="cardsChipWrap">
-                <div class="prompt-chip clickable" onclick="toggleCardsPopover(event)">
-                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""><span id="cardsChipText">5 Cards</span>
-                </div>
-                <div class="chip-popover" id="cardsPopover" style="display:none;">
-                  <div class="chip-popover-label">Number of cards</div>
-                  <div class="chip-option" data-cards="2" onclick="selectCardCount(2)"><span>2</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-cards="3" onclick="selectCardCount(3)"><span>3</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-cards="4" onclick="selectCardCount(4)"><span>4</span><span class="check">✓</span></div>
-                  <div class="chip-option selected" data-cards="5" onclick="selectCardCount(5)"><span>5</span><span class="check">✓</span></div>
-                  <div class="chip-option" data-cards="6" onclick="selectCardCount(6)"><span>6</span><span class="check">✓</span></div>
-                </div>
-              </div>
-              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span>Brief doc</span></div>
-            </div>
-            <div class="prompt-bottom-actions">
-              <div class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
-              <button type="button" class="ai-refine-pill ai-refine-pill--outlined"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="char-section">
-          <div class="char-section-label">Character</div>
-          <div class="char-section-sub">All optional — defaults to your brand design system.</div>
-          <div class="char-panel">
-            <div class="seg-control" id="charModeToggleCarousel">
-              <div class="seg-chip active" data-mode="with" onclick="carSetCharMode('with')">With Character</div>
-              <div class="seg-chip" data-mode="none" onclick="carSetCharMode('none')">No Character</div>
-            </div>
-            <div id="charWithSectionCarousel">
+                <div class="char-chip-popover" hidden aria-hidden="true" id="charPopoverCarousel" style="display:none;" onclick="event.stopPropagation();">
+                  <div class="char-chip-popover__head"><span class="char-chip-popover__title">Character</span><span class="char-chip-popover__sub">Optional. Without one, people in the image follow your prompt.</span></div>
+                  <div id="charWithSectionCarousel">
               <div class="char-filter-row">
                 <div class="char-filters">
                   <div class="filter-chip active">Favorites <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiB2aWV3Qm94PSIwIDAgMTIgMTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpY29uIC8gc3Rhci1maWxsIiBjbGlwLXBhdGg9InVybCgjY2xpcDBfMF8xMjM5KSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik01Ljc2MjUgMS4xNDc1QzUuNzg0NDEgMS4xMDMyMyA1LjgxODI2IDEuMDY1OTcgNS44NjAyMyAxLjAzOTkxQzUuOTAyMTkgMS4wMTM4NiA1Ljk1MDYgMS4wMDAwNSA2IDEuMDAwMDVDNi4wNDk0IDEuMDAwMDUgNi4wOTc4MSAxLjAxMzg2IDYuMTM5NzcgMS4wMzk5MUM2LjE4MTc0IDEuMDY1OTcgNi4yMTU1OSAxLjEwMzIzIDYuMjM3NSAxLjE0NzVMNy4zOTI1IDMuNDg3QzcuNDY4NTkgMy42NDA5OCA3LjU4MDkxIDMuNzc0MiA3LjcxOTgxIDMuODc1MjNDNy44NTg3MiAzLjk3NjI1IDguMDIwMDYgNC4wNDIwNiA4LjE5IDQuMDY3TDEwLjc3MyA0LjQ0NUMxMC44MjE5IDQuNDUyMDkgMTAuODY3OSA0LjQ3Mjc0IDEwLjkwNTcgNC41MDQ2QzEwLjk0MzYgNC41MzY0NiAxMC45NzE3IDQuNTc4MjcgMTAuOTg3IDQuNjI1M0MxMS4wMDIzIDQuNjcyMzMgMTEuMDA0MSA0LjcyMjcgMTAuOTkyMyA0Ljc3MDcyQzEwLjk4MDUgNC44MTg3MyAxMC45NTU0IDQuODYyNDggMTAuOTIgNC44OTdMOS4wNTIgNi43MTZDOC45Mjg4MSA2LjgzNjA1IDguODM2NjQgNi45ODQyNCA4Ljc4MzQyIDcuMTQ3ODFDOC43MzAyIDcuMzExMzkgOC43MTc1MyA3LjQ4NTQ0IDguNzQ2NSA3LjY1NUw5LjE4NzUgMTAuMjI1QzkuMTk2MTQgMTAuMjczOSA5LjE5MDg2IDEwLjMyNDMgOS4xNzIyNSAxMC4zNzAzQzkuMTUzNjQgMTAuNDE2NCA5LjEyMjQ3IDEwLjQ1NjMgOS4wODIyNyAxMC40ODU1QzkuMDQyMDggMTAuNTE0NyA4Ljk5NDQ5IDEwLjUzMiA4Ljk0NDkzIDEwLjUzNTRDOC44OTUzOCAxMC41Mzg5IDguODQ1ODUgMTAuNTI4MyA4LjgwMiAxMC41MDVMNi40OTMgOS4yOTFDNi4zNDA4NiA5LjIxMTExIDYuMTcxNTkgOS4xNjkzOCA1Ljk5OTc1IDkuMTY5MzhDNS44Mjc5MSA5LjE2OTM4IDUuNjU4NjQgOS4yMTExMSA1LjUwNjUgOS4yOTFMMy4xOTggMTAuNTA1QzMuMTU0MTcgMTAuNTI4MiAzLjEwNDcgMTAuNTM4NiAzLjA1NTIzIDEwLjUzNTFDMy4wMDU3NSAxMC41MzE2IDIuOTU4MjYgMTAuNTE0MyAyLjkxODE1IDEwLjQ4NTFDMi44NzgwNCAxMC40NTU5IDIuODQ2OTIgMTAuNDE2MSAyLjgyODMzIDEwLjM3MDFDMi44MDk3NCAxMC4zMjQxIDIuODA0NDMgMTAuMjczOSAyLjgxMyAxMC4yMjVMMy4yNTM1IDcuNjU1NUMzLjI4MjYgNy40ODU4NyAzLjI2OTk5IDcuMzExNyAzLjIxNjc3IDcuMTQ4MDJDMy4xNjM1NSA2Ljk4NDM1IDMuMDcxMyA2LjgzNjA4IDIuOTQ4IDYuNzE2TDEuMDggNC44OTc1QzEuMDQ0MyA0Ljg2MzAyIDEuMDE5IDQuODE5MiAxLjAwNjk4IDQuNzcxMDRDMC45OTQ5NjYgNC43MjI4OCAwLjk5NjcxOSA0LjY3MjMxIDEuMDEyMDQgNC42MjUxQzEuMDI3MzYgNC41Nzc4OCAxLjA1NTYzIDQuNTM1OTIgMS4wOTM2NCA0LjUwMzk5QzEuMTMxNjQgNC40NzIwNiAxLjE3Nzg1IDQuNDUxNDUgMS4yMjcgNC40NDQ1TDMuODA5NSA0LjA2N0MzLjk3OTYzIDQuMDQyMjUgNC4xNDExOSAzLjk3NjUzIDQuMjgwMjkgMy44NzU0OUM0LjQxOTM5IDMuNzc0NDYgNC41MzE4NSAzLjY0MTE0IDQuNjA4IDMuNDg3TDUuNzYyNSAxLjE0NzVaIiBmaWxsPSIjNDc1MDY5IiBzdHJva2U9IiM0NzUwNjkiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8wXzEyMzkiPgo8cmVjdCB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt="" width="12" height="12" style="margin-left:2px;"></div>
@@ -2260,6 +2295,49 @@
                 <button type="button" class="char-grid-arrow" onclick="scrollCharGrid(this)"><img src="../../../../components/ai-social-media/icons/chevron-right.svg" class="icon-inline" alt=""></button>
                 </div>
               </div>
+            </div>
+                </div>
+              </div>
+            </div>
+            <textarea class="prompt-summary" id="briefPromptCarousel">A 5-card carousel walking prospective students through why they should study abroad with us — one clear idea per card, ending on a call to action to apply.</textarea>
+          </div>
+          <div class="prompt-bottom">
+            <div class="prompt-chips">
+              <!-- Figma 12480:212985 "AI / Prompt Box" controls-row: model · quality · ratio · cards · Brief doc.
+                   HD and Brief doc are display-only chips (no picker drawn in Figma). -->
+              <div class="prompt-chip-wrap" id="carModelChipWrap">
+                <div class="prompt-chip clickable" onclick="carToggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/cpu.svg" alt=""><span id="carModelChipText">Nano Banana</span></div>
+                <!-- Figma 12480:214812 model popover: Nano Banana · GPT Image 2 (Menu / Item Type=Model rows) -->
+                <div class="model-popover" id="carModelPopover" style="display:none;" onclick="event.stopPropagation();">
+                  <p class="model-popover__title">Model</p>
+                  <button type="button" class="menu-item--model selected" data-model="Nano Banana" onclick="carSelectModel('Nano Banana')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Nano Banana</span></span><span class="menu-item--model__desc">gemini-3.1-flash-image-preview</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="GPT Image 2" onclick="carSelectModel('GPT Image 2')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">GPT Image 2</span></span><span class="menu-item--model__desc">gpt-image-2</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+                </div>
+              </div>
+              <div class="prompt-chip-wrap" id="carQualityChipWrap"><div class="prompt-chip clickable" onclick="toggleBriefOptionPopover(event, 'carQualityPopover')"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span id="carQualityChipText">HD</span></div><div class="controls-option-popover brief-option-popover" id="carQualityPopover" style="display:none;"><div class="controls-option-popover__header">Quality</div><div class="brief-option-list"><button type="button" class="controls-option-row" data-quality="SD" onclick="carSelectQuality('SD')"><span>SD</span></button><button type="button" class="controls-option-row controls-option-row--selected" data-quality="HD" onclick="carSelectQuality('HD')"><span>HD</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button><button type="button" class="controls-option-row" data-quality="Full HD" onclick="carSelectQuality('Full HD')"><span>Full HD</span></button><button type="button" class="controls-option-row" data-quality="Ultra HD" onclick="carSelectQuality('Ultra HD')"><span>Ultra HD</span></button></div></div></div>
+              <div class="prompt-chip-wrap" id="ratioChipWrapCarousel">
+                <div class="prompt-chip clickable" onclick="toggleBriefOptionPopover(event, 'ratioPopoverCarousel')">
+                  <img class="ic-img" id="ratioChipIconCarousel" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""><span id="ratioChipTextCarousel">4:5</span>
+                </div>
+                <div class="controls-option-popover brief-option-popover" id="ratioPopoverCarousel" style="display:none;"><div class="controls-option-popover__header">Aspect Ratio</div><div class="brief-option-list"><button type="button" class="controls-option-row" data-ratio="9:16" onclick="carSelectRatio('9:16')"><span>9:16</span></button><button type="button" class="controls-option-row" data-ratio="1:1" onclick="carSelectRatio('1:1')"><span>1:1</span></button><button type="button" class="controls-option-row controls-option-row--selected" data-ratio="4:5" onclick="carSelectRatio('4:5')"><span>4:5</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button></div></div>
+              </div>
+              <div class="prompt-chip-wrap" id="cardsChipWrap">
+                <div class="prompt-chip clickable" onclick="toggleCardsPopover(event)">
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""><span id="cardsChipText">5 Cards</span>
+                </div>
+                <div class="chip-popover" id="cardsPopover" style="display:none;">
+                  <div class="chip-popover-label">Number of cards</div>
+                  <div class="chip-option" data-cards="2" onclick="selectCardCount(2)"><span>2</span><span class="check">✓</span></div>
+                  <div class="chip-option" data-cards="3" onclick="selectCardCount(3)"><span>3</span><span class="check">✓</span></div>
+                  <div class="chip-option" data-cards="4" onclick="selectCardCount(4)"><span>4</span><span class="check">✓</span></div>
+                  <div class="chip-option selected" data-cards="5" onclick="selectCardCount(5)"><span>5</span><span class="check">✓</span></div>
+                  <div class="chip-option" data-cards="6" onclick="selectCardCount(6)"><span>6</span><span class="check">✓</span></div>
+                </div>
+              </div>
+              <div class="prompt-chip prompt-chip--icon clickable" aria-label="Brief doc"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span class="editor-tooltip prompt-chip-tooltip" role="tooltip">Brief doc</span></div>
+            </div>
+            <div class="prompt-bottom-actions">
+              <div class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
+              <button type="button" class="ai-refine-pill ai-refine-pill--outlined"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
             </div>
           </div>
         </div>
@@ -2355,7 +2433,7 @@
             <!-- Figma controls-row (15003:714382): model · quality · ratio · versions · character · Est. credits.
                  Model / quality are display-only (the Image brief has no pickers for them yet). -->
             <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/cpu.svg" alt=""></div><b id="genSettingModelImage">Nano Banana</b></div>
-            <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></div><b>HD</b></div>
+            <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></div><b id="genSettingQualityImage">HD</b></div>
             <div class="setting-chip" data-lockable-img><div class="chip-ic"><img id="genSettingRatioIconImage" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""></div><b id="genSettingRatioImage">4:5</b></div>
             <div class="setting-chip" data-lockable-img><div class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""></div><b id="genSettingVersionsImage">2 Versions</b></div>
             <div class="setting-chip-wrap" id="characterChipWrapImage">
@@ -2532,7 +2610,7 @@
           <div class="settings-bar" id="settingsBarCarousel">
             <!-- Figma controls-row (12480:213146): model · quality · ratio · cards · character · Est. credits (model / quality display-only) -->
             <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/cpu.svg" alt=""></span><b id="genSettingModelCarousel">Nano Banana</b></div>
-            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></span><b>HD</b></div>
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></span><b id="genSettingQualityCarousel">HD</b></div>
             <div class="setting-chip"><span class="ratio-icon"><i></i></span><b id="genSettingRatioCarousel">4:5</b></div>
             <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""></span><b id="genSettingCards">5 Cards</b></div>
             <div class="setting-chip-wrap" id="carouselCharacterChipWrap" style="display:none;">
@@ -3057,7 +3135,7 @@
     <div class="pub-container">
       <div class="pub-page-heading">
         <h2 class="pub-title">Publish</h2>
-        <p class="pub-subtitle">Describe your idea — AI handles everything else</p>
+        <p class="pub-subtitle">Describe your idea. AI takes care of the rest.</p>
       </div>
 
       <div class="pub-block" id="pubDestinationsBlock">
@@ -3486,6 +3564,13 @@
   <p class="role-cap">Signed in as</p>
   <button type="button" class="role-btn on" data-brand="none" onclick="setBrandMode('none')">No brand setup</button>
   <button type="button" class="role-btn" data-brand="set" onclick="setBrandMode('set')">Brand set up</button>
+</div>
+
+<div class="voice-use-switch" id="voiceUseSwitch" role="group" aria-label="Voice use question placement">
+  <p class="role-cap">Voice use</p>
+  <button type="button" class="role-btn on" data-variant="chip" onclick="setVoiceUseVariant('chip')">Chip in prompt</button>
+  <button type="button" class="role-btn" data-variant="section" onclick="setVoiceUseVariant('section')">Question below</button>
+  <button type="button" class="role-btn" onclick="location.href='new-content-to-generate-previous.html' + location.search">Previous version</button>
 </div>
 
 <div class="thumb-mode-switch" id="thumbModeSwitch" role="group" aria-label="Script clip thumbnail preview">
@@ -4720,14 +4805,14 @@ function imgRemoveReferenceImage(num){
 function imgRenderReferenceImages(){
   const icon = `<img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/content-image-plus.svg" alt="">`;
   const chips = imgReferenceImages.map(n => `
-    <div class="ref-chip ref-chip--sm" data-attached="true">
+    <div class="ref-chip" data-attached="true">
       ${icon}<span class="ref-chip-label">Image ${n}</span>
       <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); imgRemoveReferenceImage(${n})" aria-label="Remove reference image ${n}" title="Remove reference"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
     </div>
   `).join('');
   const menuOpen = window.__refUploadMenuOpen === 'img-reference';
   document.getElementById('referenceImagesRowImage').innerHTML = chips + `
-    <div class="ref-chip ref-chip--sm" onclick="toggleRefUploadMenu(event, 'img-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('img-reference') : ''}</div>
+    <div class="ref-chip" onclick="toggleRefUploadMenu(event, 'img-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('img-reference') : ''}</div>
   `;
 }
 imgRenderReferenceImages();
@@ -4745,6 +4830,8 @@ function imgToggleRatioPopover(e){
 }
 function toggleVersionsPopover(e){
   e.stopPropagation();
+  closeBriefOptionPopovers();
+  ['imgModelPopover', 'carModelPopover'].forEach(id => { const p = document.getElementById(id); if(p) p.style.display = 'none'; });
   document.getElementById('ratioPopoverImage').style.display = 'none';
   const pop = document.getElementById('versionsPopover');
   pop.style.display = pop.style.display === 'block' ? 'none' : 'block';
@@ -4756,7 +4843,7 @@ document.addEventListener('click', (e) => {
 function imgSelectRatio(value){
   window.__imageRatio = value;
   document.getElementById('ratioChipTextImage').textContent = value;
-  document.querySelectorAll('#ratioPopoverImage .chip-option').forEach(o => o.classList.toggle('selected', o.dataset.ratio === value));
+  setBriefOptionRows('#ratioPopoverImage', 'ratio', value);
   document.getElementById('ratioPopoverImage').style.display = 'none';
   imgUpdateBriefMeta();
 }
@@ -4894,14 +4981,14 @@ function carRemoveReferenceImage(num){
 function carRenderReferenceImages(){
   const icon = `<img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/content-image-plus.svg" alt="">`;
   const chips = carReferenceImages.map(n => `
-    <div class="ref-chip ref-chip--sm" data-attached="true">
+    <div class="ref-chip" data-attached="true">
       ${icon}<span class="ref-chip-label">Image ${n}</span>
       <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); carRemoveReferenceImage(${n})" aria-label="Remove reference image ${n}" title="Remove reference"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
     </div>
   `).join('');
   const menuOpen = window.__refUploadMenuOpen === 'car-reference';
   document.getElementById('referenceImagesRowCarousel').innerHTML = chips + `
-    <div class="ref-chip ref-chip--sm" onclick="toggleRefUploadMenu(event, 'car-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('car-reference') : ''}</div>
+    <div class="ref-chip" onclick="toggleRefUploadMenu(event, 'car-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('car-reference') : ''}</div>
   `;
 }
 carRenderReferenceImages();
@@ -4914,6 +5001,7 @@ window.__cardCount = 5;
 // popover as the Video brief; the pick mirrors onto that type's Generate-step model chip.
 function briefToggleModelPopover(e, prefix){
   e.stopPropagation();
+  closeBriefOptionPopovers();
   const pop = document.getElementById(prefix + 'ModelPopover');
   const open = pop.style.display !== 'flex';
   pop.style.display = open ? 'flex' : 'none';
@@ -4935,6 +5023,42 @@ document.addEventListener('click', (e) => {
     if(pop && pop.style.display === 'flex' && !e.target.closest('#' + prefix + 'ModelChipWrap')) pop.style.display = 'none';
   });
 });
+// ---- Brief prompt-box option dropdowns (Controls / Option List Popover): ratio, quality ----
+const BRIEF_OPTION_POPOVERS = ['ratioPopoverImage', 'ratioPopoverCarousel', 'imgQualityPopover', 'carQualityPopover', 'videoRatioPopover'];
+function closeBriefOptionPopovers(){ BRIEF_OPTION_POPOVERS.forEach(id => { const p = document.getElementById(id); if(p) p.style.display = 'none'; }); }
+function toggleBriefOptionPopover(e, id){
+  e.stopPropagation();
+  const pop = document.getElementById(id);
+  const opening = pop.style.display !== 'flex';
+  // one open dropdown per prompt box: close its siblings (model, versions/cards, duration...) first
+  pop.closest('.prompt-chips').querySelectorAll('[id$="Popover"]').forEach(p => p.style.display = 'none');
+  pop.style.display = opening ? 'flex' : 'none';
+}
+function setBriefOptionRows(popSel, key, value){
+  document.querySelectorAll(popSel + ' .controls-option-row').forEach(o => {
+    const on = o.dataset[key] === String(value);
+    o.classList.toggle('controls-option-row--selected', on);
+    const img = o.querySelector('img');
+    if(on && !img) o.insertAdjacentHTML('beforeend', '<img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt="">');
+    else if(!on && img) img.remove();
+  });
+}
+function briefSelectQuality(pref, q, genId){
+  document.getElementById(pref + 'QualityChipText').textContent = q;
+  setBriefOptionRows('#' + pref + 'QualityPopover', 'quality', q);
+  closeBriefOptionPopovers();
+  const g = document.getElementById(genId);
+  if(g) g.textContent = q;
+}
+function imgSelectQuality(q){ window.__imageQuality = q; briefSelectQuality('img', q, 'genSettingQualityImage'); }
+function carSelectQuality(q){ window.__carouselQuality = q; briefSelectQuality('car', q, 'genSettingQualityCarousel'); }
+// close any of these dropdowns when the click lands outside its own chip (incl. on another chip)
+document.addEventListener('click', (e) => {
+  BRIEF_OPTION_POPOVERS.forEach(id => {
+    const p = document.getElementById(id);
+    if(p && p.style.display === 'flex' && !p.parentElement.contains(e.target)) p.style.display = 'none';
+  });
+});
 function carToggleRatioPopover(e){
   e.stopPropagation();
   document.getElementById('cardsPopover').style.display = 'none';
@@ -4943,6 +5067,8 @@ function carToggleRatioPopover(e){
 }
 function toggleCardsPopover(e){
   e.stopPropagation();
+  closeBriefOptionPopovers();
+  ['imgModelPopover', 'carModelPopover'].forEach(id => { const p = document.getElementById(id); if(p) p.style.display = 'none'; });
   document.getElementById('ratioPopoverCarousel').style.display = 'none';
   const pop = document.getElementById('cardsPopover');
   pop.style.display = pop.style.display === 'block' ? 'none' : 'block';
@@ -4955,7 +5081,7 @@ function carSelectRatio(value){
   window.__carouselRatio = value;
   document.getElementById('ratioChipTextCarousel').textContent = value;
   document.getElementById('ratioChipIconCarousel').src = `../../../../components/ai-social-media/icons/spec-${value.replace(':', '-')}.svg`;
-  document.querySelectorAll('#ratioPopoverCarousel .chip-option').forEach(o => o.classList.toggle('selected', o.dataset.ratio === value));
+  setBriefOptionRows('#ratioPopoverCarousel', 'ratio', value);
   document.getElementById('ratioPopoverCarousel').style.display = 'none';
   carUpdateBriefMeta();
 }
@@ -5062,6 +5188,58 @@ function selectCharStyle(el){
   toggleCharCardSelect(el, '#charStylesGrid');
 }
 
+// ---- Prompt / Character Chip (Video, Image, Carousel brief) ----
+// Clicking the chip opens the Characters modal (Figma 12480:218763, openCharacterSeeAllModal). The old
+// character grid stays in the DOM, hidden, as the selection store the modal and the Generate step read.
+// No pick = no saved character (the AI follows the prompt); a picked character wins over the prompt.
+const BRIEF_CHAR = {
+  img: { suf: 'Image', grid: 'charGridImage', styles: 'charStylesPanelImage', withStyles: () => CHAR_WITH_STYLES_IMAGE },
+  car: { suf: 'Carousel', grid: 'charGridCarousel', styles: 'charStylesPanelCarousel', withStyles: () => CHAR_WITH_STYLES_CAROUSEL },
+  reel: { suf: 'Reel', grid: 'charGrid', styles: 'charStylesPanelReel', withStyles: () => CHAR_WITH_STYLES },
+};
+function briefSelectedCharCard(pref){
+  return document.querySelector('#' + BRIEF_CHAR[pref].grid + ' .char-card.selected:not(.new)');
+}
+function syncBriefCharChip(pref){
+  const c = BRIEF_CHAR[pref], card = briefSelectedCharCard(pref);
+  const chip = document.getElementById('charChip' + c.suf);
+  if(!chip) return;
+  const icon = document.getElementById('charChipIcon' + c.suf);
+  const photo = card && card.querySelector('.thumb img');
+  if(card) chip.dataset.attached = 'true'; else delete chip.dataset.attached;
+  chip.classList.toggle('char-chip--photo', !!photo);
+  const tip = document.getElementById('charChipTip' + c.suf);
+  if(tip) tip.textContent = card ? card.querySelector('.name').textContent : '';
+  document.getElementById('charChipLabel' + c.suf).textContent = card ? card.querySelector('.name').textContent : 'Character';
+  icon.src = photo ? photo.src : '../../../../components/ai-social-media/icons/user-round.svg';
+  if(pref === 'car'){
+    window.__charMode = card ? 'with' : 'none';
+    syncCarouselCharacterChip();
+    const gen = document.getElementById('genSettingCharacterCarousel');
+    if(gen && card) gen.textContent = card.querySelector('.name').textContent;
+  }
+  if(pref === 'reel'){
+    if(!card) window.__selectedCharId = null;
+    reelSetCharMode(card ? 'with' : 'none');
+  }
+  if(pref === 'img'){
+    const gen = document.getElementById('genSettingCharacterChipImage');
+    if(gen) gen.style.display = card ? '' : 'none';
+  }
+}
+function clearBriefCharacter(pref){
+  const c = BRIEF_CHAR[pref];
+  document.querySelectorAll('#' + c.grid + ' .char-card').forEach(x => x.classList.remove('selected'));
+  document.getElementById(c.styles).classList.remove('show');
+  syncBriefCharChip(pref);
+}
+// Any path that changes the grid selection (popover, Generate-step chip, See all modal) keeps the chip in sync.
+Object.keys(BRIEF_CHAR).forEach(pref => {
+  const grid = document.getElementById(BRIEF_CHAR[pref].grid);
+  if(grid) new MutationObserver(() => syncBriefCharChip(pref)).observe(grid, { subtree:true, attributes:true, attributeFilter:['class'] });
+  // Video's first sync runs once its voice/model state exists (see window.__videoModel below).
+  if(pref !== 'reel') syncBriefCharChip(pref);
+});
 // ---- Advanced settings (Brief & Style, collapsible) ----
 function carToggleAdvancedSettings(){
   document.getElementById('advancedSectionCarousel').classList.toggle('open');
@@ -6736,39 +6914,122 @@ function reviseScript(requestText){
 }
 
 // ---- Character section (Brief & Style) ----
+// Driven by the Character chip (picked = 'with', empty = 'none'); it only changes the voice-use hint now.
+window.__reelCharMode = 'none';
 function reelSetCharMode(mode){
-  document.querySelectorAll('#charModeToggle .seg-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
-  document.getElementById('charWithSection').style.display = mode === 'with' ? 'block' : 'none';
-  // Voice still applies with no character — just swap the appear-toggle (which assumes a
-  // character to lip-sync/voice-over) for the simpler "does this need a voice" toggle.
-  document.getElementById('charAppearSection').style.display = mode === 'with' ? 'block' : 'none';
-  document.getElementById('charNeedsVoiceSection').style.display = mode === 'none' ? 'block' : 'none';
+  window.__reelCharMode = mode;
+  syncVoiceUseHint();
   syncVoiceLibraryVisibility();
 }
-function reelSetCharAppear(mode){
-  document.querySelectorAll('#charAppearToggle .seg-chip').forEach(c => c.classList.toggle('active', c.dataset.appear === mode));
+// ---- Voice use: version switch + prompt-box chip dropdown ----
+function setVoiceUseVariant(v){
+  document.body.classList.toggle('voice-use--chip', v === 'chip');
+  document.querySelectorAll('#voiceUseSwitch .role-btn').forEach(b => b.classList.toggle('on', b.dataset.variant === v));
+  syncVoiceLibraryVisibility();
 }
+function toggleVoiceUsePopover(e){
+  e.stopPropagation();
+  closeBriefOptionPopovers();
+  const pop = document.getElementById('voiceUsePopover');
+  document.querySelectorAll('#durationPopover, #qualityPopover, #modelPopover').forEach(p => p.style.display = 'none');
+  pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
+}
+function closeVoiceUsePopover(){ document.getElementById('voiceUsePopover').style.display = 'none'; }
+document.addEventListener('click', (e) => {
+  const pop = document.getElementById('voiceUsePopover');
+  if(pop && pop.style.display === 'flex' && !e.target.closest('#voiceUseChipWrap')) pop.style.display = 'none';
+});
+// ---- Audio reference chip (Video brief) ----
+window.__audioRef = null;
+function onAudioReferencePicked(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  window.__audioRef = { name: file.name, size: file.size, type: file.type };
+  const chip = document.getElementById('audioRefChipReel');
+  chip.dataset.attached = 'true';
+  chip.title = file.name;
+  document.getElementById('audioRefLabelReel').textContent = file.name;
+}
+function clearAudioReference(){
+  window.__audioRef = null;
+  const input = document.getElementById('audioRefInputReel');
+  input.value = '';
+  const chip = document.getElementById('audioRefChipReel');
+  delete chip.dataset.attached;
+  chip.title = 'Upload an audio reference';
+  document.getElementById('audioRefLabelReel').textContent = 'Audio';
+}
+// ---- "How should the voice be used?" (Talking / Voiceover / No voice) ----
+window.__voiceUse = 'voiceover';
 window.__needsVoice = 'yes';
-function reelSetNeedsVoice(mode){
-  window.__needsVoice = mode;
-  document.querySelectorAll('#needsVoiceToggle .seg-chip').forEach(c => c.classList.toggle('active', c.dataset.needsvoice === mode));
+function reelSetVoiceUse(use, manual){
+  window.__voiceUse = use;
+  const chipText = document.getElementById('voiceUseChipText');
+  if(chipText) chipText.textContent = { talking:'Talking', voiceover:'Voiceover', none:'No voice' }[use];
+  document.querySelectorAll('#voiceUsePopover .voice-use-row').forEach(r => r.classList.toggle('controls-option-row--selected', r.dataset.use === use));
+  window.__needsVoice = use === 'none' ? 'no' : 'yes';
+  document.querySelectorAll('#voiceUseToggle .seg-chip').forEach(c => c.classList.toggle('active', c.dataset.use === use));
+  syncVoiceUseHint();
   syncVoiceLibraryVisibility();
+}
+function syncVoiceUseHint(){
+  const hint = document.getElementById('voiceUseHint');
+  if(!hint) return;
+  const card = document.querySelector('#charGrid .char-card.selected:not(.new)');
+  const who = card ? card.querySelector('.name').textContent : 'Someone in the video';
+  const desc = {
+    talking: `${who} speaks the script on camera.`,
+    voiceover: 'The script plays as narration over the video.',
+    none: 'No speech. Music and sound only.',
+  }[window.__voiceUse];
+  hint.textContent = desc;
 }
 // My voices / Browse library only make sense when a voice is actually going to be used —
 // hidden when "No Character" + "No Voice" is selected together.
 function syncVoiceLibraryVisibility(){
-  const charMode = document.querySelector('#charModeToggle .seg-chip.active')?.dataset.mode;
-  const noVoice = charMode === 'none' && window.__needsVoice === 'no';
+  const noVoice = window.__voiceUse === 'none';
+  // Version B: with the question up in the prompt box, an empty "Voice" section hides entirely.
+  const block = document.getElementById('reelVoiceBlock');
+  if(block) block.style.display = noVoice && document.body.classList.contains('voice-use--chip') ? 'none' : '';
   // "How should the voice be made?" only exists while a voice is going to be used at all.
   document.getElementById('voiceSourceSection').style.display = noVoice ? 'none' : 'flex';
   // Auto voice: the voice is generated with the video, so the My voices list + Browse library hide
   // and the one-line explanation shows instead (Figma 12480:219702).
   const auto = window.__voiceSource === 'auto';
+  const gated = !modelSupportsPickedVoice();
   document.getElementById('voiceLibrarySection').style.display = auto ? 'none' : 'block';
-  document.getElementById('voiceAutoHint').style.display = auto ? '' : 'none';
+  // When the model can't take a picked voice, the model note replaces the Auto voice hint.
+  document.getElementById('voiceAutoHint').style.display = auto && !gated ? '' : 'none';
+  document.getElementById('voiceModelNote').style.display = gated ? '' : 'none';
+  document.getElementById('voiceModelNoteModel').textContent = window.__videoModel;
+  document.querySelector('#voiceSourceToggle .seg-chip[data-source="choose"]').classList.toggle('disabled', gated);
 }
-// Seedance makes its own voice (Auto voice) and can't take a picked one -- both options are wired
-// up as designed for now; the Choose-a-voice limitation for Seedance is a later change.
+// Only some video models take a picked ElevenLabs voice. Seedance makes its own voice, so with a
+// Seedance model "Choose a voice" is disabled and the source is forced to Auto voice.
+const VOICE_PICK_MODELS = ['Gemini Omni Flash'];
+function modelSupportsPickedVoice(){ return VOICE_PICK_MODELS.includes(window.__videoModel); }
+// Re-applies the gate after a model change; a voice that was picked gets reset to Auto with a toast.
+function applyVoiceModelGate(){
+  if(!modelSupportsPickedVoice() && window.__voiceSource === 'choose'){
+    reelSetVoiceSource('auto');
+    showVoiceModelToast(`Voice set to Auto. ${window.__videoModel} creates its own voice.`);
+  } else {
+    syncVoiceLibraryVisibility();
+  }
+}
+function showVoiceModelToast(msg){
+  let t = document.getElementById('voiceModelToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'voiceModelToast';
+    t.className = 'fmxref-toast voice-model-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(showVoiceModelToast._t);
+  showVoiceModelToast._t = setTimeout(() => { t.hidden = true; }, 2800);
+}
 window.__voiceSource = 'choose';
 function reelSetVoiceSource(source){
   window.__voiceSource = source;
@@ -6928,9 +7189,7 @@ function renderReferenceImages(){
   // local state; a blanket `.reference-images-row` selector here would clobber those every
   // time this function runs, since all these rows share that one layout class.
   document.querySelectorAll('#referenceImagesRow, .reference-images-row.compact').forEach(row => {
-    row.innerHTML = row.id === 'referenceImagesRow'
-      ? briefHtml.replace(/class="ref-chip(?= |")/g, 'class="ref-chip ref-chip--sm')
-      : compactHtml;
+    row.innerHTML = row.id === 'referenceImagesRow' ? briefHtml : compactHtml;
   });
 }
 renderReferenceImages();
@@ -7089,6 +7348,7 @@ function buildCharSeeAllModalHtml(){
           <h2 class="modal__title">Characters</h2>
           <button type="button" class="modal__close" onclick="closeCharacterSeeAllModal()"><img src="../../../../components/ai-social-media/icons/button-x-dark.svg" class="icon-inline" alt=""></button>
         </div>
+        <div class="search-field search-field--expanded char-see-all-search"><img src="../../../../components/ai-social-media/icons/ui-search.svg" alt=""><input class="search-field__input" id="charSeeAllSearch" type="text" placeholder="Search characters..." oninput="filterCharSeeAll(this.value)"></div>
         <div class="mylib-filter-bar">
           <div class="mylib-filter-left">
             <button type="button" class="filter-toggle" id="charSeeAllFavToggle" onclick="toggleCharSeeAllFav()">
@@ -7098,7 +7358,6 @@ function buildCharSeeAllModalHtml(){
             <div class="mylib-filter-row">
               <div class="filter-select"><span class="filter-select__label">Age</span><img class="filter-select__caret" src="../../../../components/ai-social-media/icons/caret-down-filled.svg" alt=""></div>
               <div class="filter-select"><span class="filter-select__label">Gender</span><img class="filter-select__caret" src="../../../../components/ai-social-media/icons/caret-down-filled.svg" alt=""></div>
-              <span class="mylib-item-count" id="charSeeAllCount"></span>
             </div>
           </div>
         </div>
@@ -7119,7 +7378,9 @@ function mountCharSeeAllModal(){
 function openCharacterSeeAllModal(scope){
   window.__charSeeAllScope = scope;
   window.__charSeeAllFavOnly = false;
+  window.__charSeeAllQuery = '';
   mountCharSeeAllModal();
+  document.getElementById('charSeeAllSearch').value = '';
   document.getElementById('charSeeAllFavToggle').classList.remove('filter-toggle--selected');
   window.__charSeeAllPendingId = charSeeAllActiveId();
   renderCharSeeAllGrid();
@@ -7144,8 +7405,8 @@ function charSeeAllActiveId(){
   return m ? m[1] : null;
 }
 function renderCharSeeAllGrid(){
-  const list = window.__charSeeAllFavOnly ? CHAR_SEE_ALL_DATA.filter(c => c.fav) : CHAR_SEE_ALL_DATA;
-  document.getElementById('charSeeAllCount').textContent = `${list.length} character${list.length === 1 ? '' : 's'}`;
+  const q = (window.__charSeeAllQuery || '').trim().toLowerCase();
+  const list = CHAR_SEE_ALL_DATA.filter(c => (!window.__charSeeAllFavOnly || c.fav) && (!q || c.name.toLowerCase().includes(q)));
   const pendingId = window.__charSeeAllPendingId;
   document.getElementById('charSeeAllGrid').innerHTML =
     `<div class="char-select-card new" role="button" tabindex="0" onclick="openCreateCharacterModal(window.__charSeeAllScope)">
@@ -7159,14 +7420,20 @@ function renderCharSeeAllGrid(){
           <button type="button" class="thumb-action-btn fav${c.fav ? ' active' : ''}" onclick="event.stopPropagation(); toggleCharSeeAllCardFav('${c.id}')" aria-label="Favorite ${c.name}"><img src="../../../../components/ai-social-media/icons/${c.fav ? 'shape-star-filled' : 'favorite-star-16'}.svg" alt=""></button>
           <button type="button" class="thumb-action-btn" onclick="event.stopPropagation();" aria-label="More actions for ${c.name}"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" alt=""></button>
         </div>
-        <div class="posts-badge"><p>${c.posts} posts · ${c.styles} ${c.styles === 1 ? 'style' : 'styles'}</p></div>
+        <div class="posts-badge"><p>${c.posts} posts</p></div>
       </div>
       <div class="meta">
         <p class="name">${c.name}</p>
-        <div class="type-row"><span>${c.type}</span><span>·</span><span>${CHAR_SEE_ALL_BRAND}</span></div>
+        <div class="type-row"><span>${c.type}</span></div>
       </div>
-      <span class="feedback-status-chip feedback-status-chip--green">Ready</span>
+      ${c.id === CHAR_SEE_ALL_DEFAULT_ID ? '<span class="feedback-status-chip feedback-status-chip--green">Default</span>' : ''}
     </div>`).join('');
+}
+// Figma 12480:218763: the brand's default character carries a "Default" badge (Elena in this prototype).
+const CHAR_SEE_ALL_DEFAULT_ID = 'elena';
+function filterCharSeeAll(q){
+  window.__charSeeAllQuery = q;
+  renderCharSeeAllGrid();
 }
 function toggleCharSeeAllCardFav(charId){
   const c = CHAR_SEE_ALL_DATA.find(x => x.id === charId);
@@ -8418,6 +8685,7 @@ function setVideoUnitDesc(unit, value){
 }
 function toggleDurationPopover(e){
   e.stopPropagation();
+  closeBriefOptionPopovers();
   const pop = document.getElementById('durationPopover');
   document.getElementById('qualityPopover').style.display = 'none';
   document.getElementById('modelPopover').style.display = 'none';
@@ -8428,6 +8696,7 @@ function toggleDurationPopover(e){
 window.__videoQuality = 480;
 function toggleQualityPopover(e){
   e.stopPropagation();
+  closeBriefOptionPopovers();
   const pop = document.getElementById('qualityPopover');
   document.getElementById('durationPopover').style.display = 'none';
   document.getElementById('modelPopover').style.display = 'none';
@@ -8435,8 +8704,14 @@ function toggleQualityPopover(e){
 }
 // Video model dropdown (Figma 14148:298300) — the chosen name mirrors onto the Generate chip row.
 window.__videoModel = 'Seedance 2.5';
+// The default model is Seedance, so the brief opens on Auto voice with "Choose a voice" gated (no toast on load).
+if(!modelSupportsPickedVoice()) reelSetVoiceSource('auto');
+syncBriefCharChip('reel');
+syncVoiceUseHint();
+setVoiceUseVariant('chip');
 function toggleModelPopover(e){
   e.stopPropagation();
+  closeBriefOptionPopovers();
   const pop = document.getElementById('modelPopover');
   const open = pop.style.display !== 'flex';
   document.querySelectorAll('#durationPopover, #qualityPopover').forEach(p => p.style.display = 'none');
@@ -8449,6 +8724,7 @@ function selectVideoModel(name){
   document.getElementById('modelPopover').style.display = 'none';
   const g = document.getElementById('genSettingModel');
   if(g) g.textContent = name;
+  applyVoiceModelGate();
 }
 document.addEventListener('click', (e) => {
   const mp = document.getElementById('modelPopover');
@@ -12158,7 +12434,7 @@ fitScreenToViewport();
          .reference-images-row (untouched, still owned by renderReferenceImages()) and the
          new .fmxref-row together in one flex-row line, re-parenting the live node rather
          than rewriting its markup. */
-      var refRow = top.querySelector(':scope > .reference-images-row');
+      var refRow = top.querySelector(':scope > .reference-images-row, :scope > .prompt-attach-row > .reference-images-row');
       if (refRow){
         var line = document.createElement('div');
         line.className = 'fmxref-line';
