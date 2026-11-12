@@ -90,7 +90,7 @@ ul,ol{list-style:none}
 .controls{display:flex;gap:8px}
 .ctl{display:flex;align-items:center;gap:5px;height:38px;padding:7px 12px 7px 10px;border-radius:8px;border:1px solid var(--n400);background:#fff;font-size:14px;line-height:22px;font-weight:500;color:var(--n700);transition:transform .3s var(--ease),border-color .25s,background .25s}
 .ctl img{width:16px;height:16px}
-.ctl:hover{transform:translateY(-2px);border-color:var(--n500);background:var(--n50)}
+.ctl:hover{border-color:var(--n500);background:#fff}
 .ratio{display:block;width:8px;height:14px;margin:0 4px;border:1.2px solid var(--n500);border-radius:2px}
 .btn.gen{height:36px}
 .credit{display:flex;align-items:center;gap:2px}
@@ -105,7 +105,8 @@ ul,ol{list-style:none}
 .refine img{width:16px;height:16px}
 .refine span{background:linear-gradient(90deg,var(--blue),var(--pink),var(--blue));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 4s linear infinite}
 @keyframes flow{to{background-position:-200% 0}}
-.chip:hover,.refine:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(79,109,230,.16);border-color:rgba(79,109,230,.5)}
+/* Hover = DS rule (Table filter, Text button): white fill, border neutral/400 → neutral/500, text and icon unchanged */
+.chip:hover,.refine:hover{background:#fff;border-color:var(--n500)}
 .chip:active,.refine:active{transform:scale(.96)}
 
 /* Showcase */
