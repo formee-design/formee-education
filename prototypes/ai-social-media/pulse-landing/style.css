@@ -264,6 +264,7 @@ ul,ol{list-style:none}
 .p-feats li.off{color:var(--n400)}
 .p-feats img{width:16px;height:16px}
 .foot{font-size:14px;line-height:22px;color:var(--n500)}
+.pricing .more{display:flex;flex-direction:column;align-items:center;gap:20px}
 
 /* FAQ */
 .faq{display:flex;gap:24px;padding:80px 240px;background:#fff;align-items:flex-start}
