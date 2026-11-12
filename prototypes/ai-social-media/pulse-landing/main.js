@@ -6,8 +6,8 @@
   const page = $('#page');
 
   /* The design is a 1920 canvas with a 1440 content column.
-     1496–1920 wide: real size (zoom 1), centered, side margins cropped.
-     Narrower: scale so the 1440 column plus a 28 gutter fits. Wider: scale up so the backgrounds still reach the edges. */
+     1600–1920 wide: real size (zoom 1), centered, side margins cropped.
+     Narrower: scale so the 1440 column plus an 80 gutter fits (1440 wide screen = 1280 column, same as the 1440 frame). Wider: scale up so the backgrounds still reach the edges. */
   let zoom = 1, rectK = 1;
   const probe = document.createElement('div');
   probe.style.cssText = 'position:absolute;left:0;top:0;width:100px;height:1px;visibility:hidden';
@@ -15,7 +15,7 @@
   const navWrap = $('#nav');
   function fit() {
     const cw = document.documentElement.clientWidth;
-    zoom = cw > 1920 ? cw / 1920 : cw < 1496 ? cw / 1496 : 1; // 1440 column + 28 gutter each side
+    zoom = cw > 1920 ? cw / 1920 : cw < 1600 ? (cw - 160) / 1440 : 1; // 1440 column scaled to fit, 80 real px gutter each side
     page.style.zoom = zoom;
     const off = Math.min(0, (cw / zoom - 1920) / 2);
     page.style.marginLeft = page.style.marginRight = off + 'px';
