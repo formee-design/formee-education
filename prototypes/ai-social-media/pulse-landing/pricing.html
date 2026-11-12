@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing · Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<div class="progress" aria-hidden="true"><i id="progress"></i></div>
+
+<div id="page" class="sub pricing-page">
+  <div class="bg-wash" aria-hidden="true"></div>
+  <div class="glow glow-a" aria-hidden="true"></div>
+  <div class="glow glow-b" aria-hidden="true"></div>
+
+  <header class="nav-wrap" id="nav">
+    <nav class="nav">
+      <a class="nav-left" href="index.html" aria-label="Pulse home">
+        <img class="nav-wordmark" src="assets/logo-wordmark.svg" alt="Pulse" width="67" height="19">
+      </a>
+      <div class="nav-links" id="navLinks">
+        <span class="nav-pill" aria-hidden="true"></span>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How it works</a>
+        <a href="pricing.html" class="on" aria-current="page">Pricing</a>
+        <a href="index.html#faq">FAQ</a>
+      </div>
+      <div class="nav-right">
+        <a class="btn ghost" href="#">Log in</a>
+        <a class="btn" data-magnetic href="#plans"><span>Start free</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="pricing first" id="plans-section">
+      <div class="head">
+        <h1 class="d3" data-split data-auto>Start free. Pay for what you make.</h1>
+        <p class="body18 w640 r up" data-auto style="--d:.35s">Credits work the same on every plan. Bigger plans make longer, sharper videos.</p>
+      </div>
+      <div class="billing r up" data-auto style="--d:.45s">
+        <div class="toggle" id="toggle" role="tablist">
+          <span class="thumb" aria-hidden="true"></span>
+          <button data-mode="monthly">Monthly</button>
+          <button class="on" data-mode="annual">Annual</button>
+        </div>
+        <span class="save">Save 15%</span>
+      </div>
+      <div class="plans annual" id="plans"></div>
+    </section>
+
+    <section class="compare" id="compare">
+      <div class="head">
+        <h2 class="d3" data-split>Compare plans</h2>
+        <p class="body16 r up" style="--d:.25s">Every plan includes your Brand Kit and the same credit system.</p>
+      </div>
+      <div class="ctable r up" style="--d:.1s">
+        <div class="crow chead">
+          <div>All prices in USD, billed annually.</div>
+          <div><b>Free Trial</b><span class="cp">$0<span>one time</span></span><a class="btn outline" href="#"><span>Start free trial</span></a></div>
+          <div><b>Basic</b><span class="cp">$42<span>/month</span></span><a class="btn" href="#"><span>Upgrade now</span></a></div>
+          <div><b>Standard</b><span class="cp">$110<span>/month</span></span><a class="btn" href="#"><span>Upgrade now</span></a></div>
+          <div><b>Premium</b><span class="cp">$254<span>/month</span></span><a class="btn" href="#"><span>Upgrade now</span></a></div>
+        </div>
+        <div class="crow group"><div>Create</div><div></div><div></div><div></div><div></div></div>
+        <div class="crow"><div>Credits</div><div>40, one time</div><div>200 / month</div><div>520 / month</div><div>1,200 / month</div></div>
+        <div class="crow"><div>Video length</div><div>8s</div><div>8s</div><div>8s, 16s</div><div>8s, 16s, 24s, 30s</div></div>
+        <div class="crow"><div>Max quality</div><div>720p</div><div>720p</div><div>1080p</div><div>1080p</div></div>
+        <div class="crow"><div>Image posts</div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div></div>
+        <div class="crow"><div>Music generation</div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div></div>
+        <div class="crow group"><div>Brand and team</div><div></div><div></div><div></div><div></div></div>
+        <div class="crow"><div>Brand Kit</div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div></div>
+        <div class="crow"><div>Brands</div><div>1</div><div>1</div><div>3</div><div>10</div></div>
+        <div class="crow"><div>Team members</div><div>1</div><div>1</div><div>3</div><div>5</div></div>
+        <div class="crow group"><div>Voices</div><div></div><div></div><div></div><div></div></div>
+        <div class="crow"><div>Library voices</div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div></div>
+        <div class="crow"><div>Custom voices</div><div class="dash">–</div><div>1</div><div>3</div><div>5</div></div>
+        <div class="crow group"><div>Billing</div><div></div><div></div><div></div><div></div></div>
+        <div class="crow"><div>Buy extra credits</div><div class="dash">–</div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div></div>
+        <div class="crow"><div>Annual billing, 15% off</div><div class="dash">–</div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div><div><img src="assets/ic-check.svg" alt="Included"></div></div>
+      </div>
+    </section>
+
+    <section class="credits" id="credits">
+      <div class="head">
+        <h2 class="d3" data-split>What credits buy</h2>
+        <p class="body16 r up" style="--d:.25s">You see the cost before you click Generate. If a render fails, the credits come back.</p>
+      </div>
+      <div class="ccards">
+        <div class="ccard r up">
+          <h4>Video</h4>
+          <div class="vrow h"><span>Length</span><span>480p</span><span>720p</span><span>1080p</span></div>
+          <div class="vrow"><span>8 seconds</span><span>10</span><span>20</span><span>48</span></div>
+          <div class="vrow"><span>16 seconds</span><span>20</span><span>40</span><span>96</span></div>
+          <div class="vrow"><span>24 seconds</span><span>30</span><span>60</span><span>144</span></div>
+          <div class="vrow"><span>30 seconds</span><span>38</span><span>75</span><span>180</span></div>
+        </div>
+        <div class="ccard r up" style="--d:.1s">
+          <h4>Everything else</h4>
+          <div class="orow"><span>Image post or character image</span><b>1 credit</b></div>
+          <div class="orow"><span>Music up to 16s, 2 versions</span><b>1 credit</b></div>
+          <div class="orow"><span>Music up to 30s, 2 versions</span><b>2 credits</b></div>
+          <div class="orow"><span>Custom voice</span><b>2 credits</b></div>
+          <div class="orow"><span>Library or uploaded music</span><b>Free</b></div>
+          <div class="orow"><span>Voiceover in a video</span><b>Included</b></div>
+        </div>
+      </div>
+      <div class="extra r up" style="--d:.15s">
+        <div><h4>Need more credits?</h4><p>Add 100 credits for $30 on any paid plan. They never expire, and monthly credits are used first.</p></div>
+        <a class="btn outline" href="#"><span>Buy credits</span></a>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="faq-left"><h2 class="d2" data-split>Pricing questions.</h2></div>
+      <div class="faq-list">
+        <div class="q r up open"><button aria-expanded="true"><span>Do unused credits roll over?</span><img src="assets/ic-chevron.svg" alt=""></button><div class="a"><div><p>Monthly credits expire at the end of each billing cycle. Credits you buy separately never expire.</p></div></div></div>
+        <div class="q r up" style="--d:.06s"><button aria-expanded="false"><span>What happens if a generation fails?</span><img src="assets/ic-chevron.svg" alt=""></button><div class="a"><div><p>Failed renders refund the credits used automatically. If you do not have enough credits, Pulse stops before generating and offers more. There are no automatic overage charges.</p></div></div></div>
+        <div class="q r up" style="--d:.12s"><button aria-expanded="false"><span>Can I change my plan later?</span><img src="assets/ic-chevron.svg" alt=""></button><div class="a"><div><p>Yes. Upgrades start right away. You pay the new plan price minus a prorated credit for unused time, and you get the new plan’s full monthly credits. Downgrades start on your next billing date, and you can cancel them before then.</p></div></div></div>
+        <div class="q r up" style="--d:.18s"><button aria-expanded="false"><span>Can I cancel at any time?</span><img src="assets/ic-chevron.svg" alt=""></button><div class="a"><div><p>Yes. Your plan and credits stay available until the end of the paid period. Unused monthly credits then expire. Credits you bought stay on your account for when you subscribe again.</p></div></div></div>
+        <div class="q r up" style="--d:.24s"><button aria-expanded="false"><span>Can I buy extra credits on the Free Trial?</span><img src="assets/ic-chevron.svg" alt=""></button><div class="a"><div><p>No. Free Trial users need to subscribe to a paid plan before buying extra credits.</p></div></div></div>
+        <div class="q r up" style="--d:.3s"><button aria-expanded="false"><span>How does annual billing work?</span><img src="assets/ic-chevron.svg" alt=""></button><div class="a"><div><p>Annual billing is 15% off the monthly price. Credits are still added every month, not all at once.</p></div></div></div>
+      </div>
+    </section>
+
+    <section class="cta short">
+      <div class="cta-head">
+        <h2 class="d3" data-split>Make this week’s posts today.</h2>
+        <p class="r up" style="--d:.25s">Start with 40 free credits and make your first post today.</p>
+        <a class="btn big shine r up" style="--d:.35s" data-magnetic href="#top"><span>Start creating for free</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="f-brand r up">
+      <span class="logo"><img class="logo-mark" src="assets/logo-mark.svg" alt=""><img class="logo-word" src="assets/logo-word.svg" alt=""></span>
+      <p>Make on-brand posts for every brand you run. Image, video and carousel, all in one workspace.</p>
+      <div class="social">
+        <a href="#" aria-label="Instagram"><img src="assets/so-ig.svg" alt=""></a>
+        <a href="#" aria-label="TikTok" class="tt"><img src="assets/so-tt.svg" alt=""></a>
+        <a href="#" aria-label="YouTube"><img src="assets/so-yt.svg" alt=""></a>
+        <a href="#" aria-label="LinkedIn"><img src="assets/so-li.svg" alt=""></a>
+        <a href="#" aria-label="Facebook"><img src="assets/so-fb.svg" alt=""></a>
+      </div>
+      <small>© Formee 2026</small>
+    </div>
+    <div class="f-col r up" style="--d:.08s"><h5>Features</h5><a href="index.html#features">Brand Kit</a><a href="index.html#features">Trends</a><a href="index.html#features">Editor</a><a href="index.html#features">Schedule and publish</a></div>
+    <div class="f-col r up" style="--d:.16s"><h5>Get started</h5><a href="index.html#how">How it works</a><a href="pricing.html">Pricing</a><a href="pricing.html#credits">What is a credit?</a><a href="index.html#faq">FAQ</a></div>
+    <div class="f-col r up" style="--d:.24s"><h5>Company</h5><a href="#">About Formee</a><a href="#">Contact</a><a href="terms.html">Terms of Use</a><a href="privacy.html">Privacy</a></div>
+  </footer>
+</div>
+<script src="pages.js"></script>
+</body>
+</html>

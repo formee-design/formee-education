@@ -1,0 +1,79 @@
+/* Sub pages (Pricing, Terms of Use, Privacy Policy). Loaded after style.css. Figma section 410:11690. */
+
+/* Nav is fixed and 101 tall, so the first section starts 80 below it */
+.first{padding-top:181px!important}
+.sub .pricing,.sub .faq,.sub .cta{background:none}
+/* Sections sit above the background wash and glows */
+.sub main>section{position:relative}
+section[id],.legal-sec{scroll-margin-top:120px}
+
+/* Pricing · plans with the yearly note under the price */
+.pricing-page .plan{height:auto}
+.p-block{display:flex;flex-direction:column;gap:6px}
+.p-note{font-size:13px;line-height:20px;color:var(--n500)}
+.p-note em{font-style:normal;color:var(--blue)}
+.p-note .mo{display:none}
+.plans:not(.annual) .p-note .yr{display:none}
+.plans:not(.annual) .p-note .mo{display:inline}
+
+/* Compare plans */
+.compare{padding:80px 240px;display:flex;flex-direction:column;align-items:center;gap:40px}
+.compare .head{gap:12px}
+.ctable{width:1440px;border:1px solid var(--n200);border-radius:16px;overflow:hidden;background:#fff}
+.crow{display:grid;grid-template-columns:400px repeat(4,1fr);border-bottom:1px solid var(--n200)}
+.crow:last-child{border-bottom:0}
+.crow>div{display:flex;align-items:center;padding:14px 20px;min-height:50px;font-size:14px;line-height:22px;font-weight:600;color:var(--n900)}
+.crow>div:first-child{font-weight:400;color:var(--n700)}
+.crow>div:nth-child(4){background:rgba(79,109,230,.06)}
+.crow .dash{font-weight:400;color:var(--n400)}
+.crow img{width:16px;height:16px}
+.crow.group{background:var(--n50)}
+.crow.group>div:first-child{font-weight:600;color:var(--blue)}
+.crow.chead>div{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;padding:20px}
+.crow.chead>div:first-child{font-size:13px;line-height:20px;color:var(--n500)}
+.crow.chead b{font-size:16px;line-height:24px;font-weight:600}
+.crow.chead .cp{display:flex;align-items:baseline;gap:4px;font-size:20px;line-height:28px;font-weight:500}
+.crow.chead .cp span{font-size:13px;line-height:20px;font-weight:400;color:var(--n500)}
+.crow.chead .btn{height:32px;font-size:12px;margin-top:4px}
+.crow:not(.chead):not(.group){transition:background .25s}
+.crow:not(.chead):not(.group):hover{background:var(--n50)}
+
+/* What credits buy */
+.credits{padding:80px 240px;display:flex;flex-direction:column;align-items:center;gap:40px}
+.credits .head{gap:12px}
+.ccards{display:flex;gap:24px;width:1440px}
+.ccard{flex:1;padding:24px 28px;border:1px solid var(--n200);border-radius:16px;background:#fff;transition:transform .6s var(--ease),box-shadow .5s var(--ease),opacity .9s var(--ease) var(--d,0s)}
+.ccard.in:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(15,23,41,.08)}
+.ccard h4{font-size:16px;line-height:24px;font-weight:600;margin-bottom:4px}
+.vrow{display:grid;grid-template-columns:repeat(4,1fr);padding:14px 0;border-top:1px solid var(--n200);font-size:14px;line-height:22px;font-weight:600}
+.vrow.h{border-top:0;font-size:13px;line-height:20px;color:var(--n500)}
+.vrow span:first-child{font-weight:400;color:var(--n700)}
+.vrow.h span:first-child{font-weight:600;color:var(--n500)}
+.orow{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--n200);font-size:14px;line-height:22px}
+.orow:first-of-type{border-top:0}
+.orow span{color:var(--n700)}
+.orow b{font-weight:600}
+.extra{display:flex;align-items:center;justify-content:space-between;width:1440px;padding:24px 28px;border-radius:16px;background:var(--n50)}
+.extra h4{font-size:16px;line-height:24px;font-weight:600}
+.extra p{font-size:14px;line-height:22px;color:var(--n700);margin-top:4px}
+
+/* Final CTA without the image wall */
+.cta.short{padding:80px 0 96px}
+
+/* Legal pages */
+.legal{display:flex;gap:96px;padding:181px 240px 80px;align-items:flex-start;position:relative}
+.legal-side{position:sticky;top:120px;width:484px;flex:none;display:flex;flex-direction:column;gap:40px}
+.legal-side .sub-t{font-size:16px;line-height:24px;color:var(--n500);margin-top:16px}
+.toc{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.toc h5{font-size:14px;line-height:22px;font-weight:600}
+.toc a{position:relative;font-size:14px;line-height:22px;font-weight:500;color:var(--n500);transition:color .25s,transform .35s var(--ease)}
+.toc a:hover{color:var(--n900);transform:translateX(4px)}
+.toc a.on{color:var(--blue)}
+.legal-body{flex:1}
+.legal-sec{display:flex;flex-direction:column;gap:12px;padding:32px 0;border-bottom:1px solid var(--n200)}
+.legal-sec:first-child{padding-top:0}
+.legal-sec:last-child{border-bottom:0}
+.legal-sec h2{font-size:20px;line-height:28px;font-weight:500}
+.legal-sec p{font-size:16px;line-height:26px;color:var(--n700);white-space:pre-line}
+.legal-sec a{color:var(--blue)}
+.legal-sec a:hover{text-decoration:underline}
