@@ -993,9 +993,10 @@
   /* Video Brief & Style prompt box (Figma 12480:219504): 20px padding, icon-only chips without chevrons,
      and the right-hand Est. credits + Refine pair. The popovers are Controls / Option List Popover instances
      sized like the Figma ones (Duration 128 wide, Quality 170 wide); header + list are 4px apart, rows 0. */
-  #briefContentReel .prompt-box{padding:var(--spacing-xl);}
+  /* Image (12480:214812) and Carousel (12480:212985) briefs share the same prompt box shell */
+  #briefContentReel .prompt-box, #briefContentImage .prompt-box, #briefContentCarousel .prompt-box{padding:var(--spacing-xl);}
   /* the summary line is one 22px row in Figma; the textarea grows to its 2-line default brief (rows=2) instead of the old 66px floor */
-  #briefContentReel .prompt-summary{min-height:22px;}
+  #briefContentReel .prompt-summary, #briefContentImage .prompt-summary, #briefContentCarousel .prompt-summary{min-height:22px;}
   .prompt-chip .ic-img{width:16px; height:16px; display:block; flex-shrink:0;}
   .prompt-bottom-actions{display:flex; align-items:center; gap:var(--spacing-sm);}
   .brief-option-popover{display:none; flex-direction:column; width:128px; box-sizing:border-box;}
@@ -1593,7 +1594,9 @@
   #stageAreaReel .script-limit-row.over{margin-top:var(--spacing-xs);}
   #stageAreaReel .script-limit-row.over .script-limit-count,
   #stageAreaReel .script-limit-error{font-size:var(--font-size-text-xs); line-height:normal; font-weight:var(--font-weight-medium);}
-  #modelPopover{position:absolute; top:calc(100% + var(--spacing-xs)); left:0; z-index:40;}
+  #modelPopover, #imgModelPopover, #carModelPopover{position:absolute; top:calc(100% + var(--spacing-xs)); left:0; z-index:40;}
+  /* image model rows carry no badges/chips, so the card hugs its name + model id like Figma's */
+  #imgModelPopover, #carModelPopover{width:max-content;}
   #reelBrandKitSection .brand-kit-description{margin:0;}
   #reelBrandKitSection .brand-kit-toggle-row{height:23px;} /* Figma use-brand-kit-group: label 22 + 23px switch */
   #reelBrandKitEmpty .brand-kit-empty-row{padding:calc(var(--spacing-md) - var(--border-width-1)) calc(var(--spacing-lg) - var(--border-width-1));}
@@ -1800,9 +1803,20 @@
           </div>
           <div class="prompt-bottom">
             <div class="prompt-chips">
+              <!-- Figma 12480:214812 "AI / Prompt Box" controls-row: model · quality · ratio · versions · Brief doc.
+                   HD and Brief doc are display-only chips (no picker drawn in Figma). -->
+              <div class="prompt-chip-wrap" id="imgModelChipWrap">
+                <div class="prompt-chip clickable" onclick="imgToggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/cpu.svg" alt=""><span id="imgModelChipText">Nano Banana</span></div>
+                <!-- Figma 12480:214812 model popover: Nano Banana · GPT Image 2 (Menu / Item Type=Model rows) -->
+                <div class="model-popover" id="imgModelPopover" style="display:none;" onclick="event.stopPropagation();">
+                  <p class="model-popover__title">Model</p>
+                  <button type="button" class="menu-item--model selected" data-model="Nano Banana" onclick="imgSelectModel('Nano Banana')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Nano Banana</span></span><span class="menu-item--model__desc">gemini-3.1-flash-image-preview</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="GPT Image 2" onclick="imgSelectModel('GPT Image 2')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">GPT Image 2</span></span><span class="menu-item--model__desc">gpt-image-2</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+                </div>
+              </div>
+              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span>HD</span></div>
               <div class="prompt-chip-wrap" id="ratioChipWrapImage">
                 <div class="prompt-chip clickable" onclick="imgToggleRatioPopover(event)">
-                  <div class="ic ratio-box-ic"></div><span id="ratioChipTextImage">4:5</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span>
+                  <img class="ic-img" id="ratioChipIconImage" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""><span id="ratioChipTextImage">4:5</span>
                 </div>
                 <div class="chip-popover" id="ratioPopoverImage" style="display:none;">
                   <div class="chip-popover-label">Aspect Ratio</div>
@@ -1813,7 +1827,7 @@
               </div>
               <div class="prompt-chip-wrap" id="versionsChipWrap">
                 <div class="prompt-chip clickable" onclick="toggleVersionsPopover(event)">
-                  <div class="ic"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpY29uIC8gY29udGVudCAvIGNhcm91c2VsIiBjbGlwLXBhdGg9InVybCgjY2xpcDBfMF8xMTUxKSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik04LjU1MzMzIDEuNDUzMzNDOC4zNzk2MiAxLjM3NDEgOC4xOTA5MyAxLjMzMzEgOCAxLjMzMzFDNy44MDkwNyAxLjMzMzEgNy42MjAzNyAxLjM3NDEgNy40NDY2NyAxLjQ1MzMzTDEuNzMzMzMgNC4wNTMzM0MxLjYxNTAzIDQuMTA1NSAxLjUxNDQ1IDQuMTkwOTMgMS40NDM4NCA0LjI5OTI0QzEuMzczMjMgNC40MDc1NCAxLjMzNTY0IDQuNTM0MDQgMS4zMzU2NCA0LjY2MzMzQzEuMzM1NjQgNC43OTI2MiAxLjM3MzIzIDQuOTE5MTIgMS40NDM4NCA1LjAyNzQzQzEuNTE0NDUgNS4xMzU3MyAxLjYxNTAzIDUuMjIxMTcgMS43MzMzMyA1LjI3MzMzTDcuNDUzMzMgNy44OEM3LjYyNzA0IDcuOTU5MjMgNy44MTU3NCA4LjAwMDI0IDguMDA2NjcgOC4wMDAyNEM4LjE5NzU5IDguMDAwMjQgOC4zODYyOSA3Ljk1OTIzIDguNTYgNy44OEwxNC4yOCA1LjI4QzE0LjM5ODMgNS4yMjc4NCAxNC40OTg5IDUuMTQyNCAxNC41Njk1IDUuMDM0MUMxNC42NDAxIDQuOTI1NzkgMTQuNjc3NyA0Ljc5OTI5IDE0LjY3NzcgNC42N0MxNC42Nzc3IDQuNTQwNzEgMTQuNjQwMSA0LjQxNDIxIDE0LjU2OTUgNC4zMDU5QzE0LjQ5ODkgNC4xOTc2IDE0LjM5ODMgNC4xMTIxNiAxNC4yOCA0LjA2TDguNTUzMzMgMS40NTMzM1oiIHN0cm9rZT0iIzhBOTNBOCIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik0xLjMzMzMzIDhDMS4zMzMwMiA4LjEyNzUxIDEuMzY5MjggOC4yNTI0NCAxLjQzNzgxIDguMzU5OTdDMS41MDYzNSA4LjQ2NzQ5IDEuNjA0MjggOC41NTMxMSAxLjcyIDguNjA2NjdMNy40NTMzMyAxMS4yMTMzQzcuNjI2MTMgMTEuMjkxNiA3LjgxMzY0IDExLjMzMjEgOC4wMDMzMyAxMS4zMzIxQzguMTkzMDIgMTEuMzMyMSA4LjM4MDUzIDExLjI5MTYgOC41NTMzMyAxMS4yMTMzTDE0LjI3MzMgOC42MTMzM0MxNC4zOTEzIDguNTYwMjkgMTQuNDkxNCA4LjQ3NDA2IDE0LjU2MTIgOC4zNjUxNkMxNC42MzEgOC4yNTYyNSAxNC42Njc3IDguMTI5MzcgMTQuNjY2NyA4IiBzdHJva2U9IiM4QTkzQTgiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMS4zMzMzMyAxMS4zMzMzQzEuMzMzMDIgMTEuNDYwOCAxLjM2OTI4IDExLjU4NTggMS40Mzc4MSAxMS42OTMzQzEuNTA2MzUgMTEuODAwOCAxLjYwNDI4IDExLjg4NjQgMS43MiAxMS45NEw3LjQ1MzMzIDE0LjU0NjdDNy42MjYxMyAxNC42MjQ5IDcuODEzNjQgMTQuNjY1NCA4LjAwMzMzIDE0LjY2NTRDOC4xOTMwMiAxNC42NjU0IDguMzgwNTMgMTQuNjI0OSA4LjU1MzMzIDE0LjU0NjdMMTQuMjczMyAxMS45NDY3QzE0LjM5MTMgMTEuODkzNiAxNC40OTE0IDExLjgwNzQgMTQuNTYxMiAxMS42OTg1QzE0LjYzMSAxMS41ODk2IDE0LjY2NzcgMTEuNDYyNyAxNC42NjY3IDExLjMzMzMiIHN0cm9rZT0iIzhBOTNBOCIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzBfMTE1MSI+CjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt=""></div><span id="versionsChipText">2 Versions</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span>
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""><span id="versionsChipText">2 Versions</span>
                 </div>
                 <div class="chip-popover" id="versionsPopover" style="display:none;">
                   <div class="chip-popover-label">Versions</div>
@@ -1823,8 +1837,12 @@
                   <div class="chip-option" data-versions="4" onclick="selectVersions(4)"><span>4</span><span class="check">✓</span></div>
                 </div>
               </div>
+              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span>Brief doc</span></div>
             </div>
-            <div class="refine-btn" id="refineBtnImage" onclick="goToGenerate()"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpY29uIC8gdWkgLyBhcnJvdy11cCI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xNS44MzY3IDEwLjAwMzNMMTAuMDAzMyA0LjE3TDQuMTcgMTAuMDAzM00xMC4wMDMzIDQuMTdWMTUuODM2NyIgc3Ryb2tlPSIjOEE5M0E4IiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="" width="16" height="16"></div>
+            <div class="prompt-bottom-actions">
+              <div class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
+              <button type="button" class="ai-refine-pill ai-refine-pill--outlined"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
+            </div>
           </div>
         </div>
 
@@ -2143,9 +2161,20 @@
           </div>
           <div class="prompt-bottom">
             <div class="prompt-chips">
+              <!-- Figma 12480:212985 "AI / Prompt Box" controls-row: model · quality · ratio · cards · Brief doc.
+                   HD and Brief doc are display-only chips (no picker drawn in Figma). -->
+              <div class="prompt-chip-wrap" id="carModelChipWrap">
+                <div class="prompt-chip clickable" onclick="carToggleModelPopover(event)"><img class="ic-img" src="../../../../components/ai-social-media/icons/cpu.svg" alt=""><span id="carModelChipText">Nano Banana</span></div>
+                <!-- Figma 12480:214812 model popover: Nano Banana · GPT Image 2 (Menu / Item Type=Model rows) -->
+                <div class="model-popover" id="carModelPopover" style="display:none;" onclick="event.stopPropagation();">
+                  <p class="model-popover__title">Model</p>
+                  <button type="button" class="menu-item--model selected" data-model="Nano Banana" onclick="carSelectModel('Nano Banana')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">Nano Banana</span></span><span class="menu-item--model__desc">gemini-3.1-flash-image-preview</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button><button type="button" class="menu-item--model" data-model="GPT Image 2" onclick="carSelectModel('GPT Image 2')"><span class="menu-item--model__text"><span class="menu-item--model__title"><span class="menu-item--model__name">GPT Image 2</span></span><span class="menu-item--model__desc">gpt-image-2</span></span><img class="menu-item--model__check" src="../../../../components/ai-social-media/icons/panel-check.svg" alt=""></button>
+                </div>
+              </div>
+              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span>HD</span></div>
               <div class="prompt-chip-wrap" id="ratioChipWrapCarousel">
                 <div class="prompt-chip clickable" onclick="carToggleRatioPopover(event)">
-                  <div class="ic"></div><span id="ratioChipTextCarousel">4:5</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span>
+                  <img class="ic-img" id="ratioChipIconCarousel" src="../../../../components/ai-social-media/icons/spec-4-5.svg" alt=""><span id="ratioChipTextCarousel">4:5</span>
                 </div>
                 <div class="chip-popover" id="ratioPopoverCarousel" style="display:none;">
                   <div class="chip-popover-label">Aspect Ratio</div>
@@ -2156,7 +2185,7 @@
               </div>
               <div class="prompt-chip-wrap" id="cardsChipWrap">
                 <div class="prompt-chip clickable" onclick="toggleCardsPopover(event)">
-                  <div class="ic"></div><span id="cardsChipText">5 Cards</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span>
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""><span id="cardsChipText">5 Cards</span>
                 </div>
                 <div class="chip-popover" id="cardsPopover" style="display:none;">
                   <div class="chip-popover-label">Number of cards</div>
@@ -2167,8 +2196,12 @@
                   <div class="chip-option" data-cards="6" onclick="selectCardCount(6)"><span>6</span><span class="check">✓</span></div>
                 </div>
               </div>
+              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span>Brief doc</span></div>
             </div>
-            <div class="refine-btn" id="refineBtnCarousel" onclick="goToGenerate()"><img src="../../../../components/ai-social-media/icons/arrow-up.svg" class="icon-inline icon-16" alt=""></div>
+            <div class="prompt-bottom-actions">
+              <div class="est-credits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span>20</span></span></div>
+              <button type="button" class="ai-refine-pill ai-refine-pill--outlined"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
+            </div>
           </div>
         </div>
 
@@ -2498,7 +2531,7 @@
                here); Brand chip stays conditional, matching the Image flow's convention. -->
           <div class="settings-bar" id="settingsBarCarousel">
             <!-- Figma controls-row (12480:213146): model · quality · ratio · cards · character · Est. credits (model / quality display-only) -->
-            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/cpu.svg" alt=""></span><b>Nano Banana</b></div>
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/cpu.svg" alt=""></span><b id="genSettingModelCarousel">Nano Banana</b></div>
             <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></span><b>HD</b></div>
             <div class="setting-chip"><span class="ratio-icon"><i></i></span><b id="genSettingRatioCarousel">4:5</b></div>
             <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-versions.svg" alt=""></span><b id="genSettingCards">5 Cards</b></div>
@@ -4743,6 +4776,7 @@ function imgUpdateBriefMeta(){
   document.getElementById('genSettingVersionsImage').textContent = `${n} Version${n > 1 ? 's' : ''}`;
   const ratioIcons = {'4:5': '../../../../components/ai-social-media/icons/spec-4-5.svg', '9:16': '../../../../components/ai-social-media/icons/spec-9-16.svg', '1:1': '../../../../components/ai-social-media/icons/spec-1-1.svg'};
   document.getElementById('genSettingRatioIconImage').src = ratioIcons[ratio];
+  document.getElementById('ratioChipIconImage').src = ratioIcons[ratio];
   document.getElementById('versionResultSub').textContent = `Image post · ${ratio} · English`;
   document.getElementById('creditEstValue').innerHTML = `~${credits} credits <span class="credit-sub">(${n} version${n > 1 ? 's' : ''})</span>`;
   syncGenActionBarV3();
@@ -4876,6 +4910,31 @@ carRenderReferenceImages();
 window.__carouselRatio = '4:5';
 window.__cardCount = 5;
 
+// Image / Carousel model dropdown (Figma 12480:214812, 12480:212985) — same Menu / Item Type=Model
+// popover as the Video brief; the pick mirrors onto that type's Generate-step model chip.
+function briefToggleModelPopover(e, prefix){
+  e.stopPropagation();
+  const pop = document.getElementById(prefix + 'ModelPopover');
+  const open = pop.style.display !== 'flex';
+  pop.style.display = open ? 'flex' : 'none';
+}
+function briefSelectModel(prefix, name, chipId, genId){
+  document.getElementById(chipId).textContent = name;
+  document.querySelectorAll('#' + prefix + 'ModelPopover .menu-item--model').forEach(b => b.classList.toggle('selected', b.dataset.model === name));
+  document.getElementById(prefix + 'ModelPopover').style.display = 'none';
+  const g = document.getElementById(genId);
+  if(g) g.textContent = name;
+}
+function imgToggleModelPopover(e){ briefToggleModelPopover(e, 'img'); }
+function carToggleModelPopover(e){ briefToggleModelPopover(e, 'car'); }
+function imgSelectModel(name){ window.__imageModel = name; briefSelectModel('img', name, 'imgModelChipText', 'genSettingModelImage'); }
+function carSelectModel(name){ window.__carouselModel = name; briefSelectModel('car', name, 'carModelChipText', 'genSettingModelCarousel'); }
+document.addEventListener('click', (e) => {
+  ['img', 'car'].forEach(prefix => {
+    const pop = document.getElementById(prefix + 'ModelPopover');
+    if(pop && pop.style.display === 'flex' && !e.target.closest('#' + prefix + 'ModelChipWrap')) pop.style.display = 'none';
+  });
+});
 function carToggleRatioPopover(e){
   e.stopPropagation();
   document.getElementById('cardsPopover').style.display = 'none';
@@ -4895,6 +4954,7 @@ document.addEventListener('click', (e) => {
 function carSelectRatio(value){
   window.__carouselRatio = value;
   document.getElementById('ratioChipTextCarousel').textContent = value;
+  document.getElementById('ratioChipIconCarousel').src = `../../../../components/ai-social-media/icons/spec-${value.replace(':', '-')}.svg`;
   document.querySelectorAll('#ratioPopoverCarousel .chip-option').forEach(o => o.classList.toggle('selected', o.dataset.ratio === value));
   document.getElementById('ratioPopoverCarousel').style.display = 'none';
   carUpdateBriefMeta();
