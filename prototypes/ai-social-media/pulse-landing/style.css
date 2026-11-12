@@ -329,24 +329,6 @@ ul,ol{list-style:none}
 .plan.best::before{animation:none}
 .social a:hover{transform:none}
 
-
-/* ===== Motion at Synthesia level (11/12) =====
-   Text and panels are simply there. Media plays in place, the logo row scrolls,
-   and controls react to hover and click. Hero intro and count-ups are left as they are. */
-.r:not(.hero .r):not(.strip .r){opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important}
-[data-split]:not([data-auto]) .w>i{transform:none!important;transition:none!important}
-.fill-words .fw{color:var(--n900)!important;transition:none!important}
-.progress{display:none}
-.ripple,.btn.shine::before{display:none!important}
-.strip .ly{transform:none!important}
-.demo{transform:none!important;opacity:1!important}
-.steps li{opacity:1!important}
-.rail u{transform:none!important}
-.p-feats li{opacity:1!important;transform:none!important;transition:none!important}
-.save.bump{animation:none}
-.q button:hover{padding-left:0}
-.col img:hover,.marquee-track img:hover{transform:none}
-
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .r,.w>i,.p-feats li{opacity:1!important;transform:none!important;clip-path:none!important}
