@@ -103,10 +103,13 @@ ul,ol{list-style:none}
 .chip{padding:0 13px;border:1px solid var(--n400);font-size:12px;line-height:18px;font-weight:500;color:var(--n700)}
 .refine{gap:4px;padding:6px 11px;border:1px solid var(--n100);box-shadow:0 1px 2px rgba(15,23,41,.05);font-size:12px;line-height:16px;font-weight:600}
 .refine img{width:16px;height:16px}
-.refine span{background:linear-gradient(90deg,var(--blue),var(--pink),var(--blue));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 4s linear infinite}
+.refine span{background:linear-gradient(90deg,#4f6de6,#ed7797);-webkit-background-clip:text;background-clip:text;color:transparent}
 @keyframes flow{to{background-position:-200% 0}}
 /* Hover = DS rule (Table filter, Text button): white fill, border neutral/400 → neutral/500, text and icon unchanged */
-.chip:hover,.refine:hover{background:#fff;border-color:var(--n500)}
+.chip:hover{background:#fff;border-color:var(--n500)}
+/* Refine with AI = DS ai/refine-pill (Figma 15916:48933): hover #F6F3FF, no border, darker text gradient */
+.refine:hover{background:#f6f3ff;border-color:transparent}
+.refine:hover span{background-image:linear-gradient(90deg,#4762cf,#d56b88)}
 .chip:active,.refine:active{transform:scale(.96)}
 
 /* Showcase */
