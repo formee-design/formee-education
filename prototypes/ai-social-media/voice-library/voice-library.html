@@ -1823,14 +1823,12 @@ function toggleVoiceFavOnly(){
 function voiceMenuHTML(v){
   if (openMenuFor !== v.id) return '';
   // Elevenlabs library voices aren't owned (v.mine is only true for voices this account
-  // actually created via Design/Clone/Remix) -- Edit/Delete would imply renaming or
-  // deleting someone else's library voice, so those two drop out even if the voice has
-  // been added to My Voices; Remix and Voice details both already have sensible fallbacks
-  // for a voice with no createdFrom.
+  // actually created via Design/Clone/Remix) -- so their menu is just the two actions that
+  // make sense for a voice you don't own: assign it to a character, or read its details.
+  // (Edit / Remix / Delete are only for voices this account created.)
   if (!v.mine){
     return `<div class="vl-kebab-menu" onclick="event.stopPropagation()">
       <div class="vl-menu-row" onclick="openCharAssignModal('${v.id}')"><span>Set as character voice</span></div>
-      <div class="vl-menu-row" onclick="openRemixVoice('${v.id}')"><span>Remix voice</span></div>
       <div class="vl-menu-row" onclick="openVoiceDetails('${v.id}')"><span>Voice details</span></div>
     </div>`;
   }

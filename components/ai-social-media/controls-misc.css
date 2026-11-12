@@ -29,19 +29,22 @@
   display:inline-flex; flex-direction:column; align-items:stretch; gap:var(--spacing-xs);
   padding:var(--spacing-sm); background:var(--color-neutral-0);
   border:var(--border-width-1) solid var(--color-neutral-200); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-modal); font-family:var(--font-family-text);
+  box-shadow:var(--shadow-focus-card); font-family:var(--font-family-text);
 }
 /* Figma spec is 7px vertical padding here (off the 8px spacing scale) — rounded up to
-   spacing-sm (8px) per the project convention of not introducing off-scale one-off values. */
+   spacing-sm (8px) per the project convention of not introducing off-scale one-off values.
+   Updated to the current Figma "Menu / Item" header (Brief & Style 12480:220072 / 12863:625592):
+   14px Medium --neutral-900 (was 12px Semibold --neutral-700), and the popover now carries the
+   focus/card shadow (--shadow-focus-card, 0 0 6px --neutral-150) instead of --shadow-modal. */
 .controls-option-popover__header{
-  padding:var(--spacing-sm); font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs);
-  font-weight:var(--font-weight-semibold); color:var(--color-neutral-700);
+  padding:var(--spacing-sm); font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-900);
 }
 .controls-option-row{
   display:flex; align-items:center; justify-content:space-between;
   width:160px; height:36px; padding:var(--spacing-sm); border-radius:var(--radius-md);
   font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);
-  font-weight:var(--font-weight-medium); color:var(--color-neutral-700);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-900);
   background:transparent; border:none; cursor:pointer; font-family:var(--font-family-text);
 }
 .controls-option-row--selected{ background:var(--color-neutral-100); }

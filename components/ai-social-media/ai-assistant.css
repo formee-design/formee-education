@@ -206,6 +206,13 @@
   background:var(--color-brand-primary-light); border-color:var(--color-brand-primary-mid);
 }
 .ai-refine-pill--disabled{opacity:.4; cursor:not-allowed; box-shadow:none;}
+/* Outlined — the pill as placed in the AI / Prompt Box bottom row (Figma 16392:429576, Brief &
+   Style 12480:219504): 30px tall, 1px --neutral-400 border instead of the hairline, no shadow,
+   same gradient label. (6px/11px padding is Figma's own literal, same as the default pill.) */
+.ai-refine-pill--outlined{
+  height:30px; box-sizing:border-box; border-color:var(--color-neutral-400); box-shadow:none;
+}
+.ai-refine-pill--outlined:hover{background:var(--color-neutral-50); border-color:var(--color-neutral-500);}
 
 /* ============================================================================
    AI / Review Item (2981:28994) — a numbered "here's what I changed" line:

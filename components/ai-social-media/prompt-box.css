@@ -25,7 +25,8 @@
 .prompt-bottom{display:flex; align-items:center; justify-content:space-between;}
 .prompt-chips{display:flex; gap:8px;}
 .prompt-chip{
-  border:1px solid var(--color-neutral-400); border-radius:8px; padding:7px 12px 7px 10px; font-size:14px;
+  border:1px solid var(--color-neutral-400); border-radius:8px; padding:6px 11px 6px 9px; font-size:14px;
+  line-height:22px; /* Figma Controls chip = 36px tall: padding 7/12/7/10 with the 1px stroke inside the box -> 6/11/6/9 + border */
   font-weight:500; color:var(--color-neutral-700); display:flex; align-items:center; gap:5px;
 }
 .prompt-chip .ic{width:16px; height:16px; display:flex; align-items:center; justify-content:center;}

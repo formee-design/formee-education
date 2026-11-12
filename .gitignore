@@ -12,3 +12,6 @@ node_modules/
 # Temp / scratch
 *.log
 *.tmp
+
+# Analytics 하네스 — 별도 저장소 (github.com/yjkim9627-gif/my-harness)
+prototypes/ai-social-media/analytics/harness/

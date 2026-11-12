@@ -36,3 +36,8 @@
 ## Design QA
 
 - 스테이징 vs Figma 원본 디자인 QA 작업 시 `docs/design-qa-guide.md`를 항상 먼저 읽고 그 규칙대로 진행할 것.
+
+## 하네스
+
+- Analytics 화면 작업("<화면> 만들어줘 / 판정해줘 / 승인했어", "하네스 상태 알려줘")은
+  `prototypes/ai-social-media/analytics/harness/CLAUDE.md`를 먼저 읽고 그대로 따른다.

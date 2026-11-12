@@ -8,6 +8,10 @@
    Consumed by: prototypes/ai-social-media/voice-library/voice-library.html,
                 prototypes/ai-social-media/home/home.html */
 const NAV_ICON = new URL('icons/', document.currentScript.src).href;
+// <script src=".../nav-brand-switch.js" data-test-panel="off"> = production behaviour: no "Nav design"
+// switcher panel, always the 1안 (with brand logo) rail, and the page itself decides expanded/collapsed
+// (no localStorage restore), e.g. new-content-to-generate.html collapses the rail on the Generate stage.
+const NAV_TEST_PANEL_ON = document.currentScript.dataset.testPanel !== 'off';
 const NAV_TEST_PANEL_HTML = `<div class="nav-test-panel" aria-label="Nav design switcher">
   <p class="nav-test-panel__title">Nav design</p>
   <div class="nav-test-panel__group">
@@ -119,6 +123,7 @@ function syncNavTestPanel(){
   document.querySelectorAll('[data-nav-variant]').forEach(b => b.classList.toggle('is-active', b.dataset.navVariant === nav.dataset.variant));
   document.querySelectorAll('[data-nav-state]').forEach(b => b.classList.toggle('is-active', (b.dataset.navState === 'collapsed') === collapsed));
   document.getElementById('navCollapseBtn').setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+  if (!NAV_TEST_PANEL_ON) return;
   try { localStorage.setItem('navBrandSwitchTest', JSON.stringify({variant: nav.dataset.variant, collapsed})); } catch (_) {}
 }
 function setNavVariant(v){
@@ -135,6 +140,12 @@ function toggleNavCollapsed(){
   setNavCollapsed(!document.getElementById('sideNav').classList.contains('collapsed'));
 }
 (function initNavTest(){
+  if (!NAV_TEST_PANEL_ON) {
+    document.getElementById('sideNav').dataset.variant = 'logo';
+    renderNavBrands();
+    syncNavTestPanel();
+    return;
+  }
   document.body.insertAdjacentHTML('beforeend', NAV_TEST_PANEL_HTML);
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem('navBrandSwitchTest')); } catch (_) {}

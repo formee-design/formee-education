@@ -1,0 +1,71 @@
+/* Selector / Card / voice — shared component
+   Figma: FME_AI-Social-Media, ♻️ components → Data Display → "Selector / Card / voice"
+   (node 10439:7672), used by Brief & Style → My voices row (nodes 12480:219363/219504) and by
+   the ElevenLabs library / Change voice modal lists.
+   Variants: State = Default / Hover / Selected × Action = None / Delete / Add / Added, plus a
+   separate dashed "New" card (SelectorCardVoice action=New, node 16259:550334).
+
+   Default padding is 8px on every side (the ElevenLabs list use); the Brief & Style My voices
+   row overrides left/right to --spacing-md (12px) on the instance, exactly as in Figma.
+   Border sits inside the 52px height (strokes are not part of the layout box in Figma either),
+   so box-sizing:border-box keeps the content frame the same width as the Figma one.
+   Play button = .voice-section-sample-play (voice-section.css), Default badge =
+   .feedback-status-chip--green (feedback-status-chip.css) — both already shared. */
+
+.selector-card-voice{
+  display:flex; align-items:center; flex-shrink:0; box-sizing:border-box;
+  width:284px; height:52px; padding:var(--spacing-sm) calc(var(--spacing-sm) - var(--border-width-1));
+  background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400);
+  border-radius:var(--radius-lg); cursor:pointer; overflow:hidden;
+  font-family:var(--font-family-text);
+}
+.selector-card-voice:hover,
+.selector-card-voice--hover{background:var(--color-neutral-150);}
+.selector-card-voice--selected{background:var(--color-neutral-150); border-color:var(--color-neutral-500);}
+
+/* content frame: play button + text column; 10px gap and 10px right padding are Figma's own
+   literal values (off the spacing scale, kept as-is — same convention as the rest of this folder) */
+.selector-card-voice__content{
+  flex:1 0 0; min-width:0; display:flex; align-items:center; gap:10px; padding-right:10px; overflow:hidden;
+}
+/* 36px slot, 2px padding, holds the 30px .voice-section-sample-play circle */
+.selector-card-voice__play{
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;
+  width:36px; height:36px; padding:var(--spacing-2);
+}
+.selector-card-voice__text{flex:1 0 0; min-width:0; display:flex; flex-direction:column; overflow:hidden;}
+.selector-card-voice__name-row{display:flex; align-items:center; gap:var(--spacing-sm); margin-bottom:-1px; overflow:hidden;}
+.selector-card-voice__name{
+  flex:1 1 auto; min-width:0; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-medium);
+  color:var(--color-neutral-700);
+}
+.selector-card-voice__name-row .feedback-status-chip{flex-shrink:0;}
+.selector-card-voice__detail-row{display:flex; align-items:center; gap:var(--spacing-xs); overflow:hidden;}
+.selector-card-voice__detail{
+  margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex-shrink:0;
+  font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); font-weight:var(--font-weight-regular);
+  color:var(--color-neutral-500);
+}
+.selector-card-voice__detail:last-child{flex-shrink:1; min-width:0;}
+.selector-card-voice__dot{width:2px; height:2px; flex-shrink:0; border-radius:var(--radius-full); background:var(--color-neutral-500);}
+
+/* ---------- New: dashed "Create New" card ---------- */
+.selector-card-voice--new{
+  width:auto; gap:10px; /* Figma content-row gap between the plus slot and the label */ padding:var(--spacing-sm) calc(var(--spacing-2xl) - var(--border-width-1)) var(--spacing-sm) calc(var(--spacing-md) - var(--border-width-1));
+  background:var(--color-neutral-75); border-style:dashed; justify-content:flex-start;
+}
+.selector-card-voice--new:hover{background:var(--color-neutral-100);}
+.selector-card-voice--new .selector-card-voice__plus{
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; width:24px; height:24px; padding:var(--spacing-2); box-sizing:border-box;
+}
+.selector-card-voice--new .selector-card-voice__plus img{display:block; width:24px; height:24px;}
+.selector-card-voice--new .selector-card-voice__label{
+  margin:0; white-space:nowrap; font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);
+  font-weight:var(--font-weight-medium); color:var(--color-neutral-700);
+}
+
+/* ---------- Action slot (Actions / Icon Button, 30px — the Figma instance is resized from 36) ---------- */
+.selector-card-voice > .icon-btn{width:30px; height:30px; flex-shrink:0;}
+.selector-card-voice > .icon-btn img{width:16px; height:16px;}
+.selector-card-voice > .icon-btn--added img{width:20px; height:20px;}

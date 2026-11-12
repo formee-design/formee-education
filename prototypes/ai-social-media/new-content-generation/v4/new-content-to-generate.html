@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="../../../../components/shared/modal.css">
 <link rel="stylesheet" href="../../../../components/shared/checkbox.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/nav.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/nav-brand-switch.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/brand-logo-tile.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/brand-mark.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/topbar-stepper.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/chat-panel.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/switch.css">
@@ -24,6 +27,9 @@
 <link rel="stylesheet" href="../../../../components/ai-social-media/scene-tile.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/reference-scene-tile.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/reference-chip.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/selector-card-voice.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/est-credits.css">
+<link rel="stylesheet" href="../../../../components/ai-social-media/ai-assistant.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/voice-accordion-row.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/voice-section.css">
 <link rel="stylesheet" href="../../../../components/ai-social-media/queue-panel.css">
@@ -123,7 +129,7 @@
      everywhere a .seg-control is used, not just this one context. */
   .seg-control{display:inline-flex; align-self:flex-start; background:var(--color-neutral-100); border-radius:var(--radius-xl); padding:4px; gap:2px;}
   .seg-control.small{margin-bottom:0;}
-  .seg-chip{padding:8px 20px; border-radius:var(--radius-lg); font-size:14px; font-weight:500; color:var(--color-neutral-700); cursor:pointer; border:none; background:none; font-family:var(--font-family-text);}
+  .seg-chip{padding:8px 20px; border-radius:var(--radius-lg); font-size:14px; line-height:22px; font-weight:500; color:var(--color-neutral-700); cursor:pointer; border:none; background:none; font-family:var(--font-family-text);}
   .seg-chip.active{background:#fff; color:var(--color-neutral-900); font-weight:600; box-shadow:0 1px 1.5px rgba(15,23,41,0.1),0 1px 0.5px rgba(15,23,41,0.04);}
   .seg-chip.disabled{opacity:.4; cursor:default; pointer-events:none;}
 
@@ -219,8 +225,8 @@
 
   /* ---- VIEW: Brief (shared shell) ---- */
   .brief-content{max-width:960px; margin:0 auto; padding:48px 4px 140px;}
-  .brief-heading h1{font-size:22px; font-weight:700; color:var(--color-neutral-900); margin:0 0 6px; letter-spacing:-0.2px;}
-  .brief-heading p{font-size:13px; color:var(--color-neutral-500); margin:0 0 16px;}
+  .brief-heading h1{font-size:22px; line-height:30px; font-weight:700; color:var(--color-neutral-900); margin:0 0 6px; letter-spacing:-0.1px;}
+  .brief-heading p{font-size:13px; line-height:20px; color:var(--color-neutral-500); margin:0 0 16px;}
 
   /* AI Prompt Box shell — .ratio-box-ic는 이제 components/ai-social-media/prompt-box.css,
      setting-chip.css에서 공유 정의됨 (v3 링크 목록 참고) */
@@ -982,7 +988,20 @@
      linked): .controls-option-popover / __header / .controls-option-row / --selected. Kept only
      the page-specific absolute positioning here, on the element's own id instead of a class,
      since that positioning is layout, not part of the reusable component. */
-  #durationPopover{position:absolute; top:calc(100% + 6px); left:0; z-index:40;}
+  #durationPopover, #qualityPopover{position:absolute; top:calc(100% + 6px); left:0; z-index:40;}
+  /* Video Brief & Style prompt box (Figma 12480:219504): 20px padding, icon-only chips without chevrons,
+     and the right-hand Est. credits + Refine pair. The popovers are Controls / Option List Popover instances
+     sized like the Figma ones (Duration 128 wide, Quality 170 wide); header + list are 4px apart, rows 0. */
+  #briefContentReel .prompt-box{padding:var(--spacing-xl);}
+  /* the summary line is one 22px row in Figma; the textarea grows to its 2-line default brief (rows=2) instead of the old 66px floor */
+  #briefContentReel .prompt-summary{min-height:22px;}
+  .prompt-chip .ic-img{width:16px; height:16px; display:block; flex-shrink:0;}
+  .prompt-bottom-actions{display:flex; align-items:center; gap:var(--spacing-sm);}
+  .brief-option-popover{display:none; flex-direction:column; width:128px; box-sizing:border-box;}
+  .brief-option-popover--quality{width:170px;}
+  .brief-option-popover .controls-option-row{width:100%;}
+  .brief-option-popover .brief-option-list{display:flex; flex-direction:column;}
+  .brief-option-popover .controls-option-row img{width:16px; height:16px;}
 
   /* ---- Character section shared bits ----
      Reel/Short's character cards now use the same shared .char-card component as
@@ -1005,13 +1024,18 @@
      stack (16 + 8 = 24) to match Figma's 24px toggle-row→divider gap exactly. margin-bottom
      stays the full 24px since that side is plain block spacing with no outer gap involved. */
   .char-divider{height:1px; background:var(--color-neutral-200); width:100%; margin:8px 0 24px;}
-  .appear-label{font-size:14px; font-weight:600; color:var(--color-neutral-800); margin:0 0 12px;}
+  /* Figma 12480:219504 "character-mode"/"voice-source": 16px Bold label, 12px to the segmented control */
+  .appear-label{font-size:16px; line-height:24px; font-weight:700; color:var(--color-neutral-900); margin:0 0 12px;}
   .appear-label .sub{font-weight:400; color:var(--color-neutral-500);}
-  #charAppearToggle, #needsVoiceToggle{margin-bottom:12px;}
+  #charAppearToggle, #needsVoiceToggle, #voiceSourceToggle{margin-bottom:0;}
+  /* 24px between the "how does the character appear" block and the voice-source block (Figma character-mode-col gap) */
+  #voiceSourceSection{margin-top:24px; display:flex; flex-direction:column; gap:12px;}
+  #voiceSourceSection .appear-label{margin:0;}
+  .voice-source-hint{margin:0; font-size:13px; line-height:20px; color:var(--color-neutral-500);}
 
   /* ---- Voice picker (Character section) — "My voices" card row + Browse ElevenLabs library ---- */
   .voice-section-label-row{display:flex; align-items:center; justify-content:space-between; margin-top:0; margin-bottom:12px;}
-  .my-voices-label{font-size:13px; font-weight:700; color:var(--color-neutral-900);}
+  .my-voices-label{font-size:14px; line-height:22px; font-weight:600; color:var(--color-neutral-900);}
   /* Shown next to "My voices" only while the picked character's own default voice is what's
      currently selected -- explains WHY that row got highlighted on its own (picking a
      character auto-selects their default, see reelSelectChar()) instead of it reading as a
@@ -1035,13 +1059,18 @@
   .voice-lib-row.hidden{display:none;}
   .voice-lib-add{border:1px solid var(--color-neutral-300); background:#fff; border-radius:999px; padding:3px 10px; font-size:10.5px; font-weight:600; color:var(--color-neutral-700); cursor:pointer; flex-shrink:0; font-family:var(--font-family-text);}
   .voice-lib-add:hover{border-color:var(--color-brand-primary); color:var(--color-brand-primary);}
-  .voice-card-row{display:flex; gap:10px; overflow-x:auto; padding-bottom:4px;}
-  .voice-item.row-card{flex-shrink:0; min-width:210px; border:1.5px solid var(--color-neutral-300); border-radius:10px;}
-  .voice-item.row-card:hover{background:#fff; border-color:var(--color-neutral-450);}
-  .voice-item.row-card.selected{border-color:var(--color-brand-primary); background:var(--color-brand-primary-light);}
-  .voice-new-card{flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:6px; min-width:120px; border:1.5px dashed var(--color-neutral-300); border-radius:10px; font-size:12.5px; font-weight:600; color:var(--color-neutral-500); cursor:pointer; padding:7px 16px;}
-  .voice-new-card:hover{border-color:var(--color-neutral-450); color:var(--color-neutral-700);}
-  .voice-browse-btn{width:100%; border:1px solid var(--color-neutral-400); background:#fff; border-radius:10px; padding:11px 16px; font-size:13.5px; font-weight:600; color:var(--color-neutral-900); font-family:var(--font-family-text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; margin-top:16px;}
+  /* My voices row — Selector / Card / voice (components/ai-social-media/selector-card-voice.css).
+     Brief & Style instances override left/right padding to 12px (Figma 12480:219504); the row scrolls
+     sideways with a 48px white fade on the right edge, no scrollbar. */
+  .voice-card-row-wrap{position:relative;}
+  .voice-card-row{display:flex; gap:var(--spacing-sm); overflow-x:auto; scrollbar-width:none;}
+  .voice-card-row::-webkit-scrollbar{display:none;}
+  .voice-card-row-wrap::after{content:''; position:absolute; top:0; right:0; bottom:0; width:48px; pointer-events:none; background:linear-gradient(to right, rgba(255,255,255,0), var(--color-neutral-0) 90%);}
+  .voice-card-row .selector-card-voice:not(.selector-card-voice--new){padding-left:calc(var(--spacing-md) - var(--border-width-1)); padding-right:calc(var(--spacing-md) - var(--border-width-1));}
+  /* Actions / Button (Figma 12480:219485): 13px/20 semibold --neutral-700, 13px/14px padding, 8px gap, radius lg */
+  .voice-browse-btn{width:100%; border:1px solid var(--color-neutral-400); background:#fff; border-radius:var(--radius-lg); padding:12px 13px; /* Figma 13/14 with the 1px stroke inside the box */ font-size:13px; line-height:20px; font-weight:600; color:var(--color-neutral-700); font-family:var(--font-family-text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:var(--spacing-sm); margin-top:16px;}
+  .voice-browse-btn .chevron{display:flex;}
+  .voice-browse-btn .chevron img{width:16px; height:16px;}
   .voice-browse-btn:hover{border-color:var(--color-neutral-500); background:var(--color-neutral-50);}
   /* ---- Browse ElevenLabs Voice Library — rebuilt to match Figma (node 7606-228780) exactly,
      reusing the already-shipped shared components for every chip/filter/search control instead
@@ -1530,42 +1559,124 @@
   .queue-job-row:not(.ready) .queue-job-status-dot{animation:queuePulse 1s infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
+
+  /* ---- Video · Script (Figma 12480:221136 brand kit off · 12480:220389 brand kit on · 12480:220565 over word limit) ----
+     One 1024 column: Nav / Stage Tabs (38) → controls-row (+20) → stage-body (+32). Off-scale Figma values
+     (5px tab padding, 10px radii) stay literal, same convention as the rest of this file. */
+  #stageAreaReel .stage-tabs{padding:var(--spacing-2xl) 0 var(--spacing-2); border-bottom:0;}
+  #stageAreaReel .stage-tab{box-sizing:border-box; height:36px; padding:5px var(--spacing-lg) 0; line-height:22px; border-bottom:var(--border-width-1) solid var(--color-neutral-300);}
+  #stageAreaReel .stage-tab.active{border-bottom:2px solid var(--color-neutral-800);}
+  #stageAreaReel .settings-bar{align-items:center; padding:var(--spacing-xl) 0 0;}
+  /* Controls chip = 36h, stroke inside the box (same fix as .prompt-chip) */
+  #stageAreaReel .settings-bar .setting-chip{padding:6px 11px 6px 9px;}
+  #stageAreaReel .settings-bar .setting-chip .dot-sep{background:var(--color-neutral-500);}
+  .setting-chip-wrap--voice{width:248px;}
+  .setting-chip-wrap--voice .setting-chip{width:100%; box-sizing:border-box;}
+  .setting-chip-wrap--voice .setting-chip b{flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #subReelScript .stage-body-inner{max-width:calc(var(--spacing-7xl) * 16);}
+  #subReelScript .draft-section{margin:var(--spacing-2xl) 0 0;}
+  #subReelScript .draft-section-label{font-size:var(--font-size-text-md); line-height:var(--line-height-text-md); font-weight:var(--font-weight-semibold); margin-bottom:var(--spacing-xs);}
+  #subReelScript .draft-section-hint{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); margin:0 0 var(--spacing-md);}
+  .draft-section-label--dotted{display:flex; align-items:center; gap:var(--spacing-xs);}
+  .draft-section-label--dotted .dot-sep{width:2px; height:2px; flex-shrink:0; border-radius:var(--radius-full); background:var(--color-neutral-900);}
+  /* Input: 100h, 12px padding, radius-xl, neutral-400 stroke; over the limit the stroke turns red (1.2px) */
+  #fullScript{display:block; box-sizing:border-box; height:100px; min-height:100px; padding:var(--spacing-md); background:var(--color-neutral-0);
+    border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-xl);
+    font-style:normal; font-size:var(--font-size-text-md); line-height:var(--line-height-text-md);}
+  #fullScript.error{border-color:#c4271b; /* Figma badge/red/text literal — same as .script-text.error above */ border-width:var(--icon-stroke-width-12); padding:calc(var(--spacing-md) - (var(--icon-stroke-width-12) - var(--border-width-1)));}
+  /* "N / 30 words" sits 16px under the field in plain 13/20 grey; over the limit the row becomes
+     [alert icon + message ........ red count], 12px under the field */
+  /* .ai-input-wrap already adds an 8px flex gap under the field, so the row only adds the other 8 (→ 16 / 12 total) */
+  #stageAreaReel .script-limit-row{margin-top:var(--spacing-sm); min-height:20px;}
+  #stageAreaReel .script-limit-count{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-regular);}
+  #stageAreaReel .script-limit-row.over{margin-top:var(--spacing-xs);}
+  #stageAreaReel .script-limit-row.over .script-limit-count,
+  #stageAreaReel .script-limit-error{font-size:var(--font-size-text-xs); line-height:normal; font-weight:var(--font-weight-medium);}
+  #reelBrandKitSection .brand-kit-description{margin:0;}
+  #reelBrandKitSection .brand-kit-toggle-row{height:23px;} /* Figma use-brand-kit-group: label 22 + 23px switch */
+  #reelBrandKitEmpty .brand-kit-empty-row{padding:calc(var(--spacing-md) - var(--border-width-1)) calc(var(--spacing-lg) - var(--border-width-1));}
+  /* Brand kit on: logo · colours · text styles · Reset / Edit all in one row at the full 1024 width */
+  #reelBrandKitSummary .brand-kit-summary-compact{flex-wrap:nowrap; padding:calc(14px - var(--border-width-1)) calc(var(--spacing-lg) - var(--border-width-1));} /* Figma: py14 px16, stroke inside → 88h */
+  /* Text Style tile "Ag" (Figma Editor / Effect Tile · compact) */
+  .brand-kit-text-style-card--ag{align-items:center; gap:var(--spacing-xs); padding:calc(5px - var(--border-width-1)); min-width:62px; border-radius:var(--radius-md);} /* Figma: 5px padding, stroke inside the 60px tile */
+  .brand-kit-text-style-card--ag .brand-kit-text-style-pill{margin:3px 0; padding:1px 5px; border-radius:var(--radius-sm);}
+  .brand-kit-text-style-card--none .brand-kit-text-style-pill{background:none;}
+  #reelBrandKitSummary .brand-picker-btn--logo{padding:calc(var(--spacing-sm) - var(--border-width-1));} /* Figma logo-picker: 60h, stroke inside */
+  /* Menu / Logo Picker + Menu / Colour Picker: 200 wide, 6px padding (items 186 wide) */
+  #reelBrandKitSummary .brand-picker-popover{width:200px; padding:6px;}
+  /* Reset / Edit in Brand Kit are plain 13/20 text actions here (no button padding) */
+  #reelBrandKitSummary .brand-kit-actions .actions-btn{padding:0; height:20px; min-height:0; background:none; box-shadow:none; gap:var(--spacing-sm); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+  .brand-kit-text-style-pill span.none{font-family:var(--font-family-text); font-size:15px; font-weight:var(--font-weight-bold);}
 </style>
 <body>
 
 <div class="app">
 
-  <!-- NAV — components/ai-social-media/nav.css (Figma "Nav / Navigation" 9154:132343) -->
-  <div class="nav" id="sideNav">
+  <!-- NAV — components/ai-social-media/nav.css + nav-brand-switch.css (Figma "Nav / Navigation":
+       expanded 12480:219505 on Brief & Style, collapsed rail 12480:221138 on Generate/Edit; 1안 = with brand logo).
+       Brand list + "Switch brand" menu items are rendered from NAV_BRANDS by nav-brand-switch.js. -->
+  <div class="nav nav--brand-switch" id="sideNav" data-variant="logo">
     <div class="nav-account">
-      <div class="nav-brand">
-        <span class="link">
-          <img class="mark" src="../../../../components/ai-social-media/icons/brand-formee-education-mark.svg" alt="Formee Education">
-          <span class="txt"><b>Formee Education</b><span>AI Social Media</span></span>
-        </span>
-        <button type="button" class="collapse-btn" aria-label="Collapse navigation" onclick="document.getElementById('sideNav').classList.toggle('collapsed')"><img src="../../../../components/ai-social-media/icons/ui-panel.svg" alt=""></button>
+      <div class="nav-head">
+        <span class="nav-head__title">Pulse</span>
+        <button type="button" class="nav-collapse-btn" id="navCollapseBtn" aria-label="Collapse navigation" onclick="toggleNavCollapsed()">
+          <img class="ic-collapse" src="../../../../components/ai-social-media/icons/panel-left.svg" alt="">
+          <img class="ic-expand" src="../../../../components/ai-social-media/icons/panel-right-close.svg" alt="">
+        </button>
       </div>
-      <div class="nav-workspace"><span>Formee Express</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" alt=""></span></div>
+      <!-- expanded: [DS] Input, Type=Dropdown -->
+      <button type="button" class="nav-brand-select" id="navBrandSelect" aria-haspopup="listbox" aria-expanded="false" onclick="toggleBrandList(event)">
+        <span class="nav-brand-select__options">
+          <span class="nav-brand-logo brand-logo-tile brand-logo-tile--24" data-brand-logo></span>
+          <span class="nav-brand-select__name" data-brand-name>Formee Express</span>
+          <span class="nav-role-badge">Admin</span>
+        </span>
+        <img class="nav-brand-select__chevron" src="../../../../components/ai-social-media/icons/chevron-down-24.svg" alt="">
+      </button>
+      <!-- collapsed: the active brand's logo tile -->
+      <button type="button" class="nav-brand-trigger" id="navBrandTrigger" aria-label="Switch brand" aria-haspopup="menu" aria-expanded="false" onclick="toggleBrandMenu(event)">
+        <span class="nav-brand-logo brand-logo-tile brand-logo-tile--24" data-brand-logo></span>
+        <img class="nav-brand-trigger__chevron" src="../../../../components/ai-social-media/icons/chevron-down-24.svg" alt="">
+      </button>
+      <!-- brand list (expanded dropdown, Figma 14591:678713) -->
+      <div class="brand-list" id="navBrandList" role="listbox" hidden>
+        <div class="search-field search-field--expanded">
+          <img src="../../../../components/ai-social-media/icons/ui-search.svg" alt="">
+          <input class="search-field__input" id="navBrandSearch" type="text" placeholder="Search brands" oninput="filterBrandList(this.value)">
+        </div>
+        <div id="navBrandListItems"></div>
+        <p class="brand-list__empty" id="navBrandListEmpty" hidden>No brands found</p>
+      </div>
+      <!-- Switch brand menu (collapsed flyout, Figma 14544:677803) -->
+      <div class="brand-switch-menu" id="navBrandMenu" role="menu" hidden>
+        <p class="brand-switch-menu__label">Switch brand</p>
+        <div id="navBrandMenuItems"></div>
+      </div>
     </div>
     <div class="nav-items">
-      <div class="nav-item" onclick="window.location.href='../../home/home.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span class="label">Home</span></div>
+      <div class="nav-item" title="Home" onclick="window.location.href='../../home/home.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-home.svg" alt=""></span><span class="label">Home</span></div>
       <div class="nav-group">
-        <div class="nav-label">Create</div>
-        <div class="nav-item active"><span class="ic"><img src="../../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span class="label">New Content</span></div>
+        <div class="nav-label nav-sec-head--fit">Create</div>
+        <div class="nav-item active" title="New Content"><span class="ic"><img src="../../../../components/ai-social-media/icons/ai-sparkle-outline-grey.svg" alt=""></span><span class="label">New Content</span></div>
       </div>
       <div class="nav-group">
-        <div class="nav-label">Content</div>
-        <div class="nav-item" onclick="window.location.href='../../brand-characters/brand-setup-kit-character-library-v2.html#view=library'" style="cursor:pointer;"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span class="label">Library</span></div>
-        <div class="nav-item" onclick="window.location.href='../../schedule/schedule.html'" style="cursor:pointer;"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span class="label">Schedule</span></div>
-        <div class="nav-item" onclick="window.location.href='../../trends/trends.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span class="label">Trends</span></div>
-        <div class="nav-item"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-analytics.svg" alt=""></span><span class="label">Analytics</span></div>
+        <div class="nav-label nav-sec-head--fit">Content</div>
+        <div class="nav-item" title="Library" onclick="window.location.href='../../brand-characters/brand-setup-kit-character-library-v2.html#view=library'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-library.svg" alt=""></span><span class="label">Library</span></div>
+        <div class="nav-item" title="Schedule" onclick="window.location.href='../../schedule/schedule.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span class="label">Schedule</span></div>
+        <div class="nav-item" title="Trends" onclick="window.location.href='../../trends/trends.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/data-trending-up.svg" alt=""></span><span class="label">Trends</span></div>
+        <div class="nav-item" title="Analytics"><span class="ic"><img src="../../../../components/ai-social-media/icons/data-chart-column-big.svg" alt=""></span><span class="label">Analytics</span></div>
       </div>
       <div class="nav-group">
-        <div class="nav-label">Asset</div>
-        <div class="nav-item" id="navBrandSetup" onclick="goToBrandSetupPage()" style="cursor:pointer;"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-workspace-03.svg" alt=""></span><span class="label">Brand Setup</span></div>
-        <div class="nav-item" onclick="window.location.href='../../brand-characters/brand-setup-kit-character-library-v2.html'" style="cursor:pointer;"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span class="label">Characters</span></div>
-        <div class="nav-item" onclick="window.location.href='../../voice-library/voice-library.html'" style="cursor:pointer;"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span class="label">Voices</span></div>
-        <div class="nav-item" onclick="window.location.href='../../voice-library/voice-library.html#view=music'" style="cursor:pointer;"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span class="label">Music</span></div>
+        <div class="nav-label nav-sec-head--fit">Asset</div>
+        <div class="nav-item" id="navBrandSetup" title="Brand" onclick="goToBrandSetupPage()"><span class="ic"><img src="../../../../components/ai-social-media/icons/panel-brand.svg" alt=""></span><span class="label">Brand</span></div>
+        <div class="nav-item" title="Characters" onclick="window.location.href='../../brand-characters/brand-setup-kit-character-library-v2.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-characters.svg" alt=""></span><span class="label">Characters</span></div>
+        <div class="nav-item" title="Voices" onclick="window.location.href='../../voice-library/voice-library.html'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span class="label">Voices</span></div>
+        <div class="nav-item" title="Music" onclick="window.location.href='../../voice-library/voice-library.html#view=music'"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-audio.svg" alt=""></span><span class="label">Music</span></div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label nav-sec-head--fit">Account</div>
+        <div class="nav-item" title="Settings"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-settings.svg" alt=""></span><span class="label">Settings</span></div>
+        <div class="nav-item" title="Billing"><span class="ic"><img src="../../../../components/ai-social-media/icons/nav-billing.svg" alt=""></span><span class="label">Billing</span></div>
       </div>
     </div>
   </div>
@@ -1601,9 +1712,10 @@
           <p>Describe your idea — AI handles everything else</p>
         </div>
         <div class="seg-control" id="contentTypeToggle" style="margin-bottom:16px;">
-          <div class="seg-chip active" data-type="reel" onclick="selectContentType(this)">Reel / Short</div>
-          <div class="seg-chip" data-type="story" onclick="selectContentType(this)">Story Video</div>
-          <div class="seg-chip" data-type="image" onclick="selectContentType(this)">Image post</div>
+          <!-- Reel/Short and Story Video are one "Video" type now (Figma 12480:219504). The chip keeps
+               data-type="reel" so every existing reel* function/id keeps working untouched. -->
+          <div class="seg-chip active" data-type="reel" onclick="selectContentType(this)">Video</div>
+          <div class="seg-chip" data-type="image" onclick="selectContentType(this)">Image</div>
           <div class="seg-chip" data-type="carousel" onclick="selectContentType(this)">Carousel</div>
         </div>
 <div id="briefContentImage">
@@ -1727,20 +1839,43 @@
           </div>
           <div class="prompt-bottom">
             <div class="prompt-chips">
-              <div class="prompt-chip"><svg class="ic-svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="1.5" width="9" height="13" rx="1.6" stroke="#8A93A8" stroke-width="1.4"/><path d="M6.5 12.3H9.5" stroke="#8A93A8" stroke-width="1.4" stroke-linecap="round"/></svg>9:16</div>
+              <!-- Figma 12480:219504 "AI / Prompt Box" controls-row: model · ratio · duration · quality · Brief doc.
+                   Seedance 2.5 and Brief doc are display-only chips for now (no dropdown is drawn in Figma). -->
+              <div class="prompt-chip" id="videoModelChip"><img class="ic-img" src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""><span>Seedance 2.5</span></div>
+              <div class="prompt-chip"><img class="ic-img" src="../../../../components/ai-social-media/icons/spec-9-16.svg" alt=""><span>9:16</span></div>
               <div class="prompt-chip-wrap" id="durationChipWrap">
                 <div class="prompt-chip clickable" onclick="toggleDurationPopover(event)">
-                  <svg class="ic-svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.3" stroke="#8A93A8" stroke-width="1.4"/><path d="M8 4.7V8L10.2 9.6" stroke="#8A93A8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="durationChipText">16s</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span>
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-duration.svg" alt=""><span id="durationChipText">16s</span>
                 </div>
-                <div class="controls-option-popover" id="durationPopover" style="display:none;">
+                <div class="controls-option-popover brief-option-popover" id="durationPopover" style="display:none;">
                   <div class="controls-option-popover__header">Duration</div>
-                  <button type="button" class="controls-option-row" data-seconds="8" onclick="selectDuration(8)"><span>8 seconds</span></button>
-                  <button type="button" class="controls-option-row controls-option-row--selected" data-seconds="16" onclick="selectDuration(16)"><span>16 seconds</span><img src="../../../../components/ai-social-media/icons/check.svg" alt=""></button>
-                  <button type="button" class="controls-option-row" data-seconds="24" onclick="selectDuration(24)"><span>24 seconds</span></button>
+                  <div class="brief-option-list">
+                    <button type="button" class="controls-option-row" data-seconds="8" onclick="selectDuration(8)"><span>8 seconds</span></button>
+                    <button type="button" class="controls-option-row controls-option-row--selected" data-seconds="16" onclick="selectDuration(16)"><span>16 seconds</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button>
+                    <button type="button" class="controls-option-row" data-seconds="24" onclick="selectDuration(24)"><span>24 seconds</span></button>
+                    <button type="button" class="controls-option-row" data-seconds="30" onclick="selectDuration(30)"><span>30 seconds</span></button>
+                  </div>
                 </div>
               </div>
+              <div class="prompt-chip-wrap" id="qualityChipWrap">
+                <div class="prompt-chip clickable" onclick="toggleQualityPopover(event)">
+                  <img class="ic-img" src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""><span id="qualityChipText">480p</span>
+                </div>
+                <div class="controls-option-popover brief-option-popover brief-option-popover--quality" id="qualityPopover" style="display:none;">
+                  <div class="controls-option-popover__header">Quality</div>
+                  <div class="brief-option-list">
+                    <button type="button" class="controls-option-row controls-option-row--selected" data-quality="480" onclick="selectVideoQuality(480)"><span>Standard · 480p</span><img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt=""></button>
+                    <button type="button" class="controls-option-row" data-quality="720" onclick="selectVideoQuality(720)"><span>HD · 720p</span></button>
+                    <button type="button" class="controls-option-row" data-quality="1080" onclick="selectVideoQuality(1080)"><span>Full HD · 1080p</span></button>
+                  </div>
+                </div>
+              </div>
+              <div class="prompt-chip" id="briefDocChip"><img class="ic-img" src="../../../../components/ai-social-media/icons/file-text.svg" alt=""><span>Brief doc</span></div>
             </div>
-            <div class="refine-btn" id="refineBtn"><img src="../../../../components/ai-social-media/icons/arrow-up.svg" class="icon-inline icon-16" alt=""></div>
+            <div class="prompt-bottom-actions">
+              <div class="est-credits" id="estCreditsPill"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="estCreditsValue">20</span></span></div>
+              <button type="button" class="ai-refine-pill ai-refine-pill--outlined" id="refineBtn"><img src="../../../../components/ai-social-media/icons/ai-refine.svg" alt=""><span>Refine</span></button>
+            </div>
           </div>
         </div>
 
@@ -1812,8 +1947,8 @@
             <div id="charAppearSection">
               <div class="appear-label">How does character appear in this video?</div>
               <div class="seg-control" id="charAppearToggle">
-                <div class="seg-chip active" data-appear="lipsync" onclick="reelSetCharAppear('lipsync')">Talking (lip-sync)</div>
-                <div class="seg-chip" data-appear="acting" onclick="reelSetCharAppear('acting')">Acting only (voiceover)</div>
+                <div class="seg-chip active" data-appear="lipsync" onclick="reelSetCharAppear('lipsync')">Talking (Lip-sync)</div>
+                <div class="seg-chip" data-appear="acting" onclick="reelSetCharAppear('acting')">Acting only (Voiceover)</div>
               </div>
             </div>
             <div id="charNeedsVoiceSection" style="display:none;">
@@ -1823,12 +1958,22 @@
                 <div class="seg-chip" data-needsvoice="no" onclick="reelSetNeedsVoice('no')">No Voice</div>
               </div>
             </div>
+            <!-- Figma 12480:219702 / 12480:219363 "voice-source": Seedance generates its own voice, so the
+                 voice is either made automatically with the video or picked from My voices. The
+                 segmented control sits above the My voices list and switches the list on/off. -->
+            <div id="voiceSourceSection">
+              <div class="appear-label">How should the voice be made?</div>
+              <div class="seg-control" id="voiceSourceToggle">
+                <div class="seg-chip" data-source="auto" onclick="reelSetVoiceSource('auto')">Auto voice</div>
+                <div class="seg-chip active" data-source="choose" onclick="reelSetVoiceSource('choose')">Choose a voice</div>
+              </div>
+              <p class="voice-source-hint" id="voiceAutoHint" style="display:none;">The voice is generated together with the video — matched to your character and script. To use a specific voice, pick Choose a voice.</p>
             <div id="voiceLibrarySection">
               <div class="voice-section-label-row">
                 <span class="my-voices-label">My voices<span class="default-voice-hint" id="defaultVoiceHint" style="display:none;"></span></span>
                 <div class="see-all-link" onclick="openVoiceSelectModal('briefStyle')">See all <img src="../../../../components/ai-social-media/icons/back.svg" class="icon-inline icon-flip" alt="" style="margin-left:2px;"></div>
               </div>
-              <div class="voice-card-row" id="myVoicesCardRow"></div>
+              <div class="voice-card-row-wrap"><div class="voice-card-row" id="myVoicesCardRow"></div></div>
               <button type="button" class="voice-browse-btn" id="voiceBrowseBtn" onclick="reelToggleVoiceBrowsePanel()">Browse ElevenLabs Voice Library <span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span></button>
               <div class="voice-browse-panel" id="voiceBrowsePanel" style="display:none;">
                 <div class="voice-browse-panel-header">
@@ -1861,6 +2006,7 @@
                 </div>
                 <div class="voice-lib-grid" id="voiceLibGrid"></div>
               </div>
+            </div>
             </div>
           </div>
           </div>
@@ -2050,7 +2196,7 @@
         <div class="readiness-top"><span>Brief readiness</span><span>79%</span></div>
         <div class="readiness-bar"><div class="readiness-fill" style="width:79%"></div></div>
       </div>
-      <div class="meta-text">Reel / Short · 9:16 · <span id="briefMetaDurationReel">16s</span></div>
+      <div class="meta-text" id="briefMetaReel">Video · 9:16 · <span id="briefMetaDurationReel">16s</span> · <span id="briefMetaQualityReel">480p draft</span></div>
       <div class="bar-actions">
         <button class="btn btn-secondary">Save as draft</button>
         <button class="btn btn-dark" id="continueBtnReel" onclick="goToGenerate()">Continue</button>
@@ -2411,30 +2557,32 @@
             <div class="stage-tab locked" id="tabReelVideo" onclick="showSub('reelVideo')">Video</div>
           </div>
 
-          <!-- persistent settings bar -->
+          <!-- persistent settings bar — Figma "controls-row" (15001:712212): Controls chips (36h, no
+               chevrons) + Est. credits. Seedance 2.5 / 480p mirror the Brief & Style chips (display-only). -->
           <div class="settings-bar" id="settingsBar">
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/content-reel-16.svg" alt=""></span>Seedance 2.5</div>
             <div class="setting-chip"><span class="ratio-icon"><i></i></span>9:16</div>
             <div class="setting-chip-wrap" id="durationSettingChipWrap">
-              <div class="setting-chip clickable" onclick="toggleSettingPopover(event,'duration')"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" class="icon-inline" alt=""> <span id="genSettingDuration">16s</span><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span></div>
+              <div class="setting-chip clickable" onclick="toggleSettingPopover(event,'duration')"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-duration.svg" alt=""></span><span id="genSettingDuration">16s</span></div>
               <div class="setting-popover" id="durationSettingPopover" style="display:none;">
                 <div class="controls-option-popover__header">Duration</div>
                 <button type="button" class="controls-option-row" data-seconds="8" onclick="selectDuration(8)"><span>8 seconds</span></button>
                 <button type="button" class="controls-option-row controls-option-row--selected" data-seconds="16" onclick="selectDuration(16)"><span>16 seconds</span><img src="../../../../components/ai-social-media/icons/check.svg" alt=""></button>
                 <button type="button" class="controls-option-row" data-seconds="24" onclick="selectDuration(24)"><span>24 seconds</span></button>
+                <button type="button" class="controls-option-row" data-seconds="30" onclick="selectDuration(30)"><span>30 seconds</span></button>
               </div>
             </div>
-            <!-- Figma's spec row (5457-111240) is exactly 9:16 / duration / Character / Voice —
-                 no language chip here (unlike Image's settings bar, out of scope for this pass). -->
+            <div class="setting-chip"><span class="chip-ic"><img src="../../../../components/ai-social-media/icons/spec-quality.svg" alt=""></span><span id="genSettingQuality">480p</span></div>
 
             <div class="setting-chip-wrap" id="characterChipWrap">
               <div class="setting-chip clickable" onclick="toggleSettingPopover(event,'character')">
-                <span class="avatar-mini"></span>Character<span class="dot-sep"></span><b id="settingCharacter">Minji</b><span class="chevron"><img src="../../../../components/ai-social-media/icons/chevron-down.svg" class="icon-inline" alt=""></span>
+                <span class="chip-ic"><img src="../../../../components/ai-social-media/icons/user-round.svg" alt=""></span>Character<span class="dot-sep"></span><b id="settingCharacter">Elena</b>
               </div>
               <div class="char-replace-popover" id="characterPopover" style="display:none;">
                 <div class="char-replace-header"><img src="../../../../components/ai-social-media/icons/arrow-down-up.svg" alt="">Change Character</div>
                 <div class="char-replace-carousel">
                   <div class="char-replace-track" id="characterReplaceTrack">
-                    <button type="button" class="char-replace-cell placeholder selected" title="Minji" onclick="selectSettingCharacter(this,'Minji')"></button>
+                    <button type="button" class="char-replace-cell placeholder selected" title="Elena" onclick="selectSettingCharacter(this,'Elena')"></button>
                     <button type="button" class="char-replace-cell placeholder" title="Hyunwoo" onclick="selectSettingCharacter(this,'Hyunwoo')"></button>
                     <button type="button" class="char-replace-cell placeholder" title="Soyul" onclick="selectSettingCharacter(this,'Soyul')"></button>
                   </div>
@@ -2444,15 +2592,14 @@
               </div>
             </div>
 
-            <!-- Figma 8727:223765 -- Voice is a plain chip (no inline dropdown); clicking it
-                 opens the Select-voice modal below, same as the Character chip opening its own
-                 popover but as a full modal since the voice picker needs room for the
-                 ElevenLabs-library hand-off (8727:223551). -->
-            <div class="setting-chip-wrap" id="voiceChipWrap">
+            <!-- Voice is a plain chip; clicking it opens the Select-voice modal (8727:223765 / 8727:223551). -->
+            <div class="setting-chip-wrap setting-chip-wrap--voice" id="voiceChipWrap">
               <div class="setting-chip clickable" onclick="openVoiceSelectModal()">
-                <img src="../../../../components/ai-social-media/icons/nav-voices.svg" class="icon-inline" alt=""> Voice<span class="dot-sep"></span><b id="settingVoice">Mina — calm</b>
+                <span class="chip-ic"><img src="../../../../components/ai-social-media/icons/nav-voices.svg" alt=""></span><span id="settingVoiceLabel">Voiceover</span><span class="dot-sep"></span><b id="settingVoice">Mina — calm</b>
               </div>
             </div>
+
+            <div class="est-credits" id="genEstCredits"><span class="est-credits__count"><img src="../../../../components/ai-social-media/icons/zap-sm.svg" alt=""><span id="genEstCreditsValue">20</span></span></div>
 
             <div class="setting-chip brand-chip-setting" id="brandSettingChip" style="display:none;">🏷 Brand: <b>Formee Express</b></div>
           </div>
@@ -2470,7 +2617,7 @@
                 <div class="ai-heading" style="margin-bottom:16px;">
                   <div class="ai-heading-text">
                     <p class="ai-heading-title" id="scriptLabel">Full script</p>
-                    <p class="ai-heading-sub">Your script and clips are ready to edit. Script changes automatically update clip narration and untouched image prompts.</p>
+                    <p class="ai-heading-sub">Confirm the full script first. You’ll then review the scene and voice before generating.</p>
                   </div>
                 </div>
                 <div class="ai-input-wrap">
@@ -2491,7 +2638,7 @@
                      compact summary below used to render inline — see
                      TEXT_PLACEMENT_STANDALONE_SCOPES in buildBrandKitSummaryCompactHtml(). -->
                 <div class="draft-section draft-section-placement" id="reelTextPlacementSection">
-                  <div class="draft-section-label">Text · Graphics placement</div>
+                  <div class="draft-section-label draft-section-label--dotted">Text<span class="dot-sep"></span>Graphics placement</div>
                   <p class="draft-section-hint">How the texts and graphics should appear on the image.</p>
                   <div class="text-placement-controls">
                     <div class="controls-segmented-control" id="reelTextPlacementSeg"></div>
@@ -3568,7 +3715,7 @@ function onCopyFieldInput(i, value){
 // 'reel' (shared by Reel/Short + Story Video) is migrated first, Image post ('img') and
 // Carousel ('car') follow the same pattern once verified. ----
 const BRAND_KIT_LOGO_OPTIONS = ['Primary', 'Dark', 'SCG-HE', 'SCG'];
-const BRAND_KIT_COLOUR_OPTIONS = ['#0e5c55', '#c81856', '#e8891f', '#33383f', '#9c5a72', '#ffffff'];
+const BRAND_KIT_COLOUR_OPTIONS = ['#0e5c55', '#c81856', '#e8891f', '#5a8b8a', '#33383f', '#9c5a72', '#ffffff'];
 const BRAND_KIT_SUMMARY_CONTAINER_IDS = { img: 'brandKitSummary', car: 'globalBrandKitSummary', reel: 'reelBrandKitSummary' };
 /* The brand kit is the single source of the defaults; New Content only *loads* them.
    Anything changed here applies to this post alone and never writes back — so the bar
@@ -3793,8 +3940,8 @@ function brandKitActionsHtml(scope, st){
   return `
       <div class="brand-kit-actions">
         ${brandKitChanged(st)
-          ? `<button type="button" class="actions-btn actions-btn--ghost brand-kit-reset" onclick="resetBrandKit('${scope}')">${resetIcon}Reset to brand default</button>`
-          : `<button type="button" class="actions-btn actions-btn--ghost brand-kit-reset" disabled>${resetIcon}Reset to brand default</button>`}
+          ? `<button type="button" class="actions-btn actions-btn--ghost brand-kit-reset" onclick="resetBrandKit('${scope}')">${resetIcon}${scope === 'reel' ? 'Reset' : 'Reset to brand default'}</button>`
+          : `<button type="button" class="actions-btn actions-btn--ghost brand-kit-reset" disabled>${resetIcon}${scope === 'reel' ? 'Reset' : 'Reset to brand default'}</button>`}
         <a class="actions-btn actions-btn--ghost brand-kit-editlink" ${fmeBrandKitAttrs('overview')}>Edit in Brand Kit</a>
       </div>`;
 }
@@ -3832,7 +3979,12 @@ function buildBrandKitSummaryCompactHtml(scope){
       </div>
       <div class="brand-kit-summary-divider"></div>
       <div class="brand-kit-text-style-row">
-        ${BRAND_KIT_FONTS.map(f => `<div class="brand-kit-text-style-card"><div class="brand-kit-text-style-pill"><span class="${f.cls}">${f.name}</span></div><span class="brand-kit-text-style-meta">${f.label}</span></div>`).join('')}
+        ${scope === 'reel'
+          /* Figma 12480:220516 (Video · Script): each tile previews "Ag" in the role's font with the role name
+             underneath, plus a trailing "None" tile (no font override) — the other scopes keep the font-name tiles. */
+          ? BRAND_KIT_FONTS.map(f => `<div class="brand-kit-text-style-card brand-kit-text-style-card--ag"><div class="brand-kit-text-style-pill"><span class="${f.cls}">Ag</span></div><span class="brand-kit-text-style-meta">${f.name}</span></div>`).join('')
+            + `<div class="brand-kit-text-style-card brand-kit-text-style-card--ag brand-kit-text-style-card--none"><div class="brand-kit-text-style-pill"><span class="none">Ag</span></div><span class="brand-kit-text-style-meta">None</span></div>`
+          : BRAND_KIT_FONTS.map(f => `<div class="brand-kit-text-style-card"><div class="brand-kit-text-style-pill"><span class="${f.cls}">${f.name}</span></div><span class="brand-kit-text-style-meta">${f.label}</span></div>`).join('')}
       </div>
       <div class="brand-kit-summary-divider"></div>
       ${brandKitActionsHtml(scope, st)}
@@ -3919,16 +4071,16 @@ TEXT_PLACEMENT_STANDALONE_SCOPES.forEach(renderTextPlacementSection);
 // Empty state (Figma node 8860:138213 "brand-kit-empty", the "Brand kit off" screen
 // 8727:219504) -- shown instead of the compact summary above when window.__brandMode
 // !== 'set'. One dashed row: message + a real .btn.btn-dark "Brand Setup" CTA.
-function buildBrandKitEmptyCardHtml(goToSetupFn){
+function buildBrandKitEmptyCardHtml(goToSetupFn, btnClass){
   return `
     <div class="brand-kit-empty-row">
       <p>Set up your brand kit to apply it here automatically</p>
-      <button type="button" class="btn btn-dark" onclick="${goToSetupFn}()">Brand Setup</button>
+      <button type="button" class="btn ${btnClass || 'btn-dark'}" onclick="${goToSetupFn}()">Brand Setup</button>
     </div>`;
 }
-[['brandKitEmpty', 'imgGoToBrandSetup'], ['globalBrandKitEmpty', 'carGoToBrandSetup'], ['reelBrandKitEmpty', 'reelGoToBrandSetup']].forEach(([id, fn]) => {
+[['brandKitEmpty', 'imgGoToBrandSetup'], ['globalBrandKitEmpty', 'carGoToBrandSetup'], ['reelBrandKitEmpty', 'reelGoToBrandSetup', 'btn-secondary']].forEach(([id, fn, cls]) => {
   const el = document.getElementById(id);
-  if(el) el.innerHTML = buildBrandKitEmptyCardHtml(fn);
+  if(el) el.innerHTML = buildBrandKitEmptyCardHtml(fn, cls);
 });
 
 let brandKitOn = false;
@@ -6415,8 +6567,22 @@ function reelSetNeedsVoice(mode){
 // hidden when "No Character" + "No Voice" is selected together.
 function syncVoiceLibraryVisibility(){
   const charMode = document.querySelector('#charModeToggle .seg-chip.active')?.dataset.mode;
-  const hide = charMode === 'none' && window.__needsVoice === 'no';
-  document.getElementById('voiceLibrarySection').style.display = hide ? 'none' : 'block';
+  const noVoice = charMode === 'none' && window.__needsVoice === 'no';
+  // "How should the voice be made?" only exists while a voice is going to be used at all.
+  document.getElementById('voiceSourceSection').style.display = noVoice ? 'none' : 'flex';
+  // Auto voice: the voice is generated with the video, so the My voices list + Browse library hide
+  // and the one-line explanation shows instead (Figma 12480:219702).
+  const auto = window.__voiceSource === 'auto';
+  document.getElementById('voiceLibrarySection').style.display = auto ? 'none' : 'block';
+  document.getElementById('voiceAutoHint').style.display = auto ? '' : 'none';
+}
+// Seedance makes its own voice (Auto voice) and can't take a picked one -- both options are wired
+// up as designed for now; the Choose-a-voice limitation for Seedance is a later change.
+window.__voiceSource = 'choose';
+function reelSetVoiceSource(source){
+  window.__voiceSource = source;
+  document.querySelectorAll('#voiceSourceToggle .seg-chip').forEach(c => c.classList.toggle('active', c.dataset.source === source));
+  syncVoiceLibraryVisibility();
 }
 // Only Elena has a downloaded style set in this prototype — selecting any other character
 // hides the styles sub-panel rather than showing empty/wrong photos.
@@ -6558,28 +6724,11 @@ function renderReferenceImages(){
   const fmxActive = !!window.__fmxrefActive;
   const compactHtml = fmxActive ? '' : (chips + referenceEmptyChip(false));
 
-  // Reel/Short & Story Video's Brief & Style prompt box (#referenceImagesRow) only:
-  // Reference vs first/last frame are mutually exclusive attachment modes.
-  const hasReference = referenceImages.length > 0 || fmxActive;
-  const hasFrame = firstFrameAdded || lastFrameAdded;
-  const referenceChipBrief = fmxActive ? '' : (chips + referenceEmptyChip(hasFrame));
-  const firstFrameChipBrief = firstFrameAdded ? `
-    <div class="ref-chip" data-attached="true">
-      ${refChipIcon}<span class="ref-chip-label">First frame</span>
-      <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); removeFirstFrameImage()" aria-label="Remove first frame" title="Remove first frame"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
-    </div>
-  ` : `
-    <div class="ref-chip${hasReference ? ' disabled' : ''}" ${hasReference ? 'title="Remove the reference image to attach a first frame instead"' : 'onclick="toggleRefUploadMenu(event, \'first\')"'}>${refChipIcon}<span class="ref-chip-label">First frame</span>${hasReference ? '' : refChipMore}${window.__refUploadMenuOpen === 'first' ? buildRefUploadMenuHtml('first') : ''}</div>
-  `;
-  const lastFrameChipBrief = lastFrameAdded ? `
-    <div class="ref-chip" data-attached="true">
-      ${refChipIcon}<span class="ref-chip-label">Last frame</span>
-      <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); removeLastFrameImage()" aria-label="Remove last frame" title="Remove last frame"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
-    </div>
-  ` : `
-    <div class="ref-chip${hasReference ? ' disabled' : ''}" ${hasReference ? 'title="Remove the reference image to attach a last frame instead"' : 'onclick="toggleRefUploadMenu(event, \'last\')"'}>${refChipIcon}<span class="ref-chip-label">Last frame</span>${hasReference ? '' : refChipMore}${window.__refUploadMenuOpen === 'last' ? buildRefUploadMenuHtml('last') : ''}</div>
-  `;
-  const briefHtml = firstFrameChipBrief + lastFrameChipBrief + referenceChipBrief;
+  // Video Brief & Style prompt box (#referenceImagesRow): a single Reference chip. First frame /
+  // Last frame chips are gone from the Figma prompt box (12480:219504), so there is no longer a
+  // reference-vs-frame exclusivity to enforce here.
+  const referenceChipBrief = fmxActive ? '' : (chips + referenceEmptyChip(false));
+  const briefHtml = referenceChipBrief;
 
   // Scoped to the Brief row (#referenceImagesRow) and the Script/Timeline scene editors'
   // compact rows (.reference-images-row.compact) only -- Image post and Carousel have their
@@ -7451,16 +7600,60 @@ let selectedVoiceId = 'mina';
 const CHARACTER_DEFAULT_VOICE = { elena:'mina', milo:null, priya:null, monster:null, maya:null, sofia:null, esther:null };
 window.__selectedCharId = null;
 
+// "Default · Elena" badge text for a voice: which characters point at it as their default voice
+// (CHARACTER_DEFAULT_VOICE), same wording as voice-library.html's cards.
+function voiceDefaultBadgeText(v){
+  const names = Object.keys(CHARACTER_DEFAULT_VOICE).filter(c => CHARACTER_DEFAULT_VOICE[c] === v.id).map(c => c.charAt(0).toUpperCase() + c.slice(1));
+  if(!names.length) return '';
+  return names.length === 1 ? `Default · ${names[0]}` : `Default · ${names.length} characters`;
+}
+// Detail row = "Male · Standard": the tag's own parts joined by dots, minus the old inline
+// "Elena's default" part (that's the badge's job now).
+function voiceDetailHtml(v){
+  const parts = v.tag.split(' · ').filter(s => !/default/i.test(s));
+  return parts.map(s => `<p class="selector-card-voice__detail">${escapeHtml(s)}</p>`).join('<span class="selector-card-voice__dot"></span>');
+}
+// Selector / Card / voice (components/ai-social-media/selector-card-voice.css), Action = None.
 function renderMyVoicesCardRow(){
   const el = document.getElementById('myVoicesCardRow');
   if(!el) return;
-  el.innerHTML = `<div class="voice-new-card" onclick="alert('Create Voice — flow TBD')">+ Create New</div>` +
-    YOUR_VOICES_DATA.map(v => `
-    <div class="voice-item row-card ${v.id === selectedVoiceId ? 'selected' : ''}" onclick="selectVoiceById('${v.id}')">
-      <div class="voice-play" onclick="togglePreview(event,this)"><img src="../../../../components/ai-social-media/icons/audio-play.svg" class="icon-inline icon-16" alt=""></div>
-      <div class="voice-item-info"><span class="voice-item-name">${v.name}</span><span class="voice-item-tag">${v.tag}</span></div>
-      <span class="voice-check">✓</span>
-    </div>`).join('');
+  const ICONS = '../../../../components/ai-social-media/icons/';
+  el.innerHTML = `
+    <div class="selector-card-voice selector-card-voice--new" role="button" tabindex="0" onclick="alert('Create Voice — flow TBD')">
+      <span class="selector-card-voice__plus"><img src="${ICONS}plus-24-grey.svg" alt=""></span>
+      <p class="selector-card-voice__label">Create New</p>
+    </div>` +
+    YOUR_VOICES_DATA.map(v => {
+      const badge = voiceDefaultBadgeText(v);
+      return `
+    <div class="selector-card-voice${v.id === selectedVoiceId ? ' selector-card-voice--selected' : ''}" onclick="selectVoiceById('${v.id}')">
+      <div class="selector-card-voice__content">
+        <span class="selector-card-voice__play"><span class="voice-section-sample-play" onclick="event.stopPropagation(); toggleVoiceCardPlay(this)"><img src="${ICONS}audio-row-play-triangle.svg" alt=""></span></span>
+        <div class="selector-card-voice__text">
+          <div class="selector-card-voice__name-row">
+            <p class="selector-card-voice__name">${escapeHtml(v.name)}</p>
+            ${badge ? `<span class="feedback-status-chip feedback-status-chip--green">${escapeHtml(badge)}</span>` : ''}
+          </div>
+          <div class="selector-card-voice__detail-row">${voiceDetailHtml(v)}</div>
+        </div>
+      </div>
+    </div>`;
+    }).join('');
+}
+// Sample play on a Selector / Card / voice: the 30px ring is CSS, so it swaps bare glyphs
+// (triangle <-> pause, same as voice-library.html); one at a time, auto-stops after 2s like the old preview.
+let __voiceCardPlayTimer = null;
+function toggleVoiceCardPlay(btn){
+  const ICONS = '../../../../components/ai-social-media/icons/';
+  const reset = el => { el.classList.remove('playing'); el.querySelector('img').src = ICONS + 'audio-row-play-triangle.svg'; };
+  const wasPlaying = btn.classList.contains('playing');
+  document.querySelectorAll('.selector-card-voice .voice-section-sample-play.playing').forEach(reset);
+  clearTimeout(__voiceCardPlayTimer);
+  if(!wasPlaying){
+    btn.classList.add('playing');
+    btn.querySelector('img').src = ICONS + 'audio-pause.svg';
+    __voiceCardPlayTimer = setTimeout(() => reset(btn), 2000);
+  }
 }
 // Whichever character is currently picked, plus whether the voice they'd default to is the
 // one actually selected right now -- both can go stale independently (switching character,
@@ -7990,11 +8183,38 @@ function setVideoUnitDesc(unit, value){
 function toggleDurationPopover(e){
   e.stopPropagation();
   const pop = document.getElementById('durationPopover');
-  pop.style.display = pop.style.display === 'block' ? 'none' : 'block';
+  document.getElementById('qualityPopover').style.display = 'none';
+  pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
+}
+// Quality chip (Figma 12480:219891 "quality menu"): Standard · 480p / HD · 720p / Full HD · 1080p.
+// 480p is the draft tier, so the action bar meta reads "480p draft"; HD/Full HD read just "720p"/"1080p".
+window.__videoQuality = 480;
+function toggleQualityPopover(e){
+  e.stopPropagation();
+  const pop = document.getElementById('qualityPopover');
+  document.getElementById('durationPopover').style.display = 'none';
+  pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
+}
+function selectVideoQuality(q){
+  window.__videoQuality = q;
+  document.getElementById('qualityChipText').textContent = q + 'p';
+  document.querySelectorAll('#qualityPopover .controls-option-row[data-quality]').forEach(o => {
+    const isSelected = Number(o.dataset.quality) === q;
+    o.classList.toggle('controls-option-row--selected', isSelected);
+    const existingCheck = o.querySelector('img');
+    if(isSelected && !existingCheck) o.insertAdjacentHTML('beforeend', '<img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt="">');
+    else if(!isSelected && existingCheck) existingCheck.remove();
+  });
+  document.getElementById('qualityPopover').style.display = 'none';
+  document.getElementById('briefMetaQualityReel').textContent = q === 480 ? '480p draft' : q + 'p';
+  const genQ = document.getElementById('genSettingQuality');
+  if(genQ) genQ.textContent = q + 'p';
 }
 document.addEventListener('click', (e) => {
   const pop = document.getElementById('durationPopover');
-  if(pop && pop.style.display === 'block' && !e.target.closest('#durationChipWrap')) pop.style.display = 'none';
+  if(pop && pop.style.display === 'flex' && !e.target.closest('#durationChipWrap')) pop.style.display = 'none';
+  const qPop = document.getElementById('qualityPopover');
+  if(qPop && qPop.style.display === 'flex' && !e.target.closest('#qualityChipWrap')) qPop.style.display = 'none';
 });
 function selectDuration(seconds){
   const oldSeconds = window.__videoDuration;
@@ -8004,7 +8224,7 @@ function selectDuration(seconds){
     const isSelected = Number(o.dataset.seconds) === seconds;
     o.classList.toggle('controls-option-row--selected', isSelected);
     const existingCheck = o.querySelector('img');
-    if(isSelected && !existingCheck) o.insertAdjacentHTML('beforeend', '<img src="../../../../components/ai-social-media/icons/check.svg" alt="">');
+    if(isSelected && !existingCheck) o.insertAdjacentHTML('beforeend', '<img src="../../../../components/ai-social-media/icons/option-row-check.svg" alt="">');
     else if(!isSelected && existingCheck) existingCheck.remove();
   });
   document.getElementById('durationPopover').style.display = 'none';
@@ -10833,7 +11053,9 @@ function setStep(active){
   });
   document.getElementById('stepBrief').querySelector('.num').textContent = idx > 0 ? '✓' : '1';
   document.getElementById('stepGenerate').querySelector('.num').textContent = idx > 1 ? '✓' : '2';
-  document.getElementById('sideNav').classList.toggle('collapsed', idx !== 0);
+  // nav-brand-switch.js loads after this inline script, so the very first call (initial render) falls back to the class
+  if(typeof setNavCollapsed === 'function') setNavCollapsed(idx !== 0);
+  else document.getElementById('sideNav').classList.toggle('collapsed', idx !== 0);
 }
 
 // ---- Content-type switcher (Brief & Style) — the only genuinely new piece of navigation
@@ -10844,8 +11066,11 @@ function selectContentType(el){
   const type = el.dataset.type;
   document.querySelectorAll('#contentTypeToggle .seg-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  window.__isStoryVideo = (type === 'story');
-  window.__contentType = (type === 'story') ? 'reel' : type;
+  // Reel/Short and Story Video are a single "Video" type now (chip data-type stays 'reel'),
+  // so the Story-video flag is never set from the UI any more. The flag and its Publish-side
+  // branches stay in place untouched -- the Publish screen gets reworked separately.
+  window.__isStoryVideo = false;
+  window.__contentType = type;
   applyContentType();
 }
 
@@ -10906,8 +11131,30 @@ function reelGoToBrief(){
   showView('briefView'); setStep('stepBrief');
   document.getElementById('briefActionBarReel').style.display = 'flex';
 }
+// Generate's spec chips (Figma controls-row 15001:712212) mirror what was picked on Brief & Style:
+// the selected character, the voice (or Seedance's "Auto voice"), and the duration/quality.
+function syncGenSettingChips(){
+  const charEl = document.getElementById('settingCharacter');
+  if(charEl){
+    const id = window.__selectedCharId;
+    charEl.textContent = id ? id.charAt(0).toUpperCase() + id.slice(1) : 'None';
+  }
+  const voiceEl = document.getElementById('settingVoice');
+  if(voiceEl){
+    if(window.__voiceSource === 'auto') voiceEl.textContent = 'Auto voice';
+    else {
+      const v = (typeof YOUR_VOICES_DATA !== 'undefined') && YOUR_VOICES_DATA.find(x => x.id === selectedVoiceId);
+      if(v) voiceEl.textContent = v.name;
+    }
+  }
+  const qEl = document.getElementById('genSettingQuality');
+  if(qEl) qEl.textContent = (window.__videoQuality || 480) + 'p';
+  const dEl = document.getElementById('genSettingDuration');
+  if(dEl && window.__videoDuration) dEl.textContent = window.__videoDuration + 's';
+}
 function reelGoToGenerate(){
   showView('generateView'); setStep('stepGenerate'); showSub('reelScript');
+  syncGenSettingChips();
   document.getElementById('briefActionBarReel').style.display = 'none';
   if(window.__reelBrandKitOn === undefined) window.__reelBrandKitOn = window.__brandMode === 'set';
   updateReelBrandKitUI();
@@ -10927,8 +11174,7 @@ function reelGoToGenerate(){
 // Image/Carousel.
 function reelGoToDevelop(){
   const duration = window.__videoDuration || 16;
-  const story = window.__isStoryVideo ? '&story=1' : '';
-  window.location.href = `../../editing/image-editing.html?mode=video&ratio=9:16&duration=${duration}${story}&v=4`;
+  window.location.href = `../../editing/image-editing.html?mode=video&ratio=9:16&duration=${duration}&v=4`;
 }
 
 // Publish doesn't differ by content type (verified: the only content-type-specific bits
@@ -10950,10 +11196,10 @@ function initFromEditorHandoff(){
   const view = params.get('view');
   if(!view) return false;
   const type = params.get('contentType') || 'reel';
-  window.__isStoryVideo = params.get('story') === '1';
+  // Story Video no longer exists as a separate type: an old ?story=1 link lands on Video like any other.
+  window.__isStoryVideo = false;
   window.__contentType = type;
-  const chipType = window.__isStoryVideo ? 'story' : type;
-  const chip = document.querySelector(`#contentTypeToggle .seg-chip[data-type="${chipType}"]`);
+  const chip = document.querySelector(`#contentTypeToggle .seg-chip[data-type="${type}"]`);
   if(chip){
     document.querySelectorAll('#contentTypeToggle .seg-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
@@ -11055,7 +11301,7 @@ function syncGenActionBarV3(){
       sourceBtn = document.getElementById('continueToEditingBtn');
     }
   } else if(window.__contentType === 'reel'){
-    document.getElementById('genMetaV3').textContent = `${window.__isStoryVideo ? 'Story Video' : 'Reel/Short'} · 9:16 · ${window.__videoDuration || 16}s`;
+    document.getElementById('genMetaV3').textContent = `Video · 9:16 · ${window.__videoDuration || 16}s · ${(window.__videoQuality || 480) === 480 ? '480p draft' : (window.__videoQuality + 'p')}`;
     if(document.getElementById('subReelScript').style.display !== 'none'){
       sourceBtn = !window.__scriptConfirmed
         ? document.querySelector('#scriptPanel .stage-cta-row .btn-dark')
@@ -11811,5 +12057,6 @@ fitScreenToViewport();
   };
 })();
 </script>
+<script src="../../../../components/ai-social-media/nav-brand-switch.js" data-test-panel="off"></script>
 </body>
 </html>

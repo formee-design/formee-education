@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon / spec / quality">
+<path id="screen" d="M2.6666 2.6667H13.3334C14.2223 2.6667 14.6667 3.11113 14.6667 4V10C14.6667 10.8889 14.2223 11.3333 13.3334 11.3333H2.6666C1.77773 11.3333 1.3333 10.8889 1.3333 10V4C1.3333 3.11113 1.77773 2.6667 2.6666 2.6667Z" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke="#8A93A8"/>
+<path id="stand" d="M8 11.3333V14" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke="#8A93A8"/>
+<path id="base" d="M5.3333 14H10.6667" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke="#8A93A8"/>
+</g>
+</svg>
