@@ -290,10 +290,14 @@ ul,ol{list-style:none}
 .q.open .a p{opacity:1;transform:none;transition-delay:.1s}
 
 /* CTA */
-.cta{background:#fff;padding-top:80px}
-.cta-head{display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center}
-.cta-head p{font-size:18px;line-height:28px;color:var(--n500)}
-.wall{position:relative;height:560px;margin-top:48px;overflow:hidden;display:flex;gap:12px;margin-left:-87px;width:2100px}
+.cta{background:#fff;padding-top:160px}
+.cta-head{display:flex;flex-direction:column;align-items:center;text-align:center}
+/* Sizes and spacing follow Synthesia's closing CTA at 1920 (title 64 kept from our scale) */
+.cta-head p{margin-top:28px;font-size:24px;line-height:32px;color:var(--n700)}
+.cta-btns{display:flex;gap:14px;margin-top:56px}
+.cta-btn{height:64px;padding:0 28px;border-radius:12px;font-size:20px;line-height:28px}
+.btn.outline.cta-btn{color:var(--n700)}
+.wall{position:relative;height:560px;margin-top:160px;overflow:hidden;display:flex;gap:12px;margin-left:-87px;width:2100px}
 .col{width:150px;flex:none}
 .col-track{display:flex;flex-direction:column;gap:12px;animation:colUp var(--t,50s) linear infinite}
 .col.down .col-track{animation-name:colDown}
