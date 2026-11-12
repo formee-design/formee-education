@@ -162,9 +162,6 @@ ul,ol{list-style:none}
 .float.b{animation-duration:7.5s;animation-delay:-2s}
 .float.c{animation-duration:5.5s;animation-delay:-3.4s}
 @keyframes float{50%{transform:translateY(-10px)}}
-/* Flowing gradient border, same as the hero prompt, laid over a prompt box exported as PNG */
-.flow-wrap{position:relative;width:100%;height:100%}
-.flow-ring{position:absolute;padding:1.5px;background:conic-gradient(from var(--a,0deg),rgba(79,109,230,.7),rgba(237,119,151,.7),rgba(79,109,230,.25),rgba(237,119,151,.45),rgba(79,109,230,.7));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spinBorder 6s linear infinite;pointer-events:none}
 .wander{animation:wander 7s ease-in-out infinite}
 .wander.b{animation-duration:9s;animation-delay:-3s}
 @keyframes wander{25%{transform:translate(-16px,12px)}50%{transform:translate(10px,20px) scale(.92)}60%{transform:translate(10px,20px) scale(1)}80%{transform:translate(18px,-8px)}}
@@ -331,24 +328,6 @@ ul,ol{list-style:none}
 .scan i{display:none}
 .plan.best::before{animation:none}
 .social a:hover{transform:none}
-
-
-/* ===== Motion at Synthesia level (11/12) =====
-   Text and panels are simply there. Media plays in place, the logo row scrolls,
-   and controls react to hover and click. Hero intro and count-ups are left as they are. */
-.r:not(.hero .r):not(.strip .r){opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important}
-[data-split]:not([data-auto]) .w>i{transform:none!important;transition:none!important}
-.fill-words .fw{color:var(--n900)!important;transition:none!important}
-.progress{display:none}
-.ripple,.btn.shine::before{display:none!important}
-.strip .ly{transform:none!important}
-.demo{transform:none!important;opacity:1!important}
-.steps li{opacity:1!important}
-.rail u{transform:none!important}
-.p-feats li{opacity:1!important;transform:none!important;transition:none!important}
-.save.bump{animation:none}
-.q button:hover{padding-left:0}
-.col img:hover,.marquee-track img:hover{transform:none}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}

@@ -103,7 +103,7 @@
     col.className = 'col' + (c % 2 ? ' down' : '');
     const t = document.createElement('div');
     t.className = 'col-track';
-    t.style.setProperty('--t', `${44 + (c * 7) % 24}s`);
+    t.style.setProperty('--t', `${88 + (c * 14) % 48}s`); /* half speed (11/12) */
     const set = [...patterns[c % patterns.length], ...patterns[(c + 3) % patterns.length]];
     const html = set.map(h => `<img src="${imgs[n++ % imgs.length]}" alt="" style="height:${h}px">`).join('');
     t.innerHTML = html + html;
@@ -176,7 +176,7 @@
   };
   const io = new IntersectionObserver(entries => entries.forEach(e => {
     if (e.isIntersecting) show(e.target);
-    else if (e.boundingClientRect.top > 0) hide(e.target);
+    else if (e.boundingClientRect.top > 0 && $$('[data-count]', e.target).length) hide(e.target); /* reveals play once; only count-ups replay */
   }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
   const targets = $$('.r, [data-split]');
   targets.forEach(el => {
@@ -189,7 +189,6 @@
   const panelIo = new IntersectionObserver(entries => entries.forEach(e => {
     const kids = $$('.r', e.target);
     if (e.isIntersecting) kids.forEach(k => k.classList.add('in'));
-    else if (e.boundingClientRect.top > 0) kids.forEach(k => k.classList.remove('in'));
   }), { threshold: .22 });
   $$('.panel').forEach(p => panelIo.observe(p));
 
@@ -252,15 +251,7 @@
     b.appendChild(s);
     s.addEventListener('animationend', () => s.remove());
   });
-  $$('[data-magnetic]').forEach(b => {
-    b.addEventListener('pointermove', e => {
-      const r = b.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-      b.style.translate = `${x * 10}px ${y * 8}px`;
-    });
-    b.addEventListener('pointerleave', () => { b.style.translate = ''; });
-    b.style.transition = (getComputedStyle(b).transition || '') + ', translate .35s cubic-bezier(.16,1,.3,1)';
-  });
+  /* Magnetic pull removed (11/12) */
 
   /* Nav */
   const nav = $('#nav');
@@ -338,10 +329,10 @@
 
     nav.classList.toggle('scrolled', y > 40);
 
-    glows.forEach(g => { const d = +g.dataset.mouse; g.style.transform = `translate3d(${sm.x * d * 2}px,${sm.y * d * 2 + y * .12}px,0)`; });
+    /* Glows stay still (11/12) */
     stripCards.forEach(c => {
       const d = +c.dataset.depth, sp = +c.dataset.speed;
-      c.style.transform = `translate3d(${sm.x * d}px,${sm.y * d + y * sp}px,0)`;
+      c.style.transform = `translate3d(0,${y * sp * .5}px,0)`; /* scroll only, half strength (11/12) */
     });
 
     /* Demo flattens from a tilt as it reaches the middle */
@@ -366,18 +357,7 @@
       if (u) u.style.transform = `scaleY(${clamp(seg - i)})`;
     });
 
-    /* Panels */
-    panelLayers.forEach(({ p, ly }) => {
-      p._mx += (p._tx - p._mx) * .09; p._my += (p._ty - p._my) * .09;
-      const r = top(p), inView = r < vh && r + 600 * zoom > 0;
-      if (!inView) return;
-      const pc = (r + 300 * zoom - vh / 2) / vh;
-      p.style.setProperty('--tilt', `perspective(1400px) rotateY(${p._mx * 5}deg) rotateX(${-p._my * 5}deg)`);
-      ly.forEach(l => {
-        const d = +l.dataset.depth;
-        l.style.transform = `translate3d(${p._mx * d}px,${p._my * d + pc * d * -1.1}px,0)`;
-      });
-    });
+    /* Panel tilt and layer parallax removed (11/12) */
 
     /* Active nav link */
     let cur = null;
