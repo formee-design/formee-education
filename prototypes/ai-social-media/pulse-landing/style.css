@@ -174,9 +174,9 @@ ul,ol{list-style:none}
 
 /* Reveal system */
 .r{opacity:0;transition:opacity .9s var(--ease) var(--d,0s),transform 1.05s var(--ease) var(--d,0s),clip-path 1.1s var(--ease) var(--d,0s)}
-.r.up{transform:translateY(36px)}
-.r.left{transform:translateX(-44px)}
-.r.right{transform:translateX(44px)}
+.r.up{transform:translateY(20px)}
+.r.left{transform:translateX(-24px)}
+.r.right{transform:translateX(24px)}
 .r.scale{transform:scale(.9)}
 .r.rise{transform:translateY(90px) scale(.92) rotate(2deg)}
 .r.pop{transform:scale(0)}
@@ -186,7 +186,7 @@ ul,ol{list-style:none}
 .r.draw{clip-path:inset(0 100% 100% 0);opacity:1}
 .r.wipe{clip-path:inset(-20px 100% -20px -20px);opacity:1}
 .r.trace{clip-path:inset(100% 0 0 100%);opacity:1}
-.r.panel-in{transform:translateY(60px) scale(.97)}
+.r.panel-in{transform:translateY(30px)}
 .r.pop,.r.stick,.r.stick2,.r.drop{transition:opacity .4s ease var(--d,0s),transform .75s var(--spring) var(--d,0s)}
 .r.in{opacity:1;transform:none}
 .r.draw.in,.r.wipe.in,.r.trace.in{clip-path:inset(-80px -80px -80px -80px)}
@@ -318,6 +318,14 @@ ul,ol{list-style:none}
 .ab-switch a.on{background:#fff;color:var(--n900)}
 .ab-switch b{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;font-weight:600}
 .ab-switch a.on b{background:var(--n900);color:#fff}
+
+
+/* 11/12 motion reduction: no idle loops in panels, still glows, calm hovers */
+.glow-a,.glow-b{animation:none}
+.float,.wander,.spin,.wiggle{animation:none!important}
+.scan i{display:none}
+.plan.best::before{animation:none}
+.social a:hover{transform:none}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
