@@ -279,14 +279,14 @@ ul,ol{list-style:none}
 .faq-left{width:464px;position:sticky;top:120px}
 .faq-list{flex:1}
 .q{border-bottom:1px solid var(--n200);transition:background .3s}
-.q button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:24px 0;text-align:left;font-size:16px;line-height:24px;font-weight:600;transition:padding .35s var(--ease),color .25s}
+.q button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:28px 0;gap:24px;text-align:left;font-size:22px;line-height:30px;font-weight:500;letter-spacing:-.2px;transition:padding .35s var(--ease),color .25s}
 .q button:hover{padding-left:8px;color:var(--blue)}
-.q img{width:20px;height:20px;transition:transform .45s var(--spring)}
+.q img{flex:none;width:24px;height:24px;transition:transform .45s var(--spring)}
 .q.open img{transform:rotate(180deg)}
 .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease)}
 .q.open .a{grid-template-rows:1fr}
 .a>div{overflow:hidden}
-.a p{padding-bottom:24px;font-size:15px;line-height:22px;color:var(--n700);opacity:0;transform:translateY(-6px);transition:opacity .4s,transform .4s var(--ease)}
+.a p{max-width:880px;padding-bottom:28px;font-size:18px;line-height:28px;color:var(--n700);opacity:0;transform:translateY(-6px);transition:opacity .4s,transform .4s var(--ease)}
 .q.open .a p{opacity:1;transform:none;transition-delay:.1s}
 
 /* CTA */
