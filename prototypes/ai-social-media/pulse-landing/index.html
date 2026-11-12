@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261112d">
+<link rel="stylesheet" href="style.css?v=20261112e">
 </head>
 <body>
 <div class="progress" aria-hidden="true"><i id="progress"></i></div>
@@ -63,13 +63,19 @@
     </section>
 
     <section class="made">
-      <div class="strip" id="strip">
-        <div class="ly card" data-depth="10" data-speed="-.035" style="left:240px;top:130px;width:200px;height:356px"><div class="r rise" style="--d:1.02s"><video class="card-video" src="assets/v1.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
-        <div class="ly card" data-depth="18" data-speed=".03" style="left:456px;top:109px;width:224px;height:398px"><div class="r rise" style="--d:.92s"><video class="card-video" src="assets/v2.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
-        <div class="ly card" data-depth="28" data-speed="-.06" style="left:696px;top:80px;width:256px;height:455px"><div class="r rise" style="--d:.82s"><video class="card-video" src="assets/v3.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
-        <div class="ly card" data-depth="28" data-speed=".05" style="left:968px;top:80px;width:256px;height:455px"><div class="r rise" style="--d:.86s"><video class="card-video" src="assets/v4.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
-        <div class="ly card" data-depth="18" data-speed="-.03" style="left:1240px;top:109px;width:224px;height:398px"><div class="r rise" style="--d:.96s"><video class="card-video" src="assets/v5.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
-        <div class="ly card" data-depth="10" data-speed=".04" style="left:1480px;top:130px;width:200px;height:356px"><div class="r rise" style="--d:1.06s"><video class="card-video" src="assets/v6.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+      <div class="strip strip-flow" id="strip">
+        <div class="flow-track" id="flowTrack">
+          <div class="card flow-card" style="width:200px;height:356px"><div class="r rise" style="--d:0.82s"><video class="card-video" src="assets/v1.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" style="width:224px;height:398px"><div class="r rise" style="--d:0.87s"><video class="card-video" src="assets/v2.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" style="width:256px;height:455px"><div class="r rise" style="--d:0.92s"><video class="card-video" src="assets/v3.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" style="width:224px;height:398px"><div class="r rise" style="--d:0.97s"><video class="card-video" src="assets/v4.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" style="width:200px;height:356px"><div class="r rise" style="--d:1.02s"><video class="card-video" src="assets/v5.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" style="width:256px;height:455px"><div class="r rise" style="--d:1.07s"><video class="card-video" src="assets/v6.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" data-temp="repeat until new clip" style="width:224px;height:398px"><div class="r rise" style="--d:1.12s"><video class="card-video" src="assets/v3.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" data-temp="repeat until new clip" style="width:200px;height:356px"><div class="r rise" style="--d:0s"><video class="card-video" src="assets/v1.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" data-temp="repeat until new clip" style="width:256px;height:455px"><div class="r rise" style="--d:0s"><video class="card-video" src="assets/v5.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+          <div class="card flow-card" data-temp="repeat until new clip" style="width:224px;height:398px"><div class="r rise" style="--d:0s"><video class="card-video" src="assets/v2.mp4" muted loop playsinline autoplay preload="auto"></video></div></div>
+        </div>
       </div>
       <div class="trust">
         <p class="r fade">Trusted by teams at</p>
@@ -244,7 +250,8 @@
     <div class="f-col r up" style="--d:.24s"><h5>Company</h5><a href="#">About Formee</a><a href="#">Contact</a><a href="terms.html">Terms of Use</a><a href="privacy.html">Privacy</a></div>
   </footer>
 </div>
-<script src="main.js?v=20261112d"></script>
+<script src="main.js?v=20261112e"></script>
+<script src="strip-flow.js?v=20261112e"></script>
 <!-- B (CTA hero) is hidden for now; restore this line to bring back the A/B switch. <script src="ab-switch.js"></script> -->
 </body>
 </html>
