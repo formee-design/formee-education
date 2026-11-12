@@ -342,7 +342,7 @@ ul,ol{list-style:none}
 
 
 /* Showcase coverflow (11/12): six slots, largest in the middle, one step every few seconds */
-.cf-card{position:absolute;transition:left .9s var(--ease),top .9s var(--ease),width .9s var(--ease),height .9s var(--ease),opacity .6s ease}
+.cf-card{position:absolute;transition:left .7s var(--ease),top .7s var(--ease),width .7s var(--ease),height .7s var(--ease),opacity .5s ease}
 .cf-card.cf-jump{transition:none}
 .cf-card>div{width:100%;height:100%}
 
