@@ -54,11 +54,11 @@ ul,ol{list-style:none}
 @keyframes ripple{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
 
 /* Nav */
-.nav-wrap{position:fixed;top:0;left:0;width:1920px;padding:20px 240px;z-index:50;animation:navIn .9s var(--ease) .1s both;transition:padding .5s var(--ease),transform .5s var(--ease)}
+.nav-wrap{position:fixed;top:0;left:0;width:1920px;padding:0 240px;z-index:50;background:rgba(255,255,255,0);box-shadow:0 2px 16px rgba(16,24,40,0);animation:navIn .9s var(--ease) .1s both;transition:background .35s,box-shadow .35s}
 @keyframes navIn{from{transform:translateY(-120%);opacity:0}}
-.nav{position:relative;display:flex;align-items:center;justify-content:space-between;height:66px;padding:10px 20px;border-radius:999px;border:1.5px solid rgba(255,255,255,.85);background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.6) 55%,rgba(255,255,255,.7));-webkit-backdrop-filter:blur(60px);backdrop-filter:blur(60px);box-shadow:0 2px 16px rgba(16,24,40,.06),inset 0 1.5px 2px rgba(255,255,255,.9);transition:height .5s var(--ease),background .4s,box-shadow .4s}
-/* Scrolled: same values as Figma "Nav · Glass / Scrolled" (Figma background blur 60 = CSS 30) */
-.nav-wrap.scrolled .nav{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.78) 55%,rgba(255,255,255,.86));-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);box-shadow:0 2px 16px rgba(16,24,40,.08),inset 0 1.5px 2px rgba(255,255,255,.9)}
+.nav{position:relative;display:flex;align-items:center;justify-content:space-between;height:86px}
+/* Full-width bar like synthesia.io: transparent at the top, white with a soft shadow once the page scrolls */
+.nav-wrap.scrolled{background:#fff;box-shadow:0 2px 16px rgba(16,24,40,.08)}
 .nav-left,.nav-right{width:260px;display:flex;align-items:center}
 .nav-right{justify-content:flex-end;gap:8px}
 .nav-right .btn{height:46px;padding:10px 20px;border-radius:10px;font-size:17px;line-height:26px;font-weight:500}
@@ -328,24 +328,6 @@ ul,ol{list-style:none}
 .scan i{display:none}
 .plan.best::before{animation:none}
 .social a:hover{transform:none}
-
-
-/* ===== Motion at Synthesia level (11/12) =====
-   Text and panels are simply there. Media plays in place, the logo row scrolls,
-   and controls react to hover and click. Hero intro and count-ups are left as they are. */
-.r:not(.hero .r):not(.strip .r){opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important}
-[data-split]:not([data-auto]) .w>i{transform:none!important;transition:none!important}
-.fill-words .fw{color:var(--n900)!important;transition:none!important}
-.progress{display:none}
-.ripple,.btn.shine::before{display:none!important}
-.strip .ly{transform:none!important}
-.demo{transform:none!important;opacity:1!important}
-.steps li{opacity:1!important}
-.rail u{transform:none!important}
-.p-feats li{opacity:1!important;transform:none!important;transition:none!important}
-.save.bump{animation:none}
-.q button:hover{padding-left:0}
-.col img:hover,.marquee-track img:hover{transform:none}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
