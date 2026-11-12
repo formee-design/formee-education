@@ -1,4 +1,4 @@
-/* Showcase coverflow (11/12): the same six-slot shape as before, largest in the middle.
+/* Showcase coverflow (11/12): the six-slot shape plus one smaller slot on each side, largest in the middle.
    Every few seconds each video moves one slot to the left; the leftmost fades out
    and the next queued video fades in on the right. Pauses on hover. */
 (() => {
@@ -6,12 +6,15 @@
   if (!strip) return;
   const cards = [...strip.querySelectorAll('.cf-card')];
   const N = cards.length;
+  // Eight slots: the original six plus a smaller one on each side.
   const SLOTS = [
+    [48, 152, 176, 313],
     [240, 130, 200, 356], [456, 109, 224, 398], [696, 80, 256, 455],
     [968, 80, 256, 455], [1240, 109, 224, 398], [1480, 130, 200, 356],
+    [1696, 152, 176, 313],
   ];
-  const OUT_LEFT = [24, 150, 180, 320];
-  const OUT_RIGHT = [1716, 150, 180, 320];
+  const OUT_LEFT = [-140, 170, 156, 277];
+  const OUT_RIGHT = [1904, 170, 156, 277];
   const STEP_MS = 3200;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let offset = 0, hover = false;
@@ -32,7 +35,7 @@
       if (p < SLOTS.length) place(el, SLOTS[p], true);
       else if (p === N - 1) place(el, OUT_LEFT, false);
       else place(el, OUT_RIGHT, false);
-      el.style.zIndex = p < SLOTS.length ? 10 - Math.abs(p - 2.5) * 2 | 0 : 0;
+      el.style.zIndex = p < SLOTS.length ? 10 - Math.abs(p - 3.5) * 2 | 0 : 0;
       const v = el.querySelector('video');
       if (v) { if (p < SLOTS.length) v.play().catch(() => {}); else v.pause(); }
       prev[i] = p;
