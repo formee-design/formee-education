@@ -251,6 +251,25 @@
     </div>
   </div>
 
+  <h2>Size=Small (36px tall): Empty / Empty-hover / Remove</h2>
+  <p class="demo-sub">Figma Size=Small variants, used in the Brief &amp; Style prompt box for Video, Image and Carousel. Add <code>.ref-chip--sm</code> to the same markup.</p>
+  <div class="demo-grid">
+    <div class="ref-chip ref-chip--sm" title="Empty">
+      <img class="ref-chip-icon" src="icons/content-image-plus.svg" alt="">
+      <span class="ref-chip-label">Reference</span>
+    </div>
+    <div class="ref-chip ref-chip--sm demo-force-hover" title="Empty, hovered">
+      <img class="ref-chip-icon" src="icons/content-image-plus.svg" alt="">
+      <span class="ref-chip-label">Reference</span>
+      <button type="button" class="ref-chip-more" title="More options"><img src="icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>
+    </div>
+    <div class="ref-chip ref-chip--sm" data-attached="true" title="Attached (Remove only, no hover needed)">
+      <img class="ref-chip-icon" src="icons/content-image-plus.svg" alt="">
+      <span class="ref-chip-label">Image 1</span>
+      <button type="button" class="ref-chip-remove" aria-label="Remove reference" title="Remove reference"><img src="icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
+    </div>
+  </div>
+
   <h2>Image (wide detail card, 240px)</h2>
   <p class="demo-sub">Figma 8614:18 — the Content Library "Use as reference" hand-off. Clicking it opens the strength/match/frame-picker popover (see new-content-to-generate.html's fmxref-js for the working implementation).</p>
   <div class="demo-grid">

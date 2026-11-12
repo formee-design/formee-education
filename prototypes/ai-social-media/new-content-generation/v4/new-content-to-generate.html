@@ -4720,14 +4720,14 @@ function imgRemoveReferenceImage(num){
 function imgRenderReferenceImages(){
   const icon = `<img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/content-image-plus.svg" alt="">`;
   const chips = imgReferenceImages.map(n => `
-    <div class="ref-chip" data-attached="true">
+    <div class="ref-chip ref-chip--sm" data-attached="true">
       ${icon}<span class="ref-chip-label">Image ${n}</span>
       <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); imgRemoveReferenceImage(${n})" aria-label="Remove reference image ${n}" title="Remove reference"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
     </div>
   `).join('');
   const menuOpen = window.__refUploadMenuOpen === 'img-reference';
   document.getElementById('referenceImagesRowImage').innerHTML = chips + `
-    <div class="ref-chip" onclick="toggleRefUploadMenu(event, 'img-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('img-reference') : ''}</div>
+    <div class="ref-chip ref-chip--sm" onclick="toggleRefUploadMenu(event, 'img-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('img-reference') : ''}</div>
   `;
 }
 imgRenderReferenceImages();
@@ -4894,14 +4894,14 @@ function carRemoveReferenceImage(num){
 function carRenderReferenceImages(){
   const icon = `<img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/content-image-plus.svg" alt="">`;
   const chips = carReferenceImages.map(n => `
-    <div class="ref-chip" data-attached="true">
+    <div class="ref-chip ref-chip--sm" data-attached="true">
       ${icon}<span class="ref-chip-label">Image ${n}</span>
       <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); carRemoveReferenceImage(${n})" aria-label="Remove reference image ${n}" title="Remove reference"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
     </div>
   `).join('');
   const menuOpen = window.__refUploadMenuOpen === 'car-reference';
   document.getElementById('referenceImagesRowCarousel').innerHTML = chips + `
-    <div class="ref-chip" onclick="toggleRefUploadMenu(event, 'car-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('car-reference') : ''}</div>
+    <div class="ref-chip ref-chip--sm" onclick="toggleRefUploadMenu(event, 'car-reference')" title="Add reference image">${icon}<span class="ref-chip-label">Reference</span><button type="button" class="ref-chip-more" title="More options"><img src="../../../../components/ai-social-media/icons/ui-ellipsis.svg" class="icon-inline" alt=""></button>${menuOpen ? buildRefUploadMenuHtml('car-reference') : ''}</div>
   `;
 }
 carRenderReferenceImages();
@@ -6928,7 +6928,9 @@ function renderReferenceImages(){
   // local state; a blanket `.reference-images-row` selector here would clobber those every
   // time this function runs, since all these rows share that one layout class.
   document.querySelectorAll('#referenceImagesRow, .reference-images-row.compact').forEach(row => {
-    row.innerHTML = row.id === 'referenceImagesRow' ? briefHtml : compactHtml;
+    row.innerHTML = row.id === 'referenceImagesRow'
+      ? briefHtml.replace(/class="ref-chip(?= |")/g, 'class="ref-chip ref-chip--sm')
+      : compactHtml;
   });
 }
 renderReferenceImages();
