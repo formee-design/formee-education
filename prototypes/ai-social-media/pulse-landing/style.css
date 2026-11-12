@@ -280,7 +280,7 @@ ul,ol{list-style:none}
 .faq-list{flex:1}
 .q{border-bottom:1px solid var(--n200);transition:background .3s}
 .q button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:28px 0;gap:24px;text-align:left;font-size:22px;line-height:30px;font-weight:500;letter-spacing:-.2px;transition:padding .35s var(--ease),color .25s}
-.q button:hover{padding-left:8px;color:var(--blue)}
+.q button:hover{padding-left:8px}
 .q img{flex:none;width:24px;height:24px;transition:transform .45s var(--spring)}
 .q.open img{transform:rotate(180deg)}
 .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease)}
