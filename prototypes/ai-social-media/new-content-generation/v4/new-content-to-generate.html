@@ -2057,7 +2057,7 @@
               <!-- Audio reference chip (Video only): opens the file picker straight away; once a file is
                    attached the chip shows its name with the Remove corner, like an attached Reference chip. -->
               <div class="audio-ref-wrap" id="audioRefWrapReel">
-                <div class="ref-chip audio-ref-chip" id="audioRefChipReel" onclick="document.getElementById('audioRefInputReel').click()" title="Upload an audio reference">
+                <div class="ref-chip audio-ref-chip" id="audioRefChipReel" onclick="onAudioChipClick()" title="Upload an audio reference">
                   <img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/audio-lines.svg" alt=""><span class="ref-chip-label" id="audioRefLabelReel">Audio</span>
                   <button type="button" class="audio-ref-play" onclick="event.stopPropagation(); toggleAudioReferencePlay()" aria-label="Play audio reference" title="Play"><img id="audioRefPlayIconReel" src="../../../../components/ai-social-media/icons/audio-chip-play.svg" alt=""></button><span class="audio-ref-duration" id="audioRefDurReel">0:00</span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearAudioReference()" aria-label="Remove audio reference" title="Remove audio"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
@@ -6963,6 +6963,22 @@ function onAudioReferencePicked(input){
   dur.textContent = '0:00';
   audio.addEventListener('loadedmetadata', () => { dur.textContent = formatAudioTime(audio.duration); });
   audio.addEventListener('ended', () => setAudioRefPlayIcon(false));
+}
+// Prototype: clicking the empty Audio chip stands in for picking a file (Figma 16441:384125),
+// attaching an 11s sample clip so the play / pause states (16443:491356) can be tried.
+function onAudioChipClick(){
+  if(window.__audioRef) return;
+  const sr = 8000, n = sr * 11, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const w = (o, str) => { for(let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, 'data'); v.setUint32(40, n * 2, true);
+  const input = document.getElementById('audioRefInputReel');
+  const dt = new DataTransfer();
+  dt.items.add(new File([buf], 'brand-jingle.wav', { type: 'audio/wav' }));
+  input.files = dt.files;
+  onAudioReferencePicked(input);
 }
 function formatAudioTime(sec){
   if(!isFinite(sec)) return '0:00';
