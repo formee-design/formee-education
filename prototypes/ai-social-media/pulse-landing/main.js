@@ -50,7 +50,7 @@
     'f4-publish': [24, 40, 56, 40, '16px', S1],
   };
   $$('.panel img').forEach(img => {
-    const key = img.getAttribute('src').split('/').pop().replace('.png', '');
+    const key = img.getAttribute('src').split('/').pop().split('?')[0].replace('.png', '');
     const c = crops[key];
     if (!c) return;
     img.style.clipPath = `inset(${c[0]}px ${c[1]}px ${c[2]}px ${c[3]}px round ${c[4]})`;
