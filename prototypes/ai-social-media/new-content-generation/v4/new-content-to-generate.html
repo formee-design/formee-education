@@ -1099,6 +1099,11 @@
      and a one-click switch to the model that takes ElevenLabs voices (Gemini Omni Flash). */
   .voice-model-switch{border:none; background:none; padding:0; cursor:pointer; font:inherit; font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .voice-model-switch:hover{text-decoration:underline;}
+  /* Back from Generate to Brief & Style, pinned to the left end of the Generate action bar */
+  .gen-back-btn{display:inline-flex; align-items:center; gap:var(--spacing-xs); position:absolute; left:var(--spacing-3xl);}
+  .gen-back-btn img{width:var(--spacing-lg); height:var(--spacing-lg);}
+  .final-modal.regen-modal{min-height:0;}
+  .brief-changed-note{color:var(--color-neutral-900); font-weight:var(--font-weight-medium);}
   .voice-model-toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); z-index:200;}
 
   /* ---- Voice picker (Character section) — "My voices" card row + Browse ElevenLabs library ---- */
@@ -2379,6 +2384,7 @@
       <div class="meta-text" id="briefMetaTextImage">Image post · 4:5 · 2 versions</div>
       <div class="bar-actions">
         <button class="btn btn-secondary">Save as draft</button>
+        <button class="btn btn-secondary brief-resume-btn" id="resumeBtnImage" style="display:none;" onclick="goToGenerate()">Continue to Generate</button>
         <button class="btn btn-dark" id="continueBtnImage" onclick="goToGenerate()">Continue</button>
       </div>
     </div>
@@ -2390,6 +2396,7 @@
       <div class="meta-text" id="briefMetaTextCarousel">Carousel · 4:5 · 5 cards</div>
       <div class="bar-actions">
         <button class="btn btn-secondary">Save as draft</button>
+        <button class="btn btn-secondary brief-resume-btn" id="resumeBtnCarousel" style="display:none;" onclick="goToGenerate()">Continue to Generate</button>
         <button class="btn btn-dark" id="continueBtnCarousel" onclick="goToGenerate()">Continue</button>
       </div>
     </div>
@@ -2402,6 +2409,7 @@
       <div class="meta-text" id="briefMetaReel">Video · 9:16 · <span id="briefMetaDurationReel">16s</span> · <span id="briefMetaQualityReel">480p draft</span></div>
       <div class="bar-actions">
         <button class="btn btn-secondary">Save as draft</button>
+        <button class="btn btn-secondary brief-resume-btn" id="resumeBtnReel" style="display:none;" onclick="goToGenerate()">Continue to Generate</button>
         <button class="btn btn-dark" id="continueBtnReel" onclick="goToGenerate()">Continue</button>
       </div>
     </div>
@@ -3077,6 +3085,7 @@
         <span class="credit-value" id="creditEstValue">~6 credits <span class="credit-sub">(2 versions)</span></span>
       </div>
       <div class="action-bar" id="genActionBarV3">
+        <button type="button" class="btn btn-secondary gen-back-btn" onclick="goToBrief()"><img src="../../../../components/ai-social-media/icons/back.svg" alt="">Back to Brief &amp; Style</button>
         <div class="readiness">
           <div class="readiness-top"><span>Brief readiness</span><span>79%</span></div>
           <div class="readiness-bar"><div class="readiness-fill" style="width:79%"></div></div>
@@ -3328,6 +3337,25 @@
     </div>
   </div>
 
+
+  <!-- Modal · Regenerate from an edited brief: shown when Brief & Style changed after Generate
+       already ran, since regenerating replaces the script / drafts and edits made in Generate. -->
+  <div class="modal-overlay" id="regenModalOverlay" style="display:none;" onclick="if(event.target===this) closeRegenModal();">
+    <div class="final-modal regen-modal" role="dialog" aria-labelledby="regenModalTitle">
+      <div class="final-modal__title-row">
+        <p class="final-modal__title" id="regenModalTitle">Regenerate with your changes?</p>
+        <button type="button" class="final-modal__close" onclick="closeRegenModal()" aria-label="Close"><img src="../../../../components/ai-social-media/icons/panel-close.svg" alt=""></button>
+      </div>
+      <div class="final-modal__body">
+        <p class="final-modal__lead">We'll create it again from your updated brief. What you made or edited in Generate will be replaced.</p>
+        <p class="final-modal__note">To keep the current result, choose Continue to Generate instead.</p>
+      </div>
+      <div class="final-modal__footer">
+        <button type="button" class="btn btn-secondary" onclick="closeRegenModal()">Cancel</button>
+        <button type="button" class="btn btn-dark" onclick="confirmRegenerate()">Regenerate <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt=""><span id="regenModalCost">20</span></span></button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal · Generate final (Figma 12480:221641) — pick the final quality after a 480p draft. -->
   <div class="modal-overlay" id="finalModalOverlay" style="display:none;" onclick="if(event.target===this) closeFinalModal();">
@@ -11434,16 +11462,82 @@ function restoreMainChrome(){
   document.getElementById('mainArea').style.display = '';
 }
 
+// ---- Returning to Brief & Style after Generate ----
+// Generate's state is kept, so the bar offers "Continue to Generate" (resume as-is). Once the
+// brief or a setting is changed, "Regenerate ⚡N" appears as the primary action (with a confirm
+// modal, since it replaces the Generate result) and "Continue to Generate" drops to secondary.
+window.__genVisited = {};
+window.__briefSnapshot = {};
+const BRIEF_ROOT_IDS = { image:'briefContentImage', carousel:'briefContentCarousel', reel:'briefContentReel' };
+const BRIEF_BAR_SUFFIX = { image:'Image', carousel:'Carousel', reel:'Reel' };
+function briefSignature(type){
+  const root = document.getElementById(BRIEF_ROOT_IDS[type]);
+  if(!root) return '';
+  const skip = el => el.closest('.context-menu, .modal-overlay, .editor-tooltip');
+  const vals = [...root.querySelectorAll('input:not([type=file]), textarea, select')].filter(e => !skip(e))
+    .map(e => (e.type === 'checkbox' || e.type === 'radio') ? e.checked : e.value);
+  const picks = [...root.querySelectorAll('.active, .selected, [data-attached="true"], .controls-option-row--selected')]
+    .filter(e => !skip(e)).map(e => (e.id || e.className) + ':' + e.textContent.trim().slice(0, 40));
+  const chips = [...root.querySelectorAll('[class*="chip"]')].filter(e => !skip(e)).map(e => e.textContent.trim().slice(0, 40));
+  const audio = window.__audioRef ? window.__audioRef.name : '';
+  return JSON.stringify([vals, picks, chips, type === 'reel' ? audio : '']);
+}
+function briefCredits(type){
+  const el = document.querySelector('#' + BRIEF_ROOT_IDS[type] + ' .est-credits__count span:last-child');
+  return el ? el.textContent.trim() : '20';
+}
+function updateBriefReturnBar(){
+  const type = window.__contentType, suf = BRIEF_BAR_SUFFIX[type];
+  const main = document.getElementById('continueBtn' + suf), resume = document.getElementById('resumeBtn' + suf);
+  if(!main || !resume) return;
+  const meta = document.getElementById(type === 'reel' ? 'briefMetaReel' : 'briefMetaText' + suf);
+  const oldNote = meta && meta.querySelector('.brief-changed-note');
+  if(oldNote) oldNote.remove();
+  if(!window.__genVisited[type]){
+    main.textContent = 'Continue'; main.onclick = goToGenerate; resume.style.display = 'none';
+    return;
+  }
+  const changed = briefSignature(type) !== window.__briefSnapshot[type];
+  if(changed){
+    main.innerHTML = `Regenerate <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt="">${briefCredits(type)}</span>`;
+    main.onclick = openRegenModal;
+    resume.style.display = '';
+    if(meta) meta.insertAdjacentHTML('beforeend', '<span class="brief-changed-note"> · Changes not applied yet</span>');
+  } else {
+    main.textContent = 'Continue to Generate'; main.onclick = goToGenerate; resume.style.display = 'none';
+  }
+}
+['click', 'input', 'change'].forEach(evt => document.addEventListener(evt, () => {
+  if(!document.getElementById('briefView').classList.contains('hidden')) setTimeout(updateBriefReturnBar, 0);
+}));
+function openRegenModal(){
+  document.getElementById('regenModalCost').textContent = briefCredits(window.__contentType);
+  document.getElementById('regenModalOverlay').style.display = 'flex';
+}
+function closeRegenModal(){ document.getElementById('regenModalOverlay').style.display = 'none'; }
+// Clears each type's "already drafted" flag so goToGenerate() runs the first draft again from the edited brief.
+function confirmRegenerate(){
+  closeRegenModal();
+  const type = window.__contentType;
+  if(type === 'reel') reelScriptDraftStarted = false;
+  else if(type === 'carousel') scriptDraftStarted = false;
+  else copyDraftStarted = false;
+  goToGenerate();
+}
+
 function goToBrief(){
   restoreMainChrome();
   applyContentType();
   if(window.__contentType === 'carousel') carGoToBrief();
   else if(window.__contentType === 'reel') reelGoToBrief();
   else imgGoToBrief();
+  updateBriefReturnBar();
 }
 function goToGenerate(){
   restoreMainChrome();
   applyContentType();
+  window.__genVisited[window.__contentType] = true;
+  window.__briefSnapshot[window.__contentType] = briefSignature(window.__contentType);
   if(window.__contentType === 'carousel') carGoToGenerate();
   else if(window.__contentType === 'reel') reelGoToGenerate();
   else imgGoToGenerate();
