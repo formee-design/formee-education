@@ -238,7 +238,7 @@
      and Carousel's own prompt box) -- all now the real Prompt Reference Chip component,
      see components/ai-social-media/reference-chip.css (.ref-chip). This row is just the
      flex-wrap layout the chips sit in. */
-  .reference-images-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .reference-images-row{display:flex; gap:var(--spacing-md); flex-wrap:wrap;}
   .reference-images-row:empty{display:none;}
 
   /* My Library picker modal + Character "See all" modal (shared .mylib-* shell) —
@@ -1035,7 +1035,7 @@
   .audio-ref-chip[data-attached="true"] .audio-ref-duration{display:block; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-600); font-variant-numeric:tabular-nums;}
   /* Figma 12480:218763: the Default badge hugs its label under the type line */
   #charSeeAllGrid .char-select-card .feedback-status-chip{align-self:flex-start;}
-  .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-sm);}
+  .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-md);} /* 12px between Reference chips (Figma handoff) */
   /* Reference chip menu (Select Character / Upload files / My Library): leading icon + label */
   .ref-upload-menu .menu-item{justify-content:flex-start;}
   .char-chip-wrap{position:relative;}
@@ -1097,7 +1097,7 @@
   .voice-source-hint{margin:0; font-size:13px; line-height:20px; color:var(--color-neutral-500);}
   /* Model-gated voice: Seedance makes its own voice, so "Choose a voice" goes disabled with this note
      and a one-click switch to the model that takes ElevenLabs voices (Gemini Omni Flash). */
-  .voice-model-switch{border:none; background:none; padding:0; cursor:pointer; font:inherit; font-weight:var(--font-weight-semibold); color:var(--color-brand-primary);}
+  .voice-model-switch{border:none; background:none; padding:0; cursor:pointer; font:inherit; font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .voice-model-switch:hover{text-decoration:underline;}
   .voice-model-toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); z-index:200;}
 
