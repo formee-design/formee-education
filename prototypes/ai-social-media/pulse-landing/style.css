@@ -374,3 +374,23 @@ main :is(h1,h2,h3,h4,p,small,span,li,strong,a,div).r:not(.hero *):not(.hero):not
 .benefit{display:flex;align-items:center;gap:16px}
 .benefit i{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--n50,#F8FAFC);border:1px solid var(--n200);color:var(--n900)}
 .benefit span{font-size:18px;line-height:28px;font-weight:500;color:var(--n900)}
+
+/* Footer: legal links move to a bottom row next to the copyright (11/13) */
+.footer{flex-wrap:wrap}
+.f-bottom{flex-basis:100%;display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--n200)}
+.f-bottom small{font-size:12px;line-height:18px;font-weight:500;color:var(--n500)}
+.f-legal{display:flex;gap:24px}
+.f-legal a{font-size:12px;line-height:18px;font-weight:500;color:var(--n500);transition:color .25s}
+.f-legal a:hover{color:var(--n900)}
+
+#product-demo{scroll-margin-top:96px}
+
+/* Nav and footer type sized up to Synthesia at 1920 (11/13) */
+.nav-links{font-size:19px;line-height:28px}
+.nav-right .btn.ghost{font-size:19px;line-height:28px}
+.nav-right .btn:not(.ghost){height:48px;padding:10px 22px;font-size:18px;line-height:28px;font-weight:500}
+.f-brand{gap:24px}
+.f-brand p{font-size:16px;line-height:24px}
+.f-col{gap:20px;font-size:16px;line-height:24px}
+.f-col h5{font-size:18px;line-height:26px;font-weight:500;color:var(--n900)}
+.f-bottom small{font-size:14px;line-height:20px;font-weight:400}

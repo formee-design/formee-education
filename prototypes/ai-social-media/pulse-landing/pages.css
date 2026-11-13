@@ -100,3 +100,24 @@ section[id],.legal-sec{scroll-margin-top:120px}
 
 /* Footer sits above the background wash on short sub pages (Contact) */
 .sub .footer{position:relative;z-index:1}
+
+/* Contact form states (11/13) */
+.field .err{font-size:14px;line-height:20px;font-weight:400;color:#B80000}
+.field.invalid input,.field.invalid textarea{border-color:#C4271B}
+.field.invalid input:focus,.field.invalid textarea:focus{box-shadow:0 0 0 3px rgba(196,39,27,.12)}
+.form-alert{display:flex;gap:12px;align-items:flex-start;padding:16px 20px;border-radius:12px;background:#FFF3F2;border:1px solid #FECDCA;color:#B80000;font-size:16px;line-height:24px;font-weight:500}
+.form-alert[hidden]{display:none}
+.form-alert svg{flex:none;margin-top:2px}
+.form-alert a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.contact-card.sending .field{opacity:.5}
+.contact-send{display:inline-flex;align-items:center;gap:10px}
+.contact-send .spin{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:cspin .8s linear infinite}
+.contact-card.sending .contact-send .spin{display:block}
+.contact-send:disabled{cursor:default}
+@keyframes cspin{to{transform:rotate(360deg)}}
+.contact-sent{align-items:center;justify-content:center;text-align:center;min-height:562px;gap:24px}
+.contact-sent[hidden]{display:none}
+.contact-sent h3{font-size:24px;line-height:32px;font-weight:500;letter-spacing:-.3px;color:var(--n900)}
+.contact-sent p{max-width:460px;margin-top:-16px;font-size:18px;line-height:28px;color:var(--n700)}
+.contact-sent .btn{height:48px;padding:0 20px;border-radius:10px;font-size:16px}
+.contact-card[hidden]{display:none!important}

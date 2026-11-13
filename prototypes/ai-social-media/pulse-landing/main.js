@@ -84,11 +84,11 @@
 
   const faqs = [
     ['What is a credit?', 'Credits pay for generation. A 16-second 480p video uses 20 credits, and you see the cost on the Generate button before you start.'],
-    ['Can I use my own logo, fonts and colors?', 'Placeholder answer for the accordion motion.'],
-    ['Which social accounts can I publish to?', 'Placeholder answer for the accordion motion.'],
-    ['Can I manage more than one brand?', 'Placeholder answer for the accordion motion.'],
-    ['Who owns what I make in Pulse?', 'Placeholder answer for the accordion motion.'],
-    ['Can I cancel anytime?', 'Placeholder answer for the accordion motion.'],
+    ['Can I use my own logo, fonts and colors?', 'Yes. Add your logo, colors, fonts and voice to your Brand Kit once, and every image, video and caption Pulse makes uses them.'],
+    ['Which social accounts can I publish to?', 'Instagram, TikTok, LinkedIn and Facebook. Connect your accounts once, then schedule or publish posts straight from Pulse.'],
+    ['Can I manage more than one brand?', 'Yes. Each brand has its own Brand Kit, and you switch between them in one workspace. Basic includes 1 brand, Standard 3 and Premium 10.'],
+    ['Who owns what I make in Pulse?', 'You do. You own the images, videos and captions you create with Pulse and can use them for personal and commercial purposes.'],
+    ['Can I cancel anytime?', 'Yes. Cancel at any time, and your plan and credits stay available until the end of the period you paid for.'],
   ];
   $('#faqList').innerHTML = faqs.map(([q, a], i) => `
     <div class="q r up${i === 0 ? ' open' : ''}" style="--d:${i * .06}s">
@@ -346,16 +346,14 @@
       if (u) u.style.transform = `scaleY(${clamp(seg - i)})`;
     });
 
-    /* Panels: pointer tilt and layer parallax (restored 11/13) */
+    /* Panels: scroll parallax only. Hover tilt removed (11/13) */
     panelLayers.forEach(({ p, ly }) => {
-      p._mx += (p._tx - p._mx) * .09; p._my += (p._ty - p._my) * .09;
       const r = top(p), inView = r < vh && r + 600 * zoom > 0;
       if (!inView) return;
       const pc = (r + 300 * zoom - vh / 2) / vh;
-      p.style.setProperty('--tilt', `perspective(1400px) rotateY(${p._mx * 5}deg) rotateX(${-p._my * 5}deg)`);
       ly.forEach(l => {
         const d = +l.dataset.depth;
-        l.style.transform = `translate3d(${p._mx * d}px,${p._my * d + pc * d * -1.1}px,0)`;
+        l.style.transform = `translate3d(0,${pc * d * -1.1}px,0)`;
       });
     });
 
