@@ -3348,11 +3348,11 @@
       </div>
       <div class="final-modal__body">
         <p class="final-modal__lead">We'll create it again from your updated brief. What you made or edited in Generate will be replaced.</p>
-        <p class="final-modal__note">To keep the current result, choose Continue to Generate instead.</p>
+        <p class="final-modal__note">No credits are used yet. You'll see the cost when you generate. To keep the current result, choose Continue to Generate instead.</p>
       </div>
       <div class="final-modal__footer">
         <button type="button" class="btn btn-secondary" onclick="closeRegenModal()">Cancel</button>
-        <button type="button" class="btn btn-dark" onclick="confirmRegenerate()">Regenerate <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt=""><span id="regenModalCost">20</span></span></button>
+        <button type="button" class="btn btn-dark" onclick="confirmRegenerate()">Regenerate</button>
       </div>
     </div>
   </div>
@@ -11464,7 +11464,7 @@ function restoreMainChrome(){
 
 // ---- Returning to Brief & Style after Generate ----
 // Generate's state is kept, so the bar offers "Continue to Generate" (resume as-is). Once the
-// brief or a setting is changed, "Regenerate ⚡N" appears as the primary action (with a confirm
+// brief or a setting is changed, "Regenerate" appears as the primary action (with a confirm
 // modal, since it replaces the Generate result) and "Continue to Generate" drops to secondary.
 window.__genVisited = {};
 window.__briefSnapshot = {};
@@ -11482,10 +11482,6 @@ function briefSignature(type){
   const audio = window.__audioRef ? window.__audioRef.name : '';
   return JSON.stringify([vals, picks, chips, type === 'reel' ? audio : '']);
 }
-function briefCredits(type){
-  const el = document.querySelector('#' + BRIEF_ROOT_IDS[type] + ' .est-credits__count span:last-child');
-  return el ? el.textContent.trim() : '20';
-}
 function updateBriefReturnBar(){
   const type = window.__contentType, suf = BRIEF_BAR_SUFFIX[type];
   const main = document.getElementById('continueBtn' + suf), resume = document.getElementById('resumeBtn' + suf);
@@ -11499,7 +11495,7 @@ function updateBriefReturnBar(){
   }
   const changed = briefSignature(type) !== window.__briefSnapshot[type];
   if(changed){
-    main.innerHTML = `Regenerate <span class="btn-credits"><img src="../../../../components/ai-social-media/icons/zap-white.svg" alt="">${briefCredits(type)}</span>`;
+    main.textContent = 'Regenerate';
     main.onclick = openRegenModal;
     resume.style.display = '';
     if(meta) meta.insertAdjacentHTML('beforeend', '<span class="brief-changed-note"> · Changes not applied yet</span>');
@@ -11511,7 +11507,6 @@ function updateBriefReturnBar(){
   if(!document.getElementById('briefView').classList.contains('hidden')) setTimeout(updateBriefReturnBar, 0);
 }));
 function openRegenModal(){
-  document.getElementById('regenModalCost').textContent = briefCredits(window.__contentType);
   document.getElementById('regenModalOverlay').style.display = 'flex';
 }
 function closeRegenModal(){ document.getElementById('regenModalOverlay').style.display = 'none'; }
