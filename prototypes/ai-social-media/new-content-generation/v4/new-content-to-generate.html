@@ -1023,7 +1023,16 @@
   .voice-use-row__text{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); text-align:left;}
   .voice-use-row__desc{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-regular); color:var(--color-neutral-500);}
   .voice-use-row:not(.controls-option-row--selected) img{visibility:hidden;}
-  .audio-ref-chip[data-attached="true"] .ref-chip-label{color:var(--color-neutral-900);}
+  /* Attached audio: Reference chip box with the detail chip's surface (neutral-150 + neutral-400 stroke),
+     a centred play/pause button and the clip length under it; the file name moves to the tooltip. */
+  .audio-ref-play, .audio-ref-duration{display:none;}
+  .audio-ref-chip[data-attached="true"]{flex-direction:column; gap:var(--spacing-2); height:68px; padding:0 var(--spacing-lg); box-sizing:border-box;
+    background:var(--color-neutral-150); border:var(--border-width-1) solid var(--color-neutral-400);} /* 68px = the default Reference chip height */
+  .audio-ref-chip[data-attached="true"] > .ref-chip-icon,
+  .audio-ref-chip[data-attached="true"] > .ref-chip-label{display:none;}
+  .audio-ref-chip[data-attached="true"] .audio-ref-play{display:flex; align-items:center; justify-content:center; padding:0; border:none; background:none; cursor:pointer;}
+  .audio-ref-play img{width:var(--spacing-2xl); height:var(--spacing-2xl); display:block;}
+  .audio-ref-chip[data-attached="true"] .audio-ref-duration{display:block; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-600); font-variant-numeric:tabular-nums;}
   /* Figma 12480:218763: the Default badge hugs its label under the type line */
   #charSeeAllGrid .char-select-card .feedback-status-chip{align-self:flex-start;}
   .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-sm);}
@@ -2045,6 +2054,7 @@
               <div class="audio-ref-wrap" id="audioRefWrapReel">
                 <div class="ref-chip audio-ref-chip" id="audioRefChipReel" onclick="document.getElementById('audioRefInputReel').click()" title="Upload an audio reference">
                   <img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/audio-lines.svg" alt=""><span class="ref-chip-label" id="audioRefLabelReel">Audio</span>
+                  <button type="button" class="audio-ref-play" onclick="event.stopPropagation(); toggleAudioReferencePlay()" aria-label="Play audio reference" title="Play"><img id="audioRefPlayIconReel" src="../../../../components/ai-social-media/icons/audio-play.svg" alt=""></button><span class="audio-ref-duration" id="audioRefDurReel">0:00</span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearAudioReference()" aria-label="Remove audio reference" title="Remove audio"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
                 <input type="file" id="audioRefInputReel" accept="audio/*,.mp3,.wav,.m4a,.aac" hidden onchange="onAudioReferencePicked(this)">
@@ -6912,13 +6922,44 @@ window.__audioRef = null;
 function onAudioReferencePicked(input){
   const file = input.files && input.files[0];
   if(!file) return;
-  window.__audioRef = { name: file.name, size: file.size, type: file.type };
+  stopAudioReference();
+  if(window.__audioRef && window.__audioRef.url) URL.revokeObjectURL(window.__audioRef.url);
+  const url = URL.createObjectURL(file);
+  const audio = new Audio(url);
+  window.__audioRef = { name: file.name, size: file.size, type: file.type, url, audio };
   const chip = document.getElementById('audioRefChipReel');
   chip.dataset.attached = 'true';
   chip.title = file.name;
   document.getElementById('audioRefLabelReel').textContent = file.name;
+  const dur = document.getElementById('audioRefDurReel');
+  dur.textContent = '0:00';
+  audio.addEventListener('loadedmetadata', () => { dur.textContent = formatAudioTime(audio.duration); });
+  audio.addEventListener('ended', () => setAudioRefPlayIcon(false));
+}
+function formatAudioTime(sec){
+  if(!isFinite(sec)) return '0:00';
+  const t = Math.round(sec);
+  return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
+}
+function setAudioRefPlayIcon(playing){
+  document.getElementById('audioRefPlayIconReel').src = '../../../../components/ai-social-media/icons/' + (playing ? 'audio-pause' : 'audio-play') + '.svg';
+  const btn = document.querySelector('#audioRefChipReel .audio-ref-play');
+  btn.setAttribute('aria-label', playing ? 'Pause audio reference' : 'Play audio reference');
+  btn.title = playing ? 'Pause' : 'Play';
+}
+function toggleAudioReferencePlay(){
+  const a = window.__audioRef && window.__audioRef.audio;
+  if(!a) return;
+  if(a.paused){ a.play(); setAudioRefPlayIcon(true); } else { a.pause(); setAudioRefPlayIcon(false); }
+}
+function stopAudioReference(){
+  const a = window.__audioRef && window.__audioRef.audio;
+  if(a){ a.pause(); a.currentTime = 0; }
+  setAudioRefPlayIcon(false);
 }
 function clearAudioReference(){
+  stopAudioReference();
+  if(window.__audioRef && window.__audioRef.url) URL.revokeObjectURL(window.__audioRef.url);
   window.__audioRef = null;
   const input = document.getElementById('audioRefInputReel');
   input.value = '';
