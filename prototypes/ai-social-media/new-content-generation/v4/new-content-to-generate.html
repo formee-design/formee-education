@@ -5221,6 +5221,10 @@ function syncBriefCharChip(pref){
   const icon = document.getElementById('charChipIcon' + c.suf);
   const photo = card && card.querySelector('.thumb img');
   if(card) chip.dataset.attached = 'true'; else delete chip.dataset.attached;
+  // With no character the wrap would still be an (empty) flex item and add a second 12px gap
+  // between Reference and Audio, so take it out of the row entirely.
+  const wrap = chip.closest('.char-chip-wrap');
+  if(wrap) wrap.style.display = card ? '' : 'none';
   chip.classList.toggle('char-chip--photo', !!photo);
   const tip = document.getElementById('charChipTip' + c.suf);
   if(tip) tip.textContent = card ? card.querySelector('.name').textContent : '';
