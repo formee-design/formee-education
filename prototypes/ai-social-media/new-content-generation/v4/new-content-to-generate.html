@@ -509,8 +509,8 @@
 
   /* Image post · Draft — Figma 7606:323920; reuse Controls / Setting Chip. */
   #stageAreaImage:has(#tabDraft.active) .stage-tabs{margin-bottom:var(--spacing-2);}
-  /* Image post / Carousel Generate: the settings chip row is out of scope this phase (settings aren't changed in Generate) */
-  #settingsBarImage, #settingsBarCarousel{display:none !important;}
+  /* Generate (Video, Image post, Carousel): the settings chip row is out of scope this phase (settings aren't changed in Generate) */
+  #settingsBarImage, #settingsBarCarousel, #settingsBar{display:none !important;} /* #settingsBar = Video (Script / Timeline / Video) */
   #stageAreaImage #settingsBarImage{position:static; flex-shrink:0; gap:var(--spacing-md); margin-top:var(--spacing-2xl);}
   #stageAreaImage #subDraft .stage-body{padding-top:var(--spacing-xl);}
   #settingsBarImage .character-avatar{display:flex; align-items:center; justify-content:center; width:var(--spacing-lg); height:var(--spacing-lg); border-radius:var(--radius-full); background:var(--color-neutral-400);}
@@ -1107,7 +1107,7 @@
      and a one-click switch to the model that takes ElevenLabs voices (Gemini Omni Flash). */
   .voice-model-switch{border:none; background:none; padding:0; cursor:pointer; font:inherit; font-weight:var(--font-weight-semibold); color:var(--color-neutral-900);}
   .voice-model-switch:hover{text-decoration:underline;}
-  /* Back from Generate to Brief & Style: between Save as draft and Continue in the Generate action bar */
+  /* Back from Generate to Brief & Style: first of ← Brief & Style · Save as draft · Continue in the Generate action bar */
   .gen-back-btn{display:inline-flex; align-items:center; gap:var(--spacing-xs);}
   .gen-back-btn img{width:var(--spacing-lg); height:var(--spacing-lg);}
   .final-modal.regen-modal{min-height:0;}
@@ -3099,8 +3099,8 @@
         </div>
         <div class="meta-text" id="genMetaV3">Image post · 4:5 · English</div>
         <div class="bar-actions">
-          <button class="btn btn-secondary" onclick="quickAction('rework')" id="genSecondaryBtnV3">Save as draft</button>
           <button type="button" class="btn btn-secondary gen-back-btn" onclick="goToBrief()" aria-label="Back to Brief &amp; Style"><img src="../../../../components/ai-social-media/icons/back.svg" alt="">Brief &amp; Style</button>
+          <button class="btn btn-secondary" onclick="quickAction('rework')" id="genSecondaryBtnV3">Save as draft</button>
           <button class="btn btn-dark" id="genActionBtnV3">Continue</button>
         </div>
       </div>
