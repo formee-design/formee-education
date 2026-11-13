@@ -18,7 +18,6 @@ section[id],.legal-sec{scroll-margin-top:120px}
 
 /* Compare plans */
 .compare{padding:80px 240px;display:flex;flex-direction:column;align-items:center;gap:40px}
-.compare .head{gap:12px}
 .ctable{width:1440px;border:1px solid var(--n200);border-radius:16px;overflow:hidden;background:#fff}
 .crow{display:grid;grid-template-columns:400px repeat(4,1fr);border-bottom:1px solid var(--n200)}
 .crow:last-child{border-bottom:0}
@@ -28,7 +27,7 @@ section[id],.legal-sec{scroll-margin-top:120px}
 .crow .dash{font-weight:400;color:var(--n400)}
 .crow img{width:16px;height:16px}
 .crow.group{background:var(--n50)}
-.crow.group>div:first-child{font-weight:600;color:var(--blue)}
+.crow.group>div:first-child{font-weight:700;color:var(--n900)}
 .crow.chead>div{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;padding:20px}
 .crow.chead>div:first-child{font-size:13px;line-height:20px;color:var(--n500)}
 .crow.chead b{font-size:16px;line-height:24px;font-weight:600}
@@ -40,7 +39,6 @@ section[id],.legal-sec{scroll-margin-top:120px}
 
 /* What credits buy */
 .credits{padding:80px 240px;display:flex;flex-direction:column;align-items:center;gap:40px}
-.credits .head{gap:12px}
 .ccards{display:flex;gap:24px;width:1440px}
 .ccard{flex:1;padding:24px 28px;border:1px solid var(--n200);border-radius:16px;background:#fff;transition:transform .6s var(--ease),box-shadow .5s var(--ease),opacity .9s var(--ease) var(--d,0s)}
 .ccard.in:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(15,23,41,.08)}
@@ -63,7 +61,7 @@ section[id],.legal-sec{scroll-margin-top:120px}
 /* Legal pages */
 .legal{display:flex;gap:96px;padding:181px 240px 80px;align-items:flex-start;position:relative}
 .legal-side{position:sticky;top:120px;width:484px;flex:none;display:flex;flex-direction:column;gap:40px}
-.legal-side .sub-t{font-size:16px;line-height:24px;color:var(--n500);margin-top:16px}
+.legal-side .sub-t{font-size:16px;line-height:24px;color:var(--n500);margin-top:24px}
 .toc{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .toc h5{font-size:14px;line-height:22px;font-weight:600}
 .toc a{position:relative;font-size:14px;line-height:22px;font-weight:500;color:var(--n500);transition:color .25s,transform .35s var(--ease)}
@@ -73,7 +71,11 @@ section[id],.legal-sec{scroll-margin-top:120px}
 .legal-sec{display:flex;flex-direction:column;gap:12px;padding:32px 0;border-bottom:1px solid var(--n200)}
 .legal-sec:first-child{padding-top:0}
 .legal-sec:last-child{border-bottom:0}
-.legal-sec h2{font-size:20px;line-height:28px;font-weight:500}
-.legal-sec p{font-size:16px;line-height:26px;color:var(--n700);white-space:pre-line}
+.legal-sec h2{font-size:22px;line-height:30px;font-weight:500;letter-spacing:-.2px}
+.legal-sec p{font-size:18px;line-height:28px;color:var(--n700);white-space:pre-line}
 .legal-sec a{color:var(--blue)}
 .legal-sec a:hover{text-decoration:underline}
+
+/* 11/12 DS: section CTA buttons 56 / 18, closing CTA = two buttons, 160 above and below */
+.extra .btn{height:56px;padding:0 24px;border-radius:12px;font-size:18px;line-height:28px}
+.cta.short{padding-top:160px;padding-bottom:160px}

@@ -6,8 +6,8 @@
   const page = $('#page');
 
   /* The design is a 1920 canvas with a 1440 content column.
-     1600–1920 wide: real size (zoom 1), centered, side margins cropped.
-     Narrower: scale so the 1440 column plus an 80 gutter fits (1440 wide screen = 1280 column, same as the 1440 frame). Wider: scale up so the backgrounds still reach the edges. */
+     The 1440 column sits inside Synthesia's gutter (48px + 5.5vw each side), so the left and right lines match theirs at every width.
+     About 1730–1920 wide: real size (zoom 1). Narrower: the column scales down, as Synthesia's type does. Wider: scale up so the backgrounds reach the edges. */
   let zoom = 1, rectK = 1;
   const probe = document.createElement('div');
   probe.style.cssText = 'position:absolute;left:0;top:0;width:100px;height:1px;visibility:hidden';
@@ -15,7 +15,9 @@
   const navWrap = $('#nav');
   function fit() {
     const cw = document.documentElement.clientWidth;
-    zoom = cw > 1920 ? cw / 1920 : cw < 1600 ? (cw - 160) / 1440 : 1; // 1440 column scaled to fit, 80 real px gutter each side
+    // Side gutter follows Synthesia: 48px + 5.5% of the width each side, column capped at 1459 (= 230 each side at 1920).
+    const col = Math.min(1459, cw - 2 * (48 + 0.055 * cw));
+    zoom = cw > 1920 ? cw / 1920 : Math.min(1, col / 1440);
     page.style.zoom = zoom;
     const off = Math.min(0, (cw / zoom - 1920) / 2);
     page.style.marginLeft = page.style.marginRight = off + 'px';
@@ -237,21 +239,7 @@
   else setTimeout(() => typeText(firstPrompt), 1000);
   $$('[data-prompt]').forEach(b => b.addEventListener('click', () => typeText(b.dataset.prompt)));
 
-  /* Button ripple and magnetic pull */
-  document.addEventListener('pointerdown', e => {
-    const b = e.target.closest('.btn:not(.ghost)');
-    if (!b) return;
-    const r = b.getBoundingClientRect();
-    const s = document.createElement('i');
-    s.className = 'ripple';
-    const k = b.offsetWidth / r.width;
-    s.style.left = (e.clientX - r.left) * k + 'px';
-    s.style.top = (e.clientY - r.top) * k + 'px';
-    s.style.width = s.style.height = b.offsetWidth * 2.2 + 'px';
-    b.appendChild(s);
-    s.addEventListener('animationend', () => s.remove());
-  });
-  /* Magnetic pull removed (11/12) */
+  /* Button ripple and magnetic pull removed (11/12): buttons only react on hover */
 
   /* Nav */
   const nav = $('#nav');
@@ -276,7 +264,7 @@
     mode = b.dataset.mode;
     $$('button', toggle).forEach(x => x.classList.toggle('on', x === b));
     thumb.style.width = b.offsetWidth + 'px';
-    thumb.style.transform = `translateX(${b.offsetLeft - 3}px)`;
+    thumb.style.transform = `translateX(${b.offsetLeft - 4}px)`;
     plansEl.classList.toggle('annual', mode === 'annual');
     const save = $('.save');
     save.classList.remove('bump'); void save.offsetWidth; save.classList.add('bump');
