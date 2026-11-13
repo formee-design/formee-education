@@ -509,6 +509,8 @@
 
   /* Image post · Draft — Figma 7606:323920; reuse Controls / Setting Chip. */
   #stageAreaImage:has(#tabDraft.active) .stage-tabs{margin-bottom:var(--spacing-2);}
+  /* Image post / Carousel Generate: the settings chip row is out of scope this phase (settings aren't changed in Generate) */
+  #settingsBarImage, #settingsBarCarousel{display:none !important;}
   #stageAreaImage #settingsBarImage{position:static; flex-shrink:0; gap:var(--spacing-md); margin-top:var(--spacing-2xl);}
   #stageAreaImage #subDraft .stage-body{padding-top:var(--spacing-xl);}
   #settingsBarImage .character-avatar{display:flex; align-items:center; justify-content:center; width:var(--spacing-lg); height:var(--spacing-lg); border-radius:var(--radius-full); background:var(--color-neutral-400);}
@@ -1043,13 +1045,19 @@
      (Select Character). The chip only shows once an avatar is picked, as its photo tile. */
   .char-chip:not([data-attached="true"]){display:none;}
   .char-chip .char-chip-icon{border-radius:var(--radius-full); object-fit:cover;}
-  /* Picked character: the chip becomes a 1:1 photo tile (same 68px height as the Reference chip);
-     the name moves to the hover tooltip, the Remove corner stays. */
-  .char-chip.char-chip--photo{width:68px; height:68px; padding:0;}
-  .char-chip.char-chip--photo .char-chip-icon{width:100%; height:100%; border-radius:var(--radius-lg);}
-  .char-chip.char-chip--photo .ref-chip-label{display:none;}
-  .char-chip-tooltip{top:calc(100% + var(--spacing-sm));}
-  .char-chip.char-chip--photo:hover .char-chip-tooltip{opacity:1; visibility:visible;}
+  /* Picked character (Figma Prompt / Reference Chip, State=Ref-Remove): the detail chip, 240x68 on white with a
+     neutral-400 stroke, 38x48 photo, black "Character" badge + name (Text/sm SemiBold) and an "Image N · Character"
+     sub line (Text/2xs Regular, neutral-500). The Remove corner stays. */
+  .char-chip-labels{display:none;}
+  .char-chip.char-chip--photo{width:240px; height:68px; box-sizing:border-box; padding:10px var(--spacing-sm); gap:var(--spacing-md); justify-content:flex-start;
+    background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-400); border-radius:var(--radius-lg);} /* 10px = Figma vertical inset */
+  .char-chip.char-chip--photo .char-chip-icon{width:38px; height:48px; border-radius:7px; object-fit:cover; flex-shrink:0;} /* Figma thumb 38x48, r7 (same literals as .ref-chip--detail) */
+  .char-chip.char-chip--photo .ref-chip-label, .char-chip.char-chip--photo .char-chip-tooltip{display:none;}
+  .char-chip.char-chip--photo .char-chip-labels{display:flex; flex-direction:column; gap:var(--spacing-2); min-width:0; flex:1 1 auto; text-align:left;}
+  .char-chip-line1{display:flex; align-items:center; gap:6px; min-width:0;}
+  .char-chip-badge{background:var(--color-neutral-950); color:var(--color-neutral-0); font-size:var(--font-size-text-2xs); font-weight:var(--font-weight-semibold); line-height:13px; padding:var(--spacing-2) var(--spacing-sm); border-radius:var(--radius-full); flex-shrink:0;} /* Feedback / Status Chip color=Primary */
+  .char-chip-name{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-semibold); color:var(--color-neutral-900); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .char-chip-sub{font-size:var(--font-size-text-2xs); line-height:var(--line-height-text-2xs); color:var(--color-neutral-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .char-chip[data-attached="true"] .ref-chip-label{color:var(--color-neutral-900);}
   .char-chip-popover{position:absolute; top:calc(100% + var(--spacing-xs)); left:0; z-index:45; width:720px; box-sizing:border-box;
     padding:var(--spacing-lg); background:var(--color-neutral-0); border:var(--border-width-1) solid var(--color-neutral-200);
@@ -1876,7 +1884,7 @@
               <div class="reference-images-row" id="referenceImagesRowImage"></div>
               <div class="char-chip-wrap" id="charChipWrapImage">
                 <div class="ref-chip char-chip" id="charChipImage" onclick="openCharacterSeeAllModal('img')" title="Change avatar">
-                  <img class="ref-chip-icon char-chip-icon" id="charChipIconImage" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelImage">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipImage" role="tooltip"></span>
+                  <img class="ref-chip-icon char-chip-icon" id="charChipIconImage" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelImage">Character</span><span class="char-chip-labels"><span class="char-chip-line1"><span class="char-chip-badge">Character</span><span class="char-chip-name" id="charChipNameImage"></span></span><span class="char-chip-sub" id="charChipSubImage"></span></span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipImage" role="tooltip"></span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('img')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
                 <div class="char-chip-popover" hidden aria-hidden="true" id="charPopoverImage" style="display:none;" onclick="event.stopPropagation();">
@@ -1998,7 +2006,7 @@
               <div class="reference-images-row" id="referenceImagesRow"></div>
               <div class="char-chip-wrap" id="charChipWrapReel">
                 <div class="ref-chip char-chip" id="charChipReel" onclick="openCharacterSeeAllModal('reel')" title="Change avatar">
-                  <img class="ref-chip-icon char-chip-icon" id="charChipIconReel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelReel">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipReel" role="tooltip"></span>
+                  <img class="ref-chip-icon char-chip-icon" id="charChipIconReel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelReel">Character</span><span class="char-chip-labels"><span class="char-chip-line1"><span class="char-chip-badge">Character</span><span class="char-chip-name" id="charChipNameReel"></span></span><span class="char-chip-sub" id="charChipSubReel"></span></span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipReel" role="tooltip"></span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('reel')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
                 <div class="char-chip-popover" hidden aria-hidden="true" id="charPopoverReel" style="display:none;" onclick="event.stopPropagation();">
@@ -2259,7 +2267,7 @@
               <div class="reference-images-row" id="referenceImagesRowCarousel"></div>
               <div class="char-chip-wrap" id="charChipWrapCarousel">
                 <div class="ref-chip char-chip" id="charChipCarousel" onclick="openCharacterSeeAllModal('car')" title="Change avatar">
-                  <img class="ref-chip-icon char-chip-icon" id="charChipIconCarousel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelCarousel">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipCarousel" role="tooltip"></span>
+                  <img class="ref-chip-icon char-chip-icon" id="charChipIconCarousel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelCarousel">Character</span><span class="char-chip-labels"><span class="char-chip-line1"><span class="char-chip-badge">Character</span><span class="char-chip-name" id="charChipNameCarousel"></span></span><span class="char-chip-sub" id="charChipSubCarousel"></span></span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipCarousel" role="tooltip"></span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('car')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
                 <div class="char-chip-popover" hidden aria-hidden="true" id="charPopoverCarousel" style="display:none;" onclick="event.stopPropagation();">
@@ -5217,6 +5225,14 @@ function syncBriefCharChip(pref){
   const tip = document.getElementById('charChipTip' + c.suf);
   if(tip) tip.textContent = card ? card.querySelector('.name').textContent : '';
   document.getElementById('charChipLabel' + c.suf).textContent = card ? card.querySelector('.name').textContent : 'Character';
+  const nameEl = document.getElementById('charChipName' + c.suf), subEl = document.getElementById('charChipSub' + c.suf);
+  if(nameEl) nameEl.textContent = card ? card.querySelector('.name').textContent : '';
+  if(subEl){
+    // "Image N" = the character's @-reference number, after any reference images already attached
+    const refRow = chip.closest('.prompt-attach-row');
+    const imgs = refRow ? refRow.querySelectorAll('.reference-images-row .ref-chip[data-attached="true"]').length : 0;
+    subEl.textContent = card ? `Image ${imgs + 1} · Character` : '';
+  }
   icon.src = photo ? photo.src : '../../../../components/ai-social-media/icons/user-round.svg';
   if(pref === 'car'){
     window.__charMode = card ? 'with' : 'none';
