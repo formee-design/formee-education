@@ -1023,16 +1023,16 @@
   .voice-use-row__text{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-2); text-align:left;}
   .voice-use-row__desc{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-regular); color:var(--color-neutral-500);}
   .voice-use-row:not(.controls-option-row--selected) img{visibility:hidden;}
-  /* Attached audio: Reference chip box with the detail chip's surface (neutral-150 + neutral-400 stroke),
-     a centred play/pause button and the clip length under it; the file name moves to the tooltip. */
+  /* Attached audio (Figma Prompt / Reference Chip, State=Audio-remove / Audio): a 68x68 tile with a
+     28px play button that turns into pause while playing, and the clip length under it (Text/3xs, neutral-700).
+     The file name moves to the tooltip. */
   .audio-ref-play, .audio-ref-duration{display:none;}
-  .audio-ref-chip[data-attached="true"]{flex-direction:column; gap:var(--spacing-2); height:68px; padding:0 var(--spacing-lg); box-sizing:border-box;
-    background:var(--color-neutral-150); border:var(--border-width-1) solid var(--color-neutral-400);} /* 68px = the default Reference chip height */
+  .audio-ref-chip[data-attached="true"]{flex-direction:column; gap:var(--spacing-xs); width:68px; height:68px; padding:0; box-sizing:border-box; background:var(--color-neutral-100);} /* 68px = Reference chip height */
   .audio-ref-chip[data-attached="true"] > .ref-chip-icon,
   .audio-ref-chip[data-attached="true"] > .ref-chip-label{display:none;}
   .audio-ref-chip[data-attached="true"] .audio-ref-play{display:flex; align-items:center; justify-content:center; padding:0; border:none; background:none; cursor:pointer;}
-  .audio-ref-play img{width:var(--spacing-2xl); height:var(--spacing-2xl); display:block;}
-  .audio-ref-chip[data-attached="true"] .audio-ref-duration{display:block; font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); font-weight:var(--font-weight-semibold); color:var(--color-neutral-600); font-variant-numeric:tabular-nums;}
+  .audio-ref-play img{width:28px; height:28px; display:block;} /* Music / Track Play Button size */
+  .audio-ref-chip[data-attached="true"] .audio-ref-duration{display:block; font-size:var(--font-size-text-3xs); line-height:var(--line-height-text-3xs); font-weight:var(--font-weight-regular); color:var(--color-neutral-700); font-variant-numeric:tabular-nums;}
   /* Figma 12480:218763: the Default badge hugs its label under the type line */
   #charSeeAllGrid .char-select-card .feedback-status-chip{align-self:flex-start;}
   .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-md);} /* 12px between Reference chips (Figma handoff) */
@@ -2054,7 +2054,7 @@
               <div class="audio-ref-wrap" id="audioRefWrapReel">
                 <div class="ref-chip audio-ref-chip" id="audioRefChipReel" onclick="document.getElementById('audioRefInputReel').click()" title="Upload an audio reference">
                   <img class="ref-chip-icon" src="../../../../components/ai-social-media/icons/audio-lines.svg" alt=""><span class="ref-chip-label" id="audioRefLabelReel">Audio</span>
-                  <button type="button" class="audio-ref-play" onclick="event.stopPropagation(); toggleAudioReferencePlay()" aria-label="Play audio reference" title="Play"><img id="audioRefPlayIconReel" src="../../../../components/ai-social-media/icons/audio-play.svg" alt=""></button><span class="audio-ref-duration" id="audioRefDurReel">0:00</span>
+                  <button type="button" class="audio-ref-play" onclick="event.stopPropagation(); toggleAudioReferencePlay()" aria-label="Play audio reference" title="Play"><img id="audioRefPlayIconReel" src="../../../../components/ai-social-media/icons/audio-chip-play.svg" alt=""></button><span class="audio-ref-duration" id="audioRefDurReel">0:00</span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearAudioReference()" aria-label="Remove audio reference" title="Remove audio"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
                 <input type="file" id="audioRefInputReel" accept="audio/*,.mp3,.wav,.m4a,.aac" hidden onchange="onAudioReferencePicked(this)">
@@ -6942,7 +6942,7 @@ function formatAudioTime(sec){
   return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
 }
 function setAudioRefPlayIcon(playing){
-  document.getElementById('audioRefPlayIconReel').src = '../../../../components/ai-social-media/icons/' + (playing ? 'audio-pause' : 'audio-play') + '.svg';
+  document.getElementById('audioRefPlayIconReel').src = '../../../../components/ai-social-media/icons/' + (playing ? 'audio-chip-pause' : 'audio-chip-play') + '.svg';
   const btn = document.querySelector('#audioRefChipReel .audio-ref-play');
   btn.setAttribute('aria-label', playing ? 'Pause audio reference' : 'Play audio reference');
   btn.title = playing ? 'Pause' : 'Play';
