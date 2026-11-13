@@ -1031,6 +1031,8 @@
   /* Figma 12480:218763: the Default badge hugs its label under the type line */
   #charSeeAllGrid .char-select-card .feedback-status-chip{align-self:flex-start;}
   .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-sm);}
+  /* Reference chip menu (Select Character / Upload files / My Library): leading icon + label */
+  .ref-upload-menu .menu-item{justify-content:flex-start;}
   .char-chip-wrap{position:relative;}
   /* No standalone Character chip any more: avatars are picked from the Reference chip menu
      (Select Character). The chip only shows once an avatar is picked, as its photo tile. */
@@ -7147,10 +7149,10 @@ function buildRefUploadMenuHtml(kind){
   // (--radius-md-lg) -- confirmed against 8727:220803's own spec (radius 10px, shadow
   // 0px 4px 10px rgba(0,0,0,.1), both already exactly tokens.css's --radius-md-lg/--shadow-modal).
   return `
-    <div class="context-menu" style="position:absolute; top:33px; left:0; z-index:50;" onclick="event.stopPropagation();">
-      ${REF_AVATAR_SCOPE[kind] ? `<button type="button" class="menu-item" onclick="closeRefUploadMenu(); openCharacterSeeAllModal('${REF_AVATAR_SCOPE[kind]}');">Select Character</button>` : ''}
-      <button type="button" class="menu-item" onclick="closeRefUploadMenu(); ${REF_UPLOAD_ADD_FN[kind]};">Upload image</button>
-      <button type="button" class="menu-item" onclick="closeRefUploadMenu(); openMyLibraryModal('${kind}');">My Library</button>
+    <div class="context-menu ref-upload-menu" style="position:absolute; top:33px; left:0; z-index:50;" onclick="event.stopPropagation();">
+      ${REF_AVATAR_SCOPE[kind] ? `<button type="button" class="menu-item" onclick="closeRefUploadMenu(); openCharacterSeeAllModal('${REF_AVATAR_SCOPE[kind]}');"><img src="../../../../components/ai-social-media/icons/nav-characters.svg" alt="">Select Character</button>` : ''}
+      <button type="button" class="menu-item" onclick="closeRefUploadMenu(); ${REF_UPLOAD_ADD_FN[kind]};"><img src="../../../../components/ai-social-media/icons/panel-upload.svg" alt="">Upload files</button>
+      <button type="button" class="menu-item" onclick="closeRefUploadMenu(); openMyLibraryModal('${kind}');"><img src="../../../../components/ai-social-media/icons/nav-library-18.svg" alt="">My Library</button>
     </div>`;
 }
 function toggleRefUploadMenu(e, kind){
