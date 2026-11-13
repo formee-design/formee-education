@@ -1033,7 +1033,7 @@
   .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-sm);}
   .char-chip-wrap{position:relative;}
   /* No standalone Character chip any more: avatars are picked from the Reference chip menu
-     (Select Avatar). The chip only shows once an avatar is picked, as its photo tile. */
+     (Select Character). The chip only shows once an avatar is picked, as its photo tile. */
   .char-chip:not([data-attached="true"]){display:none;}
   .char-chip .char-chip-icon{border-radius:var(--radius-full); object-fit:cover;}
   /* Picked character: the chip becomes a 1:1 photo tile (same 68px height as the Reference chip);
@@ -7127,7 +7127,7 @@ const REF_UPLOAD_ADD_FN = {
   reference: 'addReferenceImage(null)', first: 'addFirstFrameImage()', last: 'addLastFrameImage()',
   'img-reference': 'imgAddReferenceImage()', 'car-reference': 'carAddReferenceImage()'
 };
-// Select Avatar (the saved-character picker) now lives in the Reference chip menu instead of a
+// Select Character (the saved-character picker) now lives in the Reference chip menu instead of a
 // separate Character chip; only the brief Reference chips get it, not First/Last frame.
 const REF_AVATAR_SCOPE = { reference: 'reel', 'img-reference': 'img', 'car-reference': 'car' };
 function refreshAllReferenceChipRows(){
@@ -7148,7 +7148,7 @@ function buildRefUploadMenuHtml(kind){
   // 0px 4px 10px rgba(0,0,0,.1), both already exactly tokens.css's --radius-md-lg/--shadow-modal).
   return `
     <div class="context-menu" style="position:absolute; top:33px; left:0; z-index:50;" onclick="event.stopPropagation();">
-      ${REF_AVATAR_SCOPE[kind] ? `<button type="button" class="menu-item" onclick="closeRefUploadMenu(); openCharacterSeeAllModal('${REF_AVATAR_SCOPE[kind]}');">Select Avatar</button>` : ''}
+      ${REF_AVATAR_SCOPE[kind] ? `<button type="button" class="menu-item" onclick="closeRefUploadMenu(); openCharacterSeeAllModal('${REF_AVATAR_SCOPE[kind]}');">Select Character</button>` : ''}
       <button type="button" class="menu-item" onclick="closeRefUploadMenu(); ${REF_UPLOAD_ADD_FN[kind]};">Upload image</button>
       <button type="button" class="menu-item" onclick="closeRefUploadMenu(); openMyLibraryModal('${kind}');">My Library</button>
     </div>`;
