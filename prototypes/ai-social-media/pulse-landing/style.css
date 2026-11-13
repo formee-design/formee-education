@@ -53,16 +53,18 @@ ul,ol{list-style:none}
 .nav-wrap.scrolled{background:#fff;box-shadow:0 2px 16px rgba(16,24,40,.08)}
 .nav-left,.nav-right{width:260px;display:flex;align-items:center}
 .nav-right{justify-content:flex-end;gap:8px}
-.nav-right .btn{height:46px;padding:10px 20px;border-radius:10px;font-size:16px;line-height:24px;font-weight:600}
+.nav-right .btn{height:46px;padding:10px 20px;border-radius:10px;font-size:16px;line-height:24px;font-weight:500}
 .nav-right .btn:not(.ghost){background:var(--n900);box-shadow:0 2px 10px rgba(16,24,40,.08)}
-.nav-right .btn.ghost{height:46px;padding:10px 14px;font-size:16px;font-weight:600}
+.nav-right .btn.ghost{height:46px;padding:10px 14px;border-radius:8px;font-size:18px;line-height:28px;font-weight:400}
 .logo{position:relative;display:block;width:90px;height:20px}
 .logo-mark{position:absolute;left:0;top:0;width:20.9%;height:100%;transition:transform .7s var(--spring)}
 .logo-word{position:absolute;left:28.2%;top:4.55%;width:71.8%;height:91.05%}
 .nav-left:hover .logo-mark{transform:rotate(180deg)}
 .nav-wordmark{display:block;width:92px;height:26px;transition:opacity .25s}
 .nav-left:hover .nav-wordmark{opacity:.7}
-.nav-links{position:relative;display:flex;gap:28px;font-size:16px;line-height:24px;font-weight:500;color:var(--n700)}
+/* Nav type = Figma Landing / Nav, State=Top (530:6111): links and Log in 18 Regular, Start free 16 Medium on flat neutral/900 */
+.nav-right .btn:not(.ghost),.nav-right .btn:not(.ghost):hover{background:var(--n900)}
+.nav-links{position:relative;display:flex;gap:28px;font-size:18px;line-height:28px;font-weight:400;color:var(--n700)}
 .nav-links a{position:relative;z-index:1;transition:color .25s}
 .nav-links a:hover,.nav-links a.on{color:var(--n900)}
 .nav-pill{position:absolute;top:-5px;height:36px;left:0;width:0;border-radius:999px;background:rgba(15,23,41,.05);box-shadow:none;opacity:0;transition:left .4s var(--ease),width .4s var(--ease),opacity .25s}
