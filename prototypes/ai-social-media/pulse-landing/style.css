@@ -300,7 +300,10 @@ ul,ol{list-style:none}
 .cta-btns{display:flex;gap:14px;margin-top:48px}
 .cta-btn{height:64px;padding:0 28px;border-radius:12px;font-size:20px;line-height:28px}
 .wall{position:relative;height:560px;margin-top:160px;overflow:hidden;display:flex;gap:12px;margin-left:-87px;width:2100px}
-.col{width:150px;flex:none}
+/* Image wall (11/13): top and bottom fade out, columns rise in from the middle outward */
+.wall{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 96px,#000 calc(100% - 96px),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 96px,#000 calc(100% - 96px),transparent 100%)}
+.col{width:150px;flex:none;opacity:0;transform:translateY(80px);transition:opacity .8s var(--ease),transform 1.1s var(--ease);transition-delay:calc(var(--ci,0) * 70ms + .1s)}
+.wall.in .col{opacity:1;transform:none}
 .col-track{display:flex;flex-direction:column;gap:12px;animation:colUp var(--t,50s) linear infinite}
 .col.down .col-track{animation-name:colDown}
 .wall:hover .col-track{animation-play-state:paused}
@@ -335,10 +338,8 @@ ul,ol{list-style:none}
 .ab-switch a.on b{background:var(--n900);color:#fff}
 
 
-/* 11/12 motion reduction: no idle loops in panels, still glows, calm hovers */
+/* 11/12 motion reduction: still glows, calm hovers (panel idle loops restored 11/13) */
 .glow-a,.glow-b{animation:none}
-.float,.wander,.spin,.wiggle{animation:none!important}
-.scan i{display:none}
 .plan.best::before{animation:none}
 .social a:hover{transform:none}
 
@@ -348,7 +349,28 @@ ul,ol{list-style:none}
 .cf-card.cf-jump{transition:none}
 .cf-card>div{width:100%;height:100%}
 
+/* ===== Text motion trimmed (11/13) =====
+   Text keeps only three motions: the hero headline intro, the stat count-ups and the hero prompt typing.
+   Everything below is shown in place. Hover states, FAQ open/close, the pricing toggle and the image or video motion stay. */
+[data-split]:not([data-auto]) .w>i{transform:none!important;transition:none!important}
+.fill-words .fw{color:var(--n900)!important;transition:none!important}
+main :is(h1,h2,h3,h4,p,small,span,li,strong,a,div).r:not(.hero *):not(.hero):not(.panel):not(.panel *):not(.strip *):not(.wall):not(.plan){opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important}
+.p-feats li{opacity:1!important;transform:none!important;transition:none!important}
+.footer .r{opacity:1!important;transform:none!important;transition:none!important}
+.steps li{opacity:1!important}
+.steps li.on .rail b{transform:none!important}
+.rail u{display:none}
+.save.bump{animation:none!important}
+.progress{display:none!important} /* top scroll progress bar removed (11/13) */
+
 @media (prefers-reduced-motion:reduce){
+  .col{opacity:1!important;transform:none!important}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .r,.w>i,.p-feats li{opacity:1!important;transform:none!important;clip-path:none!important}
 }
+
+/* Benefits replace the placeholder stats (11/13, Abeer mail) */
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);column-gap:40px;row-gap:32px;padding:80px 240px;background:#fff}
+.benefit{display:flex;align-items:center;gap:16px}
+.benefit i{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--n50,#F8FAFC);border:1px solid var(--n200);color:var(--n900)}
+.benefit span{font-size:18px;line-height:28px;font-weight:500;color:var(--n900)}

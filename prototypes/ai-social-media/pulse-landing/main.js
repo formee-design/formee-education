@@ -103,6 +103,7 @@
   for (let c = 0; c < 13; c++) {
     const col = document.createElement('div');
     col.className = 'col' + (c % 2 ? ' down' : '');
+    col.style.setProperty('--ci', Math.abs(c - 6)); /* rise from the middle outward when the wall enters (11/13) */
     const t = document.createElement('div');
     t.className = 'col-track';
     t.style.setProperty('--t', `${88 + (c * 14) % 48}s`); /* half speed (11/12) */
@@ -345,7 +346,18 @@
       if (u) u.style.transform = `scaleY(${clamp(seg - i)})`;
     });
 
-    /* Panel tilt and layer parallax removed (11/12) */
+    /* Panels: pointer tilt and layer parallax (restored 11/13) */
+    panelLayers.forEach(({ p, ly }) => {
+      p._mx += (p._tx - p._mx) * .09; p._my += (p._ty - p._my) * .09;
+      const r = top(p), inView = r < vh && r + 600 * zoom > 0;
+      if (!inView) return;
+      const pc = (r + 300 * zoom - vh / 2) / vh;
+      p.style.setProperty('--tilt', `perspective(1400px) rotateY(${p._mx * 5}deg) rotateX(${-p._my * 5}deg)`);
+      ly.forEach(l => {
+        const d = +l.dataset.depth;
+        l.style.transform = `translate3d(${p._mx * d}px,${p._my * d + pc * d * -1.1}px,0)`;
+      });
+    });
 
     /* Active nav link */
     let cur = null;
