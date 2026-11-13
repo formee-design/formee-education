@@ -1032,6 +1032,9 @@
   #charSeeAllGrid .char-select-card .feedback-status-chip{align-self:flex-start;}
   .prompt-attach-row{display:flex; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-sm);}
   .char-chip-wrap{position:relative;}
+  /* No standalone Character chip any more: avatars are picked from the Reference chip menu
+     (Select Avatar). The chip only shows once an avatar is picked, as its photo tile. */
+  .char-chip:not([data-attached="true"]){display:none;}
   .char-chip .char-chip-icon{border-radius:var(--radius-full); object-fit:cover;}
   /* Picked character: the chip becomes a 1:1 photo tile (same 68px height as the Reference chip);
      the name moves to the hover tooltip, the Remove corner stays. */
@@ -1860,7 +1863,7 @@
             <div class="prompt-attach-row">
               <div class="reference-images-row" id="referenceImagesRowImage"></div>
               <div class="char-chip-wrap" id="charChipWrapImage">
-                <div class="ref-chip char-chip" id="charChipImage" onclick="openCharacterSeeAllModal('img')" title="Add a saved character">
+                <div class="ref-chip char-chip" id="charChipImage" onclick="openCharacterSeeAllModal('img')" title="Change avatar">
                   <img class="ref-chip-icon char-chip-icon" id="charChipIconImage" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelImage">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipImage" role="tooltip"></span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('img')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
@@ -1982,7 +1985,7 @@
             <div class="prompt-attach-row">
               <div class="reference-images-row" id="referenceImagesRow"></div>
               <div class="char-chip-wrap" id="charChipWrapReel">
-                <div class="ref-chip char-chip" id="charChipReel" onclick="openCharacterSeeAllModal('reel')" title="Add a saved character">
+                <div class="ref-chip char-chip" id="charChipReel" onclick="openCharacterSeeAllModal('reel')" title="Change avatar">
                   <img class="ref-chip-icon char-chip-icon" id="charChipIconReel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelReel">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipReel" role="tooltip"></span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('reel')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
@@ -2242,7 +2245,7 @@
             <div class="prompt-attach-row">
               <div class="reference-images-row" id="referenceImagesRowCarousel"></div>
               <div class="char-chip-wrap" id="charChipWrapCarousel">
-                <div class="ref-chip char-chip" id="charChipCarousel" onclick="openCharacterSeeAllModal('car')" title="Add a saved character">
+                <div class="ref-chip char-chip" id="charChipCarousel" onclick="openCharacterSeeAllModal('car')" title="Change avatar">
                   <img class="ref-chip-icon char-chip-icon" id="charChipIconCarousel" src="../../../../components/ai-social-media/icons/user-round.svg" alt=""><span class="ref-chip-label" id="charChipLabelCarousel">Character</span><span class="editor-tooltip prompt-chip-tooltip char-chip-tooltip" id="charChipTipCarousel" role="tooltip"></span>
                   <button type="button" class="ref-chip-remove" onclick="event.stopPropagation(); clearBriefCharacter('car')" aria-label="Remove character" title="Remove character"><img src="../../../../components/ai-social-media/icons/controls/chip-close-x.svg" class="icon-inline" alt=""></button>
                 </div>
@@ -7124,6 +7127,9 @@ const REF_UPLOAD_ADD_FN = {
   reference: 'addReferenceImage(null)', first: 'addFirstFrameImage()', last: 'addLastFrameImage()',
   'img-reference': 'imgAddReferenceImage()', 'car-reference': 'carAddReferenceImage()'
 };
+// Select Avatar (the saved-character picker) now lives in the Reference chip menu instead of a
+// separate Character chip; only the brief Reference chips get it, not First/Last frame.
+const REF_AVATAR_SCOPE = { reference: 'reel', 'img-reference': 'img', 'car-reference': 'car' };
 function refreshAllReferenceChipRows(){
   renderReferenceImages();
   if(typeof imgRenderReferenceImages === 'function') imgRenderReferenceImages();
@@ -7142,6 +7148,7 @@ function buildRefUploadMenuHtml(kind){
   // 0px 4px 10px rgba(0,0,0,.1), both already exactly tokens.css's --radius-md-lg/--shadow-modal).
   return `
     <div class="context-menu" style="position:absolute; top:33px; left:0; z-index:50;" onclick="event.stopPropagation();">
+      ${REF_AVATAR_SCOPE[kind] ? `<button type="button" class="menu-item" onclick="closeRefUploadMenu(); openCharacterSeeAllModal('${REF_AVATAR_SCOPE[kind]}');">Select Avatar</button>` : ''}
       <button type="button" class="menu-item" onclick="closeRefUploadMenu(); ${REF_UPLOAD_ADD_FN[kind]};">Upload image</button>
       <button type="button" class="menu-item" onclick="closeRefUploadMenu(); openMyLibraryModal('${kind}');">My Library</button>
     </div>`;
