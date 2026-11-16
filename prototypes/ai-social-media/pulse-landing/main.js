@@ -96,10 +96,12 @@
       <div class="a"><div><p>${a}</p></div></div>
     </div>`).join('');
 
-  const imgs = Array.from({ length: 20 }, (_, i) => `assets/wall/w${String(i + 1).padStart(2, '0')}.${i === 2 || i === 18 ? 'jpg' : 'png'}`);
+  /* Image wall (11/16): 47 images from Figma "image sources for footer", same order as the Figma wall.
+     Each row is one column top to bottom; the 47 cells on screen at load are all different. */
+  const WALL = [[1,8,15,22,9,16,23],[29,36,43,2,37,44,3,10],[9,16,23,30,1,8],[37,44,3,15,22,29,36],[43,10,17,24,31,2,30,11],[38,45,4,39,46,5],[11,18,25,32,17,24,31],[38,39,46,5,12,45,4,40],[19,26,33,18,25,32],[40,47,6,13,12,7,14],[19,20,27,34,41,26,33,28],[7,14,21,47,6,13],[20,28,35,42,27,34,41]];
+  const wimg = i => `assets/wall2/w${String(i).padStart(2, '0')}.jpg`;
   const patterns = [[150, 188, 188, 267], [188, 150, 150, 188], [267, 267, 188], [188, 188, 267], [150, 150, 188, 188], [267, 188, 188]];
   const wall = $('#wall');
-  let n = 0;
   for (let c = 0; c < 13; c++) {
     const col = document.createElement('div');
     col.className = 'col' + (c % 2 ? ' down' : '');
@@ -108,7 +110,7 @@
     t.className = 'col-track';
     t.style.setProperty('--t', `${88 + (c * 14) % 48}s`); /* half speed (11/12) */
     const set = [...patterns[c % patterns.length], ...patterns[(c + 3) % patterns.length]];
-    const html = set.map(h => `<img src="${imgs[n++ % imgs.length]}" alt="" style="height:${h}px">`).join('');
+    const html = set.map((h, k) => `<img src="${wimg(WALL[c][k])}" alt="" style="height:${h}px">`).join('');
     t.innerHTML = html + html;
     col.appendChild(t);
     wall.appendChild(col);
@@ -324,11 +326,7 @@
       c.style.transform = `translate3d(0,${y * sp * .5}px,0)`; /* scroll only, half strength (11/12) */
     });
 
-    /* Demo flattens from a tilt as it reaches the middle */
-    const dp = clamp(1 - (top(demoStage) - vh * .12) / (vh * .78));
-    const e = 1 - Math.pow(1 - dp, 3);
-    demo.style.transform = `rotateX(${(1 - e) * 22}deg) scale(${.84 + e * .16}) translateY(${(1 - e) * 40}px)`;
-    demo.style.opacity = .35 + e * .65;
+    /* Demo tilt removed (11/13): the video sits flat with only its glow */
 
     /* Word by word fill */
     if (fillHead) {
