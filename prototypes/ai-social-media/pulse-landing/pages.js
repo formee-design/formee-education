@@ -135,6 +135,11 @@
   navLinks.addEventListener('pointerleave', () => movePill(current));
   addEventListener('load', () => movePill(current));
 
+  /* Legal language toggle: moves the active chip only (Chinese copy comes later) */
+  $$('.lang-toggle').forEach(g => $$('button', g).forEach(b => b.addEventListener('click', () => {
+    $$('button', g).forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+  })));
+
   /* Pricing toggle (Annual is the default, as in Figma) */
   const toggle = $('#toggle');
   if (toggle) {

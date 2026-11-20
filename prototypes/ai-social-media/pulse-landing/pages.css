@@ -61,6 +61,12 @@ section[id],.legal-sec{scroll-margin-top:120px}
 /* Legal pages */
 .legal{display:flex;gap:96px;padding:181px 240px 80px;align-items:flex-start;position:relative}
 .legal-side{position:sticky;top:120px;width:484px;flex:none;display:flex;flex-direction:column;gap:40px}
+/* Language toggle (11/20): DS Segmented Control, 24px right of the title. Only English copy exists for now. */
+.legal-title{display:flex;align-items:center;gap:24px}
+.lang-toggle{display:flex;align-items:center;padding:4px;background:#eef2fa;border-radius:12px;flex:none}
+.lang-toggle button{padding:8px 20px;border:0;border-radius:8px;background:none;font:inherit;font-size:14px;line-height:22px;font-weight:500;color:#475069;cursor:pointer;transition:background .25s,color .25s,box-shadow .25s}
+.lang-toggle button:hover{color:var(--n900)}
+.lang-toggle button.on{background:#fff;color:#0f1729;font-weight:600;box-shadow:0 1px 1px rgba(15,23,41,.04),0 1px 3px rgba(15,23,41,.1)}
 .legal-side .sub-t{font-size:16px;line-height:24px;color:var(--n500);margin-top:24px}
 .toc{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .toc h5{font-size:14px;line-height:22px;font-weight:600}
