@@ -15,7 +15,7 @@
   ];
   const OUT_LEFT = [-140, 170, 156, 277];
   const OUT_RIGHT = [1904, 170, 156, 277];
-  const STEP_MS = 2000;
+  const STEP_MS = 4500; // 11/23: slowed from 2000
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let offset = 0, hover = false;
   const prev = new Array(N).fill(-1);
