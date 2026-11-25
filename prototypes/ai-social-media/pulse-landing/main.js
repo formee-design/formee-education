@@ -68,9 +68,9 @@
   const F = ['Brand Kit on every post', 'Images and 8s videos up to 720p', '16s videos', '24s and 30s videos', '1080p export'];
   const plans = [
     { name: 'Free Trial', desc: 'Try Pulse on your own brand before you pay.', cr: '40 credits', per: ' / one time', up: 'Up to 40 images or 2 videos', m: 0, a: 0, unit: 'one time', cta: 'Start free trial', outline: true, off: [2, 3, 4, 7, 8], rest: ['1 brand, 1 team member', 'Library voices and music', 'Custom voices', 'Buy extra credits'] },
-    { name: 'Basic', desc: 'For one brand that posts every week.', cr: '200 credits', per: ' / month', up: 'Up to 200 images or 10 videos', m: 49, a: 42, unit: '/month', cta: 'Upgrade now', off: [2, 3, 4], rest: ['1 brand, 1 team member', 'Library voices and music', '1 custom voice', 'Buy extra credits anytime'] },
-    { name: 'Standard', best: true, desc: 'For growing brands that need longer, sharper videos.', cr: '520 credits', per: ' / month', up: 'Up to 520 images or 26 videos', m: 129, a: 110, unit: '/month', cta: 'Upgrade now', off: [3], rest: ['3 brands, 3 team members', 'Library voices and music', '3 custom voices', 'Buy extra credits anytime'] },
-    { name: 'Premium', desc: 'For teams running several brands at full volume.', cr: '1,200 credits', per: ' / month', up: 'Up to 1,200 images or 60 videos', m: 299, a: 254, unit: '/month', cta: 'Upgrade now', off: [], rest: ['10 brands, 5 team members', 'Library voices and music', '5 custom voices', 'Buy extra credits anytime'] },
+    { name: 'Basic', desc: 'For one brand that posts every week.', cr: '200 credits', per: ' / month', up: 'Up to 200 images or 10 videos', m: 49, a: 42, unit: '/month', cta: 'Get started', off: [2, 3, 4], rest: ['1 brand, 1 team member', 'Library voices and music', '1 custom voice', 'Buy extra credits anytime'] },
+    { name: 'Standard', best: true, desc: 'For growing brands that need longer, sharper videos.', cr: '520 credits', per: ' / month', up: 'Up to 520 images or 26 videos', m: 129, a: 110, unit: '/month', cta: 'Get started', off: [3], rest: ['3 brands, 3 team members', 'Library voices and music', '3 custom voices', 'Buy extra credits anytime'] },
+    { name: 'Premium', desc: 'For teams running several brands at full volume.', cr: '1,200 credits', per: ' / month', up: 'Up to 1,200 images or 60 videos', m: 299, a: 254, unit: '/month', cta: 'Get started', off: [], rest: ['10 brands, 5 team members', 'Library voices and music', '5 custom voices', 'Buy extra credits anytime'] },
   ];
   $('#plans').innerHTML = plans.map((p, i) => `
     <article class="plan r up${p.best ? ' best' : ''}" style="--d:${i * .1}s">
@@ -78,7 +78,7 @@
       <p class="p-desc">${p.desc}</p>
       <div class="p-credit"><b>${p.cr}<span>${p.per}</span></b><small>${p.up}</small></div>
       <div class="p-price">${p.m ? `<s>$${p.m}</s>` : ''}<strong data-m="${p.m}" data-a="${p.a}">$${p.m}</strong><span>${p.unit}</span></div>
-      <a class="btn${p.outline ? ' outline' : ''}" href="#"><span>${p.cta}</span></a>
+      <a class="btn${p.outline ? ' outline' : ''}" href="https://ai.formeeholdings.com/sign-up?plan=${p.name.toLowerCase().replace(' ', '-')}"><span>${p.cta}</span></a>
       <ul class="p-feats">${[...F, ...p.rest].map((t, k) => `<li class="${p.off.includes(k) ? 'off' : ''}" style="--fd:${.3 + i * .08 + k * .04}s"><img src="assets/${p.off.includes(k) ? 'ic-x' : 'ic-check'}.svg" alt="">${t}</li>`).join('')}</ul>
     </article>`).join('');
 
