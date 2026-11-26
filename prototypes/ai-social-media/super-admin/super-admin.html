@@ -43,7 +43,9 @@
    picture, so the list doesn't pretend it has one.
    Separate console — it is not a scope of the customer app, so the sidebar shows a fixed
    "Super Admin" label instead of the account switcher and only the four admin pages.
-   #view=dashboard|accounts|account|activity|settings  ·  &id=<account>  ·  &tab=overview|usage|generations
+   #view=dashboard|accounts|account|activity|refunds|settings  ·  &id=<account>  ·  &tab=overview|usage|generations|purchases
+   Refunds (draft 2026-11-26, Figma 06_Refunds 17234:18129): Account details › Purchases tab + Refund modal, and Customers › Refunds history.
+   Confirmed with Abeer 11/26: per account · Super Admin only · full refund only when every credit of the purchase is unused · no time limit.
    ============================================================================ */
 *{box-sizing:border-box;}
 html{display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:var(--color-neutral-200);}
@@ -306,7 +308,29 @@ button{font:inherit;}
 .tab-bar .tab-item{color:var(--color-neutral-500);}
 .tab-bar .tab-item--selected{color:var(--color-neutral-900);}
 .tab-bar .tab-item b{margin-left:var(--spacing-xs); font-weight:var(--font-weight-medium); color:var(--color-neutral-500);}
-.tab-bar .tab-item--filler{height:auto; align-self:stretch;}   /* Figma tab bar = 36 + underline; the component filler is 40 */
+.tab-bar .tab-item--filler{height:auto; align-self:stretch;}
+/* ---- Refunds (Figma 06_Refunds 17234:18129) ---- */
+/* Super Admin / Purchase Row 17235:20329 — widths follow the Figma columns */
+.pu-date{flex:0 0 170px;} .pu-pack{flex:0 0 150px;} .pu-by{flex:1 1 0;} .pu-n{flex:0 0 110px;} .pu-status{flex:0 0 150px;} .pu-act{flex:0 0 90px;}
+/* Super Admin / Refund Row 17235:20409 */
+.rf-account{flex:0 0 200px;} .rf-pu{flex:0 0 130px;} .rf-amt{flex:0 0 100px;} .rf-cr{flex:0 0 120px;} .rf-reason{flex:0 0 220px;} .rf-by{flex:1 1 0;} .rf-status{flex:0 0 130px;} .rf-at{flex:0 0 170px;} .rf-act{flex:0 0 80px;}
+.sa-mono{font-variant-numeric:tabular-nums;}
+.text-btn--24:disabled{color:var(--color-neutral-400); border-color:var(--color-neutral-300); cursor:not-allowed; background:var(--color-neutral-0);}
+.sa-tip{display:inline-flex;}
+/* refund modal */
+.sa-dlg.sa-dlg--form{overflow:visible;}
+.sa-rf-body{display:flex; flex-direction:column; gap:var(--spacing-xl);}
+.sa-rf-sum{display:flex; flex-direction:column; gap:10px; padding:14px var(--spacing-lg); border:1px solid var(--color-neutral-400); border-radius:var(--radius-lg); background:var(--color-neutral-75); font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm);}
+.sa-rf-sum div{display:flex; justify-content:space-between; gap:var(--spacing-md);}
+.sa-rf-sum b{font-weight:var(--font-weight-medium); color:var(--color-neutral-900); font-variant-numeric:tabular-nums;}
+.sa-rf-field{position:relative; display:flex; flex-direction:column; gap:var(--spacing-sm);}
+.sa-rf-label{font-size:var(--font-size-text-sm); line-height:var(--line-height-text-sm); font-weight:var(--font-weight-medium); color:var(--color-neutral-900);}
+.sa-rf-dd{cursor:pointer; justify-content:space-between; text-align:left;}
+.sa-rf-dd img{width:20px; height:20px;}
+.sa-rf-dd[aria-expanded="true"]{border-color:var(--color-brand-primary);}
+.sa-rf-menu{position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:5;}
+.sa-rf-menu .context-menu{width:100%;}
+.sa-rf-help{font-size:var(--font-size-text-xs); line-height:var(--line-height-text-xs); color:var(--color-neutral-500);}   /* Figma tab bar = 36 + underline; the component filler is 40 */
 </style>
 <style id="s3-base">
 /* ===== Settings — copied as-is from brand-setup-kit-v3.html (s3-css + s3b-css below). That file defines these base
@@ -644,6 +668,7 @@ body.bk2-clean .s3-as{ display:none; }
         <div class="nav-sec-head nav-sec-head--fit">Customers</div>
         <a class="nav-item" data-nav="accounts" href="#view=accounts"><span class="ic"><img src="../../../components/ai-social-media/icons/building-complex.svg" alt=""></span><span>Accounts</span></a>
         <a class="nav-item" data-nav="activity" href="#view=activity"><span class="ic"><img src="../../../components/ai-social-media/icons/nav-schedule.svg" alt=""></span><span>Activity</span></a>
+        <a class="nav-item" data-nav="refunds" href="#view=refunds"><span class="ic"><img src="../../../components/ai-social-media/icons/rotate-ccw.svg" alt=""></span><span>Refunds</span></a>
       </div>
       <div class="nav-section">
         <div class="nav-sec-head nav-sec-head--fit">Console</div>
@@ -663,6 +688,7 @@ body.bk2-clean .s3-as{ display:none; }
       <section class="sa-page" data-page="accounts" hidden></section>
       <section class="sa-page" data-page="account" hidden></section>
       <section class="sa-page" data-page="activity" hidden></section>
+      <section class="sa-page" data-page="refunds" hidden></section>
       <section class="sa-page" id="setMain" data-page="settings" hidden></section>
     </main>
   </div>
@@ -1305,12 +1331,44 @@ const RICH = {
   ],
 };
 
+/* ---------------- refunds data (draft 11/26) ----------------
+   Purchase status: paid · pending (Refund pending) · refunded · failed (Refund failed, credits given back).
+   Refund is only possible when every credit of the purchase is unused (Abeer 11/26). No time limit. */
+const PURCHASES = {
+  'formee-express-demo':[
+    {id:'PU-10511', date:'Nov 24, 2026', pack:'Pro pack', by:'demo@reelforge.app', paid:49, credits:1000, used:0, status:'paid'},
+    {id:'PU-10437', date:'Nov 10, 2026', pack:'Starter pack', by:'norimi.muto@formeeholdings.com', paid:19, credits:400, used:88, status:'paid'},
+    {id:'PU-10390', date:'Oct 28, 2026', pack:'Pro pack', by:'demo@reelforge.app', paid:49, credits:1000, used:0, status:'refunded'},
+    {id:'PU-10215', date:'Oct 2, 2026', pack:'Starter pack', by:'demo@reelforge.app', paid:19, credits:400, used:400, status:'paid'},
+    {id:'PU-10102', date:'Sep 14, 2026', pack:'Starter pack', by:'norimi.muto@formeeholdings.com', paid:19, credits:400, used:400, status:'paid'},
+  ],
+  'formee-express-abeer':[
+    {id:'PU-10476', date:'Nov 20, 2026', pack:'Starter pack', by:'abeer.ahmed@formeeholdings.com', paid:19, credits:400, used:0, status:'paid'},
+    {id:'PU-10288', date:'Oct 12, 2026', pack:'Pro pack', by:'abeer.ahmed@formeeholdings.com', paid:49, credits:1000, used:640, status:'paid'},
+  ],
+  'moodys':[ {id:'PU-10498', date:'Nov 23, 2026', pack:'Starter pack', by:'abeer.t@moodys.com', paid:19, credits:400, used:0, status:'failed'} ],
+  'norimi':[ {id:'PU-10344', date:'Oct 19, 2026', pack:'Starter pack', by:'norimi.muto@formeeholdings.com', paid:19, credits:400, used:0, status:'refunded'} ],
+  'tiktok':[ {id:'PU-10297', date:'Oct 12, 2026', pack:'Team pack', by:'pulse-test@tiktok.com', paid:99, credits:2500, used:0, status:'refunded'} ],
+};
+const REFUNDS = [
+  {acc:'moodys', pu:'PU-10498', reason:'Duplicate purchase', by:'Supreet Singh', at:'Nov 25, 2026 · 4:40 PM', status:'failed', err:'Payment provider declined the refund. Credits were given back.'},
+  {acc:'formee-express-demo', pu:'PU-10390', reason:'Not happy with the results', by:'Supreet Singh', at:'Oct 30, 2026 · 11:05 AM', status:'completed'},
+  {acc:'norimi', pu:'PU-10344', reason:'Technical issue', by:'Supreet Singh', at:'Oct 21, 2026 · 9:30 AM', status:'completed'},
+  {acc:'tiktok', pu:'PU-10297', reason:'Other', by:'Supreet Singh', at:'Oct 14, 2026 · 3:18 PM', status:'completed'},
+];
+const REASONS = ['Purchased by mistake', 'Duplicate purchase', 'Not happy with the results', 'Technical issue', 'Other'];
+const purchase = (acc, id) => (PURCHASES[acc] || []).find(p => p.id === id);
+const remaining = p => (p.status === 'paid' || p.status === 'failed') ? p.credits - p.used : 0;
+const PU_CHIP = { paid:['green', 'Paid'], pending:['orange', 'Refund pending'], refunded:['disabled', 'Refunded'], failed:['error', 'Refund failed'] };
+const RF_CHIP = { pending:['orange', 'Pending'], completed:['green', 'Completed'], failed:['error', 'Failed'] };
+const chipOf = ([c, l], title = '') => `<span class="feedback-status-chip feedback-status-chip--${c}"${title ? ` title="${esc(title)}"` : ''}>${l}</span>`;
+
 /* ---------------- state ---------------- */
-const S = { sort:{ accounts:null, activity:null, gens:null }, page:{ accounts:1, activity:1, gens:1 }, gq:'', view:'dashboard', id:null, tab:'overview', filter:'all', q:'', afilter:'all', aq:'', period:'30d', name:'Supreet Singh', draft:null };
+const S = { sort:{ accounts:null, activity:null, gens:null }, page:{ accounts:1, activity:1, gens:1 }, rfilter:'all', rq:'', rf:null, gq:'', view:'dashboard', id:null, tab:'overview', filter:'all', q:'', afilter:'all', aq:'', period:'30d', name:'Supreet Singh', draft:null };
 function readHash(){
   const h = new URLSearchParams(location.hash.slice(1));
-  S.view = h.get('view') || 'dashboard'; S.id = h.get('id'); S.tab = ['usage', 'generations'].includes(h.get('tab')) ? h.get('tab') : 'overview';
-  if (h.get('filter')){ if (S.view === 'activity') S.afilter = h.get('filter'); if (S.view === 'accounts') S.filter = h.get('filter'); }
+  S.view = h.get('view') || 'dashboard'; S.id = h.get('id'); S.tab = ['usage', 'generations', 'purchases'].includes(h.get('tab')) ? h.get('tab') : 'overview';
+  if (h.get('filter')){ if (S.view === 'activity') S.afilter = h.get('filter'); if (S.view === 'accounts') S.filter = h.get('filter'); if (S.view === 'refunds') S.rfilter = h.get('filter'); }
   if (S.view === 'account' && !byId(S.id)) S.view = 'accounts';
 }
 const go = (view, extra = '') => { location.hash = 'view=' + view + extra; };
@@ -1455,7 +1513,7 @@ function bars(list, total, cls = ''){
 }
 function renderAccount(){
   const a = byId(S.id), R = a.rich ? RICH : null;
-  const tabs = [['overview', 'Overview'], ['usage', 'Usage & cost'], ['generations', 'Generations', a.gens]];   /* Members tab removed (Figma 03, hidden on every frame) */
+  const tabs = [['overview', 'Overview'], ['usage', 'Usage & cost'], ['generations', 'Generations', a.gens], ['purchases', 'Purchases']];   /* Purchases = Super Admin only (refunds, Abeer 11/26) */   /* Members tab removed (Figma 03, hidden on every frame) */
   const action = a.status === 'active'
     ? `<button type="button" class="actions-btn actions-btn--secondary" onclick="ask('suspend','${a.id}')">Suspend account</button>`
     : `<button type="button" class="actions-btn actions-btn--primary" onclick="ask('reinstate','${a.id}')">Reinstate account</button>`;
@@ -1512,6 +1570,8 @@ function renderAccount(){
       ${rows.length ? page(rows, 'gens').map(g => `<div class="sa-tr"><div class="sa-c gn-id"><span class="sa-mono">${g[0]} · v1</span></div><div class="sa-c gn-brand"><span class="sa-ellipsis">${esc(g[1])}</span></div><div class="sa-c gn-type">${g[2]}</div><div class="sa-c num gn-req">${dash(g[3])}</div><div class="sa-c num gn-got sa-strong">${dash(g[4])}</div><div class="sa-c gn-status">${chip(g[5])}</div><div class="sa-c num gn-created">${when(g[6])}</div></div>`).join('')
         : noResults(S.gq ? `No generations match “${esc(S.gq.trim())}”` : 'No generations in this period', S.gq ? 'Try a different campaign ID, brand or type.' : 'Pick a longer period to see older versions.', S.gq ? 'genQ' : '')}
       ${rows.length ? tableFoot(rows.length, 'gens', `${rows.length} ${rows.length === 1 ? 'version' : 'versions'}`) : ''}</div>`;
+  } else if (S.tab === 'purchases'){
+    body = renderPurchases(a);
   }
   return `<div class="sa-head"><div>
       <div class="sa-titleline"><div><h1 class="sa-title">${esc(a.name)} ${acctChip(a)}</h1><p class="sa-sub">${esc(a.owner)}${a.owner !== a.email ? ' · ' + esc(a.email) : ''} · Created ${a.created} · ${a.brands} ${a.brands === 1 ? 'brand' : 'brands'}${a.status === 'suspended' ? ' · Suspended ' + a.suspendedOn : ''}</p></div></div></div>${action}</div>
@@ -1545,6 +1605,102 @@ function renderActivity(){
     </div>`;
 }
 
+/* ---------------- Account details › Purchases (Figma 17234:18135) ---------------- */
+function renderPurchases(a){
+  const list = PURCHASES[a.id] || [];
+  if (!list.length) return `<div class="empty-state-panel"><div class="empty-state empty-state--section"><span class="empty-state__glyph"><img src="${IC}nav-billing.svg" alt=""></span><div class="empty-state__text"><p class="empty-state__title">No credit purchases yet.</p><p class="empty-state__body">Purchases show up here once this account buys credits.</p></div></div></div>`;
+  const bal = list.reduce((s, p) => s + remaining(p), 0), bought = list.reduce((s, p) => s + p.credits, 0), paid = list.reduce((s, p) => s + p.paid, 0);
+  const refunded = list.filter(p => p.status === 'refunded').reduce((s, p) => s + p.paid, 0), pending = list.filter(p => p.status === 'pending').reduce((s, p) => s + p.paid, 0);
+  const ok = list.filter(p => p.status === 'paid' && p.used === 0).length;
+  const stat = (icon, v, l, c) => `<div class="stats-summary__stat"><div class="stats-summary__icon"><img src="${IC}${icon}" alt=""></div><div class="stats-summary__text"><p class="stats-summary__value">${v}</p><p class="stats-summary__label">${l}</p><p class="stats-summary__caption">${c}</p></div></div>`;
+  const paidCap = [refunded ? usd(refunded) + ' refunded' : '', pending ? usd(pending) + ' pending' : ''].filter(Boolean).join(' · ') || 'Lifetime';
+  const action = p => {
+    if (p.status === 'paid' && p.used === 0) return `<button type="button" class="text-btn text-btn--24" onclick="refundAsk('${a.id}','${p.id}')">Refund</button>`;
+    if (p.status === 'paid') return `<span class="sa-tip" title="Credits already used. A purchase can only be refunded while all of its credits are unused."><button type="button" class="text-btn text-btn--24" disabled>Refund</button></span>`;
+    if (p.status === 'failed') return `<button type="button" class="text-btn text-btn--24" onclick="retryRefund('${p.id}')">Retry</button>`;
+    return '';
+  };
+  const rf = p => REFUNDS.find(r => r.pu === p.id);
+  return `<div class="stats-summary">${stat('stat-billing-20.svg', fmt(bal), 'Credit balance', 'Available now')}<div class="stats-summary__divider"></div>${stat('stat-library-20.svg', fmt(bought), 'Credits purchased', `${list.length} ${list.length === 1 ? 'purchase' : 'purchases'}`)}<div class="stats-summary__divider"></div>${stat('stat-billing-20.svg', usd(paid), 'Total paid', paidCap)}<div class="stats-summary__divider"></div>${stat('stat-circle-alert-20.svg', ok, 'Refundable now', ok ? 'All credits still unused' : 'No unused purchases')}</div>
+    <div class="sa-card">
+      <div class="sa-tr head"><div class="sa-c pu-date">Date</div><div class="sa-c pu-pack">Package</div><div class="sa-c pu-by">Purchased by</div><div class="sa-c num pu-n">Amount paid</div><div class="sa-c num pu-n">Credits</div><div class="sa-c num pu-n">Used</div><div class="sa-c num pu-n">Remaining</div><div class="sa-c pu-status" style="padding-left:24px">Status</div><div class="sa-c pu-act"></div></div>
+      ${list.map(p => `<div class="sa-tr">
+        <div class="sa-c col pu-date"><span class="sa-nm">${p.date}</span><span class="sa-mute">#${p.id}</span></div>
+        <div class="sa-c pu-pack">${p.pack}</div>
+        <div class="sa-c pu-by"><span class="sa-ellipsis">${esc(p.by)}</span></div>
+        <div class="sa-c num pu-n">${usd(p.paid)}</div><div class="sa-c num pu-n">${fmt(p.credits)}</div><div class="sa-c num pu-n">${fmt(p.used)}</div><div class="sa-c num pu-n sa-strong">${fmt(remaining(p))}</div>
+        <div class="sa-c pu-status" style="padding-left:24px">${chipOf(PU_CHIP[p.status], p.status === 'failed' && rf(p) ? rf(p).err : '')}</div>
+        <div class="sa-c end pu-act">${action(p)}</div></div>`).join('')}
+      <div class="sa-foot"><span>${list.length} ${list.length === 1 ? 'purchase' : 'purchases'} · newest first</span></div>
+    </div>`;
+}
+
+/* ---------------- Refunds history (Figma 17234:18355) ---------------- */
+function renderRefunds(){
+  const q = S.rq.trim().toLowerCase();
+  const n = k => REFUNDS.filter(r => r.status === k).length;
+  const list = REFUNDS.filter(r => (S.rfilter === 'all' || r.status === S.rfilter) && (!q || (byId(r.acc).name + ' ' + byId(r.acc).email + ' ' + r.pu).toLowerCase().includes(q)));
+  const tr = r => { const a = byId(r.acc), p = purchase(r.acc, r.pu); return `<div class="sa-tr link" data-open="${a.id}" data-tab="purchases" title="Opens ${esc(a.name)} › Purchases">
+      <div class="sa-c col rf-account"><span class="sa-nm">${esc(a.name)}</span><span class="sa-mute">${esc(a.email)}</span></div>
+      <div class="sa-c rf-pu sa-mono">#${r.pu}</div>
+      <div class="sa-c num rf-amt">${usd(p.paid)}</div>
+      <div class="sa-c num rf-cr">${fmt(p.credits)}</div>
+      <div class="sa-c rf-reason" style="padding-left:24px"><span class="sa-ellipsis">${esc(r.reason)}</span></div>
+      <div class="sa-c rf-by">${esc(r.by)}</div>
+      <div class="sa-c rf-status">${chipOf(RF_CHIP[r.status], r.err || '')}</div>
+      <div class="sa-c rf-at sa-mute">${r.at}</div>
+      <div class="sa-c end rf-act">${r.status === 'failed' ? `<button type="button" class="text-btn text-btn--24" onclick="retryRefund('${r.pu}')">Retry</button>` : ''}</div>
+    </div>`; };
+  return head('Refunds', 'Every credit refund across all accounts. Newest first. Start a refund from an account’s Purchases tab.') +
+    `<div class="sa-bar">${seg([['all', 'All', REFUNDS.length], ['pending', 'Pending', n('pending')], ['completed', 'Completed', n('completed')], ['failed', 'Failed', n('failed')]], S.rfilter, 'rfilter')}${search('Search by account, email or purchase ID', S.rq, 'rfQ')}</div>
+    <div class="sa-card">
+      <div class="sa-tr head"><div class="sa-c rf-account">Account</div><div class="sa-c rf-pu">Purchase</div><div class="sa-c num rf-amt">Amount</div><div class="sa-c num rf-cr">Credits deducted</div><div class="sa-c rf-reason" style="padding-left:24px">Reason</div><div class="sa-c rf-by">Processed by</div><div class="sa-c rf-status">Status</div><div class="sa-c rf-at">Processed</div><div class="sa-c rf-act"></div></div>
+      ${list.length ? list.map(tr).join('') : noResults(S.rq ? `No refunds match “${esc(S.rq.trim())}”` : 'No refunds here', S.rq ? 'Try an account name, an email or a full purchase ID.' : 'Nothing matches this filter.', S.rq ? 'rfQ' : '')}
+      ${list.length ? `<div class="sa-foot"><span>${list.length} shown · newest first</span></div>` : ''}
+    </div>`;
+}
+
+/* ---------------- Refund modal (Figma 17237:20598 / reason menu 17237:20620) ---------------- */
+function refundAsk(accId, puId){
+  closeMenu();
+  const a = byId(accId), p = purchase(accId, puId), list = PURCHASES[accId], bal = list.reduce((s, x) => s + remaining(x), 0);
+  S.rf = { acc:accId, pu:puId, reason:null, open:false };
+  $('#layer').innerHTML = `<div class="modal sa-dlg sa-dlg--form" role="dialog" aria-modal="true"><div class="sa-dlg-head"><h3 class="sa-dlg-title">Refund #${p.id}?</h3><button type="button" class="sa-dlg-close" aria-label="Close" onclick="closeLayer()"><img src="${IC}button-x-dark.svg" alt=""></button></div>
+    <div class="sa-dlg-body"><div class="sa-rf-body">
+      <p>The full amount goes back to the original payment method. The credits from this purchase are removed from the account.</p>
+      <div class="sa-rf-sum"><div><span>Purchase</span><b>${p.pack} · ${p.date}</b></div><div><span>Amount refunded</span><b>${usd(p.paid)}</b></div><div><span>Credits removed</span><b>${fmt(p.credits)}</b></div><div><span>Balance after refund</span><b>${fmt(bal)} → ${fmt(bal - p.credits)}</b></div></div>
+      <div class="sa-rf-field"><span class="sa-rf-label">Reason</span><button type="button" class="input-field input-field--md input-field--dropdown sa-rf-dd" id="rfDd" aria-haspopup="listbox" aria-expanded="false" onclick="rfToggle(event)"><span class="input-field__text input-field__text--placeholder" id="rfDdTxt">Select a reason</span><img src="${IC}chevron-down.svg" alt=""></button><div class="sa-rf-menu" id="rfMenu" hidden><div class="context-menu" role="listbox">${REASONS.map(r => `<button type="button" class="menu-item" role="option" onclick="rfPick(event, '${r}')">${r}</button>`).join('')}</div></div></div>
+      <div class="sa-rf-field"><span class="sa-rf-label">Notes (optional)</span><textarea class="input-field input-field--lg input-field--description" id="rfNotes" placeholder="Add context for the team"></textarea></div>
+      <p class="sa-rf-help">The account owner (${esc(a.email)}) gets a confirmation email once the refund goes through.</p>
+    </div></div>
+    <div class="sa-dlg-foot"><button type="button" class="actions-btn actions-btn--secondary" onclick="closeLayer()">Cancel</button><button type="button" class="actions-btn actions-btn--inactive" id="rfGo" disabled onclick="doRefund()">Refund ${usd(p.paid)}</button></div></div>`;
+  $('#layer').hidden = false;
+}
+function rfToggle(e){ e.stopPropagation(); const m = $('#rfMenu'), open = m.hidden; m.hidden = !open; $('#rfDd').setAttribute('aria-expanded', open ? 'true' : 'false'); }
+function rfPick(e, r){
+  e.stopPropagation(); S.rf.reason = r;
+  const t = $('#rfDdTxt'); t.textContent = r; t.classList.remove('input-field__text--placeholder');
+  $('#rfMenu').hidden = true; $('#rfDd').setAttribute('aria-expanded', 'false');
+  const b = $('#rfGo'); b.disabled = false; b.className = 'actions-btn actions-btn--danger';
+}
+/* Pending → completed after a moment, to show the provider round trip. Credits come off as soon as it's requested. */
+function doRefund(){
+  if (!S.rf || !S.rf.reason) return;
+  const { acc, pu, reason } = S.rf, p = purchase(acc, pu);
+  p.status = 'pending';
+  REFUNDS.unshift({ acc, pu, reason, by:S.name, at:'Nov 26, 2026 · 10:12 AM', status:'pending' });
+  closeLayer(); render(); toast(`Refund requested for #${pu}`);
+  settle(pu);
+}
+function retryRefund(pu){
+  const r = REFUNDS.find(x => x.pu === pu), p = purchase(r.acc, pu);
+  r.status = 'pending'; r.err = null; r.at = 'Nov 26, 2026 · 10:12 AM'; p.status = 'pending';
+  render(); toast(`Retrying refund for #${pu}`); settle(pu);
+}
+function settle(pu){
+  setTimeout(() => { const r = REFUNDS.find(x => x.pu === pu), p = purchase(r.acc, pu); if (r.status !== 'pending') return; r.status = 'completed'; p.status = 'refunded'; render(); toast(`Refund completed for #${pu}`); }, 4000);
+}
+
 /* ---------------- menus / modal / toast ---------------- */
 const $ = s => document.querySelector(s);
 function closeMenu(){ $('#menu').hidden = true; document.querySelectorAll('[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false')); document.querySelectorAll('.sa-tr.hl').forEach(r => r.classList.remove('hl')); }
@@ -1566,7 +1722,7 @@ function setStatus(id, st){
 let tt; function toast(msg){ closeMenu(); const t = $('#toast'); t.innerHTML = `<img src="${IC}circle-check-18.svg" alt="">${esc(msg)}`; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2400); }
 
 /* ---------------- render ---------------- */
-const CRUMB = { dashboard:'Dashboard', accounts:'Accounts', account:'Accounts', activity:'Activity', settings:'Settings' };
+const CRUMB = { dashboard:'Dashboard', accounts:'Accounts', account:'Accounts', activity:'Activity', refunds:'Refunds', settings:'Settings' };
 function render(){
   closeMenu();
   const navKey = S.view === 'account' ? 'accounts' : S.view;
@@ -1575,7 +1731,7 @@ function render(){
   document.querySelectorAll('.sa-page').forEach(p => p.hidden = p.dataset.page !== S.view);
   const page = document.querySelector(`.sa-page[data-page="${S.view}"]`);
   if (S.view === 'settings'){ if (window.renderS3) window.renderS3(); }   /* Settings = v3 Settings ver3 (s3-js) */
-  else page.innerHTML = ({ dashboard:renderDashboard, accounts:renderAccounts, account:renderAccount, activity:renderActivity })[S.view]();
+  else page.innerHTML = ({ dashboard:renderDashboard, accounts:renderAccounts, account:renderAccount, activity:renderActivity, refunds:renderRefunds })[S.view]();
 }
 function rerenderKeepFocus(id){ const el = document.getElementById(id), pos = el ? el.selectionStart : 0; render(); const n = document.getElementById(id); if (n){ n.focus(); n.setSelectionRange(pos, pos); } }
 
@@ -1587,20 +1743,22 @@ document.addEventListener('click', e => {
   const pg = e.target.closest('[data-pg]');
   if (pg){ if (pg.disabled) return; const [table, n] = pg.dataset.pg.split(':'); S.page[table] = +n; render(); $('#main').scrollTop = 0; return; }
   const cl = e.target.closest('[data-clear]');
-  if (cl){ if (cl.dataset.clear === 'accQ'){ S.q = ''; S.page.accounts = 1; } else if (cl.dataset.clear === 'genQ'){ S.gq = ''; S.page.gens = 1; } else { S.aq = ''; S.page.activity = 1; } render(); return; }
+  if (cl){ if (cl.dataset.clear === 'accQ'){ S.q = ''; S.page.accounts = 1; } else if (cl.dataset.clear === 'genQ'){ S.gq = ''; S.page.gens = 1; } else if (cl.dataset.clear === 'rfQ'){ S.rq = ''; } else { S.aq = ''; S.page.activity = 1; } render(); return; }
   if (!e.target.closest('#menu')) closeMenu();
   const s = e.target.closest('[data-act]');
-  if (s){ const k = s.dataset.k; if (s.dataset.act === 'filter'){ S.filter = k; S.page.accounts = 1; } if (s.dataset.act === 'afilter'){ S.afilter = k; S.page.activity = 1; } if (s.dataset.act === 'period') S.period = k; render(); return; }
+  if (s){ const k = s.dataset.k; if (s.dataset.act === 'filter'){ S.filter = k; S.page.accounts = 1; } if (s.dataset.act === 'afilter'){ S.afilter = k; S.page.activity = 1; } if (s.dataset.act === 'period') S.period = k; if (s.dataset.act === 'rfilter') S.rfilter = k; render(); return; }
   const hr = e.target.closest('[data-href]');
   if (hr && !e.target.closest('a, button')){ window.open(hr.dataset.href, '_blank', 'noopener'); return; }
   const o = e.target.closest('[data-open]');
-  if (o && !e.target.closest('button')) openAccount(o.dataset.open);
+  if (o && !e.target.closest('button')) openAccount(o.dataset.open, o.dataset.tab || 'overview');
+  if ($('#rfMenu') && !$('#rfMenu').hidden && !e.target.closest('.sa-rf-field')){ $('#rfMenu').hidden = true; $('#rfDd').setAttribute('aria-expanded', 'false'); }
   if (e.target.id === 'layer') closeLayer();
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'accQ'){ S.q = e.target.value; S.page.accounts = 1; rerenderKeepFocus('accQ'); }
   if (e.target.id === 'actQ'){ S.aq = e.target.value; S.page.activity = 1; rerenderKeepFocus('actQ'); }
   if (e.target.id === 'genQ'){ S.gq = e.target.value; S.page.gens = 1; rerenderKeepFocus('genQ'); }
+  if (e.target.id === 'rfQ'){ S.rq = e.target.value; rerenderKeepFocus('rfQ'); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeMenu(); closeLayer(); } });
 window.addEventListener('hashchange', () => { readHash(); render(); $('#main').scrollTop = 0; });
