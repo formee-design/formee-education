@@ -101,6 +101,8 @@
   const PROTO_PLAN = { 'free-trial': 'free', basic: 'basic', standard: 'standard', premium: 'premium' };
   /* Billing prototype opened on the user's plan, with the modal for the button they pressed */
   const billingFor = (cur, target, kind) => {
+    /* Free trial user picks a paid plan: continue in the flow prototype at C (Subscribe modal → Stripe → processing → active) */
+    if (cur === 'free-trial' && target && target !== 'free-trial') return 'flows.html#flow=paid&step=C&plan=' + target;
     const q = new URLSearchParams({ plan: PROTO_PLAN[cur] || 'standard', tab: 'plan' });
     if (target) { q.set('modal', cur === 'free-trial' ? 'subscribe' : kind); q.set('target', PROTO_PLAN[target]); }
     return PROTO + 'billing/billing-v2.html#' + q;
