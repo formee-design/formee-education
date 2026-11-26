@@ -1,0 +1,100 @@
+<svg width="310" height="259" viewBox="0 -40 310 259" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g mask="url(#fadeBottom)">
+<path class="back" d="M277.216 35.4762H32.2722C24.0409 35.4762 17.3682 42.1489 17.3682 50.3802V143.044C17.3682 151.275 24.0409 157.948 32.2722 157.948H277.216C285.447 157.948 292.12 151.275 292.12 143.044V50.3802C292.12 42.1489 285.447 35.4762 277.216 35.4762Z" fill="white" fill-opacity="0.4"/>
+<g class="front">
+<g class="card" filter="url(#filter0_d_1136_9)">
+<path d="M285.964 62.0441H23.5242C14.5772 62.0441 7.32422 69.2971 7.32422 78.2441V159.244C7.32422 168.191 14.5772 175.444 23.5242 175.444H285.964C294.911 175.444 302.164 168.191 302.164 159.244V78.2441C302.164 69.2971 294.911 62.0441 285.964 62.0441Z" fill="url(#paint0_linear_1136_9)" stroke-width="0.648" stroke="white" stroke-opacity="0.15" shape-rendering="crispEdges"/>
+</g>
+<path class="ico i1" d="M52.0356 91.8521H39.0756C36.2126 91.8521 33.8916 94.173 33.8916 97.0361V109.348C33.8916 112.211 36.2126 114.532 39.0756 114.532H52.0356C54.8986 114.532 57.2196 112.211 57.2196 109.348V97.0361C57.2196 94.173 54.8986 91.8521 52.0356 91.8521Z" fill="#DAE2FC"/>
+<rect class="bar b1" x="75.3633" y="93.1481" width="200.232" height="7.776" rx="3.888" fill="#B9C5FE"/>
+<rect class="bar b2" x="75.3633" y="106.756" width="131.544" height="7.776" rx="3.888" fill="#D3DCFA"/>
+<path class="ico i2" d="M52.0356 128.788H39.0756C36.2126 128.788 33.8916 131.109 33.8916 133.972V146.284C33.8916 149.147 36.2126 151.468 39.0756 151.468H52.0356C54.8986 151.468 57.2196 149.147 57.2196 146.284V133.972C57.2196 131.109 54.8986 128.788 52.0356 128.788Z" fill="#DAE2FC"/>
+<rect class="bar b3" x="75.3633" y="130.084" width="182.736" height="7.776" rx="3.888" fill="#B9C5FE"/>
+<rect class="bar b4" x="75.3633" y="143.692" width="154.872" height="7.776" rx="3.888" fill="#D3DCFA"/>
+</g>
+<g class="shield" filter="url(#filter1_d_1136_9)">
+<use xlink:href="#stroke0_1136_9" fill="url(#paint1_linear_1136_9)"/>
+<mask id="stroke1_1136_9" maskUnits="userSpaceOnUse" x="117.853" y="3.79614" width="71" height="79" fill="black">
+<rect fill="white" x="117.853" y="3.79614" width="71" height="79"/>
+<use xlink:href="#stroke0_1136_9"/>
+</mask>
+<path d="M177.101 21.2201L154.653 13.114C154.084 12.9086 153.461 12.9086 152.892 13.114L130.445 21.2201C128.717 21.6521 127.853 22.9481 127.853 25.1081V43.2521C127.853 56.5854 136.562 66.186 152.761 73.2732C153.404 73.5541 154.141 73.5541 154.784 73.2732C170.983 66.186 179.693 56.5854 179.693 43.2521V25.1081C179.693 22.9481 178.829 21.6521 177.101 21.2201Z" stroke-width="18.144" stroke="white" mask="url(#stroke1_1136_9)"/>
+<use xlink:href="#stroke2_1136_9" fill="url(#paint2_linear_1136_9)"/>
+<mask id="stroke3_1136_9" fill="white">
+<use xlink:href="#stroke2_1136_9"/>
+</mask>
+<path d="M153.773 12.7961L177.101 21.2201C178.829 21.6521 179.693 22.9481 179.693 25.1081V43.2521C179.693 56.8601 170.621 66.5801 153.773 73.7081C136.925 66.5801 127.853 56.8601 127.853 43.2521V25.1081C127.853 22.9481 128.717 21.6521 130.445 21.2201L153.773 12.7961Z" stroke-width="1.944" stroke="#B8C4FF" stroke-opacity="0.5" mask="url(#stroke3_1136_9)"/>
+<path d="M143.404 42.6042L151.828 50.3802L164.14 35.4762" stroke-width="3.564" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.95"/>
+</g>
+</g>
+<style>
+/* Looping entrance (6.5s). In: the front card rises (never fully hidden, opacity .6 at its lowest) with its rows filling right away, the back card (hidden at first) rises once the front card has landed, the shield (check attached) floats up.
+   Hold, then out in exact reverse order and mirrored easing: shield sinks, back card sinks, rows retract last-in first-out, front card sinks.
+   The bottom edge fades out (mask) so nothing looks cut off. Percentages are of 6.5s (e.g. 13.85% = 0.9s). */
+.back, .front, .bar, .ico, .shield { transform-box: fill-box; }
+.bar { transform-origin: left center; }
+.ico { transform-origin: center; }
+.front { animation: kfront 6.5s linear infinite both; }
+.i1 { animation: ki1 6.5s linear infinite both; }
+.b1 { animation: kb1 6.5s linear infinite both; }
+.b2 { animation: kb2 6.5s linear infinite both; }
+.i2 { animation: ki2 6.5s linear infinite both; }
+.b3 { animation: kb3 6.5s linear infinite both; }
+.b4 { animation: kb4 6.5s linear infinite both; }
+.back { animation: kback 6.5s linear infinite both; }
+.shield { animation: kshield 6.5s linear infinite both; }
+@keyframes kfront { 0% { transform: translateY(28px); opacity: .6; animation-timing-function: cubic-bezier(.22,1,.36,1); } 13.85% { transform: translateY(0); opacity: 1; } 86.15% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.64,0,.78,0); } 100% { transform: translateY(28px); opacity: .6; } }
+@keyframes ki1 { 0% { transform: scale(.6); opacity: 0; } 0.92% { transform: scale(.6); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 7.08% { transform: scale(1); opacity: 1; } 81.54% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 87.69%, 100% { transform: scale(.6); opacity: 0; } }
+@keyframes kb1 { 0% { transform: scaleX(0); opacity: 1; } 0.92% { transform: scaleX(0); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 12.31% { transform: scaleX(1); opacity: 1; } 81.54% { transform: scaleX(1); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 92.92%, 100% { transform: scaleX(0); opacity: 1; } }
+@keyframes kb2 { 0% { transform: scaleX(0); opacity: 1; } 3.23% { transform: scaleX(0); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 14.62% { transform: scaleX(1); opacity: 1; } 79.23% { transform: scaleX(1); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 90.62%, 100% { transform: scaleX(0); opacity: 1; } }
+@keyframes ki2 { 0% { transform: scale(.6); opacity: 0; } 7.85% { transform: scale(.6); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 14% { transform: scale(1); opacity: 1; } 74.62% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 80.77%, 100% { transform: scale(.6); opacity: 0; } }
+@keyframes kb3 { 0% { transform: scaleX(0); opacity: 1; } 7.85% { transform: scaleX(0); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 19.23% { transform: scaleX(1); opacity: 1; } 74.62% { transform: scaleX(1); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 86%, 100% { transform: scaleX(0); opacity: 1; } }
+@keyframes kb4 { 0% { transform: scaleX(0); opacity: 1; } 10.15% { transform: scaleX(0); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 21.54% { transform: scaleX(1); opacity: 1; } 72.31% { transform: scaleX(1); opacity: 1; animation-timing-function: cubic-bezier(.4,0,.2,1); } 83.69%, 100% { transform: scaleX(0); opacity: 1; } }
+@keyframes kback { 0% { transform: translateY(28px); opacity: 0; } 15.38% { transform: translateY(28px); opacity: 0; animation-timing-function: cubic-bezier(.22,1,.36,1); } 30.77% { transform: translateY(0); opacity: 1; } 69.23% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.64,0,.78,0); } 83.08%, 100% { transform: translateY(28px); opacity: 0; } }
+@keyframes kshield { 0% { transform: translateY(18px); opacity: 0; } 24.62% { transform: translateY(18px); opacity: 0; animation-timing-function: cubic-bezier(.22,1,.36,1); } 40% { transform: translateY(0); opacity: 1; } 61.54% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.64,0,.78,0); } 72.31%, 100% { transform: translateY(18px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<defs>
+<linearGradient id="fadeGrad" x1="0" y1="176" x2="0" y2="206" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+<mask id="fadeBottom" maskUnits="userSpaceOnUse" x="0" y="-40" width="310" height="259">
+<rect x="0" y="-40" width="310" height="259" fill="url(#fadeGrad)"/>
+</mask>
+<filter id="filter0_d_1136_9" x="0" y="50.7201" width="309.488" height="128.048" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="-4"/>
+<feGaussianBlur stdDeviation="3.5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.580634 0 0 0 0 0.624964 0 0 0 0 0.849384 0 0 0 0.2 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1136_9"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1136_9" result="shape"/>
+</filter>
+<filter id="filter1_d_1136_9" x="111.004" y="-6.05583e-05" width="85.5364" height="94.22" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="3.888"/>
+<feGaussianBlur stdDeviation="3.888"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.58 0 0 0 0 0.625 0 0 0 0 0.85 0 0 0 0.3 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1136_9"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1136_9" result="shape"/>
+</filter>
+<linearGradient id="paint0_linear_1136_9" x1="7.32422" y1="62.0441" x2="302.164" y2="176.092" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white"/>
+</linearGradient>
+<linearGradient id="paint1_linear_1136_9" x1="126.557" y1="12.7961" x2="180.341" y2="74.3561" gradientUnits="userSpaceOnUse">
+<stop stop-color="#A6B4FC"/>
+<stop offset="1" stop-color="#8E9DF5"/>
+</linearGradient>
+<linearGradient id="paint2_linear_1136_9" x1="126.557" y1="12.7961" x2="180.341" y2="74.3561" gradientUnits="userSpaceOnUse">
+<stop stop-color="#A6B4FC"/>
+<stop offset="1" stop-color="#8E9DF5"/>
+</linearGradient>
+<path id="stroke0_1136_9" d="M152.892 13.114C153.461 12.9086 154.084 12.9086 154.653 13.114L177.101 21.2201C178.829 21.6521 179.693 22.9481 179.693 25.1081V43.2521C179.693 56.5854 170.983 66.186 154.784 73.2732C154.141 73.5541 153.404 73.5541 152.761 73.2732C136.562 66.186 127.853 56.5854 127.853 43.2521V25.1081C127.853 22.9481 128.717 21.6521 130.445 21.2201L152.892 13.114Z"/>
+<path id="stroke2_1136_9" d="M153.773 12.7961L177.101 21.2201C178.829 21.6521 179.693 22.9481 179.693 25.1081V43.2521C179.693 56.8601 170.621 66.5801 153.773 73.7081C136.925 66.5801 127.853 56.8601 127.853 43.2521V25.1081C127.853 22.9481 128.717 21.6521 130.445 21.2201L153.773 12.7961Z"/>
+</defs>
+</svg>

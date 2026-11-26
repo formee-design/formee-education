@@ -18,9 +18,10 @@
   Header, footer and the closing call to action come from site.js; data from data.js; tool illustrations from scenes.js.
 -->
 <body>
-  <!-- Hero version switch (prototype only, 2026-11-26): A = orbits (default), D = water-drop dot ripple.
-       Chosen by ?hero=a|d or the switcher at the bottom right (remembered in localStorage). Must run before store.js. -->
-  <script>(function () { var q = new URLSearchParams(location.search).get('hero'), v = q || (function () { try { return localStorage.getItem('formeeHero'); } catch (e) { return null; } })(); if (q) { try { localStorage.setItem('formeeHero', q); } catch (e) {} } if (v === 'd') document.body.dataset.hero = 'd'; })();</script>
+  <!-- Hero version switch (prototype only, 2026-11-26): A = orbits (default), B = water-drop dot ripple, C = Orbit+ (A with data pulses and an AI core).
+       Chosen by ?hero=a|b|c or the switcher at the bottom right (remembered in localStorage). Must run before store.js.
+       Internally B sets data-hero="d" and C sets data-hv="e" (data-hero b/c are taken by the older v3-store-b/c files; C keeps all of A's styles). -->
+  <script>(function () { var q = new URLSearchParams(location.search).get('hero'), v = q || (function () { try { return localStorage.getItem('formeeHero'); } catch (e) { return null; } })(); if (q) { try { localStorage.setItem('formeeHero', q); } catch (e) {} } if (v === 'b' || v === 'd') document.body.dataset.hero = 'd'; else if (v === 'c') document.body.dataset.hv = 'e'; })();</script>
   <main>
     <!-- Hero -->
     <section class="hero" id="top">
@@ -195,5 +196,6 @@
   <script src="site.js"></script>
   <script src="store.js"></script>
   <script src="hero-ripple.js"></script>
+  <script src="hero-orbit-plus.js"></script>
 </body>
 </html>

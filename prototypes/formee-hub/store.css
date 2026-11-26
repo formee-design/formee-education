@@ -2451,3 +2451,17 @@ body[data-hero="d"] .hero:not(.page-hero) .hero__content { position: relative; z
 }
 .hero-switch button:hover { background: color-mix(in srgb, var(--color-neutral-0) 14%, transparent); }
 .hero-switch button[aria-pressed="true"] { background: var(--color-neutral-0); color: var(--color-neutral-900); }
+
+/* =====================================================================
+   Hero C · Orbit+ (2026-11-26, calm revision; ?hero=c, body[data-hv="e"], hero-orbit-plus.js):
+   hero A with gradient hairline orbits, one slow light per orbit, and an occasional soft glow on one chip. Nothing else moves.
+   ===================================================================== */
+body[data-hv="e"] .hero-orbit__path { stroke: url(#eOrbitGrad); stroke-dasharray: none; stroke-width: 1.1; }
+body[data-hv="e"] .hero-orbit__dot { display: none; }
+body[data-hv="e"] .e-pulse { fill: var(--color-neutral-0); filter: url(#ePulseGlow); opacity: .9; }
+body[data-hv="e"] #heroOrbit .orbit-chip { transition: box-shadow 1s var(--hub-ease), filter 1s var(--hub-ease); }
+body[data-hv="e"] #heroOrbit .orbit-chip.is-ping {
+  box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--color-neutral-0) 85%, transparent),
+    0 0 var(--spacing-2xl) color-mix(in srgb, var(--color-neutral-0) 45%, transparent);
+  filter: brightness(1.06);
+}
