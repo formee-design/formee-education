@@ -18,6 +18,8 @@
     set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
   };
   const q = new URLSearchParams(location.search);
+  const FLOW = q.has('flow'); /* flows.html loads pages with ?flow=1: always logged out, no prototype control, nothing stored */
+  if (FLOW) return;
   if (q.has('login')) store.set('pulseDemoLogin', q.get('login') === '1' ? '1' : null);
   if (q.has('plan')) store.set('pulseDemoPlan', q.get('plan') || null);
 
@@ -58,6 +60,8 @@
         `<div class="proto-seg"><button type="button" data-login="0" class="${on ? '' : 'on'}">Logged out</button><button type="button" data-login="1" class="${on ? 'on' : ''}">Logged in</button></div>` +
         `<div class="proto-label">Plan</div>` +
         `<div class="proto-seg proto-plans">` + plans.map(([k, l]) => `<button type="button" data-plan="${k}" class="${on && plan === k ? 'on' : ''}">${l}</button>`).join('') + `</div>` +
+        `<div class="proto-label">Flows</div>` +
+        `<div class="proto-seg proto-flows"><a href="flows.html#flow=paid&step=1&plan=premium">Paid plan</a><a href="flows.html#flow=trial&step=1&plan=standard">Free trial</a></div>` +
       `</div>`;
     const head = el.querySelector('.proto-head');
     const sync = () => head.setAttribute('aria-expanded', String(!el.classList.contains('is-min')));
@@ -71,7 +75,7 @@
     });
     document.body.appendChild(el);
   };
-  if (document.body) buildControl(); else addEventListener('DOMContentLoaded', buildControl);
+  if (!FLOW) { if (document.body) buildControl(); else addEventListener('DOMContentLoaded', buildControl); }
 
   if (!isLoggedIn()) return;
 
