@@ -397,7 +397,7 @@ window.FSite = (() => {
   }
 
   // Safe AI cards with the Figma illustrations (node 1121:13450): used on the home page and the industry pages
-  const TRUST_ART = [['security', 75.4], ['global', 78.6], ['cloud', 71.8]];
+  const TRUST_ART = [['security', 75.4], ['global', 83.5], ['cloud', 71.8]];
   const trustArtHTML = () => TRUST.map(([t, d], i) => `
     <article class="trust-art r up" style="--rd:${i * .08}s">
       <span class="trust-art__panel"><img src="assets/safe-ai/${TRUST_ART[i][0]}.svg" alt="" style="width:${TRUST_ART[i][1]}%" loading="lazy"></span>

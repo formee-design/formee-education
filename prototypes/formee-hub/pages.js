@@ -77,6 +77,9 @@
   const R = {};
 
   /* ---------- Industries ---------- */
+  // Industries page photo crops, as set in Figma (Industries grid 1168:236, 2026-11-26): vertical position of the 5:2 window.
+  // Figma CROP offset ty (share of image height) -> object-position y = ty / (1 - 0.5787), 0.5787 = visible share of a 612x423 photo at 5:2.
+  const IND_PHOTO_Y = { hr: 0, 'sales-marketing': 10.7, security: 32.5, education: 27.8, health: 12.1, childcare: 50, 'real-estate': 38.2, sports: 50 };
   R.industries = () => {
     // Refined 2026-11-26 to match the home page: no breadcrumb (top-level page, the nav already says where you are),
     // industry photos from the home tiles, each industry's tools listed with their app icons, pastel industry chip.
@@ -87,7 +90,7 @@
       <div class="container">
         <div class="ind-big-grid">${list.map((b, i) => `
           <article class="ind-big r up" style="--rd:${(i % 2) * .06}s">
-            <a class="ind-big__photo" href="${U.industry(b.id)}" tabindex="-1" aria-hidden="true"><img src="assets/industries/${b.id}.jpg" alt="" loading="lazy" width="612" height="423"></a>
+            <a class="ind-big__photo" href="${U.industry(b.id)}" tabindex="-1" aria-hidden="true"><img src="assets/industries/${b.id}.jpg" alt="" loading="lazy" width="612" height="423" style="object-position: 50% ${IND_PHOTO_Y[b.id] ?? 50}%"></a>
             <div class="ind-big__body">
               <div class="ind-big__head">
                 <span class="ind-big__icon" data-ind="${b.id}">${S.I(b.icon, 20)}</span>
@@ -100,7 +103,7 @@
                   <span class="ind-big__tool-go${p.external ? ' is-ext' : ''}">${p.external ? EXT : ARROW}</span>
                 </a></li>`).join('')}
               </ul>
-              <a class="ind-big__more" href="${U.industry(b.id)}">Explore ${b.name} ${ARROW}</a>
+              <a class="ind-big__more" href="${U.industry(b.id)}">Explore ${b.name}</a>
             </div>
           </article>`).join('')}
         </div>
@@ -142,8 +145,11 @@
         </div>
         <div class="ind-carousel r up" id="indCarousel">${S.IND_ORDER.map(id => BUSINESSES.find(x => x.id === id)).filter(x => x && x.id !== b.id).map(x => `
           <a class="ind-slide" href="${U.industry(x.id)}">
-            <img src="assets/industries/${x.id}.jpg" alt="" loading="lazy" width="612" height="423">
-            <span class="ind-slide__panel"><b>${x.name}</b><small>${x.tagline}</small><span class="ind-slide__go">Explore ${ARROW}</span></span>
+            <span class="ind-slide__photo"><img src="assets/industries/${x.id}.jpg" alt="" loading="lazy" width="612" height="423"></span>
+            <span class="ind-slide__body">
+              <span class="ind-slide__head"><span class="ind-slide__icon" data-ind="${x.id}">${S.I(x.icon, 20)}</span><b>${x.name}</b></span>
+              <small>${x.tagline}</small>
+            </span>
           </a>`).join('')}
         </div>
       </div>
@@ -217,8 +223,8 @@
       <div class="container">
         <h2 class="tp-title r up">${pg.journey.title}</h2>
         ${pg.journey.type === 'flow' ? `
-        <ol class="tp-flow r up" style="--n:${pg.journey.steps.length}">${pg.journey.steps.map(([t, d, chips], i) => `
-          <li style="--i:${i}"><span class="tp-flow__num">${String(i + 1).padStart(2, '0')}</span><h3>${t}</h3><p>${d}</p>${chips && chips.length ? `<span class="tp-flow__chips">${chips.map(c => `<span>${c}</span>`).join('')}</span>` : ''}</li>`).join('')}
+        <ol class="tp-flow r up" style="--n:${pg.journey.steps.length}">${pg.journey.steps.map(([t, d], i) => `
+          <li style="--i:${i}"><span class="tp-flow__num">${String(i + 1).padStart(2, '0')}</span><h3>${t}</h3><p>${d}</p></li>`).join('')}
         </ol>` : `
         <div class="tp-inside">${pg.journey.steps.map(([t, d], i) => `
           <article class="tp-inside__card r up" style="--rd:${i * .06}s"><h3>${t}</h3><p>${d}</p></article>`).join('')}

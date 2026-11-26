@@ -522,7 +522,7 @@
 .mega-row { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md); margin: 0 calc(var(--spacing-md) * -1); border-radius: var(--radius-xl); transition: background .2s; }
 .mega-row:hover { background: var(--color-neutral-50); }
 .mega-row__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: var(--radius-md-lg); background: var(--color-neutral-100); color: var(--color-neutral-800); transition: background .2s, box-shadow .2s; }
-.mega-row:hover .mega-row__icon { background: var(--color-neutral-0); box-shadow: var(--shadow-md); }
+.mega-row:hover .mega-row__icon { background: var(--color-neutral-900); color: var(--color-neutral-0); box-shadow: none; } /* 2026-11-26: dark tile on hover (Industries menu) */
 .mega-row__text { display: flex; flex-direction: column; gap: var(--spacing-2); min-width: 0; }
 .mega-row__text b { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
 .mega-row__text small { font-size: var(--font-size-text-md); line-height: var(--line-height-text-md); color: var(--color-neutral-500); }
@@ -532,7 +532,7 @@
 /* Products mega menu: industry label with the same icon tile as the Industries menu */
 .mega-cat--row { flex-direction: row; align-items: center; gap: var(--spacing-md); }
 .mega-row__icon--sm { width: 36px; height: 36px; border-radius: var(--radius-lg); }
-.mega-cat--row:hover .mega-row__icon { background: var(--color-neutral-0); box-shadow: var(--shadow-md); }
+.mega-cat--row:hover .mega-row__icon { background: var(--color-neutral-900); color: var(--color-neutral-0); box-shadow: none; } /* 2026-11-26: same on the Products menu */
 #mega-products .mega-list { padding-left: calc(36px + var(--spacing-md)); }
 
 /* ---------- Home: Safe AI section on neutral/50, white cards; step numbers neutral/900 (2026-11-24) ---------- */
@@ -951,7 +951,7 @@ body[data-page="pricing"] .page-hero + .section { padding-top: 0; }
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: radial-gradient(ellipse 76% 104% at 50% 0%, transparent 80%, color-mix(in srgb, var(--color-neutral-0) 70%, transparent) 90%, var(--color-neutral-0) 97%);
+  background: radial-gradient(ellipse 98% 104% at 50% 0%, transparent 80%, color-mix(in srgb, var(--color-neutral-0) 70%, transparent) 90%, var(--color-neutral-0) 97%);
 }
 .hero-orbit .orbit-chip { z-index: 2; }
 .hero:not(.page-hero) .hero__content { position: relative; z-index: 2; }
@@ -2288,3 +2288,166 @@ body[data-page="industry"] .ind-pricing.tp-sec--band { margin-top: calc(var(--sp
 .bx-sumdoc > svg:last-child { width: 18px; height: 18px; margin-left: auto; color: var(--color-neutral-0); }
 .bx-sumdoc b { display: block; font-weight: var(--font-weight-semibold); }
 .bx-sumdoc small { display: block; font-size: var(--font-size-text-xs); color: color-mix(in srgb, var(--color-neutral-0) 65%, transparent); }
+
+/* =====================================================================
+   Hero glow motion, 2026-11-26 (Firmable ref: one big gradient slowly turning back and forth)
+   The three hero glows (blue left, pink right, violet centre) each drift, turn around an off-centre point
+   and breathe a little, on different slow cycles so the mix never repeats exactly. Subtle but visible.
+   ===================================================================== */
+body:not([data-hero]) .hero:not(.page-hero) .hero__glow--blue {
+  transform-origin: 75% 60%;
+  animation: heroGlowBlue 13s ease-in-out infinite alternate;
+}
+body:not([data-hero]) .hero:not(.page-hero) .hero__glow--pink {
+  transform-origin: 25% 40%;
+  animation: heroGlowPink 16s ease-in-out infinite alternate;
+}
+body:not([data-hero]) .hero:not(.page-hero) .hero__glow--violet {
+  transform-origin: 50% 50%;
+  animation: heroGlowViolet 11s ease-in-out infinite alternate;
+}
+@keyframes heroGlowBlue {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: .55; }
+  50% { transform: translate(12%, -8%) rotate(-14deg) scale(1.12); opacity: .7; }
+  100% { transform: translate(20%, 4%) rotate(-24deg) scale(1.2); opacity: .5; }
+}
+@keyframes heroGlowPink {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: .7; }
+  50% { transform: translate(-14%, -12%) rotate(16deg) scale(1.15); opacity: .85; }
+  100% { transform: translate(-22%, -4%) rotate(26deg) scale(1.08); opacity: .65; }
+}
+@keyframes heroGlowViolet {
+  0% { transform: translate(0, 0) scale(1); opacity: .45; }
+  100% { transform: translate(-18%, 10%) scale(1.3); opacity: .7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body:not([data-hero]) .hero:not(.page-hero) .hero__glow { animation: none; }
+}
+/* Hero swirl, 2026-11-26 (rev 4): Firmable's side colour regions, in our colours.
+   Firmable's right purple = our pink (right side); mirrored, a light sky blue on the left side. Each side is its own
+   huge circle (1.6x hero width, centred on the hero) carrying a one-sided band gradient, so only the side edge is coloured.
+   Each circle turns a little back and forth, which tilts and slides the soft edge of its colour region, like Firmable.
+   The two run on different lengths and start points, so they never mirror each other exactly. */
+.hero__swirl { display: none; }
+body:not([data-hero]) .hero:not(.page-hero) .hero__swirl {
+  display: block; position: absolute; inset: 0; overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 30%);
+}
+body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::before,
+body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 160%; aspect-ratio: 1; border-radius: 50%;
+  translate: -50% -50%; will-change: rotate;
+}
+/* left: light sky blue */
+body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::before {
+  background: linear-gradient(255deg, transparent 56%, color-mix(in srgb, var(--color-scale-blue-200) 70%, var(--color-neutral-0)) 84%);
+  opacity: .75;
+  animation: heroSideLeft 13s ease-in-out -5s infinite alternate;
+}
+/* right: pink */
+body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::after {
+  background: linear-gradient(105deg, transparent 56%, color-mix(in srgb, var(--color-scale-rose-200) 80%, var(--color-scale-purple-200)) 84%);
+  opacity: .8;
+  animation: heroSideRight 10s ease-in-out infinite alternate;
+}
+@keyframes heroSideLeft { from { rotate: -14deg; } to { rotate: 22deg; } }
+@keyframes heroSideRight { from { rotate: 14deg; } to { rotate: -24deg; } }
+@media (prefers-reduced-motion: reduce) { body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::before, body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::after { animation: none; } }
+
+/* Industries page Explore link as an outlined text button, matching Figma (Actions / Text Button, State=Normal, Size=36), 2026-11-26.
+   36px tall: 8/12 padding, 4 gap, 8 radius, white fill, 1px neutral-400 border, Text/sm SemiBold neutral-700, 16px arrow neutral-500. */
+.ind-big__tools { margin-bottom: var(--spacing-sm); }
+.ind-big__more {
+  margin-top: auto; padding: calc(var(--spacing-sm) - var(--border-width-1)) calc(var(--spacing-md) - var(--border-width-1)); gap: var(--spacing-xs);
+  border: var(--border-width-1) solid var(--color-neutral-400); border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  font-size: var(--font-size-text-sm); line-height: var(--line-height-text-sm); font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-700);
+  transition: background-color .2s, border-color .2s;
+}
+.ind-big__more svg { color: var(--color-neutral-500); }
+.ind-big__more:hover { background: var(--color-neutral-50); border-color: var(--color-neutral-500); }
+
+/* Explore other industries, rev 2026-11-26 (direction A): the dark frosted panel did not fit the light site.
+   Cards now match the Industries page and home tiles: photo on top, light body with the pastel industry icon,
+   name and tagline. Industry colour stays on the small icon tile only. Hover: popover shadow, white body, photo zoom. */
+.ind-slide {
+  display: flex; flex-direction: column; aspect-ratio: auto;
+  border-radius: var(--radius-2xl); background: var(--color-neutral-50); color: var(--color-neutral-900);
+  transition: box-shadow .45s var(--hub-ease), background-color .3s;
+}
+.ind-slide:hover { background: var(--color-neutral-0); box-shadow: var(--shadow-popover); }
+.ind-slide__photo { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--color-neutral-100); }
+.ind-slide__body { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: var(--spacing-xl); }
+.ind-slide__head { display: flex; align-items: center; gap: var(--spacing-md); }
+.ind-slide__icon {
+  display: grid; place-items: center; flex: none; width: var(--spacing-4xl); height: var(--spacing-4xl);
+  border-radius: var(--radius-lg); background: var(--ic-bg, var(--color-neutral-100)); color: var(--ic-fg, var(--color-neutral-600));
+}
+.ind-slide__head b { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); font-weight: var(--font-weight-semibold); }
+.ind-slide__body small { font-size: var(--font-size-text-md); line-height: var(--line-height-text-md); color: var(--color-neutral-600); }
+
+/* Tool page "One flow", 2026-11-26: the step cards read too faint. Step numbers are now the anchor
+   (Display/xl Medium, neutral-400), and the product-menu chips are gone (they meant little to visitors). */
+.tp-flow__num, .tp-flow.is-drawn .tp-flow__num {
+  font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl);
+  font-weight: var(--font-weight-medium); letter-spacing: -0.025em; color: var(--color-neutral-400);
+}
+.tp-flow h3 { margin-top: var(--spacing-2xl); }
+
+/* Explore other industries cards, 2026-11-26: white body with a 1px neutral-200 outline on the white page;
+   on hover the outline gives way to the popover shadow. */
+.ind-slide { background: var(--color-neutral-0); outline: var(--border-width-1) solid var(--color-neutral-200); outline-offset: calc(var(--border-width-1) * -1); transition: box-shadow .45s var(--hub-ease), outline-color .3s; }
+.ind-slide:hover { background: var(--color-neutral-0); outline-color: transparent; box-shadow: var(--shadow-popover); }
+/* outline (not an inset shadow) so the 1px line also shows over the photo edge */
+/* Carousel hover shadow was clipped by the scroll container (overflow-x: auto clips both axes).
+   Give the track room for the popover shadow (12px down, 20px blur) and pull it back with negative margins,
+   so the cards stay aligned with the heading. 2026-11-26 */
+.ind-carousel {
+  margin: calc(var(--spacing-3xl) - var(--spacing-sm)) calc(var(--spacing-2xl) * -1) calc(var(--spacing-3xl) * -1);
+  padding: var(--spacing-sm) var(--spacing-2xl) var(--spacing-3xl);
+  scroll-padding-inline: var(--spacing-2xl);
+}
+
+/* =====================================================================
+   Hero D (2026-11-26, prototype variant, ?hero=d): copy gathered in the centre, a dot-grid water ripple
+   around it (hero-ripple.js), deep blue to lavender wash, and a clean hard edge at the bottom (no white fade).
+   ===================================================================== */
+body[data-hero="d"] .hero:not(.page-hero) {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: max(100svh, 760px);
+  padding-top: var(--hub-nav-h); padding-bottom: var(--spacing-7xl);
+}
+body[data-hero="d"] .hero:not(.page-hero)::after, body[data-hero="d"] .hero__fade { content: none; display: none; }
+body[data-hero="d"] .hero-orbit { display: none; }
+body[data-hero="d"] .hero:not(.page-hero) .hero__wash {
+  background:
+    radial-gradient(60% 55% at 100% 100%, color-mix(in srgb, var(--color-scale-rose-200) 70%, var(--color-scale-purple-200)) 0%, transparent 70%),
+    radial-gradient(55% 50% at 0% 90%, color-mix(in srgb, var(--color-scale-blue-200) 70%, var(--color-neutral-0)) 0%, transparent 70%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--color-neutral-900) 85%, var(--color-scale-blue-500)) 0%,
+      color-mix(in srgb, var(--color-scale-blue-500) 70%, var(--color-neutral-800)) 26%,
+      var(--color-scale-blue-400) 56%,
+      color-mix(in srgb, var(--color-scale-blue-300) 60%, var(--color-scale-purple-200)) 100%);
+}
+body[data-hero="d"] .hero__glow { opacity: .35; }
+body[data-hero="d"] .hero:not(.page-hero) .hero__content { position: relative; z-index: 2; }
+.hero-ripple { position: absolute; inset: 0; pointer-events: none; }
+
+/* Hero version switcher (prototype only): small pill fixed at the bottom right */
+.hero-switch {
+  position: fixed; right: var(--spacing-xl); bottom: var(--spacing-xl); z-index: 90;
+  display: flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-xs);
+  border-radius: var(--radius-full); background: color-mix(in srgb, var(--color-neutral-900) 88%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-popover);
+  font-size: var(--font-size-text-xs); line-height: var(--line-height-text-xs); font-weight: var(--font-weight-semibold);
+}
+.hero-switch__label { padding: 0 var(--spacing-sm); color: color-mix(in srgb, var(--color-neutral-0) 60%, transparent); }
+.hero-switch button {
+  padding: var(--spacing-xs) var(--spacing-md); border: 0; border-radius: var(--radius-full); background: transparent;
+  color: var(--color-neutral-0); font: inherit; cursor: pointer; transition: background-color .2s, color .2s;
+}
+.hero-switch button:hover { background: color-mix(in srgb, var(--color-neutral-0) 14%, transparent); }
+.hero-switch button[aria-pressed="true"] { background: var(--color-neutral-0); color: var(--color-neutral-900); }

@@ -1,17 +1,73 @@
-<svg width="295" height="179" viewBox="0 0 295 179" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="295" height="239" viewBox="0 -30 295 239" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g mask="url(#fadeBottom)">
+<g class="row r1">
 <path d="M282.384 0.359985H12.6004C5.84039 0.359985 0.360352 5.84002 0.360352 12.6V41.976C0.360352 48.736 5.84039 54.216 12.6004 54.216H282.384C289.144 54.216 294.624 48.736 294.624 41.976V12.6C294.624 5.84002 289.144 0.359985 282.384 0.359985Z" fill="white" stroke-width="0.72" stroke="white" stroke-opacity="0.12"/>
-<rect x="14.7607" y="15.408" width="23.76" height="23.76" rx="5.76" fill="#B9C5FE"/>
-<path d="M85.681 23.328H54.001C51.814 23.328 50.041 25.101 50.041 27.288C50.041 29.4751 51.814 31.248 54.001 31.248H85.681C87.8681 31.248 89.641 29.4751 89.641 27.288C89.641 25.101 87.8681 23.328 85.681 23.328Z" fill="#DAE2FC"/>
+<rect class="ico r1i" x="14.7607" y="15.408" width="23.76" height="23.76" rx="5.76" fill="#B9C5FE"/>
+<path class="bar r1b" d="M85.681 23.328H54.001C51.814 23.328 50.041 25.101 50.041 27.288C50.041 29.4751 51.814 31.248 54.001 31.248H85.681C87.8681 31.248 89.641 29.4751 89.641 27.288C89.641 25.101 87.8681 23.328 85.681 23.328Z" fill="#DAE2FC"/>
+<g class="chk r1k">
 <path d="M259.705 42.768C268.254 42.768 275.185 35.8373 275.185 27.288C275.185 18.7386 268.254 11.808 259.705 11.808C251.155 11.808 244.225 18.7386 244.225 27.288C244.225 35.8373 251.155 42.768 259.705 42.768Z" fill="#AEE6C5"/>
 <path d="M252.864 28.008L257.544 32.328L266.904 22.608" stroke-width="3.24" stroke-linecap="round" stroke-linejoin="round" stroke="#31AB78"/>
+</g>
+</g>
+<g class="row r2">
 <path d="M282.384 62.2159H12.6004C5.84039 62.2159 0.360352 67.696 0.360352 74.4559V103.832C0.360352 110.592 5.84039 116.072 12.6004 116.072H282.384C289.144 116.072 294.624 110.592 294.624 103.832V74.4559C294.624 67.696 289.144 62.2159 282.384 62.2159Z" fill="white" fill-opacity="0.8" stroke-width="0.72" stroke="white" stroke-opacity="0.12"/>
-<rect x="14.7607" y="77.2639" width="23.76" height="23.76" rx="5.76" fill="#B9C5FE"/>
-<path d="M85.681 85.184H54.001C51.814 85.184 50.041 86.9569 50.041 89.144C50.041 91.331 51.814 93.104 54.001 93.104H85.681C87.8681 93.104 89.641 91.331 89.641 89.144C89.641 86.9569 87.8681 85.184 85.681 85.184Z" fill="#DAE2FC"/>
+<rect class="ico r2i" x="14.7607" y="77.2639" width="23.76" height="23.76" rx="5.76" fill="#B9C5FE"/>
+<path class="bar r2b" d="M85.681 85.184H54.001C51.814 85.184 50.041 86.9569 50.041 89.144C50.041 91.331 51.814 93.104 54.001 93.104H85.681C87.8681 93.104 89.641 91.331 89.641 89.144C89.641 86.9569 87.8681 85.184 85.681 85.184Z" fill="#DAE2FC"/>
+<g class="chk r2k">
 <path d="M259.705 104.624C268.254 104.624 275.185 97.6933 275.185 89.1439C275.185 80.5946 268.254 73.6639 259.705 73.6639C251.155 73.6639 244.225 80.5946 244.225 89.1439C244.225 97.6933 251.155 104.624 259.705 104.624Z" fill="#AEE6C5"/>
 <path d="M252.864 89.864L257.544 94.184L266.904 84.464" stroke-width="3.24" stroke-linecap="round" stroke-linejoin="round" stroke="#31AB78"/>
+</g>
+</g>
+<g class="row r3">
 <path d="M282.384 124.072H12.6004C5.84039 124.072 0.360352 129.552 0.360352 136.312V165.688C0.360352 172.448 5.84039 177.928 12.6004 177.928H282.384C289.144 177.928 294.624 172.448 294.624 165.688V136.312C294.624 129.552 289.144 124.072 282.384 124.072Z" fill="white" fill-opacity="0.6" stroke-width="0.72" stroke="white" stroke-opacity="0.12"/>
-<rect x="14.7607" y="139.12" width="23.76" height="23.76" rx="5.76" fill="#B9C5FE"/>
-<path d="M85.681 147.04H54.001C51.814 147.04 50.041 148.813 50.041 151C50.041 153.187 51.814 154.96 54.001 154.96H85.681C87.8681 154.96 89.641 153.187 89.641 151C89.641 148.813 87.8681 147.04 85.681 147.04Z" fill="#DAE2FC"/>
+<rect class="ico r3i" x="14.7607" y="139.12" width="23.76" height="23.76" rx="5.76" fill="#B9C5FE"/>
+<path class="bar r3b" d="M85.681 147.04H54.001C51.814 147.04 50.041 148.813 50.041 151C50.041 153.187 51.814 154.96 54.001 154.96H85.681C87.8681 154.96 89.641 153.187 89.641 151C89.641 148.813 87.8681 147.04 85.681 147.04Z" fill="#DAE2FC"/>
+<g class="chk r3k">
 <path d="M259.705 166.48C268.254 166.48 275.185 159.549 275.185 151C275.185 142.451 268.254 135.52 259.705 135.52C251.155 135.52 244.225 142.451 244.225 151C244.225 159.549 251.155 166.48 259.705 166.48Z" fill="#AEE6C5"/>
 <path d="M252.864 151.72L257.544 156.04L266.904 146.32" stroke-width="3.24" stroke-linecap="round" stroke-linejoin="round" stroke="#31AB78"/>
+</g>
+</g>
+</g>
+<style>
+/* Checklist loop (6.5s). The top row card rises first (never fully hidden, opacity .6 at its lowest), then the next rows follow from below.
+   Inside each row, right as it appears, the icon pops, the line fills and the green check (attached) pops in, so empty cards barely show.
+   Hold, then everything retracts in exact reverse order with mirrored easing. The bottom edge fades out (mask). Percentages are of 6.5s. */
+.row, .ico, .bar, .chk { transform-box: fill-box; }
+.ico, .chk { transform-origin: center; }
+.bar { transform-origin: left center; }
+.r1 { animation: kr1 6.5s linear infinite both; }
+.r1i { animation: kr1i 6.5s linear infinite both; }
+.r1b { animation: kr1b 6.5s linear infinite both; }
+.r1k { animation: kr1k 6.5s linear infinite both; }
+.r2 { animation: kr2 6.5s linear infinite both; }
+.r2i { animation: kr2i 6.5s linear infinite both; }
+.r2b { animation: kr2b 6.5s linear infinite both; }
+.r2k { animation: kr2k 6.5s linear infinite both; }
+.r3 { animation: kr3 6.5s linear infinite both; }
+.r3i { animation: kr3i 6.5s linear infinite both; }
+.r3b { animation: kr3b 6.5s linear infinite both; }
+.r3k { animation: kr3k 6.5s linear infinite both; }
+@keyframes kr1 { 0% { transform: translateY(24px); opacity: .6; } 0% { transform: translateY(24px); opacity: .6; animation-timing-function: cubic-bezier(.22,1,.36,1); } 12.31% { transform: translateY(0); opacity: 1; } 84.62% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.64,0,.78,0); } 96.92%, 100% { transform: translateY(24px); opacity: .6; } }
+@keyframes kr1i { 0% { transform: scale(.6); opacity: 0; } 0.46% { transform: scale(.6); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 6.62% { transform: scale(1); opacity: 1; } 90.31% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 96.46%, 100% { transform: scale(.6); opacity: 0; } }
+@keyframes kr1b { 0% { transform: scaleX(0); } 0.92% { transform: scaleX(0); animation-timing-function: cubic-bezier(.4,0,.2,1); } 11.69% { transform: scaleX(1); } 85.23% { transform: scaleX(1); animation-timing-function: cubic-bezier(.4,0,.2,1); } 96%, 100% { transform: scaleX(0); } }
+@keyframes kr1k { 0% { transform: scale(.4); opacity: 0; } 7.69% { transform: scale(.4); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 13.85% { transform: scale(1); opacity: 1; } 83.08% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 89.23%, 100% { transform: scale(.4); opacity: 0; } }
+@keyframes kr2 { 0% { transform: translateY(24px); opacity: 0; } 5.38% { transform: translateY(24px); opacity: 0; animation-timing-function: cubic-bezier(.22,1,.36,1); } 17.69% { transform: translateY(0); opacity: 1; } 79.23% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.64,0,.78,0); } 91.54%, 100% { transform: translateY(24px); opacity: 0; } }
+@keyframes kr2i { 0% { transform: scale(.6); opacity: 0; } 5.85% { transform: scale(.6); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 12% { transform: scale(1); opacity: 1; } 84.92% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 91.08%, 100% { transform: scale(.6); opacity: 0; } }
+@keyframes kr2b { 0% { transform: scaleX(0); } 6.31% { transform: scaleX(0); animation-timing-function: cubic-bezier(.4,0,.2,1); } 17.08% { transform: scaleX(1); } 79.85% { transform: scaleX(1); animation-timing-function: cubic-bezier(.4,0,.2,1); } 90.62%, 100% { transform: scaleX(0); } }
+@keyframes kr2k { 0% { transform: scale(.4); opacity: 0; } 13.08% { transform: scale(.4); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 19.23% { transform: scale(1); opacity: 1; } 77.69% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 83.85%, 100% { transform: scale(.4); opacity: 0; } }
+@keyframes kr3 { 0% { transform: translateY(24px); opacity: 0; } 10.77% { transform: translateY(24px); opacity: 0; animation-timing-function: cubic-bezier(.22,1,.36,1); } 23.08% { transform: translateY(0); opacity: 1; } 73.85% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.64,0,.78,0); } 86.15%, 100% { transform: translateY(24px); opacity: 0; } }
+@keyframes kr3i { 0% { transform: scale(.6); opacity: 0; } 11.23% { transform: scale(.6); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 17.38% { transform: scale(1); opacity: 1; } 79.54% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 85.69%, 100% { transform: scale(.6); opacity: 0; } }
+@keyframes kr3b { 0% { transform: scaleX(0); } 11.69% { transform: scaleX(0); animation-timing-function: cubic-bezier(.4,0,.2,1); } 22.46% { transform: scaleX(1); } 74.46% { transform: scaleX(1); animation-timing-function: cubic-bezier(.4,0,.2,1); } 85.23%, 100% { transform: scaleX(0); } }
+@keyframes kr3k { 0% { transform: scale(.4); opacity: 0; } 18.46% { transform: scale(.4); opacity: 0; animation-timing-function: cubic-bezier(.34,1.56,.64,1); } 24.62% { transform: scale(1); opacity: 1; } 72.31% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.36,0,.66,-.56); } 78.46%, 100% { transform: scale(.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<defs>
+<linearGradient id="fadeGrad" x1="0" y1="179" x2="0" y2="205" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+<mask id="fadeBottom" maskUnits="userSpaceOnUse" x="0" y="-30" width="295" height="239">
+<rect x="0" y="-30" width="295" height="239" fill="url(#fadeGrad)"/>
+</mask>
+</defs>
 </svg>
