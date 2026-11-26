@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formee · AI tools for every industry (hero B)</title>
+  <meta name="description" content="AI tools for eight industries, on one secure platform. Practical AI, private by design.">
+  <link rel="icon" href="assets/logo-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/tokens.css">
+  <link rel="stylesheet" href="hub.css">
+  <link rel="stylesheet" href="store.css">
+</head>
+<!--
+  HERO B variant (2026-11-25): abstract gyroscope graphic with a sparkle, email + Contact us under the subtitle.
+  Same as v3-store.html otherwise.
+  Formee store v3, home page. Yesterday's hub (v2-hub.html) merged with the CEO's site (by Zubair/formee-ai-site 2).
+  Header, footer and the closing call to action come from site.js; data from data.js; tool illustrations from scenes.js.
+-->
+<body data-hero="b">
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__wash"></div>
+        <div class="hero__glow hero__glow--blue"></div>
+        <div class="hero__glow hero__glow--pink"></div>
+        <div class="hero__glow hero__glow--violet"></div>
+        <div class="hero__fade"></div>
+      </div>
+      <div class="container hero__content">
+        <h1 class="hero__title">
+          <span class="line"><span style="--rd:.15s">AI tools for</span></span>
+          <span class="line"><span style="--rd:.27s">every industry.</span></span>
+        </h1>
+        <p class="hero__sub r up" style="--rd:.45s">From HR and education to health, sports and sales: AI tools built for the way each industry works, on one secure platform.</p>
+        <!-- Hero facts (14-day trial, no card, Azure) hidden 2026-11-25 to match the Figma hero -->
+      </div>
+      <div class="hero-gyro fade-in" id="heroGyro" aria-hidden="true"></div>
+    </section>
+
+    <!-- Tool names marquee: removed 2026-11-25 (repeated the tool list, felt like filler).
+         Bring the strip back for customer or partner logos ("Trusted by ...") once there are some.
+    <div class="hero__marquee" aria-label="Formee AI tools">
+      <div class="marquee__track" id="marquee"></div>
+    </div>
+    -->
+
+    <!-- Too many tools, too little safe AI. -->
+    <section class="about" id="why">
+      <div class="container about__grid about__grid--center">
+        <span class="eyebrow r up">Why Formee</span>
+        <div>
+          <p class="statement" id="statement">Too many tools, too little safe AI. Teams need AI that fits their industry and keeps data safe.</p>
+        </div>
+      </div>
+      <div class="container">
+        <div class="problem__grid">
+          <article class="problem-card r up">
+            <span class="problem-card__icon" data-icon="shield-alert" data-size="40"></span>
+            <h3>Safe AI adoption is hard</h3>
+            <p>Privacy and compliance questions hold teams back.</p>
+          </article>
+          <article class="problem-card r up" style="--rd:.08s">
+            <span class="problem-card__icon" data-icon="link-2-off" data-size="40"></span>
+            <h3>Disconnected tools</h3>
+            <p>Separate apps for every task, with no shared view.</p>
+          </article>
+          <article class="problem-card r up" style="--rd:.16s">
+            <span class="problem-card__icon" data-icon="chart-scatter" data-size="40"></span>
+            <h3>Scattered data</h3>
+            <p>Information lives in many separate places.</p>
+          </article>
+        </div>
+        <span class="together__line r up" aria-hidden="true"></span>
+        <div class="together r up">
+          <b>Formee brings it together.</b>
+          <span>AI tools for eight industries, on one secure platform.</span>
+        </div>
+        <!-- One gradient shared by the problem-card icons (stroke runs across the whole icon) -->
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+          <linearGradient id="problemIconGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop offset="0" style="stop-color:color-mix(in srgb, var(--color-brand-primary) 55%, var(--color-scale-blue-500))"/>
+            <stop offset="1" style="stop-color:color-mix(in srgb, var(--color-scale-purple-200) 75%, var(--color-scale-rose-200))"/>
+          </linearGradient>
+        </defs></svg>
+      </div>
+    </section>
+
+    <!-- Start with your industry. (8 industry tiles, no images) -->
+    <section class="ind-tiles-sec" id="industries">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="r up">Start with your industry.</h2>
+          <p class="r up" style="--rd:.12s">Eight industries, each with AI tools built for the way it works.</p>
+        </div>
+        <div class="ind-tiles" id="indTiles"></div>
+      </div>
+    </section>
+
+    <!-- Every tool, by industry. (full tool list, no images) -->
+    <section class="tool-index-sec" id="businesses">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow r up">Products</span>
+          <h2 class="r up" style="--rd:.06s">Every tool, by industry.</h2>
+          <p class="r up" style="--rd:.12s" id="toolsLine"></p>
+        </div>
+        <div class="tool-index" id="toolIndex"></div>
+      </div>
+    </section>
+
+    <!-- Safe AI by design + three steps -->
+    <section class="trust" id="trust">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <h2 class="r up">Safe AI by design.<br><span class="muted">Whichever industry you work in.</span></h2>
+          <p class="r up" style="--rd:.12s">Every Formee tool sits on the same secure foundation.</p>
+        </div>
+        <div class="trust__grid" id="trustGrid"></div>
+      </div>
+    </section>
+
+    <!-- Pricing teaser (CEO's illustrative prices, not final) -->
+    <section class="pricing" id="pricing">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow r up">Pricing</span>
+          <h2 class="r up" style="--rd:.06s">Simple pricing, per tool.</h2>
+          <p class="r up" style="--rd:.12s">Start with a 14-day free trial. Save 20% with annual billing, and 25% with an industry bundle.</p>
+          <div id="billingSlot"></div>
+        </div>
+        <div class="plans" id="plans"></div>
+        <p class="pricing__note r up">Illustrative starter prices, pending Formee confirmation. <a class="link-arrow" href="pricing.html">See full pricing <span data-icon="arrow-right" data-size="16" data-cls="arrow"></span></a></p>
+      </div>
+    </section>
+
+    <!-- Get started in three steps: hidden 2026-11-24 (too generic). Bring back once the real sign-up flow is defined.
+    <section class="steps-sec" id="steps">
+      <div class="container">
+        <div class="steps">
+          <div class="steps__head r up">
+            <h3>Get started in three steps.</h3>
+            <p>Bring Formee AI tools to your organisation.</p>
+          </div>
+          <ol class="steps__list">
+            <li class="r up"><span class="steps__num">1</span><b>Explore the tools</b><span>Browse the AI tools for all eight industries on formee.com.</span></li>
+            <li class="r up" style="- -rd:.08s"><span class="steps__num">2</span><b>Talk to us</b><span>Ask the Formee team about the tools you are interested in.</span></li>
+            <li class="r up" style="- -rd:.16s"><span class="steps__num">3</span><b>Choose your tools</b><span>Pick the AI tools for your industry and get started.</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+    -->
+
+    <!-- FAQ -->
+    <section class="faq" id="faq">
+      <div class="container faq__grid">
+        <div class="faq__head">
+          <span class="eyebrow r up">FAQ</span>
+          <h2 class="r up" style="--rd:.06s">Questions, answered.</h2>
+        </div>
+        <div class="faq__list r up" style="--rd:.1s" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- Closing call to action (full width, like the hero) -->
+    <div id="closingCta"></div>
+  </main>
+
+  <script src="icons.js"></script>
+  <script src="data.js"></script>
+  <script src="scenes.js"></script>
+  <script src="site.js"></script>
+  <script src="store.js"></script>
+</body>
+</html>
