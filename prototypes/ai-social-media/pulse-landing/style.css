@@ -404,6 +404,24 @@ main :is(h1,h2,h3,h4,p,small,span,li,strong,a,div).r:not(.hero *):not(.hero):not
 
 /* Logged in state (11/26): current plan button and review chip */
 .btn.is-current{background:#fff!important;color:var(--n500)!important;box-shadow:inset 0 0 0 1px var(--n200)!important;pointer-events:none;cursor:default}
-.login-preview{position:fixed;left:16px;bottom:16px;z-index:999;padding:8px 14px;border-radius:999px;background:var(--n900);color:#fff;font-size:13px;line-height:18px;font-weight:500;box-shadow:0 6px 20px rgba(15,23,41,.25)}
-.login-preview:hover{background:#2e2e2e}
+/* 11/26 Prototype control: Logged out / Logged in and plan switch (review only, remove for production) */
+.proto-ctrl{position:fixed;left:16px;bottom:16px;z-index:999;width:296px;padding:6px;border-radius:16px;background:rgba(15,23,41,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(15,23,41,.24);color:#fff;font:500 13px/18px "DM Sans",system-ui,sans-serif}
+.proto-ctrl button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.proto-head{display:flex;align-items:center;gap:8px;width:100%;padding:6px 8px;border-radius:10px}
+.proto-head:hover{background:rgba(255,255,255,.08)}
+.proto-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.4)}
+.proto-dot.on{background:#34D399}
+.proto-title{font-weight:600}
+.proto-now{flex:1;text-align:right;color:rgba(255,255,255,.62)}
+.proto-head svg{color:rgba(255,255,255,.62);transition:transform .25s}
+.proto-ctrl.is-min{width:auto}
+.proto-ctrl.is-min .proto-head svg{transform:rotate(180deg)}
+.proto-ctrl.is-min .proto-body{display:none}
+.proto-body{padding:4px 2px 2px}
+.proto-label{padding:8px 8px 6px;font-size:11px;line-height:14px;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.proto-seg{display:flex;gap:2px;padding:3px;border-radius:10px;background:rgba(255,255,255,.08)}
+.proto-seg button{flex:1;padding:6px 4px;border-radius:8px;color:rgba(255,255,255,.7);white-space:nowrap;transition:background .2s,color .2s}
+.proto-seg button:hover{color:#fff;background:rgba(255,255,255,.08)}
+.proto-seg button.on{background:#fff;color:var(--n900)}
+@media (max-width:480px){.proto-ctrl{left:8px;right:8px;width:auto}.proto-ctrl.is-min{right:auto}}
 .logged-in .btn[hidden],.logged-in a[hidden]{display:none!important}

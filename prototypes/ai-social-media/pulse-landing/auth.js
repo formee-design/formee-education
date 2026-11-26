@@ -23,6 +23,56 @@
 
   const isLoggedIn = () => store.get('pulseDemoLogin') === '1';
   const currentPlan = () => store.get('pulseDemoPlan'); /* null = unknown */
+
+  /* Prototype control (11/26): switch Logged out / Logged in and the plan without editing the URL.
+     Review only. Remove this block (and .proto-ctrl in style.css) for production. */
+  const SCROLL = 'pulseDemoScroll';
+  try {
+    const saved = sessionStorage.getItem(SCROLL);
+    if (saved !== null) {
+      sessionStorage.removeItem(SCROLL);
+      addEventListener('load', () => {
+        const go = () => { document.documentElement.style.scrollBehavior = 'auto'; scrollTo(0, parseFloat(saved)); document.documentElement.style.scrollBehavior = ''; };
+        go(); setTimeout(go, 300); /* again after late layout (videos, fonts) */
+      });
+    }
+  } catch {}
+  const reloadWith = (login, plan) => {
+    store.set('pulseDemoLogin', login ? '1' : null);
+    if (plan !== undefined) store.set('pulseDemoPlan', plan);
+    try { sessionStorage.setItem(SCROLL, String(scrollY)); } catch {}
+    const u = new URL(location.href); u.searchParams.delete('login'); u.searchParams.delete('plan');
+    location.replace(u.pathname + u.search + u.hash);
+  };
+  const buildControl = () => {
+    const on = isLoggedIn(), plan = currentPlan();
+    const plans = [['free-trial', 'Free trial'], ['basic', 'Basic'], ['standard', 'Standard'], ['premium', 'Premium']];
+    const el = document.createElement('div');
+    el.className = 'proto-ctrl' + (store.get('pulseDemoCtrl') === 'min' ? ' is-min' : '');
+    el.setAttribute('role', 'region');
+    el.setAttribute('aria-label', 'Prototype control');
+    el.innerHTML =
+      `<button type="button" class="proto-head" aria-expanded="true"><span class="proto-dot${on ? ' on' : ''}"></span><span class="proto-title">Prototype</span><span class="proto-now">${on ? 'Logged in' + (plan ? ' · ' + (plans.find(x => x[0] === plan) || [, plan])[1] : '') : 'Logged out'}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 7.5 6 4.5l3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>` +
+      `<div class="proto-body">` +
+        `<div class="proto-label">View</div>` +
+        `<div class="proto-seg"><button type="button" data-login="0" class="${on ? '' : 'on'}">Logged out</button><button type="button" data-login="1" class="${on ? 'on' : ''}">Logged in</button></div>` +
+        `<div class="proto-label">Plan</div>` +
+        `<div class="proto-seg proto-plans">` + plans.map(([k, l]) => `<button type="button" data-plan="${k}" class="${on && plan === k ? 'on' : ''}">${l}</button>`).join('') + `</div>` +
+      `</div>`;
+    const head = el.querySelector('.proto-head');
+    const sync = () => head.setAttribute('aria-expanded', String(!el.classList.contains('is-min')));
+    sync();
+    head.addEventListener('click', () => { el.classList.toggle('is-min'); store.set('pulseDemoCtrl', el.classList.contains('is-min') ? 'min' : null); sync(); });
+    el.addEventListener('click', e => {
+      const b = e.target.closest('button[data-login], button[data-plan]');
+      if (!b || b.classList.contains('on') || b.disabled) return;
+      if (b.dataset.login) reloadWith(b.dataset.login === '1', b.dataset.login === '1' ? (plan || 'basic') : undefined);
+      else reloadWith(true, b.dataset.plan);
+    });
+    document.body.appendChild(el);
+  };
+  if (document.body) buildControl(); else addEventListener('DOMContentLoaded', buildControl);
+
   if (!isLoggedIn()) return;
 
   document.documentElement.classList.add('logged-in');
@@ -77,10 +127,4 @@
     setBtn(a, rank[p] > rank[plan] ? 'Upgrade' : 'Change plan', ROUTES.billing);
   });
 
-  /* Review chip so it is clear this is the logged in preview */
-  const chip = document.createElement('a');
-  chip.className = 'login-preview';
-  chip.href = location.pathname + '?login=0';
-  chip.textContent = 'Logged in preview' + (plan ? ' · ' + plan : '') + ' · Exit';
-  document.body.appendChild(chip);
 })();
