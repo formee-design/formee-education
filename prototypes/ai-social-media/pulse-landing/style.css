@@ -423,5 +423,6 @@ main :is(h1,h2,h3,h4,p,small,span,li,strong,a,div).r:not(.hero *):not(.hero):not
 .proto-seg button{flex:1;padding:6px 4px;border-radius:8px;color:rgba(255,255,255,.7);white-space:nowrap;transition:background .2s,color .2s}
 .proto-seg button:hover{color:#fff;background:rgba(255,255,255,.08)}
 .proto-seg button.on{background:#fff;color:var(--n900)}
+
 @media (max-width:480px){.proto-ctrl{left:8px;right:8px;width:auto}.proto-ctrl.is-min{right:auto}}
 .logged-in .btn[hidden],.logged-in a[hidden]{display:none!important}

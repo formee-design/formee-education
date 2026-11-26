@@ -83,6 +83,26 @@
     if (href) { a.setAttribute('href', href); a.removeAttribute('onclick'); }
   };
 
+  /* Prototype (11/26): the app paths above are not live yet, so buttons open our own Pulse prototype screens.
+     Production: delete this block. ROUTES then point at the real app again. */
+  const PROTO = 'https://formee-design.github.io/formee-education/prototypes/ai-social-media/';
+  Object.assign(ROUTES, {
+    home: PROTO + 'home/home.html',
+    newContent: PROTO + 'new-content-generation/v4/new-content-to-generate.html',
+    brandKit: PROTO + 'brand-characters/brand-setup-kit-v2.html#view=brandkit&brand=formee-express&tab=overview',
+    trends: PROTO + 'trends/trends-v2.html',
+    accounts: PROTO + 'brand-characters/brand-setup-kit-v2.html#view=brandsetup&brand=formee-express',
+    billing: PROTO + 'billing/billing-v2.html#tab=plan',
+  });
+  const PROTO_PLAN = { 'free-trial': 'free', basic: 'basic', standard: 'standard', premium: 'premium' };
+  /* Billing prototype opened on the user's plan, with the modal for the button they pressed */
+  const billingFor = (cur, target, kind) => {
+    const q = new URLSearchParams({ plan: PROTO_PLAN[cur] || 'standard', tab: 'plan' });
+    if (target) { q.set('modal', cur === 'free-trial' ? 'subscribe' : kind); q.set('target', PROTO_PLAN[target]); }
+    return PROTO + 'billing/billing-v2.html#' + q;
+  };
+  const goApp = url => { location.href = url; };
+
   /* 01-1 Header: only "Go to Pulse" */
   $$('.nav-right .btn').forEach(a => {
     if (a.classList.contains('ghost')) a.hidden = true;
@@ -97,7 +117,7 @@
     gen.removeAttribute('onclick');
     gen.addEventListener('click', () => {
       const typed = (document.getElementById('typed') || {}).textContent || '';
-      location.href = ROUTES.newContent + (typed ? '?prompt=' + encodeURIComponent(typed) : '');
+      goApp(ROUTES.newContent + (typed && !ROUTES.newContent.startsWith(PROTO) ? '?prompt=' + encodeURIComponent(typed) : ''));
     });
   }
 
@@ -118,13 +138,14 @@
   $$('a[href*="sign-up?plan="]').forEach(a => {
     const p = new URL(a.href).searchParams.get('plan');
     if (plan == null || !(plan in rank)) { setBtn(a, 'See plans in Pulse', ROUTES.billing); return; }
+    const up = rank[p] > rank[plan];
     if (p === plan) {
       setBtn(a, 'Current plan');
       a.removeAttribute('href'); a.classList.add('is-current'); a.setAttribute('aria-disabled', 'true');
       return;
     }
     if (p === 'free-trial') { a.style.visibility = 'hidden'; a.setAttribute('aria-hidden', 'true'); a.tabIndex = -1; return; } /* paying users do not see Free Trial; keep its space so the cards stay aligned */
-    setBtn(a, rank[p] > rank[plan] ? 'Upgrade' : 'Change plan', ROUTES.billing);
+    setBtn(a, up ? 'Upgrade' : 'Change plan', billingFor(plan, p, up ? 'upgrade' : 'downgrade'));
   });
 
 })();
