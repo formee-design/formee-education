@@ -7,29 +7,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="flows.css?v=20261126n">
+<link rel="stylesheet" href="flows.css?v=20261126o">
 </head>
 <body>
 <!-- 11/26 Flow prototype: the two flows from the FME hand off file
      "Sign up → Subscribe flow · update 1125" (17182:6466) and "Free trial flow · update 1126" (17245:20135).
      Real screens (landing Pricing, Home, Billing v2) load in the frame. Sign up, Stripe Checkout and the Home banners are mocks. -->
-<header class="fl-top">
-  <a class="fl-brand" href="index.html">Pulse</a>
-  <div class="fl-tabs" role="tablist" aria-label="Flow">
-    <button type="button" role="tab" data-flow="paid">Paid plan</button>
-    <button type="button" role="tab" data-flow="trial">Free trial</button>
-  </div>
-  <nav class="fl-steps" id="steps" aria-label="Steps"></nav>
-  <div class="fl-nav">
-    <button type="button" class="fl-btn" id="prev" aria-label="Previous step">Back</button>
-    <button type="button" class="fl-btn fl-btn--dark" id="next">Next</button>
-  </div>
-</header>
-<div class="fl-note" id="note"></div>
+<!-- 11/26 No bar on top: the screens fill the window and you move on by clicking inside them.
+     Left and right arrow keys also step back and forward. -->
 <main class="fl-stage" id="stage">
   <iframe id="frame" title="Prototype screen"></iframe>
   <div class="fl-mock" id="mock" hidden></div>
 </main>
-<script src="flows.js?v=20261126n"></script>
+<script src="flows.js?v=20261126o"></script>
 </body>
 </html>

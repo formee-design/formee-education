@@ -36,7 +36,7 @@
   };
 
   const $ = s => document.querySelector(s);
-  const frame = $('#frame'), mock = $('#mock'), note = $('#note'), stepsEl = $('#steps');
+  const frame = $('#frame'), mock = $('#mock');
   let S = { flow: 'paid', step: '1', plan: 'premium' };
   let autoTimer;
 
@@ -56,7 +56,19 @@
   const cur = () => steps().find(s => s.id === S.step);
 
   /* Pages loaded in the frame: tidy them up and catch the clicks that move the flow on */
-  const onFrameLoad = (fn) => { frame.onload = () => { try { fn(frame.contentDocument); } catch (e) { /* other origin: leave the page as it is */ } }; };
+  const onFrameLoad = (fn) => { frame.onload = () => { try { const d = frame.contentDocument; d.addEventListener('keydown', onKey); fn(d); } catch (e) { /* other origin: leave the page as it is */ } }; };
+  /* Arrow keys step back and forward (there is no bar on screen) */
+  const onKey = e => {
+    if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
+    if (e.key === 'ArrowRight') { const n = nextId(); if (n) go({ step: n }); }
+    if (e.key === 'ArrowLeft') { const i = steps().indexOf(cur()); if (i > 0) go({ step: steps()[i - 1].id }); }
+  };
+  /* Catch a click on a button whose label matches, inside the framed page */
+  const onButton = (doc, re, fn) => doc.addEventListener('click', e => {
+    const b = e.target.closest('button, a');
+    if (!b || !re.test(b.textContent.trim())) return;
+    e.preventDefault(); e.stopPropagation(); fn();
+  }, true);
   const hide = (doc, sel) => { /* a style rule also covers panels the page adds later */
     if (doc.getElementById('flow-hide')) return;
     const st = doc.createElement('style'); st.id = 'flow-hide';
@@ -90,20 +102,8 @@
     read();
     const st = cur();
     clearTimeout(autoTimer);
-    /* top bar */
-    document.querySelectorAll('[data-flow]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.flow === S.flow)));
-    let html = '', seenBranch = false;
-    steps().forEach(s => {
-      if (s.branch && !seenBranch) { seenBranch = true; html += '<span class="fl-sep">|</span>'; }
-      html += `<button type="button" class="fl-step${s.branch ? ' is-branch' : ''}${s.id === S.step ? ' on' : ''}" data-step="${s.id}"><b>${s.id}</b>${s.t}</button>`;
-    });
-    stepsEl.innerHTML = html;
-    const i = steps().indexOf(st);
-    $('#prev').disabled = i === 0;
-    const nx = nextId();
-    $('#next').disabled = !nx;
     const p = PLANS[S.plan];
-    note.innerHTML = `<strong>${st.id} · ${st.t}</strong><span>${st.note}</span>` + (st.url ? `<span class="url">${st.url(S.plan)}</span>` : '');
+    document.title = `${st.id} · ${st.t} · Pulse ${S.flow === 'trial' ? 'Free trial' : 'Paid plan'} flow`;
 
     /* stage */
     if (st.kind === 'landing') {
@@ -151,7 +151,11 @@
       showFrame(HOME, doc => {
         hide(doc, '.home-fab, .nav-test-panel');
         doc.querySelectorAll('[data-flow-banner]').forEach(n => n.remove());
-        if (!st.banner) return;
+        if (!st.banner) { /* Home without a banner: making content uses credits, which leads to the low credits banner */
+          onButton(doc, /Create new content|^Video|^Carousel|^Image/, () => { const n = nextId(); if (n) go({ step: n }); });
+          doc.addEventListener('click', e => { const q = e.target.closest('.quick-card, [class*="quick"] a, [class*="quick"] button'); if (q) { e.preventDefault(); e.stopPropagation(); const n = nextId(); if (n) go({ step: n }); } }, true);
+          return;
+        }
         const main = doc.querySelector('.home-main');
         if (!main) return;
         main.insertAdjacentHTML('afterbegin', banner(st.banner));
@@ -162,6 +166,7 @@
     } else if (st.kind === 'billing') {
       showFrame(BILLING + '?f=' + Date.now() + '#' + st.hash(S.plan), doc => {
         hide(doc, '.launcher, .home-fab, .nav-test-panel');
+        if (!st.pay && !st.auto && nextId()) onButton(doc, /^Upgrade plan$/, () => go({ step: nextId() })); /* B: "Upgrade plan" opens the Subscribe modal step */
         if (st.pay) doc.addEventListener('click', e => {
           const b = e.target.closest('#payBtn');
           if (!b) return;
@@ -182,8 +187,7 @@
     else if (t.hasAttribute('data-next')) { const n = nextId(); if (n) go({ step: n }); }
     else if (t.hasAttribute('data-leave')) go({ step: S.flow === 'paid' ? 'A' : '6' });
   });
-  $('#prev').onclick = () => { const i = steps().indexOf(cur()); if (i > 0) go({ step: steps()[i - 1].id }); };
-  $('#next').onclick = () => { const n = nextId(); if (n) go({ step: n }); };
+  document.addEventListener('keydown', onKey);
   addEventListener('hashchange', render);
   render();
 })();
