@@ -66,19 +66,19 @@
 
   const banner = (kind) => {
     const p = PLANS[S.plan];
-    const icon = kind === 'plan'
-      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L3.3 9.2l6.1-.6z"/></svg>'
-      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
+    /* Same as Figma "Home / Plan banner" (FME hand off 17279:21909): neutral/50 bg, neutral/200 border, radius 12,
+       padding 14 16 14 20, gap 16, icon / zap, Text/sm SemiBold + Regular (13/20), Actions / Button Primary, round close */
+    const icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="#8A93A8"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
     const title = kind === 'plan' ? `You picked ${p.name}.` : '10 credits left.';
     const text = kind === 'plan'
-      ? `Complete your subscription to get ${p.credits} credits a month. Until then you are on Free trial with 40 credits.`
+      ? `Complete your subscription to get ${p.credits} credits a month. Until then, you can try Pulse with 40 free credits.`
       : 'Upgrade to keep creating. Free trial credits don’t renew.';
     const cta = kind === 'plan' ? 'Complete subscription' : 'Upgrade plan';
-    return `<div data-flow-banner style="display:flex;align-items:center;gap:12px;margin:0 0 16px;padding:12px 16px;border-radius:12px;background:linear-gradient(90deg,#EEF1FD,#F5F3FF);border:1px solid #E0E6FB;font-family:inherit">
-      <span style="display:flex;color:#4F6BED">${icon}</span>
-      <span style="flex:1;min-width:0"><b style="display:block;font-weight:600;font-size:13px;line-height:18px;color:#0F1729">${title}</b><span style="font-size:12px;line-height:16px;color:#64748B">${text}</span></span>
-      <button type="button" data-flow-cta style="height:32px;padding:0 14px;border:0;border-radius:8px;background:#0F1729;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer">${cta}</button>
-      <button type="button" data-flow-close aria-label="Close" style="display:flex;border:0;background:none;color:#64748B;cursor:pointer;padding:4px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    return `<div data-flow-banner style="display:flex;align-items:center;gap:16px;margin:0 0 20px;padding:14px 16px 14px 20px;border-radius:12px;background:#F8FAFF;border:1px solid #E3E8F2;font-family:'DM Sans',system-ui,sans-serif">
+      <span style="display:flex">${icon}</span>
+      <span style="flex:1;min-width:0"><b style="display:block;font-weight:600;font-size:13px;line-height:20px;color:#0F1729">${title}</b><span style="display:block;font-size:13px;line-height:20px;color:#475069">${text}</span></span>
+      <button type="button" data-flow-cta style="height:38px;padding:0 16px;border:0;border-radius:8px;background:linear-gradient(180deg,#323232,#1A1A1A);box-shadow:0 1px 2px rgba(15,23,41,.2);color:#fff;font:inherit;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer">${cta}</button>
+      <button type="button" data-flow-close aria-label="Close" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;border:0;border-radius:50%;background:#0F1729;color:#fff;cursor:pointer"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
     </div>`;
   };
 
@@ -118,18 +118,17 @@
         }, true);
       });
     } else if (st.kind === 'signup') {
-      const planQ = S.flow === 'trial' ? 'free-trial' : S.plan;
-      showMock(`<div class="su"><div class="su-card">
-        <div class="su-bars"><i class="on"></i><i></i><i></i><i></i></div>
-        <h1>Create your account</h1><p class="su-sub">One form and one email code.</p>
-        <label>FULL NAME</label><div class="su-in">Jane Doe</div>
-        <label>EMAIL</label><div class="su-in">name@business.com</div>
-        <label>WHATSAPP NUMBER</label><div class="su-in">+1 000 000 0000</div>
-        <label>PASSWORD</label><div class="su-in">At least 8 characters</div>
-        <button type="button" class="su-go" data-next>Continue</button>
-        <p class="su-fine">Already have an account? <a>Sign in</a></p>
-        <div style="text-align:center"><span class="su-plan">/sign-up?plan=${planQ}</span></div>
-      </div></div>`);
+      /* Same screen as the Figma flow board: our "Create your account" design (Phase 1, superadmin_1-email).
+         Any button on it (Google, Apple, Continue with email) moves the flow on. */
+      showFrame(APP + 'brand-characters/brand-setup-kit-v3.html#auth=su-1-email&clean', doc => {
+        hide(doc, '.home-fab, .nav-test-panel, #authLaunch');
+        doc.addEventListener('click', e => {
+          const b = e.target.closest('.au-screen button, .au-screen a');
+          if (!b) return;
+          e.preventDefault(); e.stopPropagation();
+          const n = nextId(); if (n) go({ step: n });
+        }, true);
+      });
     } else if (st.kind === 'stripe') {
       showMock(`<div class="sc"><div class="sc-l"><div>
         <button type="button" class="sc-back" data-leave><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg><span class="lg">P</span>Pulse</button>
