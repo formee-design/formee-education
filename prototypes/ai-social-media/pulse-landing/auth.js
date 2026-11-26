@@ -73,6 +73,12 @@
   };
   if (document.body) buildControl(); else addEventListener('DOMContentLoaded', buildControl);
 
+  /* Prototype (11/26): Log in and sign up buttons open our own Pulse prototype auth flow (brand-setup-kit-v3 #auth=).
+     Production: delete this block. The buttons keep their real /sign-in and /sign-up links. */
+  const AUTH_PROTO = 'https://formee-design.github.io/formee-education/prototypes/ai-social-media/brand-characters/brand-setup-kit-v3.html#auth=';
+  if (!isLoggedIn()) document.querySelectorAll('a[href^="' + APP + '/sign-in"]').forEach(a => a.setAttribute('href', AUTH_PROTO + 'login-email'));
+  if (!isLoggedIn()) document.querySelectorAll('a[href^="' + APP + '/sign-up"]').forEach(a => a.setAttribute('href', AUTH_PROTO + 'su-1-email'));
+
   if (!isLoggedIn()) return;
 
   document.documentElement.classList.add('logged-in');
