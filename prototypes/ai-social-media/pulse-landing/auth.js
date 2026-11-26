@@ -121,9 +121,8 @@
     });
   }
 
-  /* 03-1 Feature buttons: labels stay, open the matching app screen */
-  const feature = { 'Set up your brand': ROUTES.brandKit, 'Find trends': ROUTES.trends, 'Make a post': ROUTES.newContent, 'Connect accounts': ROUTES.accounts };
-  $$('a.get-started').forEach(a => { const t = (a.querySelector('span') || a).textContent.trim(); if (feature[t]) a.setAttribute('href', feature[t]); });
+  /* 03-1 Feature buttons (all labelled Get started, 11/26): open the matching app screen */
+  $$('a[data-feature]').forEach(a => { const r = ROUTES[a.dataset.feature]; if (r) a.setAttribute('href', r); });
 
   /* 04-1 How it works and 06-1 Final CTA */
   $$('a.btn').forEach(a => {
