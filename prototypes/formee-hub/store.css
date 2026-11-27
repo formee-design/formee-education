@@ -2804,3 +2804,23 @@ body:not(.page-light) .hub-header:not(.is-solid) .hub-logo__img--light { display
 /* Sales and Marketing corner arrow (Figma 1200:258, 2026-11-27): shrunk to 84% from the bottom left and moved 10px in / 9px down, so the arrow head is no longer cut off */
 .tool-explore__panel[data-ind="sales-marketing"] .tool-explore__art { right: calc(var(--spacing-4xl) * -1 + 10px); top: calc(var(--spacing-4xl) * -1 + 9px); }
 .tool-explore__panel[data-ind="sales-marketing"] .tool-explore__art svg { transform: translateY(16.4%) scale(.836); transform-origin: 0 0; }
+
+/* ---------- Pricing page type scale matched to the Pulse pricing page (ai.formeeholdings.com/pricing, 2026-11-27) ----------
+   Backgrounds and layout stay ours; only sizes change. Section titles 64/68, FAQ title 48/56, toggle 16/24, plan name 24/32 medium,
+   plan lead and checks 16/24, price 40/48, badge 11, compare table row labels regular grey with semibold values. */
+body[data-page="pricing"] .segment__btn { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+body[data-page="pricing"] .segment__btn .save-pill { font-size: var(--font-size-text-sm); line-height: var(--line-height-text-sm); }
+body[data-page="pricing"] .plan { padding: var(--spacing-3xl); }
+body[data-page="pricing"] .plan h3 { font-size: 24px; line-height: 32px; font-weight: var(--font-weight-medium); letter-spacing: -0.3px; }
+body[data-page="pricing"] .plan__lead { margin-top: var(--spacing-sm); min-height: 48px; font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+body[data-page="pricing"] .plan__price b { font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl); letter-spacing: -0.3px; }
+body[data-page="pricing"] .plan__badge { font-size: var(--font-size-text-2xs); line-height: var(--line-height-text-2xs); }
+body[data-page="pricing"] .plan__list { gap: var(--spacing-md); font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+body[data-page="pricing"] .plan__list--check li::before { top: 4px; }
+body[data-page="pricing"] .plan .btn span { font-weight: var(--font-weight-semibold); }
+body[data-page="pricing"] .section-head h2 { font-size: 64px; line-height: 68px; letter-spacing: -1.6px; }
+body[data-page="pricing"] .faq__head h2 { font-size: var(--font-size-display-2xl); line-height: var(--line-height-display-2xl); letter-spacing: -1.2px; }
+body[data-page="pricing"] .cmp-table thead th { font-size: var(--font-size-text-md); line-height: var(--line-height-text-md); font-weight: var(--font-weight-bold); color: var(--color-neutral-900); }
+body[data-page="pricing"] .cmp-table tbody th { font-weight: var(--font-weight-regular); color: var(--color-neutral-600); }
+body[data-page="pricing"] .cmp-table td { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+body[data-page="pricing"] .pay-card h3 { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
