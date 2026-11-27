@@ -440,7 +440,7 @@
 #mega-products .mega-cat__num { color: var(--color-neutral-900); font-size: var(--font-size-text-sm); }
 
 /* ---------- Header v3.1 (2026-11-24): smaller logo, nav next to the logo, smaller text and buttons ---------- */
-:root { --hub-nav-h: 72px; }
+:root { --hub-nav-h: 86px; } /* 72 → 86 (2026-11-27): the bar felt tight; every page */
 .hub-header__inner { display: flex; align-items: center; gap: var(--spacing-4xl); height: var(--hub-nav-h); }
 .hub-header .hub-logo__word { width: 96px; height: 17px; }
 .hub-header .hub-nav { gap: var(--spacing-2xl); }
@@ -2417,7 +2417,7 @@ body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::after {
    ===================================================================== */
 body[data-hero="d"] .hero:not(.page-hero) {
   display: flex; flex-direction: column; justify-content: center;
-  min-height: max(100svh, 760px);
+  min-height: max(90svh, 684px); /* 90% of the first version (2026-11-27) */
   padding-top: var(--hub-nav-h); padding-bottom: var(--spacing-7xl);
 }
 body[data-hero="d"] .hero:not(.page-hero)::after, body[data-hero="d"] .hero__fade { content: none; display: none; }
@@ -2465,3 +2465,342 @@ body[data-hv="e"] #heroOrbit .orbit-chip.is-ping {
     0 0 var(--spacing-2xl) color-mix(in srgb, var(--color-neutral-0) 45%, transparent);
   filter: brightness(1.06);
 }
+/* Hero B (Ripple): trial link in white on the blue wash (2026-11-27) */
+body[data-hero="d"] .hero-card__alt { color: var(--color-neutral-0); }
+body[data-hero="d"] .hero-card__alt:hover { color: var(--color-neutral-0); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Hero A and C (2026-11-27): the top half takes hero B's clearer blue (no grey mixed into blue-400),
+   the lower part still melts into white as before (no hard edge). */
+body:not([data-hero]) .hero:not(.page-hero) .hero__wash {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--color-neutral-900) 85%, var(--color-scale-blue-500)) 0%,
+    color-mix(in srgb, var(--color-scale-blue-500) 70%, var(--color-neutral-800)) 24%,
+    var(--color-scale-blue-400) 52%,
+    color-mix(in srgb, var(--color-scale-blue-300) 60%, var(--color-brand-primary-pale)) 70%,
+    color-mix(in srgb, var(--color-brand-primary-pale) 55%, var(--color-neutral-0)) 86%,
+    var(--color-neutral-0) 100%);
+}
+/* the soft blue glow on the left was washing the blue out to grey-lilac */
+body:not([data-hero]) .hero:not(.page-hero) .hero__glow--blue { opacity: .3; }
+/* the centre violet glow and the left sky band were also turning the middle pastel; tone them down so the blue reads clear */
+body:not([data-hero]) .hero:not(.page-hero) .hero__glow--violet { opacity: .2; }
+body:not([data-hero]) .hero:not(.page-hero) .hero__swirl::before { opacity: .45; }
+/* Hero C (2026-11-27): everything sits higher. Title 24px up, orbit + email form 88px up (smaller gap under the subtitle);
+   the hero gets shorter by the same amount, so the big white fade at the bottom rises with it. */
+body[data-hv="e"] .hero:not(.page-hero) { padding-top: calc(var(--hub-nav-h) + var(--spacing-7xl)); }
+body[data-hv="e"] .hero-orbit { margin-top: calc(-1 * var(--spacing-2)); } /* subtitle to Education chip = 48px (2026-11-27) */
+
+/* =====================================================================
+   Industry page synced to Figma "Formee industry · HR · 1920" (1177:472), 2026-11-27.
+   Section rhythm: bands 96px top and bottom (CTA 128), as updated in Figma later the same day. Pricing: centred header, 56px between header, toggle, cards and footnote.
+   ===================================================================== */
+body[data-page="industry"] .page-hero + .section { padding-top: calc(var(--spacing-7xl) + var(--spacing-3xl)); padding-bottom: calc(var(--spacing-7xl) + var(--spacing-3xl)); }
+body[data-page="industry"] .page-hero + .section .section-head h2 { margin-top: 0; }
+body[data-page="industry"] .page-hero + .section .section-head p { max-width: 720px; margin-top: var(--spacing-2xl); }
+body[data-page="industry"] .tool-row__btns { justify-content: flex-start; }
+
+/* Pricing band (industry and tool pages share the cards) */
+body[data-page] .ind-pricing.tp-sec--band { margin-top: 0; padding: calc(var(--spacing-7xl) + var(--spacing-3xl)) 0; }
+.pr-head { max-width: 720px; margin: 0 auto; text-align: center; }
+.pr-head .tp-title { font-size: var(--hub-font-size-d3); line-height: 1.06; letter-spacing: -.025em; font-weight: var(--font-weight-medium); }
+.pr-head .tp-sub { margin: var(--spacing-2xl) auto 0; max-width: 720px; font-size: var(--font-size-text-2xl); line-height: var(--line-height-text-2xl); color: var(--color-neutral-700); }
+.ind-pricing .pr-controls { justify-content: center; margin-top: var(--spacing-6xl); }
+.ind-pricing .pr-controls .segment { padding: var(--spacing-xs); border-radius: var(--radius-lg); background: var(--color-neutral-100); box-shadow: none; }
+.ind-pricing .pr-controls .segment__ind { border-radius: var(--radius-lg); background: var(--color-neutral-0); box-shadow: var(--shadow-cell-action); }
+.ind-pricing .pr-controls .segment__btn { height: auto; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-lg); font-size: var(--font-size-text-sm); line-height: var(--line-height-text-sm); font-weight: var(--font-weight-medium); }
+.ind-pricing .pr-controls .segment__btn[aria-selected="true"] { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+.ind-pricing .pr-cards--plans { margin-top: var(--spacing-6xl); }
+
+.pr-cards--plans .pr-card { gap: var(--spacing-2xl); padding: var(--hub-card-pad); border-radius: var(--radius-2xl); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-200); }
+.pr-cards--plans .pr-card.is-rec { box-shadow: inset 0 0 0 1.5px var(--color-brand-primary); }
+.pr-cards--plans .pr-card > * { margin-top: 0; margin-bottom: 0; }
+.pr-cards--plans .pr-card h3 { justify-content: flex-start; gap: var(--spacing-sm); font-size: var(--hub-font-size-title); line-height: var(--hub-line-height-title); font-weight: var(--font-weight-medium); letter-spacing: -.3px; }
+.pr-cards--plans .pr-card__badge { position: static; padding: 2px var(--spacing-sm); font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+.pr-cards--plans .pr-card > p { margin-top: var(--spacing-xs); font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); color: var(--color-neutral-600); }
+.pr-cards--plans .pr-card__lines { gap: var(--spacing-xs); padding: var(--spacing-md) var(--spacing-lg); border: 0; border-radius: var(--radius-lg); background: var(--color-neutral-50); }
+.pr-cards--plans .pr-card__lines li { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+.pr-card__divider { display: block; height: var(--border-width-1); background: var(--color-neutral-300); }
+.pr-cards--plans .pr-card__label { gap: var(--spacing-sm); }
+.pr-cards--plans .pr-card__label b { font-size: var(--hub-font-size-title); line-height: var(--hub-line-height-title); font-weight: var(--font-weight-medium); letter-spacing: -.3px; }
+.pr-cards--plans .pr-card__label .save-pill { margin-left: 0; }
+.pr-cards--plans .pr-card__price { gap: var(--spacing-sm); margin: 0; }
+.pr-cards--plans .pr-card__price b { font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl); font-weight: var(--font-weight-medium); letter-spacing: -.025em; }
+.pr-cards--plans .pr-card__price small { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); color: var(--color-neutral-500); }
+.pr-cards--plans .pr-card__price s { margin-left: 0; font-size: var(--font-size-text-lg); color: var(--color-neutral-400); }
+.pr-cards--plans .pr-card .btn { height: var(--hub-btn-h-lg); margin-top: 0; font-weight: var(--font-weight-semibold); }
+.pr-cards--plans .pr-card.is-rec .btn { background: linear-gradient(180deg, var(--color-action-primary-dark-gradient-start), var(--color-action-primary-dark-gradient-end)); box-shadow: var(--shadow-action-primary-dark-inset); color: var(--color-neutral-0); }
+.pr-cards--plans .pr-card__checks { gap: var(--spacing-md); margin: 0; padding-top: var(--spacing-lg); }
+.pr-cards--plans .pr-card__checks li { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); color: var(--color-neutral-700); }
+.pr-cards--plans .pr-card__bundle { margin-bottom: 0; }
+.ind-pricing .pr-foot { flex-direction: column; justify-content: center; gap: var(--spacing-xl); margin-top: var(--spacing-6xl); text-align: center; font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); color: var(--color-neutral-500); }
+.ind-pricing .pr-foot .btn { height: var(--hub-btn-h-xl); padding: 0 var(--spacing-2xl); border-radius: var(--radius-xl); font-size: var(--font-size-text-2xl); font-weight: var(--font-weight-semibold); }
+
+/* Explore other industries + CTA */
+body[data-page="industry"] .ind-other { padding: calc(var(--spacing-7xl) + var(--spacing-3xl)) 0 calc(var(--spacing-7xl) + var(--spacing-3xl) + var(--spacing-3xl)); } /* Figma keeps the carousel's 32px shadow room inside the band */
+body[data-page="industry"] .ind-slide { flex-basis: calc((100% - 4 * var(--spacing-xl)) / 4.1); } /* about 292px at 1280: four cards and a peek of the fifth, like Figma */
+body[data-page="industry"] .ind-carousel__btn { box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-300); }
+body[data-page="industry"] .cta-band { padding: calc(var(--spacing-7xl) * 2) 0; }
+/* Tool page bundle line inside the plan card, same box as the industry page price list (Figma 1178:1196, 2026-11-27) */
+.pr-cards--plans .pr-card__bundle { gap: var(--spacing-xs) var(--spacing-md); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); background: var(--color-neutral-50); }
+.pr-cards--plans .pr-card__bundle > span { gap: var(--spacing-sm); font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); font-weight: var(--font-weight-regular); color: var(--color-neutral-600); }
+.pr-cards--plans .pr-card__bundle > span .save-pill { margin-left: 0; }
+.pr-cards--plans .pr-card__bundle > small { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); color: var(--color-neutral-600); }
+.pr-cards--plans .pr-card__bundle > b { grid-row: 1; align-self: center; font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+
+/* =====================================================================
+   Header synced to Figma (2026-11-27): light 1190:17844 (inner pages and the scrolled bar), on-hero 1190:17961 (home hero).
+   Links and Log in 19/28 Regular, buttons 46px with 18/27 Medium and 22px sides, 8px between the right-hand actions.
+   ===================================================================== */
+.hub-header .hub-nav__item, .hub-header .store-login { font-size: var(--hub-font-size-nav); line-height: var(--hub-line-height-nav); font-weight: var(--font-weight-regular); color: var(--color-neutral-700); opacity: 1; }
+.hub-header .hub-nav__item:hover, .hub-header .hub-nav__item[aria-expanded="true"], .hub-header .store-login:hover { color: var(--color-neutral-900); }
+.hub-header .hub-nav__item.is-current { color: var(--color-neutral-900); font-weight: var(--font-weight-regular); }
+.hub-header .hub-nav__pill { height: calc(var(--hub-line-height-nav) + var(--spacing-sm)); }
+.hub-header .store-login { padding: 0 var(--spacing-md); }
+.hub-header__right.store-actions { gap: var(--spacing-sm); }
+.hub-header .store-demo, .hub-header .store-start { padding: 0 var(--hub-btn-pad-nav); font-size: var(--hub-font-size-nav-btn); line-height: var(--hub-line-height-nav-btn); font-weight: var(--font-weight-medium); }
+.hub-header .store-demo { background: var(--color-neutral-0); color: var(--color-neutral-700); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-400); }
+.hub-header .store-start { background: var(--color-neutral-900); color: var(--color-neutral-0); box-shadow: var(--shadow-md); }
+.hub-header .store-start:hover { background: var(--color-neutral-700); }
+/* on the dark home hero (not scrolled): links neutral-300, demo outlined in white text, Start free white */
+body:not(.page-light) .hub-header:not(.is-solid) .hub-nav__item,
+body:not(.page-light) .hub-header:not(.is-solid) .store-login { color: var(--color-neutral-300); opacity: 1; }
+body:not(.page-light) .hub-header:not(.is-solid) .hub-nav__item:hover,
+body:not(.page-light) .hub-header:not(.is-solid) .hub-nav__item[aria-expanded="true"],
+body:not(.page-light) .hub-header:not(.is-solid) .hub-nav__item.is-current,
+body:not(.page-light) .hub-header:not(.is-solid) .store-login:hover { color: var(--color-neutral-0); }
+body:not(.page-light) .hub-header:not(.is-solid) .store-demo { background: transparent; color: var(--color-neutral-0); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-400); }
+body:not(.page-light) .hub-header:not(.is-solid) .store-demo:hover { box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-0); }
+body:not(.page-light) .hub-header:not(.is-solid) .store-start { background: var(--color-neutral-0); color: var(--color-neutral-700); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-400); }
+body:not(.page-light) .hub-header:not(.is-solid) .store-start:hover { background: var(--color-neutral-100); color: var(--color-neutral-900); }
+/* inner pages (page-light) had their own darker link colour and smaller header buttons; follow the Figma nav there too */
+.page-light .hub-header .hub-nav__item, .page-light .hub-header .store-login,
+.page-light .hub-header:not(.is-solid) .hub-nav__item, .page-light .hub-header:not(.is-solid) .store-login { color: var(--color-neutral-700); }
+.page-light .hub-header .hub-nav__item:hover, .page-light .hub-header .hub-nav__item[aria-expanded="true"], .page-light .hub-header .hub-nav__item.is-current, .page-light .hub-header .store-login:hover { color: var(--color-neutral-900); }
+.hub-header .store-demo, .hub-header .store-start { height: var(--hub-btn-h-md); }
+
+/* =====================================================================
+   Tool page synced to Figma "Formee tool · HR Module · 1920" (1178:472), 2026-11-27.
+   ===================================================================== */
+/* One flow */
+body[data-page="tool"] .tp-sec .tp-title { max-width: none; font-size: var(--font-size-display-2xl); line-height: var(--line-height-display-2xl); letter-spacing: -.025em; }
+body[data-page="tool"] .tp-flow h3 { font-size: var(--font-size-text-2xl); line-height: var(--hub-line-height-step); }
+/* Feature rows: title 40/45, text 18/28, points 16/24 */
+body[data-page="tool"] .tp-row h2 { font-size: var(--font-size-display-xl); line-height: var(--hub-line-height-feature); letter-spacing: -.02em; }
+body[data-page="tool"] .tp-row__copy > p { font-size: var(--font-size-text-2xl); line-height: var(--line-height-text-2xl); }
+body[data-page="tool"] .tp-points li { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+/* AI where it saves time: white section, big title, tinted cards, bare 40px purple icons */
+body[data-page="tool"] .tp-sec--band:not(.ind-pricing) { background: transparent; }
+body[data-page="tool"] .tp-sec--band:not(.ind-pricing) .tp-title { font-size: var(--hub-font-size-d3); line-height: 1.06; letter-spacing: -.025em; }
+body[data-page="tool"] .tp-sec--band .tp-type { background: var(--color-neutral-100); }
+body[data-page="tool"] .tp-sec--band .tp-type:nth-child(2), body[data-page="tool"] .tp-sec--band .tp-type:nth-child(3) { background: color-mix(in srgb, var(--color-scale-purple-100) 50%, var(--color-neutral-100)); }
+body[data-page="tool"] .tp-sec--band .tp-type__ico { width: var(--spacing-4xl); height: var(--spacing-4xl); background: none; color: var(--color-badge-purple-text); }
+body[data-page="tool"] .tp-type__ico svg { width: var(--spacing-4xl); height: var(--spacing-4xl); stroke-width: 1.5; }
+body[data-page="tool"] .tp-type h3 { font-size: var(--hub-font-size-title); line-height: var(--hub-line-height-title); font-weight: var(--font-weight-medium); }
+body[data-page="tool"] .tp-type p { font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+/* Built for education providers: 48/56 title, real photos 411x308 with the icon tile top left */
+body[data-page="tool"] .tp-sub { margin-top: var(--spacing-md); font-size: var(--font-size-text-2xl); line-height: var(--line-height-text-2xl); }
+body[data-page="tool"] .tp-photo__media { aspect-ratio: 411 / 308; overflow: hidden; border-radius: var(--radius-3xl); background: var(--color-neutral-100); }
+body[data-page="tool"] .tp-photo__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+body[data-page="tool"] .tp-photo__badge { top: var(--spacing-2xl); left: var(--spacing-2xl); right: auto; bottom: auto; }
+body[data-page="tool"] .tp-photo h3 { margin-top: var(--spacing-2xl); font-size: var(--font-size-text-2xl); line-height: var(--hub-line-height-step); }
+body[data-page="tool"] .tp-photo p { margin-top: var(--spacing-md); font-size: var(--font-size-text-xl); line-height: var(--line-height-text-xl); }
+/* More for HR + closing CTA share a neutral-50 band; no divider line */
+body[data-page="tool"] .tp-sec--more { padding: 0; background: var(--color-neutral-50); }
+body[data-page="tool"] .tp-sec--more .container { padding-top: calc(var(--spacing-7xl) + var(--spacing-3xl)); }
+body[data-page="tool"] .tp-sec--more .container::before { content: none; }
+body[data-page="tool"] .tp-more .ind-big__tool { background: var(--color-neutral-150); }
+body[data-page="tool"] .tp-more .ind-big__tool b { font-size: var(--font-size-display-xs); line-height: var(--line-height-display-xs); font-weight: var(--font-weight-semibold); }
+body[data-page="tool"] .tp-more .ind-big__tool small { font-size: var(--font-size-text-md); line-height: var(--line-height-text-md); color: var(--color-neutral-600); }
+body[data-page="tool"] .cta-band { padding: calc(var(--spacing-7xl) * 2) 0; background: var(--color-neutral-50); }
+body[data-page="tool"] .tp-more .ind-big__tool-go, body[data-page="tool"] .tp-more .ind-big__tool-go:not(.is-ext) { display: grid; place-items: center; width: var(--spacing-4xl); height: var(--spacing-4xl); border-radius: var(--radius-full); background: var(--color-neutral-0); color: var(--color-neutral-900); opacity: 1; transform: none; }
+body[data-page="tool"] .tp-more .ind-big__tool-go svg { width: 20px; height: 20px; }
+body[data-page="tool"] .tp-more .ind-big__tool:hover .ind-big__tool-go svg { transform: translateX(2px); transition: transform .3s var(--hub-ease); }
+
+/* =====================================================================
+   Tool page interactions (2026-11-27)
+   - feature scenes build in when scrolled to (pages.js), the score ring and the shift bar fill as they appear
+   - hover: stage cards drift apart a little, flow steps and AI cards lift, photos zoom, plan cards lift
+   - flow steps arrive one by one
+   ===================================================================== */
+.tp-row__stage .scene:not(.is-active) .bx { opacity: 0; }
+.tp-row__stage .bx { transition: translate .6s var(--hub-ease); }
+.tp-row__stage:hover .bx:nth-child(odd) { translate: 0 calc(-1 * var(--spacing-xs)); }
+.tp-row__stage:hover .bx:nth-child(even) { translate: 0 var(--spacing-xs); }
+.scene .bx-ring__fill { transition: stroke-dashoffset 1.4s var(--hub-ease) .5s; }
+.scene:not(.is-active) .bx-ring__fill { stroke-dashoffset: 314.16; }
+.scene .bx-shift__track i { transition: width 1.1s var(--hub-ease) .7s; }
+.scene:not(.is-active) .bx-shift__track i { width: 0; }
+.scene:not(.is-active) .bx-plan__steps li, .scene:not(.is-active) .bx-steps li { opacity: 0; }
+.scene.is-active .bx-plan__steps li { animation: uiIn .6s var(--hub-ease) both; }
+.scene.is-active .bx-plan__steps li:nth-child(1) { animation-delay: .35s; }
+.scene.is-active .bx-plan__steps li:nth-child(2) { animation-delay: .5s; }
+.scene.is-active .bx-plan__steps li:nth-child(3) { animation-delay: .65s; }
+
+.tp-flow li { transition: background-color .3s, translate .4s var(--hub-ease); }
+.tp-flow li:hover { background: var(--color-neutral-100); translate: 0 calc(-1 * var(--spacing-xs)); }
+.tp-flow li .tp-flow__num { transition: color .3s; }
+.tp-flow li:hover .tp-flow__num { color: var(--color-neutral-900); }
+.tp-flow li { opacity: 0; }
+.tp-flow.is-drawn li { opacity: 1; animation: uiIn .7s var(--hub-ease) both; animation-delay: calc(var(--i) * .08s); }
+
+.tp-type { transition: translate .4s var(--hub-ease), box-shadow .3s; }
+.tp-type:hover { translate: 0 calc(-1 * var(--spacing-xs)); box-shadow: var(--shadow-md); }
+.tp-type__ico svg { transition: transform .5s var(--hub-spring); }
+.tp-type:hover .tp-type__ico svg { transform: rotate(-8deg) scale(1.08); }
+
+.tp-photo__media img { transition: transform .9s var(--hub-ease); }
+.tp-photo:hover .tp-photo__media img { transform: scale(1.04); }
+.tp-photo__badge { transition: translate .4s var(--hub-ease); }
+.tp-photo:hover .tp-photo__badge { translate: 0 calc(-1 * var(--spacing-2)); }
+
+.pr-cards--plans .pr-card { transition: translate .4s var(--hub-ease), box-shadow .3s; }
+.pr-cards--plans .pr-card:hover { translate: 0 calc(-1 * var(--spacing-xs)); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-200), var(--shadow-popover); }
+.pr-cards--plans .pr-card.is-rec:hover { box-shadow: inset 0 0 0 1.5px var(--color-brand-primary), var(--shadow-popover); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-flow li { opacity: 1; animation: none; }
+  .tp-row__stage .bx, .tp-flow li, .tp-type, .tp-photo__media img, .pr-cards--plans .pr-card { transition: none; }
+  .scene .bx-ring__fill, .scene .bx-shift__track i { transition: none; }
+}
+/* Feature visuals placed as in Figma (1178:777 approvals, 1178:985 training), 2026-11-27: cards overlap; plan steps use small numbers with a short purple line */
+.bx-inbox { padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md); }
+.bx-shift { padding: var(--spacing-md) var(--spacing-lg); }
+.bx-plan__num { width: 25px; height: 25px; box-shadow: none; background: var(--color-neutral-0); font-size: var(--font-size-badge-sm); color: var(--color-neutral-900); }
+.bx-plan__steps { padding: var(--spacing-sm) 0; }
+.bx-plan__steps li { gap: var(--spacing-md); padding: var(--spacing-xs) 0; }
+.bx-plan__steps li:not(:last-child)::after { left: 12px; top: 30px; bottom: auto; height: var(--spacing-2xl); width: var(--border-width-1); background: var(--color-badge-purple-text); }
+.bx-plan__steps b { font-size: var(--font-size-text-sm); line-height: var(--line-height-text-sm); }
+.bx-plan__steps small { line-height: var(--line-height-text-sm); }
+/* Photo card icon tiles as in Figma (1178:1137, 2026-11-27): 56px white tile r12, popover shadow + 20px backdrop blur, 28px icon in neutral-700 at a 1.6px stroke */
+body[data-page="tool"] .tp-photo__badge { width: var(--spacing-6xl); height: var(--spacing-6xl); border-radius: var(--radius-xl); background: var(--color-neutral-0); color: var(--color-neutral-700); box-shadow: var(--shadow-popover); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+body[data-page="tool"] .tp-photo__badge svg { width: 28px; height: 28px; stroke-width: calc(1.6 * 24 / 28); }
+/* Correction (2026-11-27, Figma 1178:1137): the glass tile sits 20px from the photo's bottom right, white at 70% with a 1px white inner line */
+body[data-page="tool"] .tp-photo__badge { top: auto; left: auto; right: var(--spacing-xl); bottom: var(--spacing-xl); background: color-mix(in srgb, var(--color-neutral-0) 70%, transparent); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-0), var(--shadow-popover); }
+
+/* =====================================================================
+   Crew OS feature visuals (2026-11-27): crewDesign, crewTrain, crewControl, crewSummary in scenes.js.
+   Same card language as the HR Module visuals: white cards, popover shadow, purple accents.
+   ===================================================================== */
+.bx-req--wrap b { white-space: normal; }
+.bx-org, .bx-docs, .bx-pass, .bx-auto, .bx-daily { border-radius: var(--radius-2xl); background: var(--color-neutral-0); box-shadow: var(--shadow-popover); }
+.bx-org__head, .bx-docs__head, .bx-daily__head { display: flex; align-items: center; gap: var(--spacing-sm); padding-bottom: var(--spacing-md); border-bottom: var(--border-width-1) solid var(--color-neutral-150); }
+.bx-org__head > svg, .bx-docs__head > svg, .bx-daily__head > svg { flex: none; width: 18px; height: 18px; color: var(--color-badge-purple-text); }
+.bx-org__head b, .bx-docs__head b, .bx-daily__head b { font-weight: var(--font-weight-semibold); }
+.bx-org__head .ui-chip, .bx-docs__head .ui-chip, .bx-daily__head .ui-chip { margin-left: auto; }
+
+.bx-org { padding: var(--spacing-lg) var(--spacing-xl); }
+.bx-org__tree { display: grid; justify-items: center; gap: var(--spacing-md); padding-top: var(--spacing-lg); }
+.bx-org__node { position: relative; display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-full); background: var(--color-neutral-50); box-shadow: inset 0 0 0 var(--border-width-1) var(--color-neutral-150); font-size: var(--font-size-text-sm); line-height: var(--line-height-text-sm); font-weight: var(--font-weight-semibold); white-space: nowrap; }
+.bx-org__node svg { width: 14px; height: 14px; color: var(--color-badge-purple-text); }
+.bx-org__node--top { background: var(--color-neutral-900); box-shadow: none; color: var(--color-neutral-0); }
+.bx-org__node--top svg { color: var(--color-neutral-0); }
+.bx-org__node--top::after { content: ""; position: absolute; left: 50%; top: 100%; width: var(--border-width-1); height: var(--spacing-md); background: var(--color-neutral-300); }
+.bx-org__row { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); justify-items: center; width: 100%; padding-top: var(--spacing-lg); }
+.bx-org__row::before { content: ""; position: absolute; top: 0; left: 16.7%; right: 16.7%; height: var(--border-width-1); background: var(--color-neutral-300); }
+.bx-org__row .bx-org__node::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: var(--border-width-1); height: var(--spacing-lg); background: var(--color-neutral-300); }
+.bx-org__foot { display: flex; justify-content: space-between; gap: var(--spacing-md); margin-top: var(--spacing-lg); font-size: var(--font-size-text-xs); line-height: var(--line-height-text-xs); color: var(--color-neutral-500); }
+.bx-org__edit { color: var(--color-badge-purple-text); font-weight: var(--font-weight-semibold); }
+
+.bx-docs { padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-sm); }
+.bx-docs ul { list-style: none; margin: 0; padding: var(--spacing-xs) 0; }
+.bx-docs li { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; }
+.bx-docs li + li { border-top: var(--border-width-1) solid var(--color-neutral-100); }
+.bx-docs li > svg { flex: none; width: 16px; height: 16px; color: var(--color-neutral-500); }
+.bx-docs li span:not(.ui-ok) { flex: 1; font-weight: var(--font-weight-medium); }
+.bx-docs li small { color: var(--color-neutral-400); font-weight: var(--font-weight-regular); }
+
+.bx-pass { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-lg) var(--spacing-xl); }
+.bx-pass .bx-ring--sm { width: 80px; height: 80px; }
+.bx-pass .bx-ring--sm svg { width: 80px; height: 80px; }
+.bx-pass__text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.bx-pass__text b { font-weight: var(--font-weight-semibold); }
+.bx-pass__text small { margin-bottom: var(--spacing-xs); color: var(--color-neutral-500); font-size: var(--font-size-text-xs); }
+
+.bx-auto { padding: var(--spacing-lg) var(--spacing-xl); }
+.bx-auto__head { display: flex; align-items: center; gap: var(--spacing-sm); }
+.bx-auto__head b { font-weight: var(--font-weight-semibold); }
+.bx-auto__head .ui-chip { margin-left: auto; }
+.bx-auto__ico { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-lg); background: var(--color-badge-purple-bg); color: var(--color-badge-purple-text); }
+.bx-auto__ico svg { width: 16px; height: 16px; }
+.bx-auto__label { display: block; margin-top: var(--spacing-lg); color: var(--color-neutral-500); font-size: var(--font-size-text-xs); }
+.bx-auto__seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-2); margin-top: var(--spacing-xs); padding: var(--spacing-2); border-radius: var(--radius-lg); background: var(--color-neutral-100); }
+.bx-auto__seg span { padding: var(--spacing-xs) 0; border-radius: var(--radius-md); text-align: center; font-size: var(--font-size-text-xs); line-height: var(--line-height-text-xs); color: var(--color-neutral-500); white-space: nowrap; }
+.bx-auto__seg .is-on { background: var(--color-neutral-0); box-shadow: var(--shadow-cell-action); color: var(--color-neutral-900); font-weight: var(--font-weight-semibold); }
+.bx-auto__pause { display: flex; align-items: center; justify-content: space-between; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: var(--border-width-1) solid var(--color-neutral-150); color: var(--color-neutral-700); }
+.bx-toggle { position: relative; width: 32px; height: 18px; border-radius: var(--radius-full); background: var(--color-neutral-200); }
+.bx-toggle::after { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: var(--radius-full); background: var(--color-neutral-0); box-shadow: var(--shadow-cell-action); }
+
+.bx-daily { padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md); }
+.bx-daily__head > span { display: flex; flex-direction: column; }
+.bx-daily__head small { color: var(--color-neutral-500); font-size: var(--font-size-text-xs); }
+.bx-daily__kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); margin-top: var(--spacing-md); }
+.bx-daily__kpis div { padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-lg); background: var(--color-neutral-50); }
+.bx-daily__kpis b { display: block; font-size: var(--font-size-display-xs); line-height: var(--line-height-display-xs); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.bx-daily__kpis small { color: var(--color-neutral-500); font-size: var(--font-size-text-xs); }
+.bx-daily__list { list-style: none; margin: var(--spacing-sm) 0 0; padding: 0; }
+.bx-daily__list li { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-xs) 0; }
+.bx-daily__list svg { width: 14px; height: 14px; color: var(--color-badge-purple-text); }
+.bx-daily__list span { color: var(--color-neutral-500); }
+.bx-daily__list b { margin-left: auto; font-weight: var(--font-weight-semibold); }
+.bx-say svg { width: 14px; height: 14px; }
+
+/* BlueGen feature visuals (2026-11-27): bgHero, bgImport, bgCheck, bgTarget, bgOutreach in scenes.js */
+.bx-docs__head > span { display: flex; flex-direction: column; }
+.bx-docs__head small, .bx-sub { display: block; color: var(--color-neutral-500); font-size: var(--font-size-text-xs); font-weight: var(--font-weight-regular); }
+.bx-docs li > svg { color: var(--color-badge-green-text); }
+.bx-docs--table li { gap: var(--spacing-md); }
+.bx-docs--table li .ui-avatar { width: 24px; height: 24px; font-size: var(--font-size-badge-xs); }
+.bx-docs--table li .ui-chip { margin-left: auto; }
+.bx-q { display: inline-flex; align-items: center; gap: var(--spacing-sm); width: 96px; }
+.bx-q i { position: relative; flex: 1; height: 4px; border-radius: var(--radius-full); background: var(--color-neutral-100); overflow: hidden; }
+.bx-q i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: inherit; background: var(--color-badge-purple-text); }
+.bx-q b { font-size: var(--font-size-text-xs); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.bx-chips { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); margin-top: var(--spacing-xs); }
+.bx-chips span { padding: 2px var(--spacing-sm); border-radius: var(--radius-full); background: var(--color-neutral-100); font-size: var(--font-size-text-xs); line-height: var(--line-height-text-xs); color: var(--color-neutral-700); }
+.bx-strong { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+.bx-decide__tag--ok { padding-left: var(--spacing-sm); background: var(--color-badge-green-bg); color: var(--color-badge-green-text); }
+.bx-decide__tag--ok svg { width: 12px; height: 12px; }
+.bx-decide:has(.bx-decide__tag--ok) { background: var(--color-neutral-0); box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--color-badge-green-text) 25%, transparent), var(--shadow-popover); }
+.bx-docs.bx-docs--table li > span.ui-avatar, .bx-docs.bx-docs--table li > span.bx-q, .bx-docs.bx-docs--table li > span.ui-chip { flex: none; }
+
+/* Home Products explorer synced to Figma "Products" (1209:72258), 2026-11-27: big corner icon is fainter (Figma group 18% x line 50%),
+   a little stronger for Health, Childcare and Real Estate (25% x 50%); HR uses circle-user-round, Real Estate building-complex (data.js artIcon) */
+.tool-explore__art { color: color-mix(in srgb, var(--c2) 9%, transparent); }
+.tool-explore__panel[data-ind="health"] .tool-explore__art, .tool-explore__panel[data-ind="childcare"] .tool-explore__art, .tool-explore__panel[data-ind="real-estate"] .tool-explore__art, .tool-explore__panel[data-ind="sports"] .tool-explore__art { color: color-mix(in srgb, var(--c2) 12.5%, transparent); }
+.tool-explore__art svg { stroke-width: calc(10 * 24 / 220); }
+
+/* Security visuals (2026-11-27): drawn camera tiles (no footage), detection box, face blur, 7-night bar chart */
+.bx-wall, .bx-trend { padding: var(--spacing-lg) var(--spacing-xl); border-radius: var(--radius-2xl); background: var(--color-neutral-0); box-shadow: var(--shadow-popover); }
+.bx-wall__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); margin-top: var(--spacing-md); }
+.bx-wall--6 .bx-wall__grid { grid-template-columns: repeat(3, 1fr); }
+.bx-cam { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius-lg); background: linear-gradient(160deg, color-mix(in srgb, var(--color-neutral-800) 85%, var(--color-scale-blue-500)), var(--color-neutral-900)); }
+.bx-cam > i { position: absolute; inset: 0; background: radial-gradient(60% 50% at 30% 70%, color-mix(in srgb, var(--color-neutral-0) 10%, transparent), transparent 70%), repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-neutral-0) 3%, transparent) 0 2px, transparent 2px 4px); }
+.bx-cam > small { position: absolute; left: var(--spacing-sm); bottom: var(--spacing-xs); color: color-mix(in srgb, var(--color-neutral-0) 85%, transparent); font-size: var(--font-size-badge-sm); }
+.bx-cam.is-hit { box-shadow: 0 0 0 2px var(--color-badge-orange-text); }
+.bx-cam.is-hit::after { content: ""; position: absolute; left: 44%; top: 22%; width: 18%; height: 46%; border: var(--border-width-1) dashed var(--color-badge-orange-bg); border-radius: var(--radius-xs); }
+.bx-cam--big { box-shadow: var(--shadow-popover); border-radius: var(--radius-xl); }
+.bx-cam--big.is-hit { box-shadow: 0 0 0 2px var(--color-badge-orange-text), var(--shadow-popover); }
+.bx-cam--big.is-hit::after { content: none; }
+.bx-cam--big > small { left: var(--spacing-md); bottom: var(--spacing-sm); font-size: var(--font-size-text-xs); }
+.bx-cam__box { position: absolute; left: 42%; top: 18%; width: 20%; height: 58%; border: 1.5px solid var(--color-badge-orange-bg); border-radius: var(--radius-sm); }
+.bx-cam__box em { position: absolute; left: -1.5px; bottom: 100%; margin-bottom: var(--spacing-xs); padding: 1px var(--spacing-xs); border-radius: var(--radius-sm); background: var(--color-badge-orange-bg); color: var(--color-badge-orange-text); font-size: var(--font-size-badge-sm); font-style: normal; font-weight: var(--font-weight-semibold); white-space: nowrap; }
+.bx-cam__blur { position: absolute; left: 40%; top: 26%; width: 16%; aspect-ratio: 1; border-radius: var(--radius-full); background: color-mix(in srgb, var(--color-neutral-0) 35%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.bx-toggle.is-on { background: var(--color-badge-green-text); }
+.bx-toggle.is-on::after { left: auto; right: 2px; }
+.bx-trend__bars { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: var(--spacing-sm); height: 120px; margin-top: var(--spacing-md); }
+.bx-trend__bars span { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--spacing-xs); height: 100%; }
+.bx-trend__bars i { width: 100%; height: calc(var(--v) * 90px + 4px); border-radius: var(--radius-sm); background: var(--color-neutral-150); }
+.bx-trend__bars .is-hit i { background: var(--color-badge-orange-text); }
+.bx-trend__bars small { color: var(--color-neutral-500); font-size: var(--font-size-badge-sm); }
+.scene .bx-trend__bars i { transition: height .9s var(--hub-ease) .4s; }
+.scene:not(.is-active) .bx-trend__bars i { height: 4px; }
+
+/* Temporary PNG logo (2026-11-27): 28px tall; white-text version only over the dark home hero */
+.hub-logo { display: inline-flex; align-items: center; }
+.hub-logo__img { display: block; height: 28px; width: auto; }
+.hub-logo__img--light { display: none; }
+body:not(.page-light) .hub-header:not(.is-solid) .hub-logo__img--dark { display: none; }
+body:not(.page-light) .hub-header:not(.is-solid) .hub-logo__img--light { display: block; }
+/* Sales and Marketing corner arrow (Figma 1200:258, 2026-11-27): shrunk to 84% from the bottom left and moved 10px in / 9px down, so the arrow head is no longer cut off */
+.tool-explore__panel[data-ind="sales-marketing"] .tool-explore__art { right: calc(var(--spacing-4xl) * -1 + 10px); top: calc(var(--spacing-4xl) * -1 + 9px); }
+.tool-explore__panel[data-ind="sales-marketing"] .tool-explore__art svg { transform: translateY(16.4%) scale(.836); transform-origin: 0 0; }

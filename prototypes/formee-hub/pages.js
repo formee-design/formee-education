@@ -29,47 +29,48 @@
   const toolPrice = (p, t, key) => { const o = p.prices && p.prices[t.id]; const k = key === 'a' ? 'annual_monthly' : 'monthly'; return o && o[k] != null ? o[k] : t[k]; };
   const sumPrice = (tools, t, key) => tools.reduce((n, p) => n + toolPrice(p, t, key), 0);
   const bundlePrice = (tools, t, key) => +(sumPrice(tools, t, key) * (1 - PRICING.bundleDiscount / 100)).toFixed(2);
-  const priceSpan = (m, a) => `US$<span data-m="${m}" data-a="${a}">${money(m)}</span>`;
+  const priceSpan = (m, a, cur = 'US$') => `${cur}<span data-m="${m}" data-a="${a}">${money(m)}</span>`;
   const otherIndustries = id => `
     <div class="chip-row r up">${BUSINESSES.filter(b => b.id !== id).map(b => `<a class="ind-chip" href="${U.industry(b.id)}">${b.name}</a>`).join('')}</div>`;
   // Industry pricing (2026-11-26): each tool's own price and the bundle price side by side, per plan.
   // Prices come from data.js, so only the numbers there need changing later.
   const bundleTable = (b, focus) => {
     // Pricing as plan cards (2026-11-26): only the monthly / annual switch on top, Basic / Standard / Premium side by side.
+    // 2026-11-27, Figma 1177:472: centred header, card order title, lead, prices, button, then checks; bundle label 24px; "$" in the headline.
     // Industry page: each tool's price as a line, the bundle price as the headline. Tool page: that tool's price as the headline, the bundle as one line.
     const bd = bundleFor(b.id);
     const tools = bd ? b.products.filter(p => bd.tools.includes(p.slug)) : [focus].filter(Boolean);
     if (!tools.length) return '';
     const others = focus ? tools.filter(p => p !== focus) : [];
     const lead = { basic: 'For trying it with a small team.', standard: 'For teams using it every day.', premium: 'For larger teams and heavier use.' };
-    const line = (label, m, a) => `<li><span>${label}</span><b>${priceSpan(m, a)}</b></li>`;
+    const line = (label, m, a) => `<li><span>${label}</span><b>${priceSpan(m, a, '$')}</b></li>`;
     const title = focus ? `${focus.name} pricing` : `${b.name} pricing`;
     const sub = bd ? `Buy ${focus ? focus.name : 'each tool'} on its own, or get every ${b.name} tool together in the ${bd.name} for ${PRICING.bundleDiscount}% less.` : `Every plan starts with a ${PRICING.trialDays}-day free trial.`;
     const card = t => {
       const rec = t.id === 'standard';
       const head = focus
-        ? `<div class="pr-card__price"><b>${priceSpan(toolPrice(focus, t, 'm'), toolPrice(focus, t, 'a'))}</b><small>/month</small></div>
-            ${bd ? `<div class="pr-card__bundle"><span>${bd.name} <span class="save-pill">Save ${PRICING.bundleDiscount}%</span></span><small>With ${others.map(p => p.name).join(', ')}</small><b>${priceSpan(bundlePrice(tools, t, 'm'), bundlePrice(tools, t, 'a'))}<small>/mo</small></b></div>` : ''}`
+        ? `<div class="pr-card__price"><b>${priceSpan(toolPrice(focus, t, 'm'), toolPrice(focus, t, 'a'), '$')}</b><small>/month</small></div>
+            ${bd ? `<div class="pr-card__bundle"><span>${bd.name} <span class="save-pill">Save ${PRICING.bundleDiscount}%</span></span><small>With ${others.map(p => p.name).join(', ')}</small><b>${priceSpan(bundlePrice(tools, t, 'm'), bundlePrice(tools, t, 'a'), '$')}/mo</b></div>` : ''}`
         : `<ul class="pr-card__lines">${tools.map(p => line(p.name, toolPrice(p, t, 'm'), toolPrice(p, t, 'a'))).join('')}</ul>
-            <div class="pr-card__label">${bd.name} <span class="save-pill">Save ${PRICING.bundleDiscount}%</span></div>
-            <div class="pr-card__price pr-card__price--bundle"><b>${priceSpan(bundlePrice(tools, t, 'm'), bundlePrice(tools, t, 'a'))}</b><small>/month</small><s>${priceSpan(sumPrice(tools, t, 'm'), sumPrice(tools, t, 'a'))}</s></div>`;
+            <i class="pr-card__divider"></i>
+            <div class="pr-card__label"><b>${bd.name}</b><span class="save-pill">Save ${PRICING.bundleDiscount}%</span></div>
+            <div class="pr-card__price pr-card__price--bundle"><b>${priceSpan(bundlePrice(tools, t, 'm'), bundlePrice(tools, t, 'a'), '$')}</b><small>/month</small><s>${priceSpan(sumPrice(tools, t, 'm'), sumPrice(tools, t, 'a'))}</s></div>`;
       return `
           <article class="pr-card${rec ? ' is-rec' : ''}">
             <h3>${t.name}${rec ? '<span class="pr-card__badge">Recommended</span>' : ''}</h3><p>${lead[t.id]}</p>
             ${head}
-            <ul class="pr-card__checks"><li>${S.I('check', 16)}${PRICING.trialDays}-day free trial${t.trial_card_required ? ', card required' : ', no card'}</li><li>${S.I('check', 16)}${PRICING.moneyBackDays}-day money-back guarantee</li></ul>
             <a class="btn btn--md${rec ? '' : ' btn--outline'}" href="${U.pricing}"><span>Start free trial</span></a>
+            <ul class="pr-card__checks"><li>${S.I('check', 16)}${PRICING.trialDays}-day free trial${t.trial_card_required ? ', card required' : ', no card'}</li><li>${S.I('check', 16)}${PRICING.moneyBackDays}-day money-back guarantee</li></ul>
           </article>`;
     };
     return `
     <section class="section ind-pricing tp-sec--band">
       <div class="container">
-        <h2 class="tp-title r up">${title}</h2>
-        <p class="tp-sub r up">${sub}</p>
+        <div class="pr-head r up"><h2 class="tp-title">${title}</h2><p class="tp-sub">${sub}</p></div>
         <div class="pr-controls r up"></div>
         <div class="pr-cards pr-cards--plans r up">${paid.map(card).join('')}
         </div>
-        <div class="pr-foot r up"><span>Prices in US dollars per month, before tax. ${PRICING.pending}.</span><a class="btn btn--md btn--outline" href="${U.pricing}"><span>Compare all plans</span>${ARROW}</a></div>
+        <div class="pr-foot r up"><span>Prices in US dollars per month, before tax. ${PRICING.pending}.</span><a class="btn btn--lg btn--outline" href="${U.pricing}"><span>Compare all plans</span></a></div>
       </div>
     </section>`;
   };
@@ -119,7 +120,7 @@
     const n = b.products.length;
     return `
     ${S.pageHero({ title: b.headline, sub: b.desc, crumbs: [['Industries', U.industries], [b.name]],
-      extra: `<div class="ind-hero-photo fade-in"><img src="${b.banner || `assets/industries/${b.id}.jpg`}" alt="" width="1774" height="887"></div>` })}
+      extra: `<div class="ind-hero-photo fade-in"><img src="${b.banner || `assets/industries/${b.id}.jpg`}" alt="" width="2560" height="800"></div>` })}
     <section class="section">
       <div class="container">
         ${head('', `${b.name} tools`, `${n} ${n > 1 ? 'tools' : 'tool'}${b.comingSoon ? ' today, with more on the way' : ''}. Every tool comes with a 14-day free trial.`)}
@@ -241,7 +242,7 @@
               <p>${f.text}</p>
               ${f.points && f.points.length ? `<ul class="tp-points">${f.points.map(x => `<li>${S.I('check', 16)}<span>${x}</span></li>`).join('')}</ul>` : ''}
             </div>
-            ${isScene(f.visual) ? `<div class="tp-row__stage" style="${vars(b)}"><div class="scene is-active" aria-hidden="true">${SCENES[f.visual.slice(6)]()}</div></div>` : ph(f.visual || f.title)}
+            ${isScene(f.visual) ? `<div class="tp-row__stage" style="${vars(b)}"><div class="scene" aria-hidden="true">${SCENES[f.visual.slice(6)]()}</div></div>` : ph(f.visual || f.title)}
           </article>`).join('')}
         </div>` : `<div class="tp-cards">${features.map((f, i) => `
           <article class="tp-card r up" style="--rd:${i * .06}s">
@@ -269,9 +270,9 @@
       <div class="container">
         <h2 class="tp-title r up">${pg.extra.title}</h2>
         ${pg.extra.text ? `<p class="tp-sub r up">${pg.extra.text}</p>` : ''}
-        <div class="tp-photos">${pg.extra.items.map(([ic, t, d, v], i) => `
+        <div class="tp-photos">${pg.extra.items.map(([ic, t, d, v, img], i) => `
           <article class="tp-photo r up" style="--rd:${i * .06}s">
-            <div class="tp-photo__media">${ph(v || t, 'ph-visual--photo')}<span class="tp-photo__badge">${S.I(ic, 22)}</span></div>
+            <div class="tp-photo__media">${img ? `<img src="${img}" alt="${(v || t).replace(/^Photo: /, '')}" loading="lazy" width="822" height="616">` : ph(v || t, 'ph-visual--photo')}<span class="tp-photo__badge">${S.I(ic, 22)}</span></div>
             <h3>${t}</h3><p>${d}</p>
           </article>`).join('')}
         </div>
@@ -314,10 +315,10 @@
         <div class="price-pane" data-pane="tools"><div class="plans">${S.tiersHTML()}</div></div>
         <div class="price-pane" data-pane="bundles" hidden>
           <div class="bundle-grid">${PRICING.bundles.map(bd => {
-            const b = BUSINESSES.find(x => x.id === bd.industry), n = bd.tools.length;
+            const b = BUSINESSES.find(x => x.id === bd.industry), n = bd.tools.length, tools = b.products.filter(p => bd.tools.includes(p.slug));
             return `<article class="bundle-card" style="${vars(b)}">
               <div class="bundle-box__head"><div><b>${bd.name}</b><span>${n} tools: ${b.products.filter(p => bd.tools.includes(p.slug)).map(p => p.short).join(', ')}</span></div><span class="save-pill">Save ${PRICING.bundleDiscount}%</span></div>
-              <table class="price-table"><tbody>${paid.map(t => `<tr><td>${t.name}</td><td><b>US$<span data-m="${bundlePrice(t, n, 'm')}" data-a="${bundlePrice(t, n, 'a')}">${money(bundlePrice(t, n, 'm'))}</span></b><small>/month</small></td></tr>`).join('')}</tbody></table>
+              <table class="price-table"><tbody>${paid.map(t => `<tr><td>${t.name}</td><td><b>${priceSpan(bundlePrice(tools, t, 'm'), bundlePrice(tools, t, 'a'))}</b><small>/month</small></td></tr>`).join('')}</tbody></table>
               <a class="btn btn--md btn--outline" href="${U.industry(b.id)}"><span>See ${b.name} tools</span></a>
             </article>`;
           }).join('')}</div>
@@ -573,6 +574,11 @@
     const sync = () => { btns[0].disabled = tr.scrollLeft < 4; btns[1].disabled = tr.scrollLeft + tr.clientWidth > tr.scrollWidth - 4; };
     btns.forEach(bt => bt.addEventListener('click', () => tr.scrollBy({ left: step() * +bt.dataset.dir, behavior: S.reduce ? 'auto' : 'smooth' })));
     tr.addEventListener('scroll', sync, { passive: true }); addEventListener('resize', sync); sync();
+  } }
+  // Tool page feature visuals (2026-11-27): each scene plays its build-in when its row scrolls into view, not on page load
+  { const st = $$('.tp-row__stage .scene'); if (st.length) {
+    if (S.reduce || !('IntersectionObserver' in window)) st.forEach(x => x.classList.add('is-active'));
+    else { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-active'); io.unobserve(e.target); } }), { threshold: .35 }); st.forEach(x => io.observe(x)); }
   } }
   // Tool page flow line fills from left to right when it comes into view
   { const fl = $('.tp-flow'); if (fl) { if (S.reduce || !('IntersectionObserver' in window)) fl.classList.add('is-drawn'); else new IntersectionObserver((es, io) => { if (es[0].isIntersecting) { fl.classList.add('is-drawn'); io.disconnect(); } }, { threshold: .4 }).observe(fl); } }

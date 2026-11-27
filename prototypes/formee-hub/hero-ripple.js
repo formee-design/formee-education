@@ -5,7 +5,8 @@
       three rings about 190px apart (each thins and fades as it travels, so the innermost reads thickest) outward from a circle that already clears the copy;
       they travel slowly and fade, so about three are on screen. Where a ring passes, the squares swell, brighten and are
       pushed outward a little; one side of each ring catches light and the other
-      falls into shade, which gives the ring the body of a real water or paint drop. Clicking the hero drops a ring there.
+      falls into shade, which gives the ring the body of a real water or paint drop. Hovering the hero shows a soft spotlight under the
+      cursor (squares nearby swell, brighten and lean away with a faint shimmer); no new rings, so the field stays calm (2026-11-27, click rings removed).
       A random tenth of the squares sparkle white now and then, so the field
       never sits flat between rings. Colours come from the design tokens: cyan on the left, white in the middle, rose on the right.
       Reduced motion: one still frame with three rings. Paused while the hero is off screen or the tab is hidden. */
@@ -61,11 +62,14 @@
   const TWINKLE = .1;      // share of grid squares that sparkle now and then
   const TW_GAIN = .42;     // how bright a sparkle gets (about 60% of the first version, barely there)
   const DECAY = 560;       // ring fades with distance travelled from its start circle (px), quicker so the outer rings stay soft
-  const SIG0 = 44;         // crest half width at the start circle (px); thins as it travels
+  const SIG0 = 64;         // crest half width at the start circle (px); thins as it travels (44 → 64 on 2026-11-27 so rings read as soft bands, not lines)
   const LX = .62, LY = -.78; // light from the upper right (unit vector)
+  const SPOT_R = 90;       // hover spotlight radius (px, gaussian sigma)
+  const SPOT_GAIN = .2;    // how much the squares under the cursor swell and brighten (barely there: a quarter of the first try, 2026-11-27)
 
   let W = 0, H = 0, dpr = 1, cx = 0, cy = 0, calm = 0, r0 = 0, navB = 86, raf = 0, visible = true, cols = 0, rowsN = 0, twA, twP, twS;
   const rings = [];
+  const spot = { x: 0, y: 0, tx: 0, ty: 0, a: 0, on: false }; // follows the cursor with a little lag, fades in and out
   let tStart = performance.now(), nextDrop = 0;
   const size = () => {
     dpr = Math.min(devicePixelRatio || 1, 2);
@@ -103,10 +107,14 @@
       const edge = Math.max(g.x, W - g.x), e = Math.min(1, Math.max(0, (r - edge * .78) / (edge * .24)));
       const a = g.amp * Math.exp(-trav / DECAY) * Math.min(1, age / 1.2) * (1 - e * e * (3 - 2 * e));
       if (a < .02 && age > 1.2) continue;
-      live.push({ x: g.x, y: g.y, r, a, s: 12 + (SIG0 - 12) * Math.exp(-trav / 460) }); // thick near the copy, thinner further out
+      live.push({ x: g.x, y: g.y, r, a, s: 8 + (SIG0 - 8) * Math.exp(-trav / 300) }); // thick band at the start circle, thinning clearly as it spreads (2026-11-27: min 8px, half width halves about every 210px)
     }
     for (let i = rings.length - 1; i >= 0; i--) { const age = t - rings[i].born; if (rings[i].start + age * SPEED > Math.hypot(W, H) + 200) rings.splice(i, 1); }
 
+    // hover spotlight: ease towards the cursor and fade in or out
+    spot.x += (spot.tx - spot.x) * .14; spot.y += (spot.ty - spot.y) * .14;
+    spot.a += ((spot.on ? 1 : 0) - spot.a) * .06;
+    const sa = spot.a > .01 ? spot.a : 0, s2 = 2 * SPOT_R * SPOT_R, sLim = 9 * s2;
     ctx.clearRect(0, 0, W, H);
     paths.forEach(p => p.length = 0);
     for (let y = GAP / 2, iy = 0; y < H; y += GAP, iy++) {
@@ -124,6 +132,15 @@
           hgt += crest;
           shade += slope * (nx * LX + ny * LY);
           push += crest; ox += nx * crest; oy += ny * crest;
+        }
+        // hover spotlight: squares near the cursor swell and lean away, with a faint shimmer travelling outward
+        if (sa) {
+          const dx = x - spot.x, dy = y - spot.y, d2 = dx * dx + dy * dy;
+          if (d2 < sLim) {
+            const d = Math.sqrt(d2) || 1, f = Math.exp(-d2 / s2) * sa * (1 + .25 * Math.sin(t * 3 - d / 16));
+            hgt += f * SPOT_GAIN; push += f * .45; ox += dx / d * f; oy += dy / d * f;
+            shade += f * .08 * (-(dx / d) * LX - (dy / d) * LY > 0 ? 1 : .3);
+          }
         }
         // quiet zone behind the copy
         const dc = Math.hypot(x - cx, y - cy);
@@ -166,11 +183,15 @@
   size();
   if (reduce) still();
   else {
-    hero.addEventListener('pointerdown', e => {
-      if (e.target.closest('a, button, input, label, form, .hub-header')) return;
+    // Hover spotlight (replaces the old click rings)
+    hero.addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch') return;
       const h = hero.getBoundingClientRect();
-      dropTrain(e.clientX - h.left, e.clientY - h.top, now(), 0); // a click drops a small train right where it lands
+      spot.tx = e.clientX - h.left; spot.ty = e.clientY - h.top;
+      if (!spot.on && spot.a < .02) { spot.x = spot.tx; spot.y = spot.ty; }
+      spot.on = true;
     });
+    hero.addEventListener('pointerleave', () => { spot.on = false; });
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); }).observe(hero);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) start(); });
     start();

@@ -16,9 +16,9 @@
   const defs = svg.querySelector('defs') || el('defs', {}, svg);
   defs.insertAdjacentHTML('beforeend', `
     <linearGradient id="eOrbitGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" style="stop-color:var(--color-neutral-0);stop-opacity:.06"/>
-      <stop offset=".5" style="stop-color:var(--color-neutral-0);stop-opacity:.6"/>
-      <stop offset="1" style="stop-color:var(--color-neutral-0);stop-opacity:.06"/>
+      <stop offset="0" style="stop-color:var(--color-neutral-0);stop-opacity:.14"/>
+      <stop offset=".5" style="stop-color:var(--color-neutral-0);stop-opacity:.85"/>
+      <stop offset="1" style="stop-color:var(--color-neutral-0);stop-opacity:.14"/>
     </linearGradient>
     <filter id="ePulseGlow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
 

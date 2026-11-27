@@ -137,23 +137,24 @@ window.FS = (() => {
       </div>`,
     // AI-suggested workshop plan: sessions with learning outcomes, attendees and documents tracked, summary document (2026-11-26, from the user's reference)
     hrAiSessions: () => `
-      <div class="bx bx-plan" style="--k:0;--l:3%;--t:2%;--wd:86%">
+      <div class="bx bx-plan" style="--k:0;--l:7%;--t:6.8%;--wd:85.9%">
         <div class="bx-plan__head">${window.FI.icon('calendar', 22)}<span><b>Communication workshop</b><span class="ui-chip ui-chip--violet">AI-suggested plan</span></span></div>
         <ol class="bx-plan__steps">${[['Active listening', 'Sum up a colleague\'s point accurately'], ['Giving feedback', 'Give clear, kind feedback'], ['Handling conflict', 'Calm a tense conversation']].map(([t, o], i) => `
           <li><span class="bx-plan__num">0${i + 1}</span><span><b>${t}</b><small><em>Learning outcome:</em> ${o}</small></span></li>`).join('')}
         </ol>
         <div class="bx-plan__foot"><span class="bx-plan__people">${avatar('A', 'blue')}${avatar('M', 'rose')}${avatar('J', 'mint')}12 attendees</span><span class="bx-plan__docs">${window.FI.icon('file-check', 16)}Required documents tracked</span></div>
       </div>
-      <div class="bx bx-sumdoc" style="--k:1;--l:50%;--t:80%;--wd:48%">${window.FI.icon('file-text', 22)}<span><b>Summary document</b><small>Communication workshop</small></span>${window.FI.icon('download', 18)}</div>`,
-    // Approvals inbox by type + one person's shift against their clock-in (2026-11-26, from the user's reference)
+      <div class="bx bx-sumdoc" style="--k:1;--l:51.9%;--t:77%;--wd:48%">${window.FI.icon('file-text', 22)}<span><b>Summary document</b><small>Communication workshop</small></span>${window.FI.icon('download', 18)}</div>`,
+    // Approvals inbox by type + one person's shift against their clock-in (2026-11-26, from the user's reference).
+    // Positions from Figma 1178:777 (2026-11-27), converted to the scene box (the stage keeps its padding): the shift card overlaps the inbox's lower right corner by about 25px.
     hrApprovals: () => `
-      <div class="bx bx-inbox" style="--k:0;--l:4%;--t:2%;--wd:74%">
+      <div class="bx bx-inbox" style="--k:0;--l:4%;--t:6.2%;--wd:74%">
         <div class="bx-inbox__head"><b>Approvals inbox</b><span class="ui-chip ui-chip--violet">10 pending</span></div>
         <div class="bx-inbox__grid">${[['calendar', 'Leave', 4], ['briefcase', 'Business trip', 1], ['clock', 'Overtime', 3], ['receipt', 'Reimbursement', 2]].map(([ic, t, n]) => `
           <div>${window.FI.icon(ic, 22)}<span><small>${t}</small><b>${n}<em>pending</em></b></span></div>`).join('')}
         </div>
       </div>
-      <div class="bx bx-shift" style="--k:1;--l:24%;--t:58%;--wd:72%">
+      <div class="bx bx-shift" style="--k:1;--l:24%;--t:53.8%;--wd:72%">
         <div class="bx-shift__head">${avatar('PR', 'mint')}<b>Priya R.</b><small>Today</small></div>
         <div class="bx-shift__times"><span><small>Shift starts</small><b>09:00</b></span><span><small>Clock in</small><b>09:12</b></span><span><small>Clock out</small><b>18:05</b></span></div>
         <div class="bx-shift__foot"><span class="bx-shift__track"><i></i></span><span class="ui-chip ui-chip--orange">${window.FI.icon('clock', 12)}12 mins late</span></div>
@@ -182,6 +183,200 @@ window.FS = (() => {
         <b>Fee waiver request</b>
         <small>$480 · Awaiting approval</small>
         <div class="bx-decide__btns"><span class="bx-btn">Review request</span><span class="bx-decide__alt">Reassign</span></div>
+      </div>`,
+    // Crew OS tool page feature visuals (2026-11-27). Mock data from the CrewOS proposal's childcare sample ("Sunny Days").
+    // 1. One description in, a proposed org chart out
+    crewDesign: () => `
+      <div class="bx bx-req bx-req--wrap" style="--k:0;--l:14%;--t:0%;--wd:72%"><small>Your business</small><b>A childcare centre with 3 rooms, 40 families and a small office team</b></div>
+      <span class="bx bx-down" style="--k:1;--l:calc(50% - 10px);--t:23.5%">${window.FI.icon('arrow-down', 20)}</span>
+      <div class="bx bx-org" style="--k:2;--l:6%;--t:31%;--wd:88%">
+        <div class="bx-org__head">${window.FI.icon('network', 18)}<b>Proposed AI team</b><span class="ui-chip ui-chip--violet">7 roles</span></div>
+        <div class="bx-org__tree">
+          <span class="bx-org__node bx-org__node--top">${window.FI.icon('layers', 14)}CEO agent</span>
+          <div class="bx-org__row">
+            <span class="bx-org__node">${window.FI.icon('headset', 14)}Reception</span>
+            <span class="bx-org__node">${window.FI.icon('calculator', 14)}Accounts</span>
+            <span class="bx-org__node">${window.FI.icon('users', 14)}HR</span>
+          </div>
+        </div>
+        <div class="bx-org__foot"><span>+ Room leaders, Compliance, Operations</span><span class="bx-org__edit">Edit before going live</span></div>
+      </div>`,
+    // 2. Learns your procedures, then passes a role check and a practice week
+    crewTrain: () => `
+      <div class="bx bx-docs" style="--k:0;--l:4%;--t:6%;--wd:64%">
+        <div class="bx-docs__head">${window.FI.icon('book-open', 18)}<b>Your procedures</b><span class="ui-chip ui-chip--violet">3 learned</span></div>
+        <ul>${[['Enrolment procedure', 'docx'], ['Fee and payment policy', 'docx'], ['Incident reporting', 'md']].map(([n, t]) => `
+          <li>${window.FI.icon('file-text', 16)}<span>${n}<small>.${t}</small></span><span class="ui-ok">${CHECK}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="bx bx-pass" style="--k:1;--l:36%;--t:52%;--wd:60%">
+        <span class="bx-ring bx-ring--sm"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" class="bx-ring__track"/><circle cx="60" cy="60" r="50" class="bx-ring__fill" style="--p:.94"/></svg><span class="bx-ring__num"><b>94</b><small>Role check</small></span></span>
+        <span class="bx-pass__text"><b>Accounts agent passed</b><small>Pass mark 90 of 100</small><span class="ui-chip ui-chip--green">Practice week 34 of 34</span></span>
+      </div>`,
+    // 3. Autonomy one step at a time, risky work comes to a person, pause any agent
+    crewControl: () => `
+      <div class="bx bx-auto" style="--k:0;--l:4%;--t:6%;--wd:68%">
+        <div class="bx-auto__head"><span class="bx-auto__ico">${window.FI.icon('calculator', 16)}</span><b>Accounts agent</b><span class="ui-chip ui-chip--green">Live</span></div>
+        <small class="bx-auto__label">Autonomy</small>
+        <div class="bx-auto__seg"><span>Suggest only</span><span class="is-on">Act and report</span><span>Full auto</span></div>
+        <div class="bx-auto__pause"><span>Pause this agent</span><i class="bx-toggle"></i></div>
+      </div>
+      <div class="bx bx-decide" style="--k:1;--l:44%;--t:51%;--wd:52%">
+        <span class="bx-decide__tag"><span class="ui-warn">!</span>Needs your decision</span>
+        <b>Refund request</b>
+        <small>$620 · Above your $500 limit</small>
+        <div class="bx-decide__btns"><span class="bx-btn">Approve</span><span class="bx-decide__alt">Reject</span></div>
+      </div>`,
+    // 4. The owner's daily summary
+    crewSummary: () => `
+      <div class="bx bx-daily" style="--k:0;--l:8%;--t:5%;--wd:84%">
+        <div class="bx-daily__head">${window.FI.icon('file-text', 18)}<span><b>Daily summary</b><small>Sunny Days Early Learning · Thursday</small></span><span class="ui-chip ui-chip--violet">Sent to owner</span></div>
+        <div class="bx-daily__kpis"><div><b>128</b><small>tasks done</small></div><div><b>94%</b><small>without a person</small></div><div><b>3</b><small>exceptions</small></div></div>
+        <ul class="bx-daily__list">
+          <li>${window.FI.icon('headset', 14)}<span>Reception</span><b>3 tours booked</b></li>
+          <li>${window.FI.icon('calculator', 14)}<span>Accounts</span><b>42 payments matched</b></li>
+          <li>${window.FI.icon('users', 14)}<span>HR</span><b>Relief shift filled</b></li>
+        </ul>
+      </div>
+      <div class="bx bx-say" style="--k:1;--l:50%;--t:84%">${window.FI.icon('shield-check', 14)}1 exception waiting for you</div>`,
+    // BlueGen visuals (2026-11-27). Mock data from the BlueGen build's childcare sample ("Sunny Days", Point Cook).
+    // BlueGen only checks and enriches data you already hold: nothing here suggests scraping or web lookups.
+    bgHero: () => `
+      <div class="bx bx-docs bx-docs--table" style="--k:0;--l:5%;--t:6%;--wd:90%">
+        <div class="bx-docs__head">${window.FI.icon('list-checks', 18)}<span><b>Today's batch</b><small>Point Cook parents · Sunny Days</small></span><span class="ui-chip ui-chip--violet">20 leads</span></div>
+        <ul>${[['SR', 'mint', 'Sara Reid', 92, 'Genuine', 'green'], ['AL', 'rose', 'Amy Lee', 88, 'Genuine', 'green'], ['RP', 'amber', 'Raj Patel', 81, 'No LinkedIn', '']].map(([i, t, n, q, c, k]) => `
+          <li>${avatar(i, t)}<span>${n}</span><span class="bx-q"><i style="--w:${q}%"></i><b>${q}</b></span><span class="ui-chip${k ? ' ui-chip--' + k : ''}">${c}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="bx bx-say" style="--k:1;--l:46%;--t:80%">${window.FI.icon('shield-check', 14)}18 messages approved for today</div>`,
+    bgImport: () => `
+      <div class="bx bx-docs" style="--k:0;--l:4%;--t:6%;--wd:66%">
+        <div class="bx-docs__head">${window.FI.icon('file-text', 18)}<span><b>crm-export.csv</b><small>2,480 rows imported</small></span></div>
+        <ul>${['Names, phones and addresses tidied', '312 duplicates merged', '18 on do-not-contact skipped'].map(x => `
+          <li>${window.FI.icon('check', 16)}<span>${x}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="bx bx-pass" style="--k:1;--l:38%;--t:56%;--wd:58%">
+        <span class="bx-ring bx-ring--sm"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" class="bx-ring__track"/><circle cx="60" cy="60" r="50" class="bx-ring__fill" style="--p:.87"/></svg><span class="bx-ring__num"><b>87%</b><small>Ready</small></span></span>
+        <span class="bx-pass__text"><b>2,150 leads ready</b><small>Every field keeps its source</small><span class="ui-chip ui-chip--green">Checked</span></span>
+      </div>`,
+    bgCheck: () => `
+      <div class="bx bx-docs bx-docs--table" style="--k:0;--l:4%;--t:6%;--wd:70%">
+        <div class="bx-docs__head">${window.FI.icon('id-card', 18)}<span><b>LinkedIn address check</b><small>Against your reference data</small></span></div>
+        <ul>${[['SR', 'mint', 'Sara Reid', 'Genuine', 'green'], ['TB', 'amber', 'Tom Byrne', 'Suspect', 'red'], ['AL', 'rose', 'Amy Lee', 'Genuine', 'green'], ['JM', 'blue', 'Jo Marsh', 'Unverifiable', '']].map(([i, t, n, c, k]) => `
+          <li>${avatar(i, t)}<span>${n}</span><span class="ui-chip${k ? ' ui-chip--' + k : ''}">${c}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="bx bx-decide" style="--k:1;--l:46%;--t:46%;--wd:50%">
+        <span class="bx-decide__tag"><span class="ui-warn">!</span>Sent to a reviewer</span>
+        <b>Tom Byrne · Suspect</b>
+        <small>Address does not match the reference record</small>
+        <div class="bx-decide__btns"><span class="bx-btn">Mark genuine</span><span class="bx-decide__alt">Keep suspect</span></div>
+      </div>`,
+    bgTarget: () => `
+      <div class="bx bx-auto" style="--k:0;--l:4%;--t:8%;--wd:72%">
+        <div class="bx-auto__head"><span class="bx-auto__ico">${window.FI.icon('radar', 16)}</span><span><b>Point Cook parents</b><small class="bx-sub">Saved audience · Sunny Days</small></span></div>
+        <small class="bx-auto__label">Filters</small>
+        <div class="bx-chips"><span>Childcare</span><span>Within 15 km</span><span>Children 0 to 5</span><span>20 leads a day</span></div>
+        <div class="bx-auto__pause"><span>Ranked by quality score</span><b class="bx-strong">1,120 match</b></div>
+      </div>
+      <div class="bx bx-say" style="--k:1;--l:40%;--t:78%">${window.FI.icon('check', 14)}Today's batch delivered · 20 leads · 8:00 am</div>`,
+    bgOutreach: () => `
+      <div class="bx bx-win bx-win--draft" style="--k:0;--l:4%;--t:4%;--wd:74%">
+        <div class="bx-win__title">${window.FI.icon('mail', 18)}<b>Message draft</b><span class="ui-chip ui-chip--violet">SMS</span></div>
+        <div class="bx-win__row"><small>To</small><b>Point Cook parents · 20</b></div>
+        <div class="bx-win__body"><p>Hi Sara, Sunny Days has three places open for 2026. Reply BOOK for a tour, or STOP to opt out.</p></div>
+        <div class="bx-win__foot bx-win__foot--split"><small>From a template</small><small>Waiting for approval</small></div>
+      </div>
+      <div class="bx bx-decide" style="--k:1;--l:46%;--t:58%;--wd:50%">
+        <span class="bx-decide__tag bx-decide__tag--ok">${CHECK}Approved by a second person</span>
+        <b>Rita approved 20 messages</b>
+        <small>Opt-outs are removed before sending</small>
+      </div>`,
+    // Security visuals (2026-11-27). DRAFT: the CEO material only says "AI video security and monitoring" (BigBrother) and
+    // "AI watchdog for your security" (Security Watchdog); features and data here are placeholders to confirm. Camera tiles are drawn, not footage.
+    bbHero: () => `
+      <div class="bx bx-wall" style="--k:0;--l:4%;--t:5%;--wd:62%">
+        <div class="bx-docs__head">${window.FI.icon('cctv', 18)}<span><b>All cameras</b><small>Riverside site · live</small></span><span class="ui-chip ui-chip--green">12 online</span></div>
+        <div class="bx-wall__grid">${['Front gate', 'Loading dock', 'Car park', 'Reception'].map((c, i) => `<span class="bx-cam${i === 1 ? ' is-hit' : ''}"><i></i><small>${c}</small></span>`).join('')}</div>
+      </div>
+      <div class="bx bx-decide" style="--k:1;--l:46%;--t:50%;--wd:50%">
+        <span class="bx-decide__tag"><span class="ui-warn">!</span>Person after hours</span>
+        <b>Loading dock · Camera 3</b>
+        <small>22:14 · clip saved</small>
+        <div class="bx-decide__btns"><span class="bx-btn">View clip</span><span class="bx-decide__alt">Dismiss</span></div>
+      </div>`,
+    bbWall: () => `
+      <div class="bx bx-wall bx-wall--6" style="--k:0;--l:6%;--t:6%;--wd:88%">
+        <div class="bx-docs__head">${window.FI.icon('cctv', 18)}<span><b>All cameras</b><small>3 sites · 18 cameras</small></span><span class="ui-chip ui-chip--green">18 online</span></div>
+        <div class="bx-wall__grid">${['Front gate', 'Loading dock', 'Car park', 'Reception', 'Store room', 'Side lane'].map((c, i) => `<span class="bx-cam${i === 4 ? ' is-hit' : ''}"><i></i><small>${c}</small></span>`).join('')}</div>
+      </div>`,
+    bbDetect: () => `
+      <div class="bx bx-cam bx-cam--big is-hit" style="--k:0;--l:4%;--t:6%;--wd:70%"><i></i><span class="bx-cam__box"><em>Person · 94%</em></span><small>Store room · Camera 5 · 21:48</small></div>
+      <div class="bx bx-auto" style="--k:1;--l:50%;--t:50%;--wd:48%">
+        <div class="bx-auto__head"><span class="bx-auto__ico">${window.FI.icon('radar', 16)}</span><b>Store room rules</b></div>
+        <div class="bx-chips"><span>People after 9 pm</span><span>Vehicles in lane</span><span>Door left open</span></div>
+      </div>`,
+    bbAlert: () => `
+      <div class="bx bx-decide" style="--k:0;--l:6%;--t:8%;--wd:58%">
+        <span class="bx-decide__tag"><span class="ui-warn">!</span>Door left open</span>
+        <b>Side lane · Camera 6</b>
+        <small>Open for 12 minutes · 23:02</small>
+        <div class="bx-decide__btns"><span class="bx-btn">View clip</span><span class="bx-decide__alt">Assign</span></div>
+      </div>
+      <div class="bx bx-docs" style="--k:1;--l:36%;--t:47%;--wd:60%">
+        <div class="bx-docs__head">${window.FI.icon('users', 18)}<span><b>Sent to</b><small>Night shift rules</small></span></div>
+        <ul><li>${window.FI.icon('check', 16)}<span>Guard on site · 23:02</span></li><li>${window.FI.icon('check', 16)}<span>Security manager · 23:05</span></li></ul>
+      </div>`,
+    bbPrivacy: () => `
+      <div class="bx bx-cam bx-cam--big" style="--k:0;--l:4%;--t:6%;--wd:60%"><i></i><span class="bx-cam__blur"></span><small>Reception · Camera 4</small></div>
+      <div class="bx bx-auto" style="--k:1;--l:44%;--t:36%;--wd:52%">
+        <div class="bx-auto__head"><span class="bx-auto__ico">${window.FI.icon('lock', 16)}</span><b>Privacy settings</b></div>
+        <div class="bx-auto__pause"><span>Blur faces</span><i class="bx-toggle is-on"></i></div>
+        <div class="bx-auto__pause"><span>Keep footage</span><b class="bx-strong">30 days</b></div>
+        <div class="bx-auto__pause"><span>Who can view</span><b class="bx-strong">Security team</b></div>
+      </div>`,
+    swHero: () => `
+      <div class="bx bx-docs bx-docs--table" style="--k:0;--l:5%;--t:6%;--wd:72%">
+        <div class="bx-docs__head">${window.FI.icon('shield-check', 18)}<span><b>Security health</b><small>3 sites · checked every 5 minutes</small></span></div>
+        <ul>${[['Riverside', '18 of 18 cameras', 'All good', 'green'], ['Northgate', '11 of 12 cameras', '1 offline', 'red'], ['Head office', 'Doors and alarms', 'All good', 'green']].map(([n, d, c, k]) => `
+          <li>${window.FI.icon('map-pin', 16)}<span>${n}<small> · ${d}</small></span><span class="ui-chip ui-chip--${k}">${c}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="bx bx-say" style="--k:1;--l:42%;--t:78%">${window.FI.icon('shield-alert', 14)}Northgate camera 7 offline · manager told</div>`,
+    swHealth: () => `
+      <div class="bx bx-docs bx-docs--table" style="--k:0;--l:5%;--t:6%;--wd:76%">
+        <div class="bx-docs__head">${window.FI.icon('activity', 18)}<span><b>Northgate site</b><small>Last check 2 minutes ago</small></span></div>
+        <ul>${[['cctv', 'Cameras', '11 of 12 online', '1 offline', 'red'], ['lock', 'Doors', '8 of 8 locked', 'All good', 'green'], ['shield-check', 'Alarm', 'Armed', 'All good', 'green'], ['clock', 'Recorder', '29 days stored', 'All good', 'green']].map(([ic, n, d, c, k]) => `
+          <li>${window.FI.icon(ic, 16)}<span>${n}<small> · ${d}</small></span><span class="ui-chip ui-chip--${k}">${c}</span></li>`).join('')}
+        </ul>
+      </div>`,
+    swPattern: () => `
+      <div class="bx bx-trend" style="--k:0;--l:5%;--t:6%;--wd:78%">
+        <div class="bx-docs__head">${window.FI.icon('activity', 18)}<span><b>Door 4 openings</b><small>Last 7 nights · 8 pm to 6 am</small></span></div>
+        <div class="bx-trend__bars">${[2, 1, 3, 2, 1, 2, 9].map((v, i) => `<span class="${i === 6 ? 'is-hit' : ''}" style="--v:${v / 9}"><i></i><small>${['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</small></span>`).join('')}</div>
+      </div>
+      <div class="bx bx-decide" style="--k:1;--l:46%;--t:60%;--wd:50%">
+        <span class="bx-decide__tag"><span class="ui-warn">!</span>Unusual activity</span>
+        <b>Door 4 opened 9 times</b>
+        <small>Usually 1 or 2 a night</small>
+      </div>`,
+    swEscalate: () => `
+      <div class="bx bx-plan" style="--k:0;--l:7%;--t:6%;--wd:80%">
+        <div class="bx-plan__head">${window.FI.icon('shield-alert', 22)}<span><b>Alarm at Northgate</b><span class="ui-chip ui-chip--violet">Escalation rule</span></span></div>
+        <ol class="bx-plan__steps">${[['Guard on site', 'Told at 02:10 · no reply in 5 minutes'], ['Security manager', 'Told at 02:15 · acknowledged'], ['Owner', 'Only if the manager does not reply']].map(([t, o], i) => `
+          <li><span class="bx-plan__num">0${i + 1}</span><span><b>${t}</b><small>${o}</small></span></li>`).join('')}
+        </ol>
+      </div>`,
+    swReport: () => `
+      <div class="bx bx-daily" style="--k:0;--l:8%;--t:5%;--wd:84%">
+        <div class="bx-daily__head">${window.FI.icon('file-text', 18)}<span><b>Weekly security report</b><small>3 sites · 21 to 27 November</small></span><span class="ui-chip ui-chip--violet">Sent to owner</span></div>
+        <div class="bx-daily__kpis"><div><b>14</b><small>alerts</small></div><div><b>4 min</b><small>to respond</small></div><div><b>99.6%</b><small>uptime</small></div></div>
+        <ul class="bx-daily__list">
+          <li>${window.FI.icon('shield-alert', 14)}<span>Northgate</span><b>Alarm, resolved</b></li>
+          <li>${window.FI.icon('cctv', 14)}<span>Riverside</span><b>Door left open, closed</b></li>
+          <li>${window.FI.icon('activity', 14)}<span>Head office</span><b>No incidents</b></li>
+        </ul>
       </div>`,
     lumina: () => `
       <div class="ui-card" style="--k:0;--l:2%;--t:2%;--wd:80%">

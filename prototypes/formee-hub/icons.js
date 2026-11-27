@@ -2,6 +2,9 @@
    To add one: copy its inner SVG from https://lucide.dev/icons/<name> into ICONS. Stroke width follows --icon-stroke-width. */
 window.FI = (() => {
   const ICONS = {
+  "sport-shoe": "<path d=\"M15 10.42 19.8 5.35\" /><path d=\"M19 18h3\" /><path d=\"M9.5 22 21.414 9.415a2 2 0 0 0-.214-3.015l-5.61-4.208A1 1 0 0 0 14 3v2a2 2 0 0 1-1.394 1.906L8.677 8.053A1 1 0 0 0 8 9c-.155 6.393-2.082 9-4 9a2 2 0 0 0 0 4h14\" />",
+  "circle-user-round": "<path d=\"M18 20a6 6 0 0 0-12 0\" /><circle cx=\"12\" cy=\"10\" r=\"4\" /><circle cx=\"12\" cy=\"12\" r=\"10\" />",
+  "building-complex": "<path d=\"M10 12h4\" /><path d=\"M10 8h4\" /><path d=\"M14 21v-3a2 2 0 0 0-4 0v3\" /><path d=\"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2\" /><path d=\"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16\" />",
   "file-text": "<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /><path d=\"M14 2v4a2 2 0 0 0 2 2h4\" /><path d=\"M10 9H8\" /><path d=\"M16 13H8\" /><path d=\"M16 17H8\" />",
   "file-check": "<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /><path d=\"M14 2v4a2 2 0 0 0 2 2h4\" /><path d=\"m9 15 2 2 4-4\" />",
   "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /><polyline points=\"7 10 12 15 17 10\" /><line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" />",

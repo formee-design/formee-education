@@ -16,6 +16,18 @@
   --hub-btn-h-sm: 38px;   /* Pulse .btn */
   --hub-btn-h-md: 46px;   /* Pulse nav buttons */
   --hub-btn-pad-sm: 14px;
+  --hub-btn-h-lg: 48px;   /* plan card buttons (Figma 1177:472) */
+  --hub-btn-h-xl: 56px;   /* Compare all plans */
+  --hub-font-size-title: 24px;   /* plan names, bundle label (Figma 24/32 Medium) */
+  --hub-line-height-title: 32px;
+  --hub-card-pad: 28px;   /* plan card padding */
+  --hub-font-size-nav: 19px;     /* header links and Log in (Figma nav 1190:17844) */
+  --hub-line-height-nav: 28px;
+  --hub-font-size-nav-btn: 18px; /* header buttons */
+  --hub-btn-pad-nav: 22px;       /* header button sides */
+  --hub-line-height-feature: 45px; /* tool page feature row titles (40/45) */
+  --hub-line-height-step: 26px;    /* 18px card titles (18/26) */
+  --hub-line-height-nav-btn: 27px;
   --hub-ease: cubic-bezier(.16, 1, .3, 1);
   --hub-spring: cubic-bezier(.34, 1.56, .64, 1);
 

@@ -311,8 +311,8 @@
         </button>`).join('')}
       </div>
       <div class="tool-explore__stage">${tilesInOrder.map((b, i) => `
-        <div class="tool-explore__panel${i ? '' : ' is-on'}" role="tabpanel" style="--c1:${b.c1};--c2:${b.c2}"${i ? ' hidden' : ''}>
-          <span class="tool-explore__art" aria-hidden="true">${S.I(b.icon, 220)}</span>
+        <div class="tool-explore__panel${i ? '' : ' is-on'}" role="tabpanel" data-ind="${b.id}" style="--c1:${b.c1};--c2:${b.c2}"${i ? ' hidden' : ''}>
+          <span class="tool-explore__art" aria-hidden="true">${S.I(b.artIcon || b.icon, 220)}</span>
           <div class="tool-explore__head">
             <h3>${b.headline}</h3>
             <p>${b.desc}</p>
