@@ -298,3 +298,4 @@ formeeeducation.com을 Formee 허브로 바꾸는 랜딩 시안. 여러 사업�
 - 2026-11-27: 홈 Products Sales and Marketing 패널 장식 화살표를 Figma(1200:258)처럼 84%로 줄이고 안쪽으로 옮겨 화살표 끝이 덜 잘리게. Figma 헤더 4곳(1190:17962 히어로 위 흰 글자, 1190:17884·1190:17845·1178:1520 네이비)에 임시 로고 PNG 적용(기존 워드마크는 숨김, 'Logo (temporary)' 110x28).
 - 2026-11-27 (Figma): 홈 히어로 배경(1080:41)이 예전 탁한 색(blue-400에 회색 섞음)으로 남아 있어 HTML A·C와 같게 갱신: 그라디언트 #12203e 0 → #1a4599 24% → #3c6fdd(blue-400) 52% → #9cb4f1 70% → #e2e7ff 86% → 흰색, 파랑 glow .55 → .3, 보라 glow .45 → .2.
 - 2026-11-27: 홈 Products Sports 패널 장식 아이콘을 Figma(1200:1032) 'icon / sport-shoe'로 교체(icons.js 추가, data.js artIcon), 투명도 Health 등과 같은 12.5%.
+- 2026-11-27: 대표 공유용으로 히어로 시안 정리: 스위처는 A · Orbit(이전 C · Orbit+, 기본값) / B · Ripple 두 개만. 이전 A(점선 궤도)는 아카이브: 버튼 없음, ?hero=old로만 열림(localStorage에 저장 안 함). 예전 ?hero=c는 A, ?hero=d는 B로 연결. 내부값은 그대로(A = body[data-hv="e"], B = body[data-hero="d"], 아카이브 = 둘 다 없음).

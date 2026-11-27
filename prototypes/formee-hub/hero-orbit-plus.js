@@ -1,4 +1,4 @@
-/* Home hero C · Orbit+ (prototype, 2026-11-26, calm revision). Runs only with ?hero=c (body[data-hv="e"]); builds on hero A.
+/* Home hero A · Orbit (prototype; was C · Orbit+ until 2026-11-27, calm revision). Runs by default (body[data-hv="e"]); builds on the archived orbit hero (?hero=old).
    The first C was too busy, so it keeps just three quiet touches:
    - Orbits: solid hairlines with a soft gradient (bright in the middle, fading at the ends) instead of faint dashes.
    - One small glowing light per orbit, drifting slowly (replaces A's dots).

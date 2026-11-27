@@ -1,6 +1,6 @@
 /* Home hero variants (prototype, 2026-11-26)
-   1. Version switcher pill at the bottom right: A = orbits (default), B = water-drop dot ripple, C = Orbit+ (hero-orbit-plus.js).
-      Picks reload the page with ?hero=a|b|c (also remembered in localStorage; the inline script at the top of <body> applies it before store.js).
+   1. Version switcher pill at the bottom right (2026-11-27): A = Orbit (the former C · Orbit+, hero-orbit-plus.js, default), B = water-drop dot ripple.
+      The original orbit hero is archived (?hero=old, no button). Picks reload the page with ?hero=a|b (also remembered in localStorage; the inline script at the top of <body> applies it before store.js).
    2. Hero B (internally data-hero="d"): a canvas dot grid (small squares, digital look) behind the centred copy. Every 12s a drop sends a train of
       three rings about 190px apart (each thins and fades as it travels, so the innermost reads thickest) outward from a circle that already clears the copy;
       they travel slowly and fade, so about three are on screen. Where a ring passes, the squares swell, brighten and are
@@ -12,14 +12,14 @@
       Reduced motion: one still frame with three rings. Paused while the hero is off screen or the tab is hidden. */
 (() => {
   const body = document.body;
-  const cur = body.dataset.hero === 'd' ? 'b' : body.dataset.hv === 'e' ? 'c' : 'a';
+  const cur = body.dataset.hero === 'd' ? 'b' : body.dataset.hv === 'e' ? 'a' : 'old';
 
   // ---------- switcher ----------
   const sw = document.createElement('div');
   sw.className = 'hero-switch';
   sw.setAttribute('role', 'group');
   sw.setAttribute('aria-label', 'Hero version');
-  sw.innerHTML = '<span class="hero-switch__label">Hero</span>' + [['a', 'A · Orbit'], ['b', 'B · Ripple'], ['c', 'C · Orbit+']]
+  sw.innerHTML = '<span class="hero-switch__label">Hero</span>' + [['a', 'A · Orbit'], ['b', 'B · Ripple']]
     .map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${v === cur}">${l}</button>`).join('');
   sw.addEventListener('click', e => {
     const b = e.target.closest('button');

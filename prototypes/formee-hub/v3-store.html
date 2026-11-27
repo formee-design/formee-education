@@ -18,10 +18,11 @@
   Header, footer and the closing call to action come from site.js; data from data.js; tool illustrations from scenes.js.
 -->
 <body>
-  <!-- Hero version switch (prototype only, 2026-11-26): A = orbits (default), B = water-drop dot ripple, C = Orbit+ (A with data pulses and an AI core).
-       Chosen by ?hero=a|b|c or the switcher at the bottom right (remembered in localStorage). Must run before store.js.
-       Internally B sets data-hero="d" and C sets data-hv="e" (data-hero b/c are taken by the older v3-store-b/c files; C keeps all of A's styles). -->
-  <script>(function () { var q = new URLSearchParams(location.search).get('hero'), v = q || (function () { try { return localStorage.getItem('formeeHero'); } catch (e) { return null; } })(); if (q) { try { localStorage.setItem('formeeHero', q); } catch (e) {} } if (v === 'b' || v === 'd') document.body.dataset.hero = 'd'; else if (v === 'c') document.body.dataset.hv = 'e'; })();</script>
+  <!-- Hero version switch (prototype only; renamed 2026-11-27): A = Orbit (the former C · Orbit+, default), B = water-drop dot ripple.
+       The original orbit hero is archived: not in the switcher, still reachable with ?hero=old (not remembered).
+       Chosen by ?hero=a|b or the switcher at the bottom right (remembered in localStorage; old ?hero=c/d map to A/B). Must run before store.js.
+       Internally B sets data-hero="d" and A sets data-hv="e" (data-hero b/c are taken by the older v3-store-b/c files; A keeps the archived hero's styles). -->
+  <script>(function () { var q = new URLSearchParams(location.search).get('hero'), v = q || (function () { try { return localStorage.getItem('formeeHero'); } catch (e) { return null; } })(); if (q && q !== 'old') { try { localStorage.setItem('formeeHero', q); } catch (e) {} } if (v === 'b' || v === 'd') document.body.dataset.hero = 'd'; else if (v !== 'old') document.body.dataset.hv = 'e'; })();</script>
   <main>
     <!-- Hero -->
     <section class="hero" id="top">
